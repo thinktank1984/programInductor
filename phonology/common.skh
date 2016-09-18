@@ -1,0 +1,191 @@
+
+#define True 1
+#define False 0
+#define Sound bit[NUMBEROFFEATURES]
+
+struct Word {
+  int l;
+  bit[l, NUMBEROFFEATURES] s;
+}
+
+
+bit sound_equal(bit[NUMBEROFFEATURES] x, bit[NUMBEROFFEATURES] y) {
+  for (int f = 0; f < NUMBEROFFEATURES; f++) {
+      if (x[f] != y[f]) return 0;
+  }
+  return 1;
+}
+
+bit word_equal(Word x, Word y) {
+  if (x.l != y.l) return 0;
+  for (int f = 0; f < x.l; f++) {
+    if (!(sound_equal(x.s[f], y.s[f]))) return 0;
+  }
+  return 1;
+}
+
+Word concatenate(Word a1,Word a2) {
+  Word a = new Word(l = a1.l + a2.l,s = a1.s);
+  a.s[a1.l :: a2.l] = a2.s;
+  return a;
+}
+
+Word remove_sound(Word w,int j) {
+  Word x = new Word(l = w.l - 1);
+  //		    s = w.s[0::j]);
+  for (int k = 0; k < j; k++)
+    x.s[k] = w.s[k];
+  for (int k = j + 1; k < w.l; k++)
+    x.s[k-1] = w.s[k];
+  //  x.s[j::(x.l - j)] = w.s[(j + 1)::(w.l - j - 1)];
+  return x;
+}
+
+
+Word make_word([int l],bit [NUMBEROFFEATURES][l] s) {
+  Word w = new Word(l = l);
+  w.s = s;
+  return w;
+  
+}
+
+generator Word unknown_word() {
+  int l = ??;
+  assert l >= 0;
+  bit[NUMBEROFFEATURES][l] s;
+  int j = 0;
+  repeat (l) {
+    s[j++] = ??;
+  }
+  return new Word(l = l,s = s);
+}
+
+
+struct Specification {
+  bit[NUMBEROFFEATURES] mask;
+  bit[NUMBEROFFEATURES] preference;
+}
+
+generator Specification unknown_specification() {
+  return new Specification(mask = ??,
+			   preference = ??);
+}
+
+bit matches_specification(bit[NUMBEROFFEATURES] sound, Specification specification) {
+  bit[NUMBEROFFEATURES] mistakeVector = (sound^(specification.preference))&specification.mask;
+  for (int f = 0; f < NUMBEROFFEATURES; f++)
+    if (mistakeVector[f]) return 0;
+    return 1;
+}
+
+bit[NUMBEROFFEATURES] apply_specification(Specification specification, bit[NUMBEROFFEATURES] sound) {
+  return
+    // New positives induced by the specification
+    (specification.mask & specification.preference) |
+    // Old features minus the ones that were removed by the specification
+    ((~specification.mask) & sound);
+}
+
+int specification_cost(Specification s) {
+  int c = 0;
+  for (int f = 0; f < NUMBEROFFEATURES; f++)
+    c += s.mask[f];
+  return c;
+}
+
+bit empty_specification(Specification s) {
+  for (int f = 0; f < NUMBEROFFEATURES; f++)
+    if (s.mask[f]) return 0;
+  return 1;
+}
+  
+struct Rule {
+  Specification focus;
+  Specification structural_change;
+  Specification left_trigger;
+  Specification right_trigger;
+}
+
+generator Rule unknown_rule() {
+    Specification focus = unknown_specification();
+    Specification structural_change = unknown_specification();
+    Specification left_trigger = unknown_specification();
+    Specification right_trigger = unknown_specification();
+
+    Rule r = new Rule(focus = focus,
+		      structural_change = structural_change,
+		      left_trigger = left_trigger,
+		      right_trigger = right_trigger);
+    return r;
+}
+
+generator Rule unknown_rule_improved() {
+  return new Rule(focus = new Specification(mask = ??, preference = ??),
+		  structural_change = new Specification(mask = ??, preference = ??),
+		  left_trigger = new Specification(mask = ??, preference = ??),
+		  right_trigger = new Specification(mask = ??, preference = ??));
+}
+
+
+Word apply_rule(Rule r, Word u) {
+  Specification focus = r.focus;
+  Specification structural_change = r.structural_change;
+  Specification left_trigger = r.left_trigger;
+  Specification right_trigger = r.right_trigger;
+  
+  bit can_remove_last = 1;
+  
+  bit left_empty = empty_specification(left_trigger);
+  bit right_empty = empty_specification(right_trigger);
+  assert !empty_specification(focus);
+
+  minimize(specification_cost(right_trigger) +
+	   specification_cost(left_trigger) +
+	   0 + //	   specification_cost(focus)
+	   0/*specification_cost(structural_change)*/);
+  
+  /*  if (??) { // focus > target / l_#
+      Sound l = u.s[u.l - 2];
+      Sound f = u.s[u.l - 1];
+      if (matches_specification(l,left_trigger)
+      && matches_specification(f,focus)) {
+      if (??) {
+      assert can_remove_last;
+      u = remove_sound(u,u.l - 1);
+      } else {
+      u.s[u.l - 1] = apply_specification(structural_change, f);
+      }
+      }
+      } else if (??) { // focus > target / #_r
+      Sound r = u.s[1];
+      Sound f = u.s[0];
+      if (matches_specification(r,right_trigger)
+      && matches_specification(f,focus)) {
+      if (??)
+      u = remove_sound(u,0);
+      else
+      u.s[0] = apply_specification(structural_change, f);
+      }
+      } else { // focus > target / l_r
+  */
+  for (int j = 0; j < u.l; j++) {
+    bit left_okay =
+      left_empty || (j > 0 &&
+		     matches_specification(u.s[j - 1], left_trigger));
+    bit middle_okay = matches_specification(u.s[j], focus);
+    bit right_okay =
+      right_empty || (j < u.l - 1 &&
+		      matches_specification(u.s[j + 1], right_trigger));
+    if (left_okay && middle_okay && right_okay) {
+      /*      if (??) {
+	u = remove_sound(u,j);
+	return u;
+	} else {*/
+	u.s[j] = apply_specification(structural_change, u.s[j]);
+	//      }
+    }
+  }
+  //  }
+  
+  return u;
+}
