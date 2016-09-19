@@ -4,7 +4,7 @@ from features import featureMap, tokenize
 from rule import Rule
 from sketch import *
 
-from problems import a1,a3,a4,a5,a6
+from problems import alternationProblems
 from random import random
 
 class AlternationProblem():
@@ -44,18 +44,23 @@ class AlternationProblem():
         return errors
     def sketchSolution(self):
         whichOrientation = flip()
-        r = define("Rule", sampleRule())
+        r = Rule.sample()
         
         for j in range(len(self.surfaceMatrices)):
             surface = makeConstantWordOfMatrix(self.surfaceMatrices[j])
             deep1 = makeConstantWordOfMatrix(self.underlyingMatrices[j])
             deep2 = makeConstantWordOfMatrix(self.underlyingMatricesAlternative[j])
-            deep = ite(whichOrientation,deep1,deep2)
+            deep = ite(whichOrientation,
+                       deep1,
+                       deep2)
             condition(wordEqual(surface, applyRule(r, deep)))
+        
+        minimize(alternationCost(r))
+        
         return solveSketch()
         
 
-problem = AlternationProblem(a4)
+problem = AlternationProblem(alternationProblems[3])
 output = problem.sketchSolution()
 print output
 print "Solution found using constraint solving:\n",parseRule(output)

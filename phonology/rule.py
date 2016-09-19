@@ -1,5 +1,8 @@
-from random import random
+from sketchSyntax import define, FunctionCall
 from features import featureMap, FEATURESET
+
+from random import random
+
 
 class Rule():
     def __init__(self, focus = [], structuralChange = [], leftTriggers = [], rightTriggers = []):
@@ -67,6 +70,12 @@ class Rule():
                                       stringOfMatrix(self.structuralChange),
                                       " ".join(map(stringOfMatrix,self.leftTriggers)),
                                       " ".join(map(stringOfMatrix,self.rightTriggers)))
+
+    # Produces sketch object
+    @staticmethod
+    def sample():
+        return define("Rule", FunctionCall("unknown_rule",[]))
+        
 
 def mutateMatrix(m):
     # On average we add 1/4

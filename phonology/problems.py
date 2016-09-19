@@ -4,18 +4,28 @@ from features import *
 def transposeInflections(inflections):
     return [ tuple([ inflections[x][y] for x in range(len(inflections)) ]) for y in range(len(inflections[0])) ]
 
-dataAccumulator = []
 class Problem():
     def __init__(self,description,data,parameters = None):
         self.parameters = parameters
         self.description = description
         self.data = data
-        global dataAccumulator
-        dataAccumulator += data
 
-# Chapter 3
+        # As a sanity check we try to tokenize all of the data
+        # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features
+        
+        for d in self.data:
+            if isinstance(d,basestring):
+                tokenize(d)
+            else:
+                for x in d:
+                    if x != "~":
+                        tokenize(x)
 
-a1 = Problem(
+
+# Chapter 3: alternation problems
+alternationProblems = []
+
+alternationProblems.append(Problem(
     u'''
 Kikurai
 Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g] in the following data. Accents mark tone: acute is H tone and ‘hacek’ [   ̌] is rising tone.
@@ -58,11 +68,11 @@ Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g
     {"type": "alternation",
      "alternations": {u"b": u"β",
                       u"d": u"r",
-                      u"g": u"ɣ"}})
+                      u"g": u"ɣ"}}))
 
 
 
-Problem(
+alternationProblems.append(Problem(
 u'''
 2: Modern Greek
 Determine whether the two segments [k] and [ky] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [xy] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
@@ -82,9 +92,9 @@ Determine whether the two segments [k] and [ky] are contrastive or are governed 
      "xyeli",		#"eel"),
      "kyeri",		#"candle"),
      "xyeri",		#"hand"),
-     "oxyi"])		#"no")
+     "oxyi"]))		#"no")
 
-a3 = Problem(
+alternationProblems.append(Problem(
 u'''
 3: Farsi
 Describe the distribution of the trill [r̃] and the flap [ř].
@@ -107,9 +117,9 @@ Describe the distribution of the trill [r̃] and the flap [ř].
 	u"biřæng",#		"pale"),
         u"šiřini"],#		"pastry")
     {"type": "alternation",
-     "alternations": {u"ř": u"r̃"}})
+     "alternations": {u"ř": u"r̃"}}))
 
-a4 = Problem(
+alternationProblems.append(Problem(
     u'''
 4: Osage
 What rule governs the distribution of [d] versus [ð] in the following data?
@@ -127,9 +137,9 @@ What rule governs the distribution of [d] versus [ð] in the following data?
      u"ðíe",#		"you"),
      u"daštú",#		"to bite"),
      u"ðíški"],#		"to wash")])
-    {"alternations": {u"ð": u"d"}})
+    {"alternations": {u"ð": u"d"}}))
 
-a5 = Problem(
+alternationProblems.append(Problem(
     u'''
 5: Amharic
 Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not, say what rule governs the distribution of these vowels, and what the underlying value of the vowel is.
@@ -160,10 +170,10 @@ Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not
         u"aššɛ",#		"he rubbed"),
 	u"bəkk’ələ",#	"it germinated"),
         u"šɛməggələ"],#	"he became old")])
-    {"alternations": {u"ə": u"ɛ"}})
+    {"alternations": {u"ə": u"ɛ"}}))
 
 
-a6 = Problem(
+alternationProblems.append(Problem(
     u'''
 6: Gen
 Determine the rule which accounts for the distribution of [r] and [l] in the following data.
@@ -198,9 +208,9 @@ Determine the rule which accounts for the distribution of [r] and [l] in the fol
      u"etro",#"scale"),
      u"eñrɔ̃",#"spitting cobra"),
      u"ǰro"],#,   "hint")])
-    {"alternations": {u"l": u"r"}})
+    {"alternations": {u"l": u"r"}}))
 
-Problem(
+alternationProblems.append(Problem(
 u'''
 7: Kishambaa
 Describe the distribution of voiced versus voiceless nasals (voiceless nasals are written with a circle under the letter, as in m̥), and voiceless aspirated, voiceless unaspirated and voiced stops in Kishambaa.
@@ -220,11 +230,11 @@ Describe the distribution of voiced versus voiceless nasals (voiceless nasals ar
 	u"mbeu",#"seed"),
 	u"n̥thumbii",# "monkey"),
 	u"ŋokhuŋguni",# "bedbug"),
-	u"m̥pheho"])#"wind")
+	u"m̥pheho"]))#"wind")
 
 
 # Problem 8 has Unicode issues
-Problem(
+alternationProblems.append(Problem(
     u'''
 8: Thai
 The obstruents of Thai are illustrated below. Determine what the obstruent phonemes of Thai are ([p, t and k] are unreleased stops). Are [p, t, k] distinct phonemes, or can they be treated as positional variants of some other phoneme? If so, which ones, and what evidence supports your decision? Note that no words begin with [g].
@@ -270,9 +280,9 @@ The obstruents of Thai are illustrated below. Determine what the obstruent phone
      u"raay",#   "case"),
      u"tit",#   "get stuck"),
      u"sip",#   "ten"),
-     u"pen"])#,   "alive")])
+     u"pen"]))#,   "alive")])
 
-Problem(
+alternationProblems.append(Problem(
 u'''
 9: Palauan
 Analyse the distribution of ð, θ and d in the following data. Examples of the type ‘X ~ Y’ mean that the word can be pronounced either as X or as Y, in free variation.
@@ -296,9 +306,9 @@ Analyse the distribution of ð, θ and d in the following data. Examples of the 
      u"kəðeb",	#"short"
      u"məðəŋei",	#"knew"
      u"uðouθ",	#"money"
-     u"olðak"])	#"put together"
+     u"olðak"]))	#"put together"
 
-Problem(
+alternationProblems.append(Problem(
     u'''
 10: Quechua (Cuzco dialect)
 	Describe the distribution of the following four sets of segments: k, x, q, χ; ŋ, N; i, e; u, o. Some pairs of these segments are allophones (positional variants) of a single segment. You should state which contrasts are phonemic (unpredictable) and which could be predicted by a rule. For segments which you think are positional variants of a single phoneme, state which phoneme you think is the underlying variant, and explain why you think so; provide a rule which accounts for all occurrences of the predictable variant. (Reminder: N is a uvular nasal).
@@ -355,10 +365,10 @@ Problem(
 	u"waxča",	#"poor"
         u"waleχ",	#"poor"
 	u"thakay",	#"drop"
-        u"reχsisqa"])#	"known"
+        u"reχsisqa"]))#	"known"
 
 
-Problem(
+alternationProblems.append(Problem(
     u'''
 11: Lhasa Tibetan
 	There is no underlying contrast in this language between velars and uvulars, or between voiced or voiceless stops or fricatives (except /s/, which exists underlyingly). State what the underlying segments are, and give rules which account for the surface distribution of these consonant types. [Notational reminder: [G] represents a voiced uvular stop]
@@ -414,7 +424,7 @@ Problem(
 	u"nɛNGaa",	#"important"
 	u"paNGɔɔ",	#"chest"
 	u"pɛɛβãã",	#"frog"
-	u"simGãã"])	#"build a house"
+	u"simGãã"]))	#"build a house"
 
 
 # Chapter 4
@@ -917,11 +927,3 @@ Provide rules which will account for the alternations in the stem final consonan
 	(u"papɨro",	u"suphɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"načhɨro",	u"panɨro")])#	using N
 
 
-
-for d in dataAccumulator:
-    if isinstance(d,basestring):
-        tokenize(d)
-    else:
-        for x in d:
-            if x != "~":
-                tokenize(x)

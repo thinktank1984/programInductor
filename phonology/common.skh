@@ -107,23 +107,14 @@ struct Rule {
 }
 
 generator Rule unknown_rule() {
-    Specification focus = unknown_specification();
-    Specification structural_change = unknown_specification();
-    Specification left_trigger = unknown_specification();
-    Specification right_trigger = unknown_specification();
-
-    Rule r = new Rule(focus = focus,
-		      structural_change = structural_change,
-		      left_trigger = left_trigger,
-		      right_trigger = right_trigger);
-    return r;
-}
-
-generator Rule unknown_rule_improved() {
   return new Rule(focus = new Specification(mask = ??, preference = ??),
 		  structural_change = new Specification(mask = ??, preference = ??),
 		  left_trigger = new Specification(mask = ??, preference = ??),
 		  right_trigger = new Specification(mask = ??, preference = ??));
+}
+
+int alternation_cost(Rule r) {
+  return specification_cost(r.right_trigger) + specification_cost(r.left_trigger);
 }
 
 
@@ -139,11 +130,6 @@ Word apply_rule(Rule r, Word u) {
   bit right_empty = empty_specification(right_trigger);
   assert !empty_specification(focus);
 
-  minimize(specification_cost(right_trigger) +
-	   specification_cost(left_trigger) +
-	   0 + //	   specification_cost(focus)
-	   0/*specification_cost(structural_change)*/);
-  
   /*  if (??) { // focus > target / l_#
       Sound l = u.s[u.l - 2];
       Sound f = u.s[u.l - 1];
