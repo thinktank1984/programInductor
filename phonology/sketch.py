@@ -53,10 +53,12 @@ def solveSketch():
 def decodeStructure(preference,mask):
     return [ (preference[f] == 1,FEATURELIST[f]) for f in range(len(FEATURELIST)) if mask[f] == 1]
 
-def parseRule(output):
+def parseRule(output, variable):
     structures = {}
+    variable = str(variable)
+    print variable
     for specification in ['focus','structural_change','left_trigger','right_trigger']:
-        pattern = 'Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % specification
+        pattern = 'Rule.*%s.* = new Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % (variable, specification)
         m = re.search(pattern, output)
         if not m:
             print "Could not find the following pattern:"

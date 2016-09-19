@@ -42,6 +42,7 @@ class AlternationProblem():
                 if difference > 0:
                     errors += difference
         return errors
+    
     def sketchSolution(self):
         whichOrientation = flip()
         r = Rule.sample()
@@ -57,13 +58,13 @@ class AlternationProblem():
         
         minimize(alternationCost(r))
         
-        return solveSketch()
+        output = solveSketch()
+
+        print "Solution found using constraint solving:\n",parseRule(output, r)
         
 
 problem = AlternationProblem(alternationProblems[3])
-output = problem.sketchSolution()
-print output
-print "Solution found using constraint solving:\n",parseRule(output)
+problem.sketchSolution()
 
 print "Trying to solve using stochastic search!"
 
