@@ -46,6 +46,7 @@ class AlternationProblem():
     def sketchSolution(self):
         whichOrientation = flip()
         r = Rule.sample()
+#        r2 = Rule.sample()
         
         for j in range(len(self.surfaceMatrices)):
             surface = makeConstantWordOfMatrix(self.surfaceMatrices[j])
@@ -60,14 +61,17 @@ class AlternationProblem():
         
         output = solveSketch()
 
-        print "Solution found using constraint solving:\n",parseRule(output, r)
+        print "Solution found using constraint solving:"
+        print "With the expected orientation?",parseFlip(output, whichOrientation)
+        print Rule.parse(output, r)
+#        print Rule.parse(output, r2)
         
 
-problem = AlternationProblem(alternationProblems[3])
+problem = AlternationProblem(alternationProblems[6])
 problem.sketchSolution()
 
 print "Trying to solve using stochastic search!"
-
+'''
 def stochasticSearch(problem, populationSize, branchingFactor, numberOfIterations):
     seed = Rule(set([]),
                 set([]),
@@ -92,3 +96,4 @@ def stochasticSearch(problem, populationSize, branchingFactor, numberOfIteration
         population = [p[1] for p in population ]
             
 stochasticSearch(problem,500,50,10)
+'''

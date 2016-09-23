@@ -1,14 +1,20 @@
 # DSL independent sketch generation code
 # Focuses on generating and parsing the syntax of sketch programs
 
-class FunctionCall():
+import re
+
+class Expression:
+    def __add__(self,o):
+        return Addition(self,o)
+
+class FunctionCall(Expression):
     def __init__(self, f, arguments):
         self.f = f
         self.x = arguments
     def __str__(self):
         return str(self.f) + "(" + ", ".join([str(a) for a in self.x ]) + ")"
 
-class Variable():
+class Variable(Expression):
     def __init__(self,n): self.n = n
     def __str__(self): return self.n
 
@@ -24,7 +30,7 @@ class Definition():
     def __str__(self):
         return "%s %s = %s;" % (self.ty,self.name,str(self.value))
 
-class Conditional():
+class Conditional(Expression):
     def __init__(self,t,y,n):
         self.t = t
         self.y = y
@@ -35,6 +41,12 @@ class Conditional():
 class Assertion():
     def __init__(self,p): self.p = p
     def __str__(self): return "assert %s;" % str(self.p)
+
+class Addition(Expression):
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+    def __str__(self): return "((%s) + (%s))" % (str(self.x),str(self.y))
 
 flipCounter = 0
 def flip(p = 0.5):
@@ -80,3 +92,14 @@ def makeSketchSkeleton():
         h += "\t" + str(a) + "\n"
     h += "}\n"
     return h
+
+def parseFlip(output, variable):
+    pattern = 'void glblInit_%s__ANONYMOUS_'%str(variable)
+    ls = output.splitlines()
+    for l in range(len(ls)):
+        if pattern in ls[l]:
+            return " = 1;" in ls[l + 2]
+    print "Could not find",variable
+    print pattern
+    print output
+    return None

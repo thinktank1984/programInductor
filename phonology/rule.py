@@ -1,8 +1,8 @@
 from sketchSyntax import define, FunctionCall
-from features import featureMap, FEATURESET
+from features import featureMap, FEATURESET, FEATURELIST
 
 from random import random
-
+import re
 
 class Rule():
     def __init__(self, focus = [], structuralChange = [], leftTriggers = [], rightTriggers = []):
@@ -75,7 +75,29 @@ class Rule():
     @staticmethod
     def sample():
         return define("Rule", FunctionCall("unknown_rule",[]))
-        
+    # Produces a rule object from a sketch output
+    @staticmethod
+    def parse(output, variable):
+        def decodeStructure(preference,mask):
+            return [ (preference[f] == 1,FEATURELIST[f]) for f in range(len(FEATURELIST)) if mask[f] == 1]
+        structures = {}
+        variable = str(variable)
+        print variable
+        for specification in ['focus','structural_change','left_trigger','right_trigger']:
+            pattern = 'Rule.*%s.* = new Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % (variable, specification)
+            m = re.search(pattern, output)
+            if not m:
+                print "Could not find the following pattern:"
+                print pattern
+                return None
+            s = decodeStructure([int(x) for x in m.group(2).split(",") ],
+                                [int(x) for x in m.group(1).split(",") ])
+            structures[specification] = s
+        return Rule(structures['focus'],
+                    structures['structural_change'],
+                    [structures['left_trigger']],
+                    [structures['right_trigger']])
+
 
 def mutateMatrix(m):
     # On average we add 1/4

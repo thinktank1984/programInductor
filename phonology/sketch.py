@@ -46,28 +46,6 @@ def solveSketch():
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
-    os.system("sketch --bnd-unroll-amnt 50 test.sk > %s" % outputFile)
+    os.system("sketch --slv-parallel --bnd-unroll-amnt 50 test.sk > %s" % outputFile)
     return open(outputFile,'r').read()
 
-
-def decodeStructure(preference,mask):
-    return [ (preference[f] == 1,FEATURELIST[f]) for f in range(len(FEATURELIST)) if mask[f] == 1]
-
-def parseRule(output, variable):
-    structures = {}
-    variable = str(variable)
-    print variable
-    for specification in ['focus','structural_change','left_trigger','right_trigger']:
-        pattern = 'Rule.*%s.* = new Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % (variable, specification)
-        m = re.search(pattern, output)
-        if not m:
-            print "Could not find the following pattern:"
-            print pattern
-            return None
-        s = decodeStructure([int(x) for x in m.group(2).split(",") ],
-                            [int(x) for x in m.group(1).split(",") ])
-        structures[specification] = s
-    return Rule(structures['focus'],
-                structures['structural_change'],
-                [structures['left_trigger']],
-                [structures['right_trigger']])

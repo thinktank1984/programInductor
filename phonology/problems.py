@@ -76,28 +76,35 @@ alternationProblems.append(Problem(
 u'''
 2: Modern Greek
 Determine whether the two segments [k] and [ky] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [xy] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
+Solution:
+{xy,ky} occur only when there is a front vowel to the right
 ''',
-    ["kano",#"do"),
-     "kori",#"daughter"),
-     "xano",		#"lose"),
-     "xori",		#"dances"),
-     "xyino",		#"pour"),
-     "kyino",		#"move"),
-     "krima",		#"shame"),
-     "xrima",		#"money"),
-     "xufta",		#"handful"),
-     "kufeta",		#"bonbons"),
-     "kali",		#"charms"),
-     "xali",		#"plight"),
-     "xyeli",		#"eel"),
-     "kyeri",		#"candle"),
-     "xyeri",		#"hand"),
-     "oxyi"]))		#"no")
+    [u"kano",#"do"),
+     u"kori",#"daughter"),
+     u"xano",		#"lose"),
+     u"xori",		#"dances"),
+     u"xyino",		#"pour"),
+     u"kyino",		#"move"),
+     u"krima",		#"shame"),
+     u"xrima",		#"money"),
+     u"xufta",		#"handful"),
+     u"kufeta",		#"bonbons"),
+     u"kali",		#"charms"),
+     u"xali",		#"plight"),
+     u"xyeli",		#"eel"),
+     u"kyeri",		#"candle"),
+     u"xyeri",		#"hand"),
+     u"oxyi"],
+    {"type": "alternation",
+     "alternations": {u"ky": u"k",
+                      u"xy": u"x"}}))		#"no")
 
 alternationProblems.append(Problem(
 u'''
 3: Farsi
 Describe the distribution of the trill [r̃] and the flap [ř].
+Solution found by system:
+trill > flap / [ +unrounded ] _ [ -alveolar ]
 ''',
     [
 	u"ær̃teš",#		"army"),
@@ -177,6 +184,8 @@ alternationProblems.append(Problem(
     u'''
 6: Gen
 Determine the rule which accounts for the distribution of [r] and [l] in the following data.
+    System learns:
+    l > r / [ -glide -bilabial -laryngeal -labiodental -vowel -velar ] _ [  ]
 ''',
     [u"agble",#"farm"),
      u"agoŋglo",#"lizard"),
@@ -214,6 +223,22 @@ alternationProblems.append(Problem(
 u'''
 7: Kishambaa
 Describe the distribution of voiced versus voiceless nasals (voiceless nasals are written with a circle under the letter, as in m̥), and voiceless aspirated, voiceless unaspirated and voiced stops in Kishambaa.
+Solution found by system:
+Nasals become voiced when followed by an unaspirated phoneme
+(symmetric to the correct solution)
+
+My analysis:
+ ==  ==  == 
+
+Voiced stops occur in the contexts:
+{a,m,#,o,n,ŋ} _ {i,u,e,o}
+Voiceless stops occur in the contexts:
+{#,i,a,o,n̥,m̥} _ {a,o,u,i,e}
+These pretty much looks the same so I don't think there is a alternation between voice/voiceless stop
+
+Aspirated stops occur in the contexts:
+{n̥,m̥,o} _ {u,e}
+Unaspirated stops occur in similar right contexts but don't occur next to voiceless nasals. So I think that they exist underlyingly, and that what we're seeing is that voiceless nasals don't exist underlying.
 ''',
     [
 	u"tagi",# "egg"),
@@ -230,7 +255,9 @@ Describe the distribution of voiced versus voiceless nasals (voiceless nasals ar
 	u"mbeu",#"seed"),
 	u"n̥thumbii",# "monkey"),
 	u"ŋokhuŋguni",# "bedbug"),
-	u"m̥pheho"]))#"wind")
+	u"m̥pheho"],#"wind")
+    {"alternations": {u"n̥": u"n",
+                      u"m̥": u"m"}}))
 
 
 # Problem 8 has Unicode issues
@@ -286,6 +313,7 @@ alternationProblems.append(Problem(
 u'''
 9: Palauan
 Analyse the distribution of ð, θ and d in the following data. Examples of the type ‘X ~ Y’ mean that the word can be pronounced either as X or as Y, in free variation.
+{ð,d} > θ / _#
 ''',
     [u"kəðə",	#"we (inclusive)"
      u"bəðuk",	#"my stone"

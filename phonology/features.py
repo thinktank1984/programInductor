@@ -38,6 +38,7 @@ trill = "trill"
 flap = "flap"
 affricate = "affricate"
 alveopalatal = "alveopalatal"
+aspirated = "aspirated"
 
 featureMap = {
     # unrounded vowels
@@ -62,6 +63,7 @@ featureMap = {
 
     # consonance
     u"p": [bilabial,stop],
+    u"ph": [bilabial,stop,aspirated],
     u"b": [bilabial,stop,voice],
     u"f": [labiodental,fricative],
     u"v": [labiodental,fricative,voice],
@@ -72,6 +74,7 @@ featureMap = {
     u"θ": [dental,fricative],
     u"d": [alveolar,stop,voice],
     u"t": [alveolar,stop],
+    u"th": [alveolar,stop,aspirated],
     u"ṭ": [retroflex,stop],
     u"ð": [dental,fricative,voice],
     u"z": [alveolar,fricative,voice],
@@ -85,8 +88,11 @@ featureMap = {
     u"c": [palatal,stop],
     u"č": [alveopalatal,affricate],
     u"k": [velar,stop],
+    u"kh": [velar,stop,aspirated],
+    u"ky": [velar,stop,palatal],
     u"x": [velar,fricative],
     u"χ": [velar,fricative],
+    u"xy": [velar,fricative,palatal],
     u"g": [velar,stop,voice],
     u"ɣ": [velar,fricative,voice],
     u"ŋ": [velar,nasal,voice],
