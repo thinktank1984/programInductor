@@ -46,6 +46,6 @@ def solveSketch():
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
-    os.system("sketch --slv-parallel --bnd-unroll-amnt 50 test.sk > %s" % outputFile)
+    os.system("sketch --bnd-unroll-amnt 50 test.sk > %s" % outputFile)
     return open(outputFile,'r').read()
 

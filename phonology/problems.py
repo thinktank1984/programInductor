@@ -104,7 +104,7 @@ u'''
 3: Farsi
 Describe the distribution of the trill [r̃] and the flap [ř].
 Solution found by system:
-trill > flap / [ +unrounded ] _ [ -alveolar ]
+trill > flap / [ +vowel ] _ [ -alveolar ]
 ''',
     [
 	u"ær̃teš",#		"army"),
@@ -150,6 +150,13 @@ alternationProblems.append(Problem(
     u'''
 5: Amharic
 Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not, say what rule governs the distribution of these vowels, and what the underlying value of the vowel is.
+"ə" occurs in the contexts:
+    {f,r,t,n,g,z,m,d,k,l,b} _ {r,s,n,b,w,d,m,t,g,b,k,č,#}
+ɛ occurs in the contexts    :
+    {y,š,ž,č,ñ} _ {l,t,g,m,#}
+System discovers that occurs underlyingly but becomes a ə in the context:
+[ +lax +unrounded -alveopalatal -liquid -risingTone -stressed ] ---> [ -lax -front +central +tense ] / [ -glide -alveopalatal ] _ [  ]
+    (whenever to the left there is something that is not alveopalatal and also is not a glide)
     ''',
     [
 	u"fərəs",#		"horse"),
@@ -177,7 +184,7 @@ Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not
         u"aššɛ",#		"he rubbed"),
 	u"bəkk’ələ",#	"it germinated"),
         u"šɛməggələ"],#	"he became old")])
-    {"alternations": {u"ə": u"ɛ"}}))
+    {"alternations": {u"ɛ": u"ə"}}))
 
 
 alternationProblems.append(Problem(

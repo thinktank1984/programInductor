@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+approximate = "approximate"
 stressed = "stressed"
 retroflex = "retroflex"
 creaky = "creaky"
@@ -79,7 +80,7 @@ featureMap = {
     u"ð": [dental,fricative,voice],
     u"z": [alveolar,fricative,voice],
     u"ǰ": [alveolar,affricate,voice],
-    u"ž": [alveolar,fricative,voice],
+    u"ž": [alveopalatal,fricative,voice],
     u"s": [alveolar,fricative],
     u"n": [alveolar,nasal,voice],
     u"n̥": [alveolar,nasal],
@@ -107,7 +108,7 @@ featureMap = {
     u"y": [glide,palatal,voice],
 
     # liquids
-    u"r": [liquid,trill,voice],
+    u"r": [liquid,voice,approximate],
     u"r̃": [liquid,trill,voice],
     u"r̥̃": [liquid,trill],
     u"ř": [liquid,flap,voice],

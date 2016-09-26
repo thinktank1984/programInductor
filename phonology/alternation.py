@@ -5,7 +5,9 @@ from rule import Rule
 from sketch import *
 
 from problems import alternationProblems
+
 from random import random
+import sys
 
 class AlternationProblem():
     def __init__(self, problem):
@@ -44,9 +46,10 @@ class AlternationProblem():
         return errors
     
     def sketchSolution(self):
+        depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
+        
         whichOrientation = flip()
-        r = Rule.sample()
-#        r2 = Rule.sample()
+        rules = [ Rule.sample() for _ in range(depth)  ]
         
         for j in range(len(self.surfaceMatrices)):
             surface = makeConstantWordOfMatrix(self.surfaceMatrices[j])
@@ -55,23 +58,31 @@ class AlternationProblem():
             deep = ite(whichOrientation,
                        deep1,
                        deep2)
-            condition(wordEqual(surface, applyRule(r, deep)))
-        
-        minimize(alternationCost(r))
+            prediction = deep
+            for r in rules:
+                prediction = applyRule(r, prediction)
+            
+            condition(wordEqual(surface, prediction))
+
+        cost = alternationCost(rules[0])
+        for r in rules[1:]:
+            cost = cost + alternationCost(r)
+        minimize(cost)
         
         output = solveSketch()
 
         print "Solution found using constraint solving:"
         print "With the expected orientation?",parseFlip(output, whichOrientation)
-        print Rule.parse(output, r)
-#        print Rule.parse(output, r2)
+        for r in rules:
+            print Rule.parse(output, r)
         
-
-problem = AlternationProblem(alternationProblems[6])
+data = alternationProblems[int(sys.argv[1]) - 1]
+print data.description
+problem = AlternationProblem(data)
 problem.sketchSolution()
 
-print "Trying to solve using stochastic search!"
 '''
+print "Trying to solve using stochastic search!"
 def stochasticSearch(problem, populationSize, branchingFactor, numberOfIterations):
     seed = Rule(set([]),
                 set([]),
