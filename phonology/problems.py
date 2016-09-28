@@ -132,7 +132,8 @@ alternationProblems.append(Problem(
 What rule governs the distribution of [d] versus [ð] in the following data?
     d occurs when there is [a,á] to the right
     ð occurs when there is [i,e] to the right
-    ð > d / _ [+low]
+    ð > d / _ [+low] (my solution)
+    d > ð / _ [-tense] (system solution)
 ''',
     [u"dábrĩ",#		"three"),
      u"áðikhã žã",#	"he lay down"),
@@ -154,9 +155,8 @@ Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not
     {f,r,t,n,g,z,m,d,k,l,b} _ {r,s,n,b,w,d,m,t,g,b,k,č,#}
 ɛ occurs in the contexts    :
     {y,š,ž,č,ñ} _ {l,t,g,m,#}
-System discovers that occurs underlyingly but becomes a ə in the context:
-[ +lax +unrounded -alveopalatal -liquid -risingTone -stressed ] ---> [ -lax -front +central +tense ] / [ -glide -alveopalatal ] _ [  ]
-    (whenever to the left there is something that is not alveopalatal and also is not a glide)
+System discovers:
+"ɛ" > "ə" / [ -palatal -alveopalatal ] _ [  ]
     ''',
     [
 	u"fərəs",#		"horse"),
@@ -272,6 +272,8 @@ alternationProblems.append(Problem(
     u'''
 8: Thai
 The obstruents of Thai are illustrated below. Determine what the obstruent phonemes of Thai are ([p, t and k] are unreleased stops). Are [p, t, k] distinct phonemes, or can they be treated as positional variants of some other phoneme? If so, which ones, and what evidence supports your decision? Note that no words begin with [g].
+    Solution: the Unicode isn't formatted correctly here, and were not actually seen the problem.
+    [ptk] occur only word finally and might be underlying aspirated or not aspirated
     ''',
     [u"bil",#   "Bill"),
      u"müü",#   "hand"),
@@ -321,15 +323,21 @@ u'''
 9: Palauan
 Analyse the distribution of ð, θ and d in the following data. Examples of the type ‘X ~ Y’ mean that the word can be pronounced either as X or as Y, in free variation.
 {ð,d} > θ / _#
+Systems finds symmetric solution of:
+[ +dental -unrounded -liquid -tense -voice ] ---> [ -fricative +alveolar +stop -dental +voice ] / # _ [  ]
 ''',
     [u"kəðə",	#"we (inclusive)"
      u"bəðuk",	#"my stone"
-     ("~", u"ðiak", u"diak"),	#"negative verb"
+#     ("~", u"ðiak", u"diak"),	#"negative verb"
+     u"ðiak", u"diak",
      u"maθ"	#"eye"
      u"tŋoθ",	#"tattoo needle"
-     ("~", u"ðe:l", u"de:l"),	#"nail"
-     ("~", u"ðiosəʔ", u"diosəʔ"),#	"place to bathe"),
-     ("~", u"ðik", u"dik"),#	"wedge"),
+#     ("~", u"ðe:l", u"de:l"),	#"nail"
+     u"ðe:l", u"de:l",
+#     ("~", u"ðiosəʔ", u"diosəʔ"),#	"place to bathe"),
+     u"ðiosəʔ", u"diosəʔ",
+#     ("~", u"ðik", u"dik"),#	"wedge"),
+     u"ðik", u"dik",
      u"kuθ",	#"louse"
      u"ʔoðiŋəl",	#"visit"
      u"koaθ",	#"visit"
@@ -341,11 +349,12 @@ Analyse the distribution of ð, θ and d in the following data. Examples of the 
      u"kəðeb",	#"short"
      u"məðəŋei",	#"knew"
      u"uðouθ",	#"money"
-     u"olðak"]))	#"put together"
+     u"olðak"],	#"put together"
+    {"alternations": {u"θ": u"d"}}))
 
 alternationProblems.append(Problem(
     u'''
-10: Quechua (Cuzco dialect)
+'10: Quechua (Cuzco dialect)
 	Describe the distribution of the following four sets of segments: k, x, q, χ; ŋ, N; i, e; u, o. Some pairs of these segments are allophones (positional variants) of a single segment. You should state which contrasts are phonemic (unpredictable) and which could be predicted by a rule. For segments which you think are positional variants of a single phoneme, state which phoneme you think is the underlying variant, and explain why you think so; provide a rule which accounts for all occurrences of the predictable variant. (Reminder: N is a uvular nasal).
 ''',
     [
@@ -407,6 +416,7 @@ alternationProblems.append(Problem(
     u'''
 11: Lhasa Tibetan
 	There is no underlying contrast in this language between velars and uvulars, or between voiced or voiceless stops or fricatives (except /s/, which exists underlyingly). State what the underlying segments are, and give rules which account for the surface distribution of these consonant types. [Notational reminder: [G] represents a voiced uvular stop]
+    Cornel treated specially!
     ''',
     [
 	u"aŋgu",	#"pigeon"

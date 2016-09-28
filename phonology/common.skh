@@ -60,10 +60,16 @@ generator Word unknown_word() {
   return new Word(l = l,s = s);
 }
 
-
-struct Specification {
+struct Predicate{}
+struct EndOfString extends Predicate{}
+struct Specification extends Predicate{
   bit[NUMBEROFFEATURES] mask;
   bit[NUMBEROFFEATURES] preference;
+}
+
+generator Predicate unknown_predicate() {
+  return ?? ? new Specification(mask = ??,
+				preference = ??) : new EndOfString();
 }
 
 generator Specification unknown_specification() {
@@ -78,6 +84,19 @@ bit matches_specification(bit[NUMBEROFFEATURES] sound, Specification specificati
     return 1;
 }
 
+bit matches_predicate(Predicate p, Word u, int j) {
+  bit match;
+  switch (p) {
+  case EndOfString: { match = (j == -1 || j == u.l); }
+  case Specification: {
+      if (empty_specification(p)) match = 1;
+      else if (j < 0 || j >= u.l) match = 0;
+      else match = matches_specification(u.s[j], p);
+    }
+  }
+  return match;
+}
+
 bit[NUMBEROFFEATURES] apply_specification(Specification specification, bit[NUMBEROFFEATURES] sound) {
   return
     // New positives induced by the specification
@@ -86,11 +105,16 @@ bit[NUMBEROFFEATURES] apply_specification(Specification specification, bit[NUMBE
     ((~specification.mask) & sound);
 }
 
-int specification_cost(Specification s) {
-  int c = 0;
-  for (int f = 0; f < NUMBEROFFEATURES; f++)
-    c += s.mask[f];
-  return c;
+int predicate_cost(Predicate s) {
+  switch(s) {
+  case EndOfString:{ return 0; }
+  case Specification:{
+      int c = 0;
+      for (int f = 0; f < NUMBEROFFEATURES; f++)
+	c += s.mask[f];
+      return c;
+    }
+  }
 }
 
 bit empty_specification(Specification s) {
@@ -102,76 +126,42 @@ bit empty_specification(Specification s) {
 struct Rule {
   Specification focus;
   Specification structural_change;
-  Specification left_trigger;
-  Specification right_trigger;
+  Predicate left_trigger;
+  Predicate right_trigger;
 }
 
 generator Rule unknown_rule() {
   return new Rule(focus = new Specification(mask = ??, preference = ??),
 		  structural_change = new Specification(mask = ??, preference = ??),
-		  left_trigger = new Specification(mask = ??, preference = ??),
-		  right_trigger = new Specification(mask = ??, preference = ??));
+		  left_trigger = ?? ? new EndOfString() : new Specification(mask = ??, preference = ??),
+		  right_trigger = ?? ? new EndOfString() : new Specification(mask = ??, preference = ??));
 }
 
 int alternation_cost(Rule r) {
-  return specification_cost(r.right_trigger) + specification_cost(r.left_trigger);
+  return predicate_cost(r.right_trigger) + predicate_cost(r.left_trigger);
 }
 
 
 Word apply_rule(Rule r, Word u) {
   Specification focus = r.focus;
   Specification structural_change = r.structural_change;
-  Specification left_trigger = r.left_trigger;
-  Specification right_trigger = r.right_trigger;
+  Predicate left_trigger = r.left_trigger;
+  Predicate right_trigger = r.right_trigger;
   
-  bit can_remove_last = 1;
+  Word s = new Word(l = u.l);
   
-  bit left_empty = empty_specification(left_trigger);
-  bit right_empty = empty_specification(right_trigger);
   assert !empty_specification(focus);
 
-  /*  if (??) { // focus > target / l_#
-      Sound l = u.s[u.l - 2];
-      Sound f = u.s[u.l - 1];
-      if (matches_specification(l,left_trigger)
-      && matches_specification(f,focus)) {
-      if (??) {
-      assert can_remove_last;
-      u = remove_sound(u,u.l - 1);
-      } else {
-      u.s[u.l - 1] = apply_specification(structural_change, f);
-      }
-      }
-      } else if (??) { // focus > target / #_r
-      Sound r = u.s[1];
-      Sound f = u.s[0];
-      if (matches_specification(r,right_trigger)
-      && matches_specification(f,focus)) {
-      if (??)
-      u = remove_sound(u,0);
-      else
-      u.s[0] = apply_specification(structural_change, f);
-      }
-      } else { // focus > target / l_r
-  */
   for (int j = 0; j < u.l; j++) {
-    bit left_okay =
-      left_empty || (j > 0 &&
-		     matches_specification(u.s[j - 1], left_trigger));
+    bit left_okay = matches_predicate(left_trigger, u, j - 1);
     bit middle_okay = matches_specification(u.s[j], focus);
-    bit right_okay =
-      right_empty || (j < u.l - 1 &&
-		      matches_specification(u.s[j + 1], right_trigger));
+    bit right_okay = matches_predicate(right_trigger, u, j + 1);
     if (left_okay && middle_okay && right_okay) {
-      /*      if (??) {
-	u = remove_sound(u,j);
-	return u;
-	} else {*/
-	u.s[j] = apply_specification(structural_change, u.s[j]);
-	//      }
+      s.s[j] = apply_specification(structural_change, u.s[j]);
+    } else {
+      s.s[j] = u.s[j];
     }
   }
-  //  }
   
-  return u;
+  return s;
 }

@@ -11,18 +11,21 @@ import sys
 
 class AlternationProblem():
     def __init__(self, problem):
-        surfaceToUnderlying = problem.parameters["alternations"]
+        self.surfaceToUnderlying = problem.parameters["alternations"]
+        self.deepToSurface = dict([(self.surfaceToUnderlying[k],k) for k in self.surfaceToUnderlying ])
+        
         corpus = problem.data
+        self.surfacePhonemes = [ tokenize(w) for w in corpus ]
         self.surfaceFeatures = [ [ featureMap[t] for t in tokenize(w) ] for w in corpus ]
         self.surfaceMatrices = [ [ featureVectorMap[t] for t in tokenize(w) ] for w in corpus ]
         
         def substitute(p):
-            if p in surfaceToUnderlying:
-                return surfaceToUnderlying[p]
+            if p in self.surfaceToUnderlying:
+                return self.surfaceToUnderlying[p]
             return p
         def substituteBackwards(p):
-            for k in surfaceToUnderlying:
-                if surfaceToUnderlying[k] == p: return k
+            for k in self.surfaceToUnderlying:
+                if self.surfaceToUnderlying[k] == p: return k
             return p
         
         self.underlyingFeatures = [ [ featureMap[substitute(t)] for t in tokenize(w) ] for w in corpus ]
@@ -36,7 +39,7 @@ class AlternationProblem():
             proposedSolution = self.rule.applyRule(self.underlyingFeatures[i])
             actualSolution = self.surfaceFeatures[i]
             for j in range(max(len(proposedSolution),len(actualSolution))):
-                proposedSound = []
+                proposedSound = [k]
                 if j < len(proposedSolution): proposedSound = proposedSolution[j]
                 actualSound = []
                 if j < len(actualSolution): actualSound = actualSolution[j]
@@ -53,6 +56,20 @@ class AlternationProblem():
         
         for j in range(len(self.surfaceMatrices)):
             surface = makeConstantWordOfMatrix(self.surfaceMatrices[j])
+
+            # Construct the latent deep structure
+            # Depends on the orientation
+            '''deep = []
+            for p in self.surfacePhonemes[j]:
+                if p in self.surfaceToUnderlying:
+                    deep.append(ite(whichOrientation,
+                                    self.surfaceToUnderlying[p],
+                                    p))
+                elif p in self.deepToSurface:
+                    deep.append(ite(whichOrientation,
+                                    p,
+                    ))'''
+                    
             deep1 = makeConstantWordOfMatrix(self.underlyingMatrices[j])
             deep2 = makeConstantWordOfMatrix(self.underlyingMatricesAlternative[j])
             deep = ite(whichOrientation,
@@ -70,6 +87,7 @@ class AlternationProblem():
         minimize(cost)
         
         output = solveSketch()
+        print output
 
         print "Solution found using constraint solving:"
         print "With the expected orientation?",parseFlip(output, whichOrientation)

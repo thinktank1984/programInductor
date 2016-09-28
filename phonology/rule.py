@@ -84,14 +84,20 @@ class Rule():
         variable = str(variable)
         print variable
         for specification in ['focus','structural_change','left_trigger','right_trigger']:
-            pattern = 'Rule.*%s.* = new Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % (variable, specification)
-            m = re.search(pattern, output)
-            if not m:
-                print "Could not find the following pattern:"
-                print pattern
-                return None
-            s = decodeStructure([int(x) for x in m.group(2).split(",") ],
-                                [int(x) for x in m.group(1).split(",") ])
+            specificationPattern = 'Rule.*%s.* = new Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % (variable, specification)
+            endingPattern = 'Rule.*%s.* = new Rule.*%s=new EndOfString' % (variable, specification)
+            m = re.search(specificationPattern, output)
+            if m:
+                s = decodeStructure([int(x) for x in m.group(2).split(",") ],
+                                    [int(x) for x in m.group(1).split(",") ])
+            else:
+                m = re.search(endingPattern, output)
+                if m:
+                    s = "#"
+                else:
+                    print "Could not find the following pattern:"
+                    print pattern
+                    return None
             structures[specification] = s
         return Rule(structures['focus'],
                     structures['structural_change'],
@@ -116,4 +122,5 @@ def matchesTemplate(candidate, template):
 
 
 def stringOfMatrix(m):
+    if m == '#': return m
     return "[ %s ]" % " ".join([ ('+' if polarity else '-')+f for polarity,f in m ])

@@ -23,6 +23,9 @@ def phonologicalRule(i): pass
 @sketchImplementation("apply_rule")
 def applyRule(r,w): pass
 
+def makeConstantVector(v):
+    return "{ %s }" % ", ".join(v)
+
 def makeConstantMatrix(matrix):
     return "{ %s }" % ", ".join([ "{ %s }" % ", ".join(map(str,fs)) for fs in matrix ])
 
@@ -31,6 +34,11 @@ def makeConstantWord(word):
     return makeConstantWordOfMatrix(matrix)
 def makeConstantWordOfMatrix(matrix):
     return makeWord(makeConstantMatrix(matrix))
+def makeConstantPhoneme(p):
+    vector = featureVectorMap[p] # list of boolean
+    return makeConstantVector(map(str,vector))
+
+    
 
 
 def makeSketch():
