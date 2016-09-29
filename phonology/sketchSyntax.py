@@ -42,6 +42,13 @@ class Assertion():
     def __init__(self,p): self.p = p
     def __str__(self): return "assert %s;" % str(self.p)
 
+class QuantifiedAssertion():
+    def __init__(self,p,i):
+        self.p = p
+        self.i = i
+    def __str__(self): return "if (__ASSERTIONCOUNT__ == %d) assert %s;" % (self.i, str(self.p))
+
+    
 class Addition(Expression):
     def __init__(self,x,y):
         self.x = x
@@ -69,6 +76,9 @@ def define(ty, value):
 statements = []
 def condition(predicate):
     statements.append(Assertion(predicate))
+def quantifiedCondition(predicate,q = [0]):
+    q[0] += 1
+    statements.append(QuantifiedAssertion(predicate,q[0]))
 
 def minimize(expression):
     statements.append(Minimize(expression))
@@ -87,7 +97,7 @@ def makeSketchSkeleton():
     for f in range(flipCounter):
         h += "bit __FLIP__%d = ??;\n" % (f + 1)
 
-    h += "\nharness void main() {\n"
+    h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
     for a in statements:
         h += "\t" + str(a) + "\n"
     h += "}\n"

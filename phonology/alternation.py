@@ -48,6 +48,7 @@ class AlternationProblem():
                     errors += difference
         return errors
 
+    
     def sketchDeep(self, surfacePhonemes, whichOrientation):
         # Construct the latent deep structure
         # Depends on the orientation
@@ -55,14 +56,14 @@ class AlternationProblem():
         for p in surfacePhonemes:
             # p is underlying surfaceToUnderlying[p]
             if p in self.surfaceToUnderlying:
-                deep.append(ite(whichOrientation,
-                                makeConstantPhoneme(self.surfaceToUnderlying[p]),
-                                makeConstantPhoneme(p)))
+                deep.append(itePhoneme(whichOrientation,
+                                       self.surfaceToUnderlying[p],
+                                       p))
             # surfaceToUnderlying[p] is underlying p
             elif p in self.deepToSurface:
-                deep.append(ite(whichOrientation,
-                                makeConstantPhoneme(p),
-                                makeConstantPhoneme(self.deepToSurface[p])))
+                deep.append(itePhoneme(whichOrientation,
+                                       p,
+                                       self.deepToSurface[p]))
             else:
                 deep.append(makeConstantPhoneme(p))
         return makeConstantVector(deep)
@@ -83,7 +84,7 @@ class AlternationProblem():
             deep = ite(whichOrientation,
                        deep1,
                        deep2)
-            prediction = deep #self.sketchDeep(self.surfacePhonemes[j], whichOrientation)
+            prediction = deep #makeWord(self.sketchDeep(self.surfacePhonemes[j], whichOrientation))
             for r in rules:
                 prediction = applyRule(r, prediction)
             

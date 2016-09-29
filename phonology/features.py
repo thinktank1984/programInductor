@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+coronal = "coronal"
 approximate = "approximate"
 stressed = "stressed"
 retroflex = "retroflex"
@@ -43,23 +44,23 @@ aspirated = "aspirated"
 
 featureMap = {
     # unrounded vowels
-    u"i": [tense,high,front,unrounded],
-    u"ɨ": [tense,high,central,unrounded],
-    u"ɯ": [tense,high,back,unrounded],
-    u"ɩ": [lax,high,front,unrounded],
-    u"e": [tense,middle,front,unrounded],
-    u"ə": [tense,middle,central,unrounded],
+    u"i": [voice,tense,high,front,unrounded],
+    u"ɨ": [voice,tense,high,central,unrounded],
+    u"ɯ": [voice,tense,high,back,unrounded],
+    u"ɩ": [voice,lax,high,front,unrounded],
+    u"e": [voice,tense,middle,front,unrounded],
+    u"ə": [voice,tense,middle,central,unrounded],
     #    u"gamma vowel": [tense,middle,back,unrounded],
-    u"ɛ": [lax,middle,front,unrounded],
-    u"æ": [low,front,unrounded],
-    u"a": [low,central,unrounded],
+    u"ɛ": [voice,lax,middle,front,unrounded],
+    u"æ": [voice,low,front,unrounded],
+    u"a": [voice,low,central,unrounded],
     # rounded vowels
-    u"u": [tense,high,back,rounded],
-    u"ü": [tense,high,front,rounded],
-    u"ʊ": [lax,high,back,rounded],
-    u"o": [tense,middle,back,rounded],
-    u"ö": [tense,middle,front,rounded],
-    u"ɔ": [lax,middle,back,rounded],
+    u"u": [voice,tense,high,back,rounded],
+    u"ü": [voice,tense,high,front,rounded],
+    u"ʊ": [voice,lax,high,back,rounded],
+    u"o": [voice,tense,middle,back,rounded],
+    u"ö": [voice,tense,middle,front,rounded],
+    u"ɔ": [voice,lax,middle,back,rounded],
     #possibly missing are umlauts
 
     # consonance
@@ -72,22 +73,22 @@ featureMap = {
     u"m": [bilabial,nasal,voice],
     u"́m": [bilabial,nasal,voice,stressed],
     u"m̥": [bilabial,nasal],
-    u"θ": [dental,fricative],
-    u"d": [alveolar,stop,voice],
-    u"t": [alveolar,stop],
-    u"th": [alveolar,stop,aspirated],
-    u"ṭ": [retroflex,stop],
-    u"ð": [dental,fricative,voice],
-    u"z": [alveolar,fricative,voice],
-    u"ǰ": [alveolar,affricate,voice],
-    u"ž": [alveopalatal,fricative,voice],
-    u"s": [alveolar,fricative],
-    u"n": [alveolar,nasal,voice],
-    u"n̥": [alveolar,nasal],
-    u"ñ": [alveopalatal,nasal,voice],
-    u"š": [alveopalatal,fricative],
-    u"c": [palatal,stop],
-    u"č": [alveopalatal,affricate],
+    u"θ": [dental,fricative,coronal],
+    u"d": [alveolar,stop,voice,coronal],
+    u"t": [alveolar,stop,coronal],
+    u"th": [alveolar,stop,aspirated,coronal],
+    u"ṭ": [retroflex,stop,coronal],
+    u"ð": [dental,fricative,voice,coronal],
+    u"z": [alveolar,fricative,voice,coronal],
+    u"ǰ": [alveolar,affricate,voice,coronal],
+    u"ž": [alveopalatal,fricative,voice,coronal],
+    u"s": [alveolar,fricative,coronal],
+    u"n": [alveolar,nasal,voice,coronal],
+    u"n̥": [alveolar,nasal,coronal],
+    u"ñ": [alveopalatal,nasal,voice,coronal],
+    u"š": [alveopalatal,fricative,coronal],
+    u"c": [palatal,stop,coronal],
+    u"č": [alveopalatal,affricate,coronal],
     u"k": [velar,stop],
     u"kh": [velar,stop,aspirated],
     u"ky": [velar,stop,palatal],
@@ -104,16 +105,16 @@ featureMap = {
     u"h": [laryngeal,fricative],
 
     # glides
-    u"w": [glide,labiovelar,voice],
+    u"w": [glide,voice,bilabial],
     u"y": [glide,palatal,voice],
 
     # liquids
-    u"r": [liquid,voice,approximate],
-    u"r̃": [liquid,trill,voice],
-    u"r̥̃": [liquid,trill],
-    u"ř": [liquid,flap,voice],
-    u"l": [liquid,lateral,voice],
-    u"̌l": [liquid,lateral,voice],
+    u"r": [liquid,voice,approximate,alveolar,coronal],
+    u"r̃": [liquid,trill,voice,coronal],
+    u"r̥̃": [liquid,trill,coronal],
+    u"ř": [liquid,flap,voice,coronal],
+    u"l": [liquid,lateral,voice,alveolar,coronal],
+    u"̌l": [liquid,lateral,voice,alveolar,coronal],
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA

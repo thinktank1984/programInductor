@@ -105,6 +105,7 @@ u'''
 Describe the distribution of the trill [r̃] and the flap [ř].
 Solution found by system:
 trill > flap / [ +vowel ] _ [ -alveolar ]
+ / [ +unrounded ] _ [ +vowel ]
 ''',
     [
 	u"ær̃teš",#		"army"),
@@ -133,7 +134,7 @@ What rule governs the distribution of [d] versus [ð] in the following data?
     d occurs when there is [a,á] to the right
     ð occurs when there is [i,e] to the right
     ð > d / _ [+low] (my solution)
-    d > ð / _ [-tense] (system solution)
+    d > ð / _ [ +central ] (systems solution)
 ''',
     [u"dábrĩ",#		"three"),
      u"áðikhã žã",#	"he lay down"),
@@ -192,7 +193,14 @@ alternationProblems.append(Problem(
 6: Gen
 Determine the rule which accounts for the distribution of [r] and [l] in the following data.
     System learns:
-    l > r / [ -glide -bilabial -laryngeal -labiodental -vowel -velar ] _ [  ]
+    l > r / [ +coronal ] _ [  ]
+    My analysis:
+l occurs in the context:
+    {b,g,ɔ,p,u,a,v,x,h,ŋ,k,#,m,e,w} _
+r occurs in the context:
+    {s,t,d,č,ñ,z,s,ǰ} _
+These are all coronal
+    
 ''',
     [u"agble",#"farm"),
      u"agoŋglo",#"lizard"),
@@ -231,8 +239,7 @@ u'''
 7: Kishambaa
 Describe the distribution of voiced versus voiceless nasals (voiceless nasals are written with a circle under the letter, as in m̥), and voiceless aspirated, voiceless unaspirated and voiced stops in Kishambaa.
 Solution found by system:
-Nasals become voiced when followed by an unaspirated phoneme
-(symmetric to the correct solution)
+Nasals become voiced when followed by a voiced phoneme
 
 My analysis:
  ==  ==  == 
@@ -417,6 +424,12 @@ alternationProblems.append(Problem(
 11: Lhasa Tibetan
 	There is no underlying contrast in this language between velars and uvulars, or between voiced or voiceless stops or fricatives (except /s/, which exists underlyingly). State what the underlying segments are, and give rules which account for the surface distribution of these consonant types. [Notational reminder: [G] represents a voiced uvular stop]
     Cornel treated specially!
+    uvula context:
+    _ {a,o,ɔ,ã,G}
+    velar context:
+    _ {u,ṭ,ɨ,i,ɩ,ɛ,e,g,b}
+    
+    {a,o,ɔ} follows uvular
     ''',
     [
 	u"aŋgu",	#"pigeon"
@@ -469,7 +482,11 @@ alternationProblems.append(Problem(
 	u"nɛNGaa",	#"important"
 	u"paNGɔɔ",	#"chest"
 	u"pɛɛβãã",	#"frog"
-	u"simGãã"]))	#"build a house"
+	u"simGãã"], #"build a house"
+    {"alternations": {u"q": u"k",
+                      #u"G": u"g",
+                      #u"N": u"ŋ"
+    }}))
 
 
 # Chapter 4

@@ -109,13 +109,14 @@ int predicate_cost(Predicate s) {
   switch(s) {
   case EndOfString:{ return 1; }
   case Specification:{
-      int c = 0;
-      for (int f = 0; f < NUMBEROFFEATURES; f++) {
-	if (s.mask[f])
-	  c += s.preference[f] ? 1 : 2;
-      }
-      return c;
+    if (empty_specification(s)) return 0;
+    int c = 1;
+    for (int f = 0; f < NUMBEROFFEATURES; f++) {
+      if (s.mask[f])
+	c += s.preference[f] ? 1 : 2;
     }
+    return c;
+  }
   }
 }
 

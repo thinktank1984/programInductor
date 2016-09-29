@@ -38,7 +38,11 @@ def makeConstantPhoneme(p):
     vector = featureVectorMap[p] # list of boolean
     return makeConstantVector(map(str,vector))
 
-    
+def itePhoneme(c,p1,p2):
+    f1 = featureVectorMap[p1]
+    f2 = featureVectorMap[p2]
+    f = [ (f1[j] if f1[j] == f2[j] else ite(c,f1[j],f2[j])) for j in range(len(f2)) ]
+    return makeConstantVector(f)
 
 
 def makeSketch():
