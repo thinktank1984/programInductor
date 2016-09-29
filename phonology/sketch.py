@@ -24,7 +24,7 @@ def phonologicalRule(i): pass
 def applyRule(r,w): pass
 
 def makeConstantVector(v):
-    return "{ %s }" % ", ".join(v)
+    return "{ %s }" % ", ".join(map(str, v))
 
 def makeConstantMatrix(matrix):
     return "{ %s }" % ", ".join([ "{ %s }" % ", ".join(map(str,fs)) for fs in matrix ])

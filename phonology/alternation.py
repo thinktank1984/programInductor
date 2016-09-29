@@ -47,7 +47,27 @@ class AlternationProblem():
                 if difference > 0:
                     errors += difference
         return errors
-    
+
+    def sketchDeep(self, surfacePhonemes, whichOrientation):
+        # Construct the latent deep structure
+        # Depends on the orientation
+        deep = []
+        for p in surfacePhonemes:
+            # p is underlying surfaceToUnderlying[p]
+            if p in self.surfaceToUnderlying:
+                deep.append(ite(whichOrientation,
+                                makeConstantPhoneme(self.surfaceToUnderlying[p]),
+                                makeConstantPhoneme(p)))
+            # surfaceToUnderlying[p] is underlying p
+            elif p in self.deepToSurface:
+                deep.append(ite(whichOrientation,
+                                makeConstantPhoneme(p),
+                                makeConstantPhoneme(self.deepToSurface[p])))
+            else:
+                deep.append(makeConstantPhoneme(p))
+        return makeConstantVector(deep)
+                
+        
     def sketchSolution(self):
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         
@@ -57,25 +77,13 @@ class AlternationProblem():
         for j in range(len(self.surfaceMatrices)):
             surface = makeConstantWordOfMatrix(self.surfaceMatrices[j])
 
-            # Construct the latent deep structure
-            # Depends on the orientation
-            '''deep = []
-            for p in self.surfacePhonemes[j]:
-                if p in self.surfaceToUnderlying:
-                    deep.append(ite(whichOrientation,
-                                    self.surfaceToUnderlying[p],
-                                    p))
-                elif p in self.deepToSurface:
-                    deep.append(ite(whichOrientation,
-                                    p,
-                    ))'''
-                    
+            
             deep1 = makeConstantWordOfMatrix(self.underlyingMatrices[j])
             deep2 = makeConstantWordOfMatrix(self.underlyingMatricesAlternative[j])
             deep = ite(whichOrientation,
                        deep1,
                        deep2)
-            prediction = deep
+            prediction = deep #self.sketchDeep(self.surfacePhonemes[j], whichOrientation)
             for r in rules:
                 prediction = applyRule(r, prediction)
             

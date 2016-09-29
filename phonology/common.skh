@@ -107,11 +107,13 @@ bit[NUMBEROFFEATURES] apply_specification(Specification specification, bit[NUMBE
 
 int predicate_cost(Predicate s) {
   switch(s) {
-  case EndOfString:{ return 0; }
+  case EndOfString:{ return 1; }
   case Specification:{
       int c = 0;
-      for (int f = 0; f < NUMBEROFFEATURES; f++)
-	c += s.mask[f];
+      for (int f = 0; f < NUMBEROFFEATURES; f++) {
+	if (s.mask[f])
+	  c += s.preference[f] ? 1 : 2;
+      }
       return c;
     }
   }
@@ -147,21 +149,21 @@ Word apply_rule(Rule r, Word u) {
   Specification structural_change = r.structural_change;
   Predicate left_trigger = r.left_trigger;
   Predicate right_trigger = r.right_trigger;
-  
-  Word s = new Word(l = u.l);
+
+  Word output = new Word(l = u.l);
   
   assert !empty_specification(focus);
 
   for (int j = 0; j < u.l; j++) {
-    bit left_okay = matches_predicate(left_trigger, u, j - 1);
+    bit left_okay = matches_predicate(left_trigger, u, j - 1);    
     bit middle_okay = matches_specification(u.s[j], focus);
     bit right_okay = matches_predicate(right_trigger, u, j + 1);
-    if (left_okay && middle_okay && right_okay) {
-      s.s[j] = apply_specification(structural_change, u.s[j]);
-    } else {
-      s.s[j] = u.s[j];
-    }
+    bit everything_okay = left_okay && middle_okay && right_okay;
+
+    output.s[j] = everything_okay ?
+      apply_specification(structural_change, u.s[j]) :
+      u.s[j];
   }
   
-  return s;
+  return output;
 }
