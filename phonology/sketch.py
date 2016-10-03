@@ -58,6 +58,10 @@ def solveSketch():
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
-    os.system("sketch --bnd-unroll-amnt 50 test.sk > %s" % outputFile)
+    print "Invoking solver..."
+    command = "sketch test.sk > %s" % outputFile
+    print command
+    os.system(command)
+    print "Finished calling solver."
     return open(outputFile,'r').read()
 

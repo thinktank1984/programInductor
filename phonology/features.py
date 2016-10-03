@@ -89,6 +89,7 @@ featureMap = {
     u"š": [alveopalatal,fricative,coronal],
     u"c": [palatal,stop,coronal],
     u"č": [alveopalatal,affricate,coronal],
+    u"čh": [alveopalatal,affricate,coronal,aspirated],
     u"k": [velar,stop],
     u"kh": [velar,stop,aspirated],
     u"ky": [velar,stop,palatal],
@@ -173,3 +174,5 @@ featureVectorMap = {}
 for p in featureMap:
     features = featureMap[p]
     featureVectorMap[p] = [ (f in features) for f in FEATURELIST ]
+
+

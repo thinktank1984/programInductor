@@ -473,6 +473,7 @@ alternationProblems.append(Problem(
 	u"qɔr",	#"coat"
 	u"qɔɔɔɔ",	#"round"
 	# u"čhea",	#"half"
+        u"čha",	
 	# u"čhuɣum",	#"cheese"
 	# u"topcaa",	#"stairs"
 	# u"thoõõ",	#"tonight"

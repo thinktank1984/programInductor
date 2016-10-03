@@ -96,7 +96,7 @@ class AlternationProblem():
         minimize(cost)
         
         output = solveSketch()
-        print output
+#        print output
 
         print "Solution found using constraint solving:"
         print "With the expected orientation?",parseFlip(output, whichOrientation)
