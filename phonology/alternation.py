@@ -15,6 +15,10 @@ class AlternationProblem():
         self.deepToSurface = dict([(self.surfaceToUnderlying[k],k) for k in self.surfaceToUnderlying ])
         
         corpus = problem.data
+        # only extract the relevant parts of the corpus for the problem
+        corpus = [w for w in corpus
+                  if [p for p in self.surfaceToUnderlying.values() + self.surfaceToUnderlying.keys()
+                      if p in w ] ]
         self.surfacePhonemes = [ tokenize(w) for w in corpus ]
         self.surfaceFeatures = [ [ featureMap[t] for t in tokenize(w) ] for w in corpus ]
         self.surfaceMatrices = [ [ featureVectorMap[t] for t in tokenize(w) ] for w in corpus ]

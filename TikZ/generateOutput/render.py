@@ -12,7 +12,7 @@ source = '''
 
 \\begin{document}
 \\begin{tikzpicture}
-\draw (0,0) rectangle (10,10);
+\draw[fill = white, white] (0,0) rectangle (10,10);
 %s
 \end{tikzpicture}
 \end{document}
