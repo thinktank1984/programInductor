@@ -46,7 +46,6 @@ def itePhoneme(c,p1,p2):
 
 
 def makeSketch():
-    global flipCounter
     h = ""
     h += "#define NUMBEROFFEATURES %d\n" % len(FEATURELIST)
     h += "#include \"common.skh\"\n"

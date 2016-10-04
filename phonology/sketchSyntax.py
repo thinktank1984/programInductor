@@ -55,33 +55,64 @@ class Addition(Expression):
         self.y = y
     def __str__(self): return "((%s) + (%s))" % (str(self.x),str(self.y))
 
-flipCounter = 0
+class Model():
+    def __init__(self):
+        self.flipCounter = 0
+        self.definitionCounter = 0
+        self.statements = []
+        self.quantifiedConditions = 0
+    def flip(self, p = 0.5):
+        self.flipCounter += 1
+        return Variable("__FLIP__%d"%self.flipCounter)
+    def define(self, ty, value):
+        name = "__DEFINITION__%d"%self.definitionCounter
+        self.definitionCounter += 1
+        self.statements.append(Definition(ty, name, value))
+        return Variable(name)
+    def condition(self, predicate):
+        self.statements.append(Assertion(predicate))
+    def quantifiedCondition(self, predicate):
+        self.quantifiedConditions += 1
+        self.statements.append(QuantifiedAssertion(predicate,self.quantifiedConditions))
+    def minimize(self, expression):
+        self.statements.append(Minimize(expression))
+    def makeSketchSkeleton(self):
+        h = ""
+            
+        for f in range(self.flipCounter):
+            h += "bit __FLIP__%d = ??;\n" % (f + 1)
+
+        h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
+        for a in self.statements:
+            h += "\t" + str(a) + "\n"
+        h += "}\n"
+        return h
+    @staticmethod
+    def Global():
+        global currentModel
+        currentModel = Model()
+        return currentModel
+    
+currentModel = None
+
+
 def flip(p = 0.5):
-    global flipCounter
-    flipCounter += 1
-
-    return Variable("__FLIP__%d"%flipCounter)
-
+    global currentModel
+    return currentModel.flip(p)
 def ite(condition,yes,no):
     return Conditional(condition,yes,no)
 
-definitionCounter = 0
 def define(ty, value):
-    global definitionCounter
-    name = "__DEFINITION__%d"%definitionCounter
-    definitionCounter += 1
-    statements.append(Definition(ty, name, value))
-    return Variable(name)
+    return currentModel.define(ty, value)
 
-statements = []
 def condition(predicate):
-    statements.append(Assertion(predicate))
-def quantifiedCondition(predicate,q = [0]):
-    q[0] += 1
-    statements.append(QuantifiedAssertion(predicate,q[0]))
+    currentModel.condition(predicate)
+
+def quantifiedCondition(predicate):
+    currentModel.quantifiedCondition(predicate)
 
 def minimize(expression):
-    statements.append(Minimize(expression))
+    currentModel.minimize(expression)
 
 def sketchImplementation(name):
     def namedImplementation(f):
@@ -91,17 +122,7 @@ def sketchImplementation(name):
     return namedImplementation
 
 def makeSketchSkeleton():
-    global flipCounter
-    h = ""
-    
-    for f in range(flipCounter):
-        h += "bit __FLIP__%d = ??;\n" % (f + 1)
-
-    h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
-    for a in statements:
-        h += "\t" + str(a) + "\n"
-    h += "}\n"
-    return h
+    return currentModel.makeSketchSkeleton()
 
 def parseFlip(output, variable):
     pattern = 'void glblInit_%s__ANONYMOUS_'%str(variable)

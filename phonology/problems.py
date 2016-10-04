@@ -66,9 +66,9 @@ Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g
      u"ukuúmbuuryá",#"to ask me"),
      u"uruɣúta"], #"wall"
     {"type": "alternation",
-     "alternations": {u"b": u"β",
-                      u"d": u"r",
-                      u"g": u"ɣ"}}))
+     "alternations": [{u"b": u"β",
+                       u"d": u"r",
+                       u"g": u"ɣ"}]}))
 
 
 
@@ -96,8 +96,8 @@ Solution:
      u"xyeri",		#"hand"),
      u"oxyi"],
     {"type": "alternation",
-     "alternations": {u"ky": u"k",
-                      u"xy": u"x"}}))		#"no")
+     "alternations": [{u"ky": u"k",
+                       u"xy": u"x"}]}))		#"no")
 
 alternationProblems.append(Problem(
 u'''
@@ -125,7 +125,7 @@ trill > flap / [ +vowel ] _ [ -alveolar ]
 	u"biřæng",#		"pale"),
         u"šiřini"],#		"pastry")
     {"type": "alternation",
-     "alternations": {u"ř": u"r̃"}}))
+     "alternations": [{u"ř": u"r̃"}]}))
 
 alternationProblems.append(Problem(
     u'''
@@ -146,7 +146,7 @@ What rule governs the distribution of [d] versus [ð] in the following data?
      u"ðíe",#		"you"),
      u"daštú",#		"to bite"),
      u"ðíški"],#		"to wash")])
-    {"alternations": {u"ð": u"d"}}))
+    {"alternations": [{u"ð": u"d"}]}))
 
 alternationProblems.append(Problem(
     u'''
@@ -185,7 +185,7 @@ System discovers:
         u"aššɛ",#		"he rubbed"),
 	u"bəkk’ələ",#	"it germinated"),
         u"šɛməggələ"],#	"he became old")])
-    {"alternations": {u"ɛ": u"ə"}}))
+    {"alternations": [{u"ɛ": u"ə"}]}))
 
 
 alternationProblems.append(Problem(
@@ -270,8 +270,8 @@ Unaspirated stops occur in similar right contexts but don't occur next to voicel
 	u"n̥thumbii",# "monkey"),
 	u"ŋokhuŋguni",# "bedbug"),
 	u"m̥pheho"],#"wind")
-    {"alternations": {u"n̥": u"n",
-                      u"m̥": u"m"}}))
+    {"alternations": [{u"n̥": u"n",
+                      u"m̥": u"m"}]}))
 
 
 # Problem 8 has Unicode issues
@@ -330,8 +330,10 @@ u'''
 9: Palauan
 Analyse the distribution of ð, θ and d in the following data. Examples of the type ‘X ~ Y’ mean that the word can be pronounced either as X or as Y, in free variation.
 {ð,d} > θ / _#
+ð > d / #_, optionally
 Systems finds symmetric solution of:
 [ +dental -unrounded -liquid -tense -voice ] ---> [ -fricative +alveolar +stop -dental +voice ] / # _ [  ]
+todo: incorporate optional rules
 ''',
     [u"kəðə",	#"we (inclusive)"
      u"bəðuk",	#"my stone"
@@ -357,7 +359,7 @@ Systems finds symmetric solution of:
      u"məðəŋei",	#"knew"
      u"uðouθ",	#"money"
      u"olðak"],	#"put together"
-    {"alternations": {u"θ": u"d"}}))
+    {"alternations": [{u"θ": u"d"}]}))
 
 alternationProblems.append(Problem(
     u'''
@@ -484,10 +486,9 @@ alternationProblems.append(Problem(
 	u"pɛɛβãã",	#"frog"
 	u"simGãã", #"build a house"
         ],
-    {"alternations": {u"q": u"k",
+    {"alternations": [{u"q": u"k",
                       u"G": u"g",
-                      u"N": u"ŋ"
-    }}))
+                      u"N": u"ŋ"}]}))
 
 
 # Chapter 4

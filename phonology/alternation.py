@@ -10,11 +10,10 @@ from random import random
 import sys
 
 class AlternationProblem():
-    def __init__(self, problem):
-        self.surfaceToUnderlying = problem.parameters["alternations"]
+    def __init__(self, alternation, corpus):
+        self.surfaceToUnderlying = alternation
         self.deepToSurface = dict([(self.surfaceToUnderlying[k],k) for k in self.surfaceToUnderlying ])
         
-        corpus = problem.data
         # only extract the relevant parts of the corpus for the problem
         corpus = [w for w in corpus
                   if [p for p in self.surfaceToUnderlying.values() + self.surfaceToUnderlying.keys()
@@ -74,6 +73,8 @@ class AlternationProblem():
                 
         
     def sketchSolution(self):
+        Model.Global()
+        
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         
         whichOrientation = flip()
@@ -109,8 +110,14 @@ class AlternationProblem():
         
 data = alternationProblems[int(sys.argv[1]) - 1]
 print data.description
-problem = AlternationProblem(data)
-problem.sketchSolution()
+for alternation in data.parameters["alternations"]:
+    print "Analyzing alternation:"
+    for k in alternation:
+        print "\t",k,"\t",alternation[k]
+    problem = AlternationProblem(alternation, data.data)
+    problem.sketchSolution()
+
+
 
 '''
 print "Trying to solve using stochastic search!"
