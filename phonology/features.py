@@ -176,3 +176,5 @@ for p in featureMap:
     featureVectorMap[p] = [ (f in features) for f in FEATURELIST ]
 
 
+def wordToMatrix(w):
+    return [ featureVectorMap[p] for p in tokenize(w) ]

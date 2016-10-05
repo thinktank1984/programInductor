@@ -418,7 +418,11 @@ alternationProblems.append(Problem(
 	u"waxča",	#"poor"
         u"waleχ",	#"poor"
 	u"thakay",	#"drop"
-        u"reχsisqa"]))#	"known"
+        u"reχsisqa"],#	"known"
+    {"alternations": [{u"ŋ": u"N"},
+                      {u"o": u"u"},
+                      {u"i": u"e"},
+                      ]}))
 
 
 alternationProblems.append(Problem(
@@ -492,17 +496,18 @@ alternationProblems.append(Problem(
 
 
 # Chapter 4
-Problem(
+underlyingProblems = []
+underlyingProblems.append(Problem(
     '''"
 1. Axininca Campa
 	Provide underlying representations and a phonological rule which will account for the following alternations.
     ''',
-    [("toniro",	"notoniroti"),
-     ("yaarato",	"noyaaratoti"),
-     ("kanari",	"noyanariti"),
-     ("kosiri",	"noyosiriti"),
-     ("pisiro",	"nowisiroti"),
-     ("porita",	"noworitati")])
+    [(u"toniro",	u"notoniroti"),
+     (u"yaarato",	u"noyaaratoti"),
+     (u"kanari",	u"noyanariti"),
+     (u"kosiri",	u"noyosiriti"),
+     (u"pisiro",	u"nowisiroti"),
+     (u"porita",	u"noworitati")]))
 
 Problem(
     '''

@@ -10,8 +10,10 @@ struct Word {
 
 
 bit sound_equal(bit[NUMBEROFFEATURES] x, bit[NUMBEROFFEATURES] y) {
-  for (int f = 0; f < NUMBEROFFEATURES; f++) {
+  int f = 0;
+  repeat (NUMBEROFFEATURES) {
       if (x[f] != y[f]) return 0;
+      f++;
   }
   return 1;
 }
@@ -22,6 +24,13 @@ bit word_equal(Word x, Word y) {
     if (!(sound_equal(x.s[f], y.s[f]))) return 0;
   }
   return 1;
+}
+
+Word concatenate3(Word a1,Word a2,Word a3) {
+  Word a = new Word(l = a1.l + a2.l + a3.l, s = a1.s);
+  a.s[a1.l :: a2.l] = a2.s;
+  a.s[(a2.l + a1.l) :: a3.l] = a3.s;
+  return a;
 }
 
 Word concatenate(Word a1,Word a2) {
@@ -79,9 +88,12 @@ generator Specification unknown_specification() {
 
 bit matches_specification(bit[NUMBEROFFEATURES] sound, Specification specification) {
   bit[NUMBEROFFEATURES] mistakeVector = (sound^(specification.preference))&specification.mask;
-  for (int f = 0; f < NUMBEROFFEATURES; f++)
+  int f = 0;
+  repeat (NUMBEROFFEATURES) {
     if (mistakeVector[f]) return 0;
-    return 1;
+    f++;
+  }
+  return 1;
 }
 
 bit matches_predicate(Predicate p, Word u, int j) {
@@ -121,8 +133,11 @@ int predicate_cost(Predicate s) {
 }
 
 bit empty_specification(Specification s) {
-  for (int f = 0; f < NUMBEROFFEATURES; f++)
+  int f = 0;
+  repeat(NUMBEROFFEATURES) {
     if (s.mask[f]) return 0;
+    f++;
+  }
   return 1;
 }
   

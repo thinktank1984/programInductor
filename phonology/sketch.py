@@ -22,6 +22,11 @@ def wordEqual(w1,w2):
 def phonologicalRule(i): pass
 @sketchImplementation("apply_rule")
 def applyRule(r,w): pass
+#@sketchImplementation("unknown_word")
+def sampleMorph():
+    return define("Word", FunctionCall("unknown_word",[]))
+@sketchImplementation("concatenate3")
+def concatenate3(x,y,z): pass
 
 def makeConstantVector(v):
     return "{ %s }" % ", ".join(map(str, v))
@@ -58,7 +63,7 @@ def solveSketch():
         f.write(source)
     outputFile = "solver_output/%f" % random()
     print "Invoking solver..."
-    command = "sketch test.sk > %s" % outputFile
+    command = "sketch test.sk > %s" % outputFile # --bnd-unroll-amnt 50
     print command
     os.system(command)
     print "Finished calling solver."
