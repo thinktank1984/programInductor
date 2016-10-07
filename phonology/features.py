@@ -166,15 +166,29 @@ def tokenize(word):
                 raise Exception(u"No valid prefix: " + word + u" when processing " + originalWord)
     return tokens
 
-FEATURESET = set([ f for p in featureMap for f in featureMap[p] ])
-FEATURELIST = list(FEATURESET)
 
-# Map from phoneme to a list of Booleans, one for each element of FEATURELIST
-featureVectorMap = {}
-for p in featureMap:
-    features = featureMap[p]
-    featureVectorMap[p] = [ (f in features) for f in FEATURELIST ]
+class FeatureBank():
+    """Builds a bank of features and sounds that are specialized to a particular data set.
+    The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
+    def __init__(self, words):
+        self.phonemes = list(set([ p for w in words for p in tokenize(w) ]))
+        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
+        self.featureMap = dict([
+            (p, list(set(featureMap[p]) & set(self.features)))
+            for p in self.phonemes ])
+        self.featureVectorMap = dict([
+            (p, [ (f in self.featureMap[p]) for f in self.features ])
+            for p in self.phonemes ])
+    def wordToMatrix(self, w):
+        return [ self.featureVectorMap[p] for p in tokenize(w) ]
+
+    def sketch(self):
+        """Sketches definitions of the phonemes in the bank"""
+        h = "bit [NUMBEROFFEATURES][%d] phonemes = {\n" % len(self.phonemes)
+        h += ",\n".join([ "\t// %s\n\t{%s}" % (featureMap[p],
+                                               ",".join(map(str,self.featureVectorMap[p])))
+                          for p in self.phonemes ])
+        h += "};\n"
+        return h
 
 
-def wordToMatrix(w):
-    return [ featureVectorMap[p] for p in tokenize(w) ]

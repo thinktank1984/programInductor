@@ -6,54 +6,80 @@ import re
 class Expression:
     def __add__(self,o):
         return Addition(self,o)
+    def __str__(self): return self.web()
 
 class FunctionCall(Expression):
     def __init__(self, f, arguments):
         self.f = f
         self.x = arguments
-    def __str__(self):
-        return str(self.f) + "(" + ", ".join([str(a) for a in self.x ]) + ")"
+    def sketch(self):
+        return str(self.f) + "(" + ", ".join([a.sketch() for a in self.x ]) + ")"
+    def web(self):
+        return str(self.f) + "(" + ", ".join([a.web() for a in self.x ]) + ")"
 
 class Variable(Expression):
     def __init__(self,n): self.n = n
-    def __str__(self): return self.n
+    def sketch(self): return self.n
+    def web(self): return self.n
+
+class Constant(Expression):
+    def __init__(self,k): self.k = str(k)
+    def sketch(self): return self.k
+    def web(self): return self.k
+
+class Array(Expression):
+    def __init__(self,elements): self.elements = elements
+    def sketch(self):
+        return "{%s}" % ", ".join([ e.sketch() for e in self.elements ])
+    def web(self):
+        return "[%s]" % ", ".join([ e.web() for e in self.elements ])
 
 class Minimize():
     def __init__(self,n): self.n = n
-    def __str__(self): return "minimize(%s);" % self.n
+    def sketch(self): return "minimize(%s);" % self.n.sketch()
+    def web(self): return "factor( - (%s))" % self.n.web()
 
 class Definition():
     def __init__(self, ty, name, value):
         self.ty = ty
         self.name = name
         self.value = value
-    def __str__(self):
-        return "%s %s = %s;" % (self.ty,self.name,str(self.value))
+    def sketch(self):
+        return "%s %s = %s;" % (self.ty,self.name,self.value.sketch())
+    def web(self):
+        return "var %s = %s" % (self.name,self.value.web())
 
 class Conditional(Expression):
     def __init__(self,t,y,n):
         self.t = t
         self.y = y
         self.n = n
-    def __str__(self):
-        return "((%s) ? %s : %s)" % (self.t,self.y,self.n)
+    def sketch(self):
+        return "((%s) ? %s : %s)" % (self.t.sketch(),self.y.sketch(),self.n.sketch())
+    def web(self):
+        return "((%s) ? %s : %s)" % (self.t.web(),self.y.web(),self.n.web())
 
 class Assertion():
     def __init__(self,p): self.p = p
-    def __str__(self): return "assert %s;" % str(self.p)
+    def sketch(self): return "assert %s;" % self.p.sketch()
+    def web(self):
+        return "factor((%s) ? 0 : -Infinity)" % (self.p.web())
 
 class QuantifiedAssertion():
     def __init__(self,p,i):
         self.p = p
         self.i = i
-    def __str__(self): return "if (__ASSERTIONCOUNT__ == %d) assert %s;" % (self.i, str(self.p))
+    def sketch(self): return "if (__ASSERTIONCOUNT__ == %d) assert %s;" % (self.i, str(self.p))
+    def web(self):
+        return "factor((%s) ? 0 : -Infinity)" % (self.p.web())
 
     
 class Addition(Expression):
     def __init__(self,x,y):
         self.x = x
         self.y = y
-    def __str__(self): return "((%s) + (%s))" % (str(self.x),str(self.y))
+    def sketch(self): return "((%s) + (%s))" % (self.x.sketch(),self.y.sketch())
+    def web(self): return "((%s) + (%s))" % (self.x.web(),self.y.web())
 
 class Model():
     def __init__(self):
@@ -76,7 +102,7 @@ class Model():
         self.statements.append(QuantifiedAssertion(predicate,self.quantifiedConditions))
     def minimize(self, expression):
         self.statements.append(Minimize(expression))
-    def makeSketchSkeleton(self):
+    def sketch(self):
         h = ""
             
         for f in range(self.flipCounter):
@@ -84,8 +110,22 @@ class Model():
 
         h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
         for a in self.statements:
-            h += "\t" + str(a) + "\n"
+            h += "\t" + a.sketch() + "\n"
         h += "}\n"
+        return h
+    def web(self):
+        h = "var posterior = function() {\n"
+            
+        for f in range(self.flipCounter):
+            h += "\tvar __FLIP__%d = flip()\n" % (f + 1)
+
+        for a in self.statements:
+            h += "\t" + a.web() + "\n"
+
+        h += "\treturn ["
+        h += ", ".join([ "__FLIP__%d" % (f + 1) for f in range(self.flipCounter) ])
+        h += "]\n}"
+        h += "\nInfer({method: 'enumerate'},posterior)"
         return h
     @staticmethod
     def Global():
@@ -122,7 +162,9 @@ def sketchImplementation(name):
     return namedImplementation
 
 def makeSketchSkeleton():
-    return currentModel.makeSketchSkeleton()
+    return currentModel.sketch()
+def makeWebSkeleton():
+    return currentModel.web()
 
 def parseFlip(output, variable):
     pattern = 'void glblInit_%s__ANONYMOUS_'%str(variable)

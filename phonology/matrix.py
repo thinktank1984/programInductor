@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from features import featureMap, tokenize, wordToMatrix
+from features import FeatureBank, tokenize
 from rule import Rule
 from sketch import *
 
@@ -12,9 +12,10 @@ import sys
 class UnderlyingProblem():
     def __init__(self, problem):
         data = problem.data
+        self.bank = FeatureBank([ w for l in data for w in l  ])
 
         self.numberOfInflections = len(data[0])
-        self.inflectionMatrix = [ [ wordToMatrix(i) for i in Lex ] for Lex in data ]
+        self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
     def sketchSolution(self):
         Model.Global()
@@ -36,11 +37,11 @@ class UnderlyingProblem():
         for l in range(len(stems)):
             for i in range(self.numberOfInflections):
                 condition(wordEqual(makeConstantWordOfMatrix(self.inflectionMatrix[l][i]), surfaces[l][i]))
-        output = solveSketch()
+        output = solveSketch(self.bank)
         print output
 
         for r in rules:
-            print Rule.parse(output, r)
+            print Rule.parse(self.bank, output, r)
 
 data = underlyingProblems[int(sys.argv[1]) - 1]
 print data.description

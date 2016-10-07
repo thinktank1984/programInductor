@@ -20,6 +20,13 @@ class Problem():
                 for x in d:
                     if x != "~":
                         tokenize(x)
+        # If this is an alternation problem
+        if parameters and "alternations" in parameters:
+            ps = set([ p for w in data for p in tokenize(w) ])
+            print "Number of distinct phonemes: %d" % len(ps)
+            fs = set([ f  for p in ps for f in featureMap[p] ])
+            print "Number of distinct features: %d" % len(fs)
+            print " ==  ==  == "
 
 
 # Chapter 3: alternation problems
@@ -504,8 +511,8 @@ underlyingProblems.append(Problem(
     ''',
     [(u"toniro",	u"notoniroti"),
      (u"yaarato",	u"noyaaratoti"),
-     (u"kanari",	u"noyanariti"),
-     (u"kosiri",	u"noyosiriti"),
+     # (u"kanari",	u"noyanariti"),
+     # (u"kosiri",	u"noyosiriti"),
      (u"pisiro",	u"nowisiroti"),
      (u"porita",	u"noworitati")]))
 

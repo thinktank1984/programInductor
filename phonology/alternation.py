@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from features import featureMap, tokenize
+from features import FeatureBank, tokenize
 from rule import Rule
 from sketch import *
 
@@ -18,9 +18,10 @@ class AlternationProblem():
         corpus = [w for w in corpus
                   if [p for p in self.surfaceToUnderlying.values() + self.surfaceToUnderlying.keys()
                       if p in w ] ]
-        self.surfacePhonemes = [ tokenize(w) for w in corpus ]
-        self.surfaceFeatures = [ [ featureMap[t] for t in tokenize(w) ] for w in corpus ]
-        self.surfaceMatrices = [ [ featureVectorMap[t] for t in tokenize(w) ] for w in corpus ]
+        self.bank = FeatureBank(corpus)
+        
+        self.surfaceFeatures = [ [ self.bank.featureMap[t] for t in tokenize(w) ] for w in corpus ]
+        self.surfaceMatrices = [ [ self.bank.featureVectorMap[t] for t in tokenize(w) ] for w in corpus ]
         
         def substitute(p):
             if p in self.surfaceToUnderlying:
@@ -31,9 +32,9 @@ class AlternationProblem():
                 if self.surfaceToUnderlying[k] == p: return k
             return p
         
-        self.underlyingFeatures = [ [ featureMap[substitute(t)] for t in tokenize(w) ] for w in corpus ]
-        self.underlyingMatrices = [ [ featureVectorMap[substitute(t)] for t in tokenize(w) ] for w in corpus ]
-        self.underlyingMatricesAlternative = [ [ featureVectorMap[substituteBackwards(t)] for t in tokenize(w) ] for w in corpus ]
+        self.underlyingFeatures = [ [ self.bank.featureMap[substitute(t)] for t in tokenize(w) ] for w in corpus ]
+        self.underlyingMatrices = [ [ self.bank.featureVectorMap[substitute(t)] for t in tokenize(w) ] for w in corpus ]
+        self.underlyingMatricesAlternative = [ [ self.bank.featureVectorMap[substituteBackwards(t)] for t in tokenize(w) ] for w in corpus ]
         self.rule = Rule()
 
     def scoreSolution(self):
@@ -52,25 +53,6 @@ class AlternationProblem():
         return errors
 
     
-    def sketchDeep(self, surfacePhonemes, whichOrientation):
-        # Construct the latent deep structure
-        # Depends on the orientation
-        deep = []
-        for p in surfacePhonemes:
-            # p is underlying surfaceToUnderlying[p]
-            if p in self.surfaceToUnderlying:
-                deep.append(itePhoneme(whichOrientation,
-                                       self.surfaceToUnderlying[p],
-                                       p))
-            # surfaceToUnderlying[p] is underlying p
-            elif p in self.deepToSurface:
-                deep.append(itePhoneme(whichOrientation,
-                                       p,
-                                       self.deepToSurface[p]))
-            else:
-                deep.append(makeConstantPhoneme(p))
-        return makeConstantVector(deep)
-                
         
     def sketchSolution(self):
         Model.Global()
@@ -82,14 +64,12 @@ class AlternationProblem():
         
         for j in range(len(self.surfaceMatrices)):
             surface = makeConstantWordOfMatrix(self.surfaceMatrices[j])
-
-            
             deep1 = makeConstantWordOfMatrix(self.underlyingMatrices[j])
             deep2 = makeConstantWordOfMatrix(self.underlyingMatricesAlternative[j])
             deep = ite(whichOrientation,
                        deep1,
                        deep2)
-            prediction = deep #makeWord(self.sketchDeep(self.surfacePhonemes[j], whichOrientation))
+            prediction = deep
             for r in rules:
                 prediction = applyRule(r, prediction)
             
@@ -99,14 +79,14 @@ class AlternationProblem():
         for r in rules[1:]:
             cost = cost + alternationCost(r)
         minimize(cost)
-        
-        output = solveSketch()
-#        print output
 
+        print makeWebSkeleton()
+        output = solveSketch(self.bank)
+        
         print "Solution found using constraint solving:"
         print "With the expected orientation?",parseFlip(output, whichOrientation)
         for r in rules:
-            print Rule.parse(output, r)
+            print Rule.parse(self.bank, output, r)
         
 data = alternationProblems[int(sys.argv[1]) - 1]
 print data.description

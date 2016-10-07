@@ -1,5 +1,5 @@
 import re
-from features import featureVectorMap,tokenize,FEATURELIST
+from features import FeatureBank
 from sketchSyntax import *
 from rule import Rule
 
@@ -28,44 +28,39 @@ def sampleMorph():
 @sketchImplementation("concatenate3")
 def concatenate3(x,y,z): pass
 
-def makeConstantVector(v):
-    return "{ %s }" % ", ".join(map(str, v))
-
-def makeConstantMatrix(matrix):
-    return "{ %s }" % ", ".join([ "{ %s }" % ", ".join(map(str,fs)) for fs in matrix ])
-
-def makeConstantWord(word):
-    matrix = [featureVectorMap[t] for t in tokenize(word) ]
+def makeConstantWord(bank, word):
+    matrix = [bank.featureVectorMap[t] for t in tokenize(word) ]
     return makeConstantWordOfMatrix(matrix)
+def makeConstantVector(v):
+    return Array(map(Constant,v))
+def makeConstantMatrix(m):
+    return Array([ makeConstantVector(v) for v in m ])
 def makeConstantWordOfMatrix(matrix):
     return makeWord(makeConstantMatrix(matrix))
-def makeConstantPhoneme(p):
-    vector = featureVectorMap[p] # list of boolean
-    return makeConstantVector(map(str,vector))
-
-def itePhoneme(c,p1,p2):
-    f1 = featureVectorMap[p1]
-    f2 = featureVectorMap[p2]
-    f = [ (f1[j] if f1[j] == f2[j] else ite(c,f1[j],f2[j])) for j in range(len(f2)) ]
-    return makeConstantVector(f)
+def makeConstantPhoneme(bank, p):
+    vector = bank.featureVectorMap[p] # list of boolean
+    return makeConstantVector(vector)
 
 
-def makeSketch():
+def makeSketch(bank):
     h = ""
-    h += "#define NUMBEROFFEATURES %d\n" % len(FEATURELIST)
+    h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
+    h += "#define True 1\n#define False 0\n"
+    h += bank.sketch()
     h += "#include \"common.skh\"\n"
     h += makeSketchSkeleton()
     return h
 
-def solveSketch():
-    source = makeSketch()
+def solveSketch(bank):
+    source = makeSketch(bank)
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
     print "Invoking solver..."
-    command = "sketch test.sk > %s" % outputFile # --bnd-unroll-amnt 50
+    command = "sketch  --bnd-unroll-amnt 15 test.sk > %s" % outputFile
     print command
     os.system(command)
     print "Finished calling solver."
     return open(outputFile,'r').read()
+
 

@@ -1,4 +1,5 @@
 
+#define MAXIMUMMORPHLENGTH 10
 #define True 1
 #define False 0
 #define Sound bit[NUMBEROFFEATURES]
@@ -61,12 +62,20 @@ Word make_word([int l],bit [NUMBEROFFEATURES][l] s) {
 generator Word unknown_word() {
   int l = ??;
   assert l >= 0;
-  bit[NUMBEROFFEATURES][l] s;
-  int j = 0;
-  repeat (l) {
-    s[j++] = ??;
+  int[MAXIMUMMORPHLENGTH] phonemeIndexes = ??(8);
+  
+  Word w = new Word(l = l);
+  for (int j = 0; j < l; j++) {
+    w.s[j] = phonemes[phonemeIndexes[j]];
   }
-  return new Word(l = l,s = s);
+  return w;
+}
+
+generator bit[NUMBEROFFEATURES] unknown_sound() {
+  bit[NUMBEROFFEATURES] s;
+  int f = 0;
+  repeat(NUMBEROFFEATURES) { s[f++] = ??; }
+  return s;
 }
 
 struct Predicate{}

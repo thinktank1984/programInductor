@@ -1,5 +1,5 @@
 from sketchSyntax import define, FunctionCall
-from features import featureMap, FEATURESET, FEATURELIST
+from features import FeatureBank
 
 from random import random
 import re
@@ -77,9 +77,9 @@ class Rule():
         return define("Rule", FunctionCall("unknown_rule",[]))
     # Produces a rule object from a sketch output
     @staticmethod
-    def parse(output, variable):
+    def parse(bank, output, variable):
         def decodeStructure(preference,mask):
-            return [ (preference[f] == 1,FEATURELIST[f]) for f in range(len(FEATURELIST)) if mask[f] == 1]
+            return [ (preference[f] == 1,bank.features[f]) for f in range(len(bank.features)) if mask[f] == 1]
         structures = {}
         variable = str(variable)
         print variable
