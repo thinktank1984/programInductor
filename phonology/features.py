@@ -78,6 +78,7 @@ featureMap = {
     u"t": [alveolar,stop,coronal],
     u"th": [alveolar,stop,aspirated,coronal],
     u"ṭ": [retroflex,stop,coronal],
+    u"ḍ": [retroflex,stop,coronal,voice],
     u"ð": [dental,fricative,voice,coronal],
     u"z": [alveolar,fricative,voice,coronal],
     u"ǰ": [alveolar,affricate,voice,coronal],

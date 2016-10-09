@@ -21,7 +21,7 @@ class Problem():
                     if x != "~":
                         tokenize(x)
         # If this is an alternation problem
-        if parameters and "alternations" in parameters:
+        if parameters and "alternations" in parameters and False:
             ps = set([ p for w in data for p in tokenize(w) ])
             print "Number of distinct phonemes: %d" % len(ps)
             fs = set([ f  for p in ps for f in featureMap[p] ])
@@ -239,7 +239,7 @@ These are all coronal
      u"etro",#"scale"),
      u"eñrɔ̃",#"spitting cobra"),
      u"ǰro"],#,   "hint")])
-    {"alternations": {u"l": u"r"}}))
+    {"alternations": [{u"l": u"r"}]}))
 
 alternationProblems.append(Problem(
 u'''
@@ -442,7 +442,14 @@ alternationProblems.append(Problem(
     velar context:
     _ {u,ṭ,ɨ,i,ɩ,ɛ,e,g,b}
     
-    {a,o,ɔ} follows uvular
+    {a,o,ɔ} follows uvular [-hi,-front]
+    
+    voice(less) stop:
+    voice context:
+    {ŋ,N,m}_{u,a,o}
+    voiceless context:
+    {ŋ,u,a}
+    
     ''',
     [
 	u"aŋgu",	#"pigeon"
@@ -498,8 +505,12 @@ alternationProblems.append(Problem(
 	u"simGãã", #"build a house"
         ],
     {"alternations": [{u"q": u"k",
-                      u"G": u"g",
-                      u"N": u"ŋ"}]}))
+                       u"G": u"g",
+                       u"N": u"ŋ"},
+                      {u"b": u"p",
+                       u"g": u"k",
+                       u"d": u"t",
+                       u"ṭ": u"ḍ"}]}))
 
 
 # Chapter 4

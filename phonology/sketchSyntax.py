@@ -1,5 +1,5 @@
-# DSL independent sketch generation code
-# Focuses on generating and parsing the syntax of sketch programs
+# DSL independent model generation code
+# Focuses on generating and parsing the syntax of sketch/webppl programs
 
 import re
 

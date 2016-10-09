@@ -18,7 +18,7 @@ class AlternationProblem():
         corpus = [w for w in corpus
                   if [p for p in self.surfaceToUnderlying.values() + self.surfaceToUnderlying.keys()
                       if p in w ] ]
-        self.bank = FeatureBank(corpus)
+        self.bank = FeatureBank(corpus + alternation.keys() + alternation.values())
         
         self.surfaceFeatures = [ [ self.bank.featureMap[t] for t in tokenize(w) ] for w in corpus ]
         self.surfaceMatrices = [ [ self.bank.featureVectorMap[t] for t in tokenize(w) ] for w in corpus ]
@@ -80,7 +80,6 @@ class AlternationProblem():
             cost = cost + alternationCost(r)
         minimize(cost)
 
-        print makeWebSkeleton()
         output = solveSketch(self.bank)
         
         print "Solution found using constraint solving:"
