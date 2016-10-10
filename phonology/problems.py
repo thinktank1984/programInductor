@@ -522,8 +522,8 @@ underlyingProblems.append(Problem(
     ''',
     [(u"toniro",	u"notoniroti"),
      (u"yaarato",	u"noyaaratoti"),
-     # (u"kanari",	u"noyanariti"),
-     # (u"kosiri",	u"noyosiriti"),
+     (u"kanari",	u"noyanariti"),
+     (u"kosiri",	u"noyosiriti"),
      (u"pisiro",	u"nowisiroti"),
      (u"porita",	u"noworitati")]))
 

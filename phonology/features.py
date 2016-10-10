@@ -182,14 +182,20 @@ class FeatureBank():
             for p in self.phonemes ])
     def wordToMatrix(self, w):
         return [ self.featureVectorMap[p] for p in tokenize(w) ]
+    
+    def variablesOfWord(self, w):
+        tokens = tokenize(w)
+        p2v = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
+        return [ "phoneme_%d" % p2v[t] for t in tokens ]
 
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""
-        h = "bit [NUMBEROFFEATURES][%d] phonemes = {\n" % len(self.phonemes)
-        h += ",\n".join([ "\t// %s\n\t{%s}" % (featureMap[p],
-                                               ",".join(map(str,self.featureVectorMap[p])))
-                          for p in self.phonemes ])
-        h += "};\n"
+        h = ""
+        for j in range(len(self.phonemes)):
+            features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))
+            h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
+        h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
+        h += "\n"
         return h
 
 

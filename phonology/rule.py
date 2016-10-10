@@ -1,26 +1,23 @@
+from Specification import *
 from sketchSyntax import define, FunctionCall
 from features import FeatureBank
+
 
 from random import random
 import re
 
 class Rule():
     def __init__(self, focus = [], structuralChange = [], leftTriggers = [], rightTriggers = []):
-        '''
-        Each matrix is represented as a list of (Boolean,string)
-        The first component is the polarity, the second component is feature.
-        '''
-        
         self.focus = focus
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
 
         # Remove unimportant guard
-        while len(leftTriggers) > 0 and len(leftTriggers[0]) == 0:
+        while len(leftTriggers) > 0 and leftTriggers[0].alwaysTrue():
             leftTriggers = leftTriggers[1:]
         self.relevantLeftTriggers = leftTriggers
-        while len(rightTriggers) > 0 and len(rightTriggers[-1]) == 0:
+        while len(rightTriggers) > 0 and rightTriggers[-1].alwaysTrue():
             rightTriggers = rightTriggers[:-1]
         self.relevantRightTriggers = rightTriggers
     
@@ -66,10 +63,10 @@ class Rule():
                     map(mutateMatrix,self.rightTriggers))
 
     def __str__(self):
-        return "%s ---> %s / %s _ %s" % (stringOfMatrix(self.focus),
-                                      stringOfMatrix(self.structuralChange),
-                                      " ".join(map(stringOfMatrix,self.leftTriggers)),
-                                      " ".join(map(stringOfMatrix,self.rightTriggers)))
+        return "%s ---> %s / %s _ %s" % (str(self.focus),
+                                         str(self.structuralChange),
+                                         " ".join(map(str,self.leftTriggers)),
+                                         " ".join(map(str,self.rightTriggers)))
 
     # Produces sketch object
     @staticmethod
@@ -84,16 +81,15 @@ class Rule():
         variable = str(variable)
         print variable
         for specification in ['focus','structural_change','left_trigger','right_trigger']:
-            specificationPattern = 'Rule.*%s.* = new Rule.*%s=new Specification\(mask={([01,]+)}, preference={([01,]+)}\)' % (variable, specification)
+            specificationPattern = 'Rule.*%s.* = new Rule.*%s=(new Specification\(mask={[01,]+}, preference={[01,]+}\))' % (variable, specification)
             endingPattern = 'Rule.*%s.* = new Rule.*%s=new EndOfString' % (variable, specification)
             m = re.search(specificationPattern, output)
             if m:
-                s = decodeStructure([int(x) for x in m.group(2).split(",") ],
-                                    [int(x) for x in m.group(1).split(",") ])
+                s = Specification.parse(bank, m.group(1))
             else:
                 m = re.search(endingPattern, output)
                 if m:
-                    s = "#"
+                    s = EndOfString()
                 else:
                     print "Could not find the following pattern:"
                     print pattern

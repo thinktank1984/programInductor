@@ -27,6 +27,8 @@ def sampleMorph():
     return define("Word", FunctionCall("unknown_word",[]))
 @sketchImplementation("concatenate3")
 def concatenate3(x,y,z): pass
+@sketchImplementation("word_length")
+def wordLength(w): return len(w)
 
 def makeConstantWord(bank, word):
     matrix = [bank.featureVectorMap[t] for t in tokenize(word) ]
@@ -40,6 +42,10 @@ def makeConstantWordOfMatrix(matrix):
 def makeConstantPhoneme(bank, p):
     vector = bank.featureVectorMap[p] # list of boolean
     return makeConstantVector(vector)
+def makeConstantWord(bank, w):
+    w = bank.variablesOfWord(w)
+    w = Array([ Variable(v) for v in w ])
+    return makeWord(w)
 
 
 def makeSketch(bank):

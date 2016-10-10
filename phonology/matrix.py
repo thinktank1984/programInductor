@@ -12,6 +12,7 @@ import sys
 class UnderlyingProblem():
     def __init__(self, problem):
         data = problem.data
+        self.data = data
         self.bank = FeatureBank([ w for l in data for w in l  ])
 
         self.numberOfInflections = len(data[0])
@@ -36,7 +37,15 @@ class UnderlyingProblem():
 
         for l in range(len(stems)):
             for i in range(self.numberOfInflections):
-                condition(wordEqual(makeConstantWordOfMatrix(self.inflectionMatrix[l][i]), surfaces[l][i]))
+                condition(wordEqual(makeConstantWord(self.bank, self.data[l][i]),
+                                    surfaces[l][i]))
+
+        morphs = prefixes + suffixes
+        cost = wordLength(morphs[0])
+        for m in morphs[1:]:
+            cost = cost + wordLength(m)
+        maximize(cost)
+        
         output = solveSketch(self.bank)
         print output
 

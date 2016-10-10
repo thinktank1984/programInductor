@@ -38,6 +38,10 @@ class Minimize():
     def __init__(self,n): self.n = n
     def sketch(self): return "minimize(%s);" % self.n.sketch()
     def web(self): return "factor( - (%s))" % self.n.web()
+class Maximize():
+    def __init__(self,n): self.n = n
+    def sketch(self): return "maximize(%s);" % self.n.sketch()
+    def web(self): return "factor(%s)" % self.n.web()
 
 class Definition():
     def __init__(self, ty, name, value):
@@ -102,6 +106,8 @@ class Model():
         self.statements.append(QuantifiedAssertion(predicate,self.quantifiedConditions))
     def minimize(self, expression):
         self.statements.append(Minimize(expression))
+    def maximize(self, expression):
+        self.statements.append(Maximize(expression))
     def sketch(self):
         h = ""
             
@@ -153,6 +159,9 @@ def quantifiedCondition(predicate):
 
 def minimize(expression):
     currentModel.minimize(expression)
+
+def maximize(expression):
+    currentModel.maximize(expression)
 
 def sketchImplementation(name):
     def namedImplementation(f):
