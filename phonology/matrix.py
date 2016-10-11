@@ -45,6 +45,14 @@ class UnderlyingProblem():
         for m in morphs[1:]:
             cost = cost + wordLength(m)
         maximize(cost)
+
+        cost = ruleCost(rules[0])
+        for r in rules[1:]: cost = cost + ruleCost(r)
+        minimize(cost)
+
+        # for the first problem we had a constraint saying that the prefix and suffix are empty for the first inflection
+        condition(wordLength(prefixes[0]) == 0)
+        condition(wordLength(suffixes[0]) == 0)
         
         output = solveSketch(self.bank)
         print output

@@ -88,9 +88,14 @@ struct ConstantPhoneme extends Predicate{
   Sound phoneme;
 }
 
+generator Sound unknown_sound() { return UNKNOWNSOUND; }
+  
 generator Predicate unknown_predicate() {
-  return {| new Specification(mask = ??, preference = ??) | new EndOfString() |};
+  return ?? ? new Specification(mask = ??, preference = ??) :
+    (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND));
 }
+
+#define UNKNOWNPREDICATE (?? ? new Specification(mask = ??, preference = ??) : (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND)))
 
 generator Specification unknown_specification() {
   return new Specification(mask = ??,
@@ -135,10 +140,10 @@ Sound apply_specification(Specification specification, Sound sound) {
 int predicate_cost(Predicate s) {
   switch(s) {
   case EndOfString:{ return 1; }
-  case ConstantPhoneme:{ return 2; }
+  case ConstantPhoneme:{ return 0; }
   case Specification:{
     if (empty_specification(s)) return 0;
-    int c = 1;
+    int c = 3;
     for (int f = 0; f < NUMBEROFFEATURES; f++) {
       if (s.mask[f])
 	c += s.preference[f] ? 1 : 2;
@@ -167,12 +172,17 @@ struct Rule {
 generator Rule unknown_rule() {
   return new Rule(focus = new Specification(mask = ??, preference = ??),
 		  structural_change = new Specification(mask = ??, preference = ??),
-		  left_trigger = ?? ? new EndOfString() : new Specification(mask = ??, preference = ??),
-		  right_trigger = ?? ? new EndOfString() : new Specification(mask = ??, preference = ??));
+		  left_trigger = UNKNOWNPREDICATE,
+		  right_trigger = UNKNOWNPREDICATE);
 }
 
 int alternation_cost(Rule r) {
   return predicate_cost(r.right_trigger) + predicate_cost(r.left_trigger);
+}
+
+int rule_cost(Rule r) {
+  return predicate_cost(r.right_trigger) + predicate_cost(r.left_trigger) +
+    predicate_cost(r.focus) + predicate_cost(r.structural_change);
 }
 
 

@@ -83,6 +83,7 @@ class Rule():
         for specification in ['focus','structural_change','left_trigger','right_trigger']:
             specificationPattern = 'Rule.*%s.* = new Rule.*%s=(new Specification\(mask={[01,]+}, preference={[01,]+}\))' % (variable, specification)
             endingPattern = 'Rule.*%s.* = new Rule.*%s=new EndOfString' % (variable, specification)
+            constantPattern = 'Rule.*%s.* = new Rule.*%s=new ConstantPhoneme\(([^)]+)\)' % (variable, specification)
             m = re.search(specificationPattern, output)
             if m:
                 s = Specification.parse(bank, m.group(1))
@@ -91,9 +92,13 @@ class Rule():
                 if m:
                     s = EndOfString()
                 else:
-                    print "Could not find the following pattern:"
-                    print pattern
-                    return None
+                    m = re.search(constantPattern, output)
+                    if m:
+                        s = ConstantPhoneme.parse(bank, m.group(1))
+                    else:
+                        print "Could not find the following pattern:"
+                        print pattern
+                        return None
             structures[specification] = s
         return Rule(structures['focus'],
                     structures['structural_change'],

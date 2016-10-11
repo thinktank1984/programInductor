@@ -29,6 +29,8 @@ def sampleMorph():
 def concatenate3(x,y,z): pass
 @sketchImplementation("word_length")
 def wordLength(w): return len(w)
+@sketchImplementation("rule_cost")
+def ruleCost(r): return r.cost()
 
 def makeConstantWord(bank, word):
     matrix = [bank.featureVectorMap[t] for t in tokenize(word) ]

@@ -6,6 +6,10 @@ import re
 class Expression:
     def __add__(self,o):
         return Addition(self,o)
+    def __eq__(self,o):
+        if not isinstance(o,Expression):
+            o = Constant(o)
+        return Equals(self,o)
     def __str__(self): return self.web()
 
 class FunctionCall(Expression):
@@ -27,6 +31,13 @@ class Constant(Expression):
     def sketch(self): return self.k
     def web(self): return self.k
 
+class Equals(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b
+    def sketch(self): return "((%s) == (%s))" % (self.a.sketch(), self.b.sketch())
+    def web(self): return "((%s) == (%s))" % (self.a.web(), self.b.web())
+
 class Array(Expression):
     def __init__(self,elements): self.elements = elements
     def sketch(self):
@@ -40,7 +51,7 @@ class Minimize():
     def web(self): return "factor( - (%s))" % self.n.web()
 class Maximize():
     def __init__(self,n): self.n = n
-    def sketch(self): return "maximize(%s);" % self.n.sketch()
+    def sketch(self): return "minimize(10 - (%s));" % self.n.sketch()
     def web(self): return "factor(%s)" % self.n.web()
 
 class Definition():
