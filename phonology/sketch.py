@@ -32,18 +32,10 @@ def wordLength(w): return len(w)
 @sketchImplementation("rule_cost")
 def ruleCost(r): return r.cost()
 
-def makeConstantWord(bank, word):
-    matrix = [bank.featureVectorMap[t] for t in tokenize(word) ]
-    return makeConstantWordOfMatrix(matrix)
 def makeConstantVector(v):
     return Array(map(Constant,v))
 def makeConstantMatrix(m):
     return Array([ makeConstantVector(v) for v in m ])
-def makeConstantWordOfMatrix(matrix):
-    return makeWord(makeConstantMatrix(matrix))
-def makeConstantPhoneme(bank, p):
-    vector = bank.featureVectorMap[p] # list of boolean
-    return makeConstantVector(vector)
 def makeConstantWord(bank, w):
     w = bank.variablesOfWord(w)
     w = Array([ Variable(v) for v in w ])

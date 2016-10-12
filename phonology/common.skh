@@ -90,12 +90,8 @@ struct ConstantPhoneme extends Predicate{
 
 generator Sound unknown_sound() { return UNKNOWNSOUND; }
   
-generator Predicate unknown_predicate() {
-  return ?? ? new Specification(mask = ??, preference = ??) :
-    (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND));
-}
-
 #define UNKNOWNPREDICATE (?? ? new Specification(mask = ??, preference = ??) : (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND)))
+
 
 generator Specification unknown_specification() {
   return new Specification(mask = ??,
