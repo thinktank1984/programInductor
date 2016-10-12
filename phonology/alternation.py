@@ -80,11 +80,13 @@ class AlternationProblem():
         minimize(cost)
 
         output = solveSketch(self.bank)
-        
-        print "Solution found using constraint solving:"
-        print "With the expected orientation?",parseFlip(output, whichOrientation)
-        for r in rules:
-            print Rule.parse(self.bank, output, r)
+        if output:        
+            print "Solution found using constraint solving:"
+            print "With the expected orientation?",parseFlip(output, whichOrientation)
+            for r in rules:
+                print Rule.parse(self.bank, output, r)
+        else:
+            print "Failed to find a solution"
         
 data = alternationProblems[int(sys.argv[1]) - 1]
 print data.description

@@ -51,10 +51,12 @@ class UnderlyingProblem():
         minimize(cost)
 
         output = solveSketch(self.bank)
-        print output
-
-        for r in rules:
-            print Rule.parse(self.bank, output, r)
+        if output:
+            for r in rules:
+                print Rule.parse(self.bank, output, r)
+        else:
+            print "Failed to find a solution."
+                
 
 data = underlyingProblems[int(sys.argv[1]) - 1]
 print data.description
