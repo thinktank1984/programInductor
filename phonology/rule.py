@@ -79,7 +79,6 @@ class Rule():
             return [ (preference[f] == 1,bank.features[f]) for f in range(len(bank.features)) if mask[f] == 1]
         structures = {}
         variable = str(variable)
-        print variable
         for specification in ['focus','structural_change','left_trigger','right_trigger']:
             specificationPattern = 'Rule.*%s.* = new Rule.*%s=(new Specification\(mask={[01,]+}, preference={[01,]+}\))' % (variable, specification)
             endingPattern = 'Rule.*%s.* = new Rule.*%s=new EndOfString' % (variable, specification)
@@ -97,7 +96,7 @@ class Rule():
                         s = ConstantPhoneme.parse(bank, m.group(1))
                     else:
                         print "Could not find the following pattern:"
-                        print pattern
+                        print output
                         return None
             structures[specification] = s
         return Rule(structures['focus'],
@@ -120,8 +119,3 @@ def matchesTemplate(candidate, template):
         if polarity and (not (f in candidate)): return False
         if not polarity and (f in candidate): return False
     return True
-
-
-def stringOfMatrix(m):
-    if m == '#': return m
-    return "[ %s ]" % " ".join([ ('+' if polarity else '-')+f for polarity,f in m ])

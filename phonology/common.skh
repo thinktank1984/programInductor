@@ -88,24 +88,32 @@ struct ConstantPhoneme extends Predicate{
   Sound phoneme;
 }
 
-generator Sound unknown_sound() { return UNKNOWNSOUND; }
-  
 #define UNKNOWNPREDICATE (?? ? new Specification(mask = ??, preference = ??) : (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND)))
-
+#define UNKNOWNSPECIFICATION (?? ? new Specification(mask = ??, preference = ??) : new ConstantPhoneme(phoneme = UNKNOWNSOUND))
 
 generator Specification unknown_specification() {
   return new Specification(mask = ??,
 			   preference = ??);
 }
 
-bit matches_specification(Sound sound, Specification specification) {
-  bit[NUMBEROFFEATURES] mistakeVector = (sound.f^(specification.preference))&specification.mask;
-  int f = 0;
-  repeat (NUMBEROFFEATURES) {
-    if (mistakeVector[f]) return 0;
-    f++;
+bit matches_specification(Sound sound, Predicate specification) {
+  switch (specification) {
+  case Specification:{
+    bit[NUMBEROFFEATURES] mistakeVector = (sound.f^(specification.preference))&specification.mask;
+    int f = 0;
+    repeat (NUMBEROFFEATURES) {
+      if (mistakeVector[f]) return 0;
+      f++;
+    }
+    return 1;
   }
-  return 1;
+  case ConstantPhoneme: {
+    return sound_equal(sound, specification.phoneme);
+  }
+  case EndOfString: {
+    assert 0;
+  }
+  }
 }
 
 bit matches_predicate(Predicate p, Word u, int j) {
@@ -125,12 +133,22 @@ bit matches_predicate(Predicate p, Word u, int j) {
   return match;
 }
 
-Sound apply_specification(Specification specification, Sound sound) {
-  return new Sound(f = 
-		   // New positives induced by the specification
-		   (specification.mask & specification.preference) |
-		   // Old features minus the ones that were removed by the specification
-		   ((~specification.mask) & sound.f));
+Sound apply_specification(Predicate specification, Sound sound) {
+  switch (specification) {
+  case Specification:{
+    return new Sound(f = 
+		     // New positives induced by the specification
+		     (specification.mask & specification.preference) |
+		     // Old features minus the ones that were removed by the specification
+		     ((~specification.mask) & sound.f));
+  }
+  case ConstantPhoneme:{
+    return specification.phoneme;
+  }
+  case EndOfString:{
+    assert 0;
+  }
+  }
 }
 
 int predicate_cost(Predicate s) {
@@ -159,15 +177,15 @@ bit empty_specification(Specification s) {
 }
   
 struct Rule {
-  Specification focus;
-  Specification structural_change;
+  Predicate focus;
+  Predicate structural_change;
   Predicate left_trigger;
   Predicate right_trigger;
 }
 
 generator Rule unknown_rule() {
-  return new Rule(focus = new Specification(mask = ??, preference = ??),
-		  structural_change = new Specification(mask = ??, preference = ??),
+  return new Rule(focus = UNKNOWNSPECIFICATION,
+		  structural_change = UNKNOWNSPECIFICATION,
 		  left_trigger = UNKNOWNPREDICATE,
 		  right_trigger = UNKNOWNPREDICATE);
 }
@@ -183,16 +201,14 @@ int rule_cost(Rule r) {
 
 
 Word apply_rule(Rule r, Word u) {
-  Specification focus = r.focus;
-  Specification structural_change = r.structural_change;
+  Predicate focus = r.focus;
+  Predicate structural_change = r.structural_change;
   Predicate left_trigger = r.left_trigger;
   Predicate right_trigger = r.right_trigger;
 
   Word output = new Word(l = u.l);
   
-  assert !empty_specification(focus);
-
-  for (int j = 0; j < u.l; j++) {
+ for (int j = 0; j < u.l; j++) {
     bit left_okay = matches_predicate(left_trigger, u, j - 1);    
     bit middle_okay = matches_specification(u.s[j], focus);
     bit right_okay = matches_predicate(right_trigger, u, j + 1);
