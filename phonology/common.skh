@@ -167,13 +167,19 @@ int predicate_cost(Predicate s) {
   }
 }
 
-bit empty_specification(Specification s) {
-  int f = 0;
-  repeat(NUMBEROFFEATURES) {
-    if (s.mask[f]) return 0;
-    f++;
+bit empty_specification(Predicate s) {
+  switch(s){
+  case Specification:{
+    int f = 0;
+    repeat(NUMBEROFFEATURES) {
+      if (s.mask[f]) return 0;
+      f++;
+    }
+    return 1;
   }
-  return 1;
+  case EndOfString:{ return 0; }
+  case ConstantPhoneme:{ return 0; }
+  }
 }
   
 struct Rule {
@@ -207,8 +213,8 @@ Word apply_rule(Rule r, Word u) {
   Predicate right_trigger = r.right_trigger;
 
   Word output = new Word(l = u.l);
-  
- for (int j = 0; j < u.l; j++) {
+
+  for (int j = 0; j < u.l; j++) {
     bit left_okay = matches_predicate(left_trigger, u, j - 1);    
     bit middle_okay = matches_specification(u.s[j], focus);
     bit right_okay = matches_predicate(right_trigger, u, j + 1);
