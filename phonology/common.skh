@@ -88,13 +88,8 @@ struct ConstantPhoneme extends Predicate{
   Sound phoneme;
 }
 
-#define UNKNOWNPREDICATE (?? ? new Specification(mask = ??, preference = ??) : (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND)))
-#define UNKNOWNSPECIFICATION (?? ? new Specification(mask = ??, preference = ??) : new ConstantPhoneme(phoneme = UNKNOWNSOUND))
-
-generator Specification unknown_specification() {
-  return new Specification(mask = ??,
-			   preference = ??);
-}
+#define UNKNOWNPREDICATE (?? ? new Specification(mask = ??, preference = ??) : (?? ? new EndOfString() : new ConstantPhoneme(phoneme = UNKNOWNSOUND) ))
+#define UNKNOWNSPECIFICATION {| new Specification(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNSOUND) |}
 
 bit matches_specification(Sound sound, Predicate specification) {
   switch (specification) {
