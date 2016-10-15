@@ -136,7 +136,8 @@ int specification_cost(Specification s) {
 
 struct Guard {
   bit endOfString; // is it constrains to be at the end of string?
-  Specification spec;
+  Specification spec; // Primary specification - holds immediately adjacent
+  //  Specification spec2; // Secondary specification - holds one apart from adjacent
 }
 
 struct Rule {

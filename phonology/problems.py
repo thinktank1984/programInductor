@@ -527,26 +527,31 @@ underlyingProblems.append(Problem(
      (u"pisiro",	u"nowisiroti"),
      (u"porita",	u"noworitati")]))
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 2. Kikuyu
 	What is the underlying form of the infinitive prefix in Kikuyu? Give a rule that explains the non-underlying pronunciation of the prefix.
+    ko in context:
+    {r,o,m,h,ɣ,i}
+    ɣo in context:
+    {t,k,č}
+    [-voice, -h]
     ''',
-    [u"ɣotɛŋɛra",
-     u"ɣokuua",
-     u"ɣokoora",
-     u"koruɣa",
-     u"kooria",
-     u"komɛɲa",
-     u"kohɔta",
-     u"ɣočina",
-     u"koɣeera",
-     u"koina",
-     u"ɣočuuka",
-     u"ɣokaya",
-     u"koɣaya"])
+    [(u"ɣotɛŋɛra",),
+     (u"ɣokuua",),
+     (u"ɣokoora",),
+     (u"koruɣa",),
+     (u"kooria",),
+     (u"komɛɲa",),
+     (u"kohɔta",),
+     (u"ɣočina",),
+     (u"koɣeera",),
+     (u"koina",),
+     (u"ɣočuuka",),
+     (u"ɣokaya",),
+     (u"koɣaya",)]))
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 3: Korean
 	Give the underlying representations of each of the verb stems found below; state what phonological rule applies to these data. [Note: there is a vowel harmony rule which explains the variation between final a and ə in the imperative, which you do not need to be concerned with]
@@ -562,9 +567,9 @@ Problem(
      (u"ikə",		u"ikk’o"),
      (u"tak’u",		u"takk’o"),
      (u"k’ak’a", u"k’akk’o"),
-     (u"sək’ə",		u"səkk’o")])
+     (u"sək’ə",		u"səkk’o")]))
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 4: Hungarian
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
@@ -590,9 +595,9 @@ Problem(
 	(u"toroñ",	u"toroñban",	u"toroñto:l",	u"toroñnak"), #	tower
 	(u"fal",	u"falban",	u"falto:l",	u"falnak"), #	wall
 	(u"ö:r",	u"ö:rben",	u"ö:rtö:l",	u"ö:rnek"), #	guard
-	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak")]) #	mouth
+	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak")])) #	mouth
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 5: Kikuria
 	Provide appropriate underlying representations and phonological rules which will account for the following data.
@@ -614,9 +619,9 @@ Problem(
 	    (u"suka",	u"sokera"), #	‘plait’
 	    (u"huuta",	u"hootera"), #	‘blow’
 	    (u"riiŋga",	u"reeŋgera"), #	‘fold’
-	    (u"siinda",	u"seendera")]) #	‘win’
+	    (u"siinda",	u"seendera")])) #	‘win’
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 6: Farsi
 Give the underlying forms for the following nouns, and say what phonological rule is necessary to explain the following data.
@@ -637,9 +642,9 @@ Give the underlying forms for the following nouns, and say what phonological rul
 	(u"setare",	u"setaregan"), #	star
 	(u"bænde",	u"bændegan"), #	slave
 	(u"azade",	u"azadegan"), #	freeborn
-	(u"divane",	u"divanegan")]) #	insane
+	(u"divane",	u"divanegan")])) #	insane
 
-Problem(
+underlyingProblems.append(Problem(
     '''7: Tibetan
 Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
     ''',
@@ -655,9 +660,9 @@ Numbers between 11 and 19 are formed by placing the appropriate digit after the 
 	u"gubǰu",#	‘90’
 	u"ŋa",#	‘5’
 	u"ǰuŋa",#	‘15’
-	u"ŋabǰu"])#	‘50’
+	u"ŋabǰu"]))#	‘50’
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 8: Makonde
 Explain what phonological rules apply in the following examples (the acute accent in these example marks stress, whose position is predictable).
@@ -684,12 +689,12 @@ Explain what phonological rules apply in the following examples (the acute accen
 	(u"iváŋga",		u"ivíle",		u"íva"),#		steal
 	(u"pitáŋga",		u"pitíle",		u"píta"),#		pass
 	(u"imbáŋga",	u"imbíle",		u"ímba"),#		dig
-	(u"limáŋga",	u"limíle",		u"líma")])#		cultivate
+	(u"limáŋga",	u"limíle",		u"líma")]))#		cultivate
 
-Problem(
+underlyingProblems.append(Problem(
     '''
 9: North Saami
-Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis here should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
+Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
     ''',
 	#Nominative sg.	Essive
     [
@@ -720,7 +725,7 @@ Posit appropriate underlying forms and any rules needed to explain the following
 	(u"laðas",	u"laðasin"),#	“something jointed”
 	(u"heaiyusmielat",	u"heaiyusmielagin"),#	“unhappy”
 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
-	(u"yaman",	u"yamanin")])#	“something that makes noise”
+	(u"yaman",	u"yamanin")]))#	“something that makes noise”
 
 Problem(
     '''1: Kerewe
