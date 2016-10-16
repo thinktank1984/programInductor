@@ -566,12 +566,12 @@ underlyingProblems.append(Problem(
      (u"kupə",		u"kupk’o"),
      # (u"kapha",		u"kapk’o"),
      (u"ciphə",		u"cipk’o"),
-     (u"tatə",		u"tatk’o"),
+     # (u"tata",		u"tatk’o"),
      (u"puthə",		u"putk’o"),
      (u"məkə",		u"məkk’o"),
      (u"čukə",		u"čukk’o"),
      (u"ikə",		u"ikk’o"),
-#     (u"tak’u",		u"takk’o"),
+#     (u"tak’a",		u"takk’o"),
 #     (u"k’ak’a", u"k’akk’o"),
      (u"sək’ə",		u"səkk’o")]))
 
