@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from sketchSyntax import define, FunctionCall
 from features import FeatureBank
 
@@ -17,8 +19,10 @@ class Specification():
         
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
-    def __str__(self): return self.p
-
+    def __unicode__(self): return self.p
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+    
     @staticmethod
     def parse(bank, output, variable):
         pattern = " %s = new ConstantPhoneme\(phoneme=phoneme_([0-9]+)_" % str(variable)
@@ -43,26 +47,27 @@ class FeatureMatrix():
         return FeatureMatrix(fs)
 
 class Guard():
-    def __init__(self, side, endOfString, specification):
+    def __init__(self, side, endOfString, specifications):
         self.side = side
         self.endOfString = endOfString
-        self.specification = specification
+        self.specifications = [ s for s in specifications if s != None ]
     def __str__(self):
         parts = []
         if self.endOfString: parts = ['#']
-        if self.specification: parts.append(str(self.specification))
+        parts += map(str,self.specifications)
         if self.side == 'R': parts.reverse()
         return " ".join(parts)
 
     @staticmethod
     def parse(bank, output, variable, side):
-        pattern = " %s = new Guard\(endOfString=([01]), spec=([a-zA-Z0-9_]+)"%variable
+        pattern = " %s = new Guard\(endOfString=([01]), spec=([a-zA-Z0-9_]+), spec2=([a-zA-Z0-9_]+)"%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Could not parse guard %s using pattern %s'%(variable,pattern))
 
         endOfString = m.group(1) == '1'
         spec = None if m.group(2) == 'null' else Specification.parse(bank, output, m.group(2))
-        return Guard(side, endOfString, spec)
+        spec2 = None if m.group(3) == 'null' else Specification.parse(bank, output, m.group(3))
+        return Guard(side, endOfString, [spec,spec2])
 
 class Rule():
     def __init__(self, focus = [], structuralChange = [], leftTriggers = [], rightTriggers = []):
@@ -70,12 +75,13 @@ class Rule():
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
-    
-    def __str__(self):
-        return "%s ---> %s / %s _ %s" % (str(self.focus),
-                                         str(self.structuralChange),
-                                         str(self.leftTriggers),
-                                         str(self.rightTriggers))
+
+    def __str__(self): return unicode(self).encode('utf-8')
+    def __unicode__(self):
+        return u"{} ---> {} / {} _ {}".format(self.focus,
+                                              self.structuralChange,
+                                              self.leftTriggers,
+                                              self.rightTriggers)
                                          
     # Produces sketch object
     @staticmethod

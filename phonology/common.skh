@@ -137,7 +137,7 @@ int specification_cost(Specification s) {
 struct Guard {
   bit endOfString; // is it constrains to be at the end of string?
   Specification spec; // Primary specification - holds immediately adjacent
-  //  Specification spec2; // Secondary specification - holds one apart from adjacent
+  Specification spec2; // Secondary specification - holds one apart from adjacent
 }
 
 struct Rule {
@@ -149,7 +149,8 @@ struct Rule {
 
 generator Guard unknown_guard() {
   Specification s = unknown_specification();
-  return new Guard(endOfString = ??, spec = {| null | s |});
+  Specification s2 = unknown_specification();
+  return new Guard(endOfString = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_specification() {
   return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNSOUND) |};
@@ -178,6 +179,10 @@ Word apply_rule(Rule r, Word u) {
   Guard left_trigger = r.left_trigger;
   Guard right_trigger = r.right_trigger;
 
+  // sanity check
+  if (left_trigger.spec == null) assert left_trigger.spec2 == null;
+  if (right_trigger.spec == null) assert right_trigger.spec2 == null;
+  
   Word output = new Word(l = u.l);
 
 
@@ -188,8 +193,11 @@ Word apply_rule(Rule r, Word u) {
       left_okay = j == 0;
     else if (left_trigger.endOfString) // #g_
       assert 0;
-    else if (left_trigger.spec != null)
+    else if (left_trigger.spec != null) {
       left_okay = j > 0 && matches_specification(u.s[j - 1], left_trigger.spec);
+      if (left_trigger.spec2 != null) // gg_
+	left_okay = left_okay && j > 1 && matches_specification(u.s[j - 2], left_trigger.spec2);
+    }
 
     // Check to see if the right matches
     bit right_okay = 1;
@@ -197,8 +205,11 @@ Word apply_rule(Rule r, Word u) {
       right_okay = j == u.l - 1;
     else if (right_trigger.endOfString) // _g#
       assert 0;
-    else if (right_trigger.spec != null)
+    else if (right_trigger.spec != null) {
       right_okay = j < u.l - 1 && matches_specification(u.s[j + 1], right_trigger.spec);
+      if (right_trigger.spec2 != null) // _gg
+	right_okay = right_okay && j < u.l - 2 && matches_specification(u.s[j + 2], right_trigger.spec2);
+    }
 
     bit middle_okay =
       matches_specification(u.s[j], focus);
