@@ -2,6 +2,7 @@
 
 from features import FeatureBank, tokenize
 from rule import Rule
+from morph import Morph
 from sketch import *
 
 from problems import underlyingProblems
@@ -24,9 +25,9 @@ class UnderlyingProblem():
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         rules = [ Rule.sample() for _ in range(depth)  ]
 
-        stems = [ sampleMorph() for _ in self.inflectionMatrix ]
-        prefixes = [ sampleMorph() for _ in range(self.numberOfInflections) ]
-        suffixes = [ sampleMorph() for _ in range(self.numberOfInflections) ]
+        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+        suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
         def applyRules(d):
             for r in rules: d = applyRule(r,d)
@@ -54,6 +55,11 @@ class UnderlyingProblem():
         if output:
             for r in rules:
                 print Rule.parse(self.bank, output, r)
+            for i in range(self.numberOfInflections):
+                print "Inflection %d:\t"%i,
+                print Morph.parse(self.bank, output, prefixes[i]),
+                print "+ stem +",
+                print Morph.parse(self.bank, output, suffixes[i])
         else:
             print "Failed to find a solution."
                 

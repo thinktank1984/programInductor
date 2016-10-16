@@ -197,5 +197,3 @@ class FeatureBank():
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
         h += "\n"
         return h
-
-

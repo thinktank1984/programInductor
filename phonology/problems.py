@@ -535,7 +535,9 @@ underlyingProblems.append(Problem(
     {r,o,m,h,ɣ,i}
     ɣo in context:
     {t,k,č}
-    [-voice, -h]
+
+    System discovers:
+    ɣ ---> k / # _ [ -affricate -stop ] o
     ''',
     [(u"ɣotɛŋɛra",),
      (u"ɣokuua",),
@@ -555,18 +557,22 @@ underlyingProblems.append(Problem(
     '''
 3: Korean
 	Give the underlying representations of each of the verb stems found below; state what phonological rule applies to these data. [Note: there is a vowel harmony rule which explains the variation between final a and ə in the imperative, which you do not need to be concerned with]
+    My analysis:
+    Aspirated/un- aspirated distinction exists underlying
+    However aspirated consonants become unaspirated followed by k - probably the rule is something like:
+           [+aspirated] > [-aspirated] / _ {[-vowel],[-stop],[-son],k}
     ''',
     [(u"ipə",		u"ipk’o"),
      (u"kupə",		u"kupk’o"),
-     (u"kapha",		u"kapk’o"),
+     # (u"kapha",		u"kapk’o"),
      (u"ciphə",		u"cipk’o"),
      (u"tatə",		u"tatk’o"),
      (u"puthə",		u"putk’o"),
      (u"məkə",		u"məkk’o"),
      (u"čukə",		u"čukk’o"),
      (u"ikə",		u"ikk’o"),
-     (u"tak’u",		u"takk’o"),
-     (u"k’ak’a", u"k’akk’o"),
+#     (u"tak’u",		u"takk’o"),
+#     (u"k’ak’a", u"k’akk’o"),
      (u"sək’ə",		u"səkk’o")]))
 
 underlyingProblems.append(Problem(

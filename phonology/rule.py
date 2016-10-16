@@ -3,8 +3,6 @@
 from sketchSyntax import define, FunctionCall
 from features import FeatureBank
 
-
-from random import random
 import re
 
 class Specification():
@@ -20,8 +18,7 @@ class Specification():
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
     def __unicode__(self): return self.p
-    def __str__(self):
-        return unicode(self).encode('utf-8')
+    def __str__(self): return unicode(self).encode('utf-8')
     
     @staticmethod
     def parse(bank, output, variable):
@@ -34,7 +31,7 @@ class FeatureMatrix():
     def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
     def __str__(self):
         elements = [ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]
-        return "[ %s ]" % (" ".join(elements))
+        return u"[ {} ]".format(u" ".join(elements))
 
     @staticmethod
     def parse(bank, output, variable):
@@ -51,12 +48,13 @@ class Guard():
         self.side = side
         self.endOfString = endOfString
         self.specifications = [ s for s in specifications if s != None ]
-    def __str__(self):
+    def __str__(self): return unicode(self).encode('utf-8')
+    def __unicode__(self):
         parts = []
-        if self.endOfString: parts = ['#']
-        parts += map(str,self.specifications)
+        if self.endOfString: parts = [u'#']
+        parts += map(unicode,self.specifications)
         if self.side == 'R': parts.reverse()
-        return " ".join(parts)
+        return u" ".join(parts)
 
     @staticmethod
     def parse(bank, output, variable, side):
