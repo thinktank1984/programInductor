@@ -44,28 +44,31 @@ class FeatureMatrix():
         return FeatureMatrix(fs)
 
 class Guard():
-    def __init__(self, side, endOfString, specifications):
+    def __init__(self, side, endOfString, starred, specifications):
         self.side = side
         self.endOfString = endOfString
+        self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         parts = []
         if self.endOfString: parts = [u'#']
         parts += map(unicode,self.specifications)
+        if self.starred: parts[-1] += u'*'
         if self.side == 'R': parts.reverse()
         return u" ".join(parts)
 
     @staticmethod
     def parse(bank, output, variable, side):
-        pattern = " %s = new Guard\(endOfString=([01]), spec=([a-zA-Z0-9_]+), spec2=([a-zA-Z0-9_]+)"%variable
+        pattern = " %s = new Guard\(endOfString=([01]), starred=([01]), spec=([a-zA-Z0-9_]+), spec2=([a-zA-Z0-9_]+)"%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Could not parse guard %s using pattern %s'%(variable,pattern))
 
         endOfString = m.group(1) == '1'
-        spec = None if m.group(2) == 'null' else Specification.parse(bank, output, m.group(2))
-        spec2 = None if m.group(3) == 'null' else Specification.parse(bank, output, m.group(3))
-        return Guard(side, endOfString, [spec,spec2])
+        starred = m.group(2) == '1'
+        spec = None if m.group(3) == 'null' else Specification.parse(bank, output, m.group(3))
+        spec2 = None if m.group(4) == 'null' else Specification.parse(bank, output, m.group(4))
+        return Guard(side, endOfString, starred, [spec,spec2])
 
 class Rule():
     def __init__(self, focus = [], structuralChange = [], leftTriggers = [], rightTriggers = []):

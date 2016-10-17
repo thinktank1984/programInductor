@@ -57,7 +57,7 @@ def solveSketch(bank):
         f.write(source)
     outputFile = "solver_output/%f" % random()
     print "Invoking solver..."
-    command = "sketch  --bnd-unroll-amnt 15 test.sk > %s 2> %s" % (outputFile,outputFile)
+    command = "sketch test.sk > %s 2> %s" % (outputFile,outputFile)
     print command
     os.system(command)
     print "Finished calling solver."

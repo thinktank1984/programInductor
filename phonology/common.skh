@@ -119,15 +119,27 @@ Sound apply_specification(Specification specification, Sound sound) {
   }
 }
 
+bit empty_vector(bit[NUMBEROFFEATURES] v) {
+  int j = 0;
+  repeat (NUMBEROFFEATURES){
+    if (v[j]) return 0;
+    j++;
+  }
+  return 1;
+}
+
 int specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
-  case ConstantPhoneme:{ return 0; }
+  case ConstantPhoneme:{ return 2; }
   case Vector:{
+    assert !empty_vector(s.mask);
     int c = 3;
-    for (int f = 0; f < NUMBEROFFEATURES; f++) {
-      if (s.mask[f])
-	c += s.preference[f] ? 1 : 2;
+    int f = 0;
+    repeat (NUMBEROFFEATURES) {
+      // if (s.mask[f]) c += s.preference[f] ? 1 : 2;
+      c += s.mask[f];
+      f++;
     }
     return c;
   }
@@ -136,6 +148,7 @@ int specification_cost(Specification s) {
 
 struct Guard {
   bit endOfString; // is it constrains to be at the end of string?
+  bit starred; // is it of the form spec*spec2
   Specification spec; // Primary specification - holds immediately adjacent
   Specification spec2; // Secondary specification - holds one apart from adjacent
 }
@@ -150,7 +163,7 @@ struct Rule {
 generator Guard unknown_guard() {
   Specification s = unknown_specification();
   Specification s2 = unknown_specification();
-  return new Guard(endOfString = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
+  return new Guard(endOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_specification() {
   return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNSOUND) |};
@@ -167,8 +180,12 @@ int alternation_cost(Rule r) {
   return specification_cost(r.right_trigger.spec) + specification_cost(r.left_trigger.spec);
 }
 
+int guard_cost(Guard g) {
+  return specification_cost(g.spec) + specification_cost(g.spec2) + g.endOfString + g.starred;
+}
+
 int rule_cost(Rule r) {
-  return specification_cost(r.right_trigger.spec) + specification_cost(r.left_trigger.spec) +
+  return guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
     specification_cost(r.focus) + specification_cost(r.structural_change);
 }
 
@@ -185,11 +202,32 @@ Word apply_rule(Rule r, Word u) {
   
   Word output = new Word(l = u.l);
 
+  // * applies to the second spec
+  if (left_trigger.starred)
+    assert left_trigger.spec != null && left_trigger.spec2 != null && !left_trigger.endOfString;
+  if (right_trigger.starred)
+    assert right_trigger.spec != null && right_trigger.spec2 != null && !right_trigger.endOfString;
 
+  // todo: right trigger starred
+  assert !right_trigger.starred;
+  assert !left_trigger.starred;
+
+  // State machine for starred: either in accepting or rejecting state
+  bit leftAccepting = 0;
+  
   for (int j = 0; j < u.l; j++) {
     // Check to see if the left matches
     bit left_okay = 1;
-    if (left_trigger.endOfString && left_trigger.spec == null) // #_
+    if (left_trigger.starred) {
+      if (j == 0) {
+	left_okay = 0;
+	leftAccepting = matches_specification(u.s[0], left_trigger.spec2);
+      } else {
+	left_okay = leftAccepting;
+	leftAccepting =
+	  matches_specification(u.s[j], left_trigger.spec2) || (leftAccepting && matches_specification(u.s[j], left_trigger.spec));
+      }
+    } else if (left_trigger.endOfString && left_trigger.spec == null) // #_
       left_okay = j == 0;
     else if (left_trigger.endOfString) // #g_
       assert 0;

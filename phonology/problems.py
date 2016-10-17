@@ -561,18 +561,21 @@ underlyingProblems.append(Problem(
     Aspirated/un- aspirated distinction exists underlying
     However aspirated consonants become unaspirated followed by k - probably the rule is something like:
            [+aspirated] > [-aspirated] / _ {[-vowel],[-stop],[-son],k}
+    There is also a harmony rule something like:
+    ə > a / a[-v]*_#
+    but you don't need kleene star in this data
     ''',
     [(u"ipə",		u"ipk’o"),
      (u"kupə",		u"kupk’o"),
-     # (u"kapha",		u"kapk’o"),
+     (u"kapha",		u"kapk’o"),
      (u"ciphə",		u"cipk’o"),
-     # (u"tata",		u"tatk’o"),
+     (u"tata",		u"tatk’o"),
      (u"puthə",		u"putk’o"),
      (u"məkə",		u"məkk’o"),
      (u"čukə",		u"čukk’o"),
      (u"ikə",		u"ikk’o"),
-#     (u"tak’a",		u"takk’o"),
-#     (u"k’ak’a", u"k’akk’o"),
+     (u"tak’a",		u"takk’o"),
+     (u"k’ak’a", u"k’akk’o"),
      (u"sək’ə",		u"səkk’o")]))
 
 underlyingProblems.append(Problem(
