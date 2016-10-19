@@ -52,10 +52,10 @@ class Guard():
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         parts = []
-        if self.endOfString: parts = [u'#']
         parts += map(unicode,self.specifications)
         if self.starred: parts[-1] += u'*'
-        if self.side == 'R': parts.reverse()
+        if self.endOfString: parts = [u'#']
+        if self.side == 'L': parts.reverse()
         return u" ".join(parts)
 
     @staticmethod
