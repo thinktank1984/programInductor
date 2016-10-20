@@ -213,13 +213,27 @@ Word apply_rule(Rule r, Word u) {
   if (right_trigger.starred)
     assert right_trigger.spec != null && right_trigger.spec2 != null && !right_trigger.endOfString;
 
-  // todo: right trigger starred
-  assert !right_trigger.starred;
-  //  assert !left_trigger.starred;
+  // The guard on the right is checked by walking through the string backwards
+  bit[u.l] right_okay;
+  bit rightAccepting = 0;
+  for (int j = u.l - 1; j >= 0; j--) {
+    if (right_trigger.starred) {
+      assert 0;
+    } else if (right_trigger.endOfString && right_trigger.spec == null) // _#
+      right_okay[j] = j == u.l - 1;
+    else if (right_trigger.endOfString) // _g#
+      assert 0;
+    else if (right_trigger.spec != null) { // _gg?
+      right_okay[j] = j < u.l - 1 && matches_specification(u.s[j + 1], right_trigger.spec);
+      if (right_trigger.spec2 != null) // _gg
+	right_okay[j] = right_okay[j] && j < u.l - 2 && matches_specification(u.s[j + 2], right_trigger.spec2);
+    } else {
+      right_okay[j] = 1;
+    }
+  }
 
-  //  if (left_trigger.spec != null)
-  //    assert left_trigger.starred;
-
+  
+  
   // State machine for starred: either in accepting or rejecting state
   bit leftAccepting = 0;
   
@@ -245,22 +259,10 @@ Word apply_rule(Rule r, Word u) {
 	left_okay = left_okay && j > 1 && matches_specification(u.s[j - 2], left_trigger.spec2);
     }
 
-    // Check to see if the right matches
-    bit right_okay = 1;
-    if (right_trigger.endOfString && right_trigger.spec == null) // _#
-      right_okay = j == u.l - 1;
-    else if (right_trigger.endOfString) // _g#
-      assert 0;
-    else if (right_trigger.spec != null) {
-      right_okay = j < u.l - 1 && matches_specification(u.s[j + 1], right_trigger.spec);
-      if (right_trigger.spec2 != null) // _gg
-	right_okay = right_okay && j < u.l - 2 && matches_specification(u.s[j + 2], right_trigger.spec2);
-    }
-
     bit middle_okay =
       matches_specification(u.s[j], focus);
     
-    output.s[j] = left_okay && right_okay && middle_okay ?
+    output.s[j] = left_okay && right_okay[j] && middle_okay ?
       apply_specification(structural_change, u.s[j]) :
       u.s[j];
   }

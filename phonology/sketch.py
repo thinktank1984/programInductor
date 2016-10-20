@@ -1,10 +1,11 @@
-import re
 from features import FeatureBank
 from sketchSyntax import *
 from rule import Rule
 
 from random import random
 import os
+from time import time
+import re
 
 
 
@@ -56,11 +57,11 @@ def solveSketch(bank, unroll = 8):
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
-    print "Invoking solver..."
     command = "sketch --bnd-unroll-amnt %d test.sk > %s" % (unroll, outputFile)
-    print command
+    print "Invoking solver: %s"%command
+    startTime = time()
     os.system(command)
-    print "Finished calling solver."
+    print "Ran the solver in %f"%(time() - startTime)
     output = open(outputFile,'r').read()
     if "The sketch could not be resolved." in output:
         return None
