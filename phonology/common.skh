@@ -1,5 +1,5 @@
 
-#define MAXIMUMCOST 8
+#define MAXIMUMCOST 20
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
 #define MAXIMUMMORPHLENGTH 15
@@ -138,7 +138,7 @@ int specification_cost(Specification s) {
   switch(s) {
   case ConstantPhoneme:{ return 1; }
   case Vector:{
-    assert !empty_vector(s.mask);
+    //    assert !empty_vector(s.mask);
     int c = 1;
     int f = 0;
     repeat (NUMBEROFFEATURES) {

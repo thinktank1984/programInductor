@@ -54,6 +54,16 @@ class UnderlyingProblem():
             return
         for affix in prefixes + suffixes:
             condition(wordLength(affix) == len(Morph.parse(self.bank, output, affix)))
+
+        print "Here's the unoptimized solution:"
+        for r in rules:
+            print Rule.parse(self.bank, output, r)
+        for i in range(self.numberOfInflections):
+            print "Inflection %d:\t"%i,
+            print Morph.parse(self.bank, output, prefixes[i]),
+            print "+ stem +",
+            print Morph.parse(self.bank, output, suffixes[i])
+        
     
         print "Minimizing rules..."
         minimize(ruleSize)
@@ -70,14 +80,17 @@ class UnderlyingProblem():
             print Morph.parse(self.bank, output, suffixes[i])
                 
 if __name__ == '__main__':
+    # Build a "problems" structure, which is a list of (problem, # rules)
     if sys.argv[1] == 'integration':
         problems = [(1,2),
                     (2,1),
-                    (3,2)]
+                    (3,2),
+                    (5,1)]
     else:
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         problemIndex = int(sys.argv[1])
         problems = [(problemIndex,depth)]
+    
     for problemIndex, depth in problems:
         data = underlyingProblems[problemIndex - 1]
         print data.description
