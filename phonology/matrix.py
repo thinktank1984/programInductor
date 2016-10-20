@@ -43,27 +43,31 @@ class UnderlyingProblem():
                 condition(wordEqual(makeConstantWord(self.bank, self.data[l][i]),
                                     surfaces[l][i]))
 
-        morphs = prefixes + suffixes
-        cost = wordLength(morphs[0])
-        for m in morphs[1:]:
-            cost = cost + wordLength(m)
-        #maximize(cost)
+        affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
+        ruleSize = sum([ ruleCost(r) for r in rules ])
 
-        cost = ruleCost(rules[0])
-        for r in rules[1:]: cost = cost + ruleCost(r)
-        minimize(cost)
-
+        # Maximize affix size
+        maximize(affixSize)
         output = solveSketch(self.bank, self.maximumObservationLength)
-        if output:
-            for r in rules:
-                print Rule.parse(self.bank, output, r)
-            for i in range(self.numberOfInflections):
-                print "Inflection %d:\t"%i,
-                print Morph.parse(self.bank, output, prefixes[i]),
-                print "+ stem +",
-                print Morph.parse(self.bank, output, suffixes[i])
-        else:
-            print "Failed to find a solution."
+        if not output:
+            print "Failed at morphological analysis."
+            return
+        for affix in prefixes + suffixes:
+            condition(wordLength(affix) == len(Morph.parse(self.bank, output, affix)))
+    
+        print "Minimizing rules..."
+        minimize(ruleSize)
+        output = solveSketch(self.bank, self.maximumObservationLength)
+        if not output:
+            print "Failed at minimizing rules."
+            return
+        for r in rules:
+            print Rule.parse(self.bank, output, r)
+        for i in range(self.numberOfInflections):
+            print "Inflection %d:\t"%i,
+            print Morph.parse(self.bank, output, prefixes[i]),
+            print "+ stem +",
+            print Morph.parse(self.bank, output, suffixes[i])
                 
 
 data = underlyingProblems[int(sys.argv[1]) - 1]

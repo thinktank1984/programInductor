@@ -5,12 +5,16 @@ import re
 
 class Expression:
     def __add__(self,o):
+        if not isinstance(o,Expression): o = Constant(o)
         return Addition(self,o)
     def __eq__(self,o):
         if not isinstance(o,Expression):
             o = Constant(o)
         return Equals(self,o)
     def __str__(self): return self.web()
+    def __radd__(self,o):
+        if not isinstance(o,Expression): o = Constant(o)
+        return Addition(self,o)
 
 class FunctionCall(Expression):
     def __init__(self, f, arguments):

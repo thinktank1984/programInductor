@@ -139,7 +139,7 @@ int specification_cost(Specification s) {
   case ConstantPhoneme:{ return 1; }
   case Vector:{
     assert !empty_vector(s.mask);
-    int c = 0;
+    int c = 1;
     int f = 0;
     repeat (NUMBEROFFEATURES) {
       // if (s.mask[f]) c += s.preference[f] ? 1 : 2;
@@ -215,7 +215,7 @@ Word apply_rule(Rule r, Word u) {
 
   // todo: right trigger starred
   assert !right_trigger.starred;
-  assert !left_trigger.starred;
+  //  assert !left_trigger.starred;
 
   //  if (left_trigger.spec != null)
   //    assert left_trigger.starred;
