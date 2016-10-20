@@ -1,5 +1,8 @@
 
-#define MAXIMUMMORPHLENGTH 10
+#define MAXIMUMCOST 8
+int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
+
+#define MAXIMUMMORPHLENGTH 15
 #define True 1
 #define False 0
 
@@ -57,7 +60,9 @@ Word remove_sound(Word w,int j) {
 
 Word make_word([int l],Sound[l] s) {
   Word w = new Word(l = l);
-  w.s = s;
+  for (int j = 0; j < l; j++) {
+    if (j < l) w.s[j] = s[j];
+  }  
   return w;  
 }
 
@@ -131,17 +136,17 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
 int specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
-  case ConstantPhoneme:{ return 2; }
+  case ConstantPhoneme:{ return 1; }
   case Vector:{
     assert !empty_vector(s.mask);
-    int c = 3;
+    int c = 0;
     int f = 0;
     repeat (NUMBEROFFEATURES) {
       // if (s.mask[f]) c += s.preference[f] ? 1 : 2;
-      c += s.mask[f];
+      c = validateCost(c + s.mask[f]);
       f++;
     }
-    return c;
+    return validateCost(c);
   }
   }
 }
@@ -181,12 +186,12 @@ int alternation_cost(Rule r) {
 }
 
 int guard_cost(Guard g) {
-  return specification_cost(g.spec) + specification_cost(g.spec2) + g.endOfString + g.starred;
+  return validateCost(specification_cost(g.spec) + specification_cost(g.spec2) + g.endOfString + g.starred);
 }
 
 int rule_cost(Rule r) {
-  return guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
-    specification_cost(r.focus) + specification_cost(r.structural_change);
+  return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
+		      specification_cost(r.focus) + specification_cost(r.structural_change));
 }
 
 
@@ -211,6 +216,9 @@ Word apply_rule(Rule r, Word u) {
   // todo: right trigger starred
   assert !right_trigger.starred;
   assert !left_trigger.starred;
+
+  //  if (left_trigger.spec != null)
+  //    assert left_trigger.starred;
 
   // State machine for starred: either in accepting or rejecting state
   bit leftAccepting = 0;

@@ -525,7 +525,8 @@ underlyingProblems.append(Problem(
      (u"kanari",	u"noyanariti"),
      (u"kosiri",	u"noyosiriti"),
      (u"pisiro",	u"nowisiroti"),
-     (u"porita",	u"noworitati")]))
+     (u"porita",	u"noworitati")
+    ]))
 
 underlyingProblems.append(Problem(
     '''
@@ -582,6 +583,7 @@ underlyingProblems.append(Problem(
     '''
 4: Hungarian
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
+    
     ''',
 #	noun	in N	from N	to N	gloss
     [
@@ -610,6 +612,10 @@ underlyingProblems.append(Problem(
     '''
 5: Kikuria
 	Provide appropriate underlying representations and phonological rules which will account for the following data.
+    i > e / _ [ ]* e
+    u > o / _ [ ]* e
+    My analysis:
+    [+hi] > [-hi,+mid] / _ [-back]* e
     ''',
 	#verb	verb for
 	[

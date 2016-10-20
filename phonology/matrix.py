@@ -19,6 +19,8 @@ class UnderlyingProblem():
         self.numberOfInflections = len(data[0])
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
+        self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
+
     def sketchSolution(self):
         Model.Global()
         
@@ -45,13 +47,13 @@ class UnderlyingProblem():
         cost = wordLength(morphs[0])
         for m in morphs[1:]:
             cost = cost + wordLength(m)
-        maximize(cost)
+        #maximize(cost)
 
         cost = ruleCost(rules[0])
         for r in rules[1:]: cost = cost + ruleCost(r)
         minimize(cost)
 
-        output = solveSketch(self.bank)
+        output = solveSketch(self.bank, self.maximumObservationLength)
         if output:
             for r in rules:
                 print Rule.parse(self.bank, output, r)

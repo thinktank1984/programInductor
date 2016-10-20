@@ -51,13 +51,13 @@ def makeSketch(bank):
     h += makeSketchSkeleton()
     return h
 
-def solveSketch(bank):
+def solveSketch(bank, unroll = 8):
     source = makeSketch(bank)
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
     print "Invoking solver..."
-    command = "sketch test.sk > %s 2> %s" % (outputFile,outputFile)
+    command = "sketch --bnd-unroll-amnt %d test.sk > %s" % (unroll, outputFile)
     print command
     os.system(command)
     print "Finished calling solver."
