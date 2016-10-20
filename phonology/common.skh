@@ -218,7 +218,14 @@ Word apply_rule(Rule r, Word u) {
   bit rightAccepting = 0;
   for (int j = u.l - 1; j >= 0; j--) {
     if (right_trigger.starred) {
-      assert 0;
+      if (j == u.l - 1) {
+	right_okay[j] = 0;
+	rightAccepting = matches_specification(u.s[u.l - 1], right_trigger.spec2);
+      } else {
+	right_okay[j] = rightAccepting;
+	rightAccepting =
+	  matches_specification(u.s[j], right_trigger.spec2) || (rightAccepting && matches_specification(u.s[j], right_trigger.spec));
+      }
     } else if (right_trigger.endOfString && right_trigger.spec == null) // _#
       right_okay[j] = j == u.l - 1;
     else if (right_trigger.endOfString) // _g#

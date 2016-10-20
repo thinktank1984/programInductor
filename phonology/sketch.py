@@ -23,9 +23,6 @@ def wordEqual(w1,w2):
 def phonologicalRule(i): pass
 @sketchImplementation("apply_rule")
 def applyRule(r,w): pass
-#@sketchImplementation("unknown_word")
-def sampleMorph():
-    return define("Word", FunctionCall("unknown_word",[]))
 @sketchImplementation("concatenate3")
 def concatenate3(x,y,z): pass
 @sketchImplementation("word_length")

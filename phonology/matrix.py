@@ -11,8 +11,9 @@ from random import random
 import sys
 
 class UnderlyingProblem():
-    def __init__(self, problem):
+    def __init__(self, problem, depth):
         data = problem.data
+        self.depth = depth
         self.data = data
         self.bank = FeatureBank([ w for l in data for w in l  ])
 
@@ -24,8 +25,7 @@ class UnderlyingProblem():
     def sketchSolution(self):
         Model.Global()
         
-        depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
-        rules = [ Rule.sample() for _ in range(depth)  ]
+        rules = [ Rule.sample() for _ in range(self.depth) ]
 
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
@@ -69,8 +69,17 @@ class UnderlyingProblem():
             print "+ stem +",
             print Morph.parse(self.bank, output, suffixes[i])
                 
-
-data = underlyingProblems[int(sys.argv[1]) - 1]
-print data.description
-UnderlyingProblem(data).sketchSolution()
+if __name__ == '__main__':
+    if sys.argv[1] == 'integration':
+        problems = [(1,2),
+                    (2,1),
+                    (3,2)]
+    else:
+        depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
+        problemIndex = int(sys.argv[1])
+        problems = [(problemIndex,depth)]
+    for problemIndex, depth in problems:
+        data = underlyingProblems[problemIndex - 1]
+        print data.description
+        UnderlyingProblem(data, depth).sketchSolution()
 
