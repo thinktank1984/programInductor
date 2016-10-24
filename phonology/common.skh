@@ -37,6 +37,9 @@ bit word_equal(Word x, Word y) {
 }
 
 Word concatenate3(Word a1,Word a2,Word a3) {
+  if (a1.l == 0 && a3.l == 0) return a2;
+  if (a1.l == 0) return concatenate(a2,a3);
+  if (a3.l == 0) return concatenate(a1,a2);
   Word a = new Word(l = a1.l + a2.l + a3.l, s = a1.s);
   a.s[a1.l :: a2.l] = a2.s;
   a.s[(a2.l + a1.l) :: a3.l] = a3.s;
@@ -142,11 +145,11 @@ int specification_cost(Specification s) {
     int c = 1;
     int f = 0;
     repeat (NUMBEROFFEATURES) {
-      // if (s.mask[f]) c += s.preference[f] ? 1 : 2;
       c = validateCost(c + s.mask[f]);
       f++;
     }
-    return validateCost(c);
+    assert c < 4;
+    return c;
   }
   }
 }

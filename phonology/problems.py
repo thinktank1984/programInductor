@@ -584,28 +584,32 @@ underlyingProblems.append(Problem(
 4: Hungarian
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
     
+    My analysis:
+    b seems to voice all of the consonants to the left:
+    [ ] > [+voice] / _ C* b
+    
     ''',
 #	noun	in N	from N	to N	gloss
     [
-	(u"kalap",	u"kalabban",	u"kalapto:l",	u"kalapnak"), #	hat
-	(u"ku:t",	u"ku:dban",	u"ku:tto:l",	u"ku:tnak"), #	well
-	(u"ža:k",	u"ža:gban",	u"ža:kto:l",	u"ža:knak"), #	sack
-	(u"re:s",	u"re:zben",	u"re:stö:l",	u"re:snek"), #	part
-	(u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
-	(u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
-	(u"ketrets",	u"ketredzben",	u"ketretstö:l",	u"ketretsnek"), #	cage
+	# (u"kalap",	u"kalabban",	u"kalapto:l",	u"kalapnak"), #	hat
+	# (u"ku:t",	u"ku:dban",	u"ku:tto:l",	u"ku:tnak"), #	well
+	# (u"ža:k",	u"ža:gban",	u"ža:kto:l",	u"ža:knak"), #	sack
+	# (u"re:s",	u"re:zben",	u"re:stö:l",	u"re:snek"), #	part
+	# (u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
+	# (u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
+	# (u"ketrets",	u"ketredzben",	u"ketretstö:l",	u"ketretsnek"), #	cage
 	(u"test",	u"tezdben",	u"testtö:l",	u"testnek"), #	body
-	(u"rab",	u"rabban",	u"rapto:l",	u"rabnak"), #	prisoner
-	(u"ka:d",	u"ka:dban",	u"ka:tto:l",	u"ka:dnak"), #	tub
-	(u"meleg",	u"melegben",	u"melektö:l",	u"melegnek"), #	warm
-	(u"vi:z",	u"vi:zben",	u"vi:stö:l",	u"vi:znek"), #	water
-	(u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
-	(u"a:gy",	u"a:gyban",	u"a:kyto:l",	u"a:gynak"), #	bed
-	(u"sem",	u"semben",	u"semtö:l",	u"semnek"), #	eye
-	(u"bün",	u"bünben",	u"büntö:l",	u"bünnek"), #	crime
-	(u"toroñ",	u"toroñban",	u"toroñto:l",	u"toroñnak"), #	tower
-	(u"fal",	u"falban",	u"falto:l",	u"falnak"), #	wall
-	(u"ö:r",	u"ö:rben",	u"ö:rtö:l",	u"ö:rnek"), #	guard
+	# (u"rab",	u"rabban",	u"rapto:l",	u"rabnak"), #	prisoner
+	# (u"ka:d",	u"ka:dban",	u"ka:tto:l",	u"ka:dnak"), #	tub
+	# (u"meleg",	u"melegben",	u"melektö:l",	u"melegnek"), #	warm
+	# (u"vi:z",	u"vi:zben",	u"vi:stö:l",	u"vi:znek"), #	water
+	# (u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
+	# (u"a:gy",	u"a:gyban",	u"a:kyto:l",	u"a:gynak"), #	bed
+	# (u"sem",	u"semben",	u"semtö:l",	u"semnek"), #	eye
+	# (u"bün",	u"bünben",	u"büntö:l",	u"bünnek"), #	crime
+	# (u"toroñ",	u"toroñban",	u"toroñto:l",	u"toroñnak"), #	tower
+	# (u"fal",	u"falban",	u"falto:l",	u"falnak"), #	wall
+	# (u"ö:r",	u"ö:rben",	u"ö:rtö:l",	u"ö:rnek"), #	guard
 	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak")])) #	mouth
 
 underlyingProblems.append(Problem(
@@ -616,6 +620,8 @@ underlyingProblems.append(Problem(
     u > o / _ [ ]* e
     My analysis:
     [+hi] > [-hi,+mid] / _ [-back]* e
+    System discovers:
+    [ +tense ] ---> [ -high +middle ] /  _ [ -central ]* e
     ''',
 	#verb	verb for
 	[
@@ -640,6 +646,7 @@ underlyingProblems.append(Problem(
     '''
 6: Farsi
 Give the underlying forms for the following nouns, and say what phonological rule is necessary to explain the following data.
+
     ''',
 	#singular	plural	gloss
     [
@@ -675,12 +682,23 @@ Numbers between 11 and 19 are formed by placing the appropriate digit after the 
 	u"gubǰu",#	‘90’
 	u"ŋa",#	‘5’
 	u"ǰuŋa",#	‘15’
-	u"ŋabǰu"]))#	‘50’
+	u"ŋabǰu"],#	‘50’
+    parameters = [10,1,11,4,14,40,9,19,90,5,15,50]))
 
 underlyingProblems.append(Problem(
     '''
 8: Makonde
 Explain what phonological rules apply in the following examples (the acute accent in these example marks stress, whose position is predictable).
+    My analysis:
+    Second to last vowel is always stressed:
+    V > [+stress] / _C*V#
+    There's some kind of vowel harmony:
+    o~a
+    e~a
+    {i,u} are unaffected
+    Probably {o,e} exist underlying
+    [+mid,-stress] > a
+    So the stress rule applies first, and then if {o,e} was unstressed then it gets neutralized to [a]
     ''',
 	#repeated	past		imperative	gloss
 	#imperative
@@ -710,6 +728,11 @@ underlyingProblems.append(Problem(
     '''
 9: North Saami
 Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
+    My analysis:
+    {h,g,b,ð} > t / _ #
+    {ǰ} > š / _ #
+    m > n / _ #
+    Not affected: s
     ''',
 	#Nominative sg.	Essive
     [

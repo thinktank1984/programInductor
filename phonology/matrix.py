@@ -42,6 +42,10 @@ class UnderlyingProblem():
             for i in range(self.numberOfInflections):
                 condition(wordEqual(makeConstantWord(self.bank, self.data[l][i]),
                                     surfaces[l][i]))
+        
+        # for p in prefixes:
+        #     condition(wordLength(p) == 0)
+        # condition(wordLength(suffixes[0]) == 0)
 
         affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
         ruleSize = sum([ ruleCost(r) for r in rules ])

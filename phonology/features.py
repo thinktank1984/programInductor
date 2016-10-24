@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+sonorant = "sonorant"
 coronal = "coronal"
 approximate = "approximate"
 stressed = "stressed"
@@ -70,9 +71,9 @@ featureMap = {
     u"f": [labiodental,fricative],
     u"v": [labiodental,fricative,voice],
     u"β": [bilabial,fricative,voice],
-    u"m": [bilabial,nasal,voice],
-    u"́m": [bilabial,nasal,voice,stressed],
-    u"m̥": [bilabial,nasal],
+    u"m": [bilabial,nasal,voice,sonorant],
+    u"́m": [bilabial,nasal,voice,stressed,sonorant],
+    u"m̥": [bilabial,nasal,sonorant],
     u"θ": [dental,fricative,coronal],
     u"d": [alveolar,stop,voice,coronal],
     u"t": [alveolar,stop,coronal],
@@ -84,9 +85,9 @@ featureMap = {
     u"ǰ": [alveolar,affricate,voice,coronal],
     u"ž": [alveopalatal,fricative,voice,coronal],
     u"s": [alveolar,fricative,coronal],
-    u"n": [alveolar,nasal,voice,coronal],
-    u"n̥": [alveolar,nasal,coronal],
-    u"ñ": [alveopalatal,nasal,voice,coronal],
+    u"n": [alveolar,nasal,voice,coronal,sonorant],
+    u"n̥": [alveolar,nasal,coronal,sonorant],
+    u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
     u"š": [alveopalatal,fricative,coronal],
     u"c": [palatal,stop,coronal],
     u"č": [alveopalatal,affricate,coronal],
@@ -99,24 +100,24 @@ featureMap = {
     u"xy": [velar,fricative,palatal],
     u"g": [velar,stop,voice],
     u"ɣ": [velar,fricative,voice],
-    u"ŋ": [velar,nasal,voice],
+    u"ŋ": [velar,nasal,voice,sonorant],
     u"q": [uvular,stop],
     u"N": [uvular,nasal,voice],
     u"G": [uvular,stop,voice],
-    u"ʔ": [laryngeal,stop],
-    u"h": [laryngeal,fricative],
+    u"ʔ": [laryngeal,stop,sonorant],
+    u"h": [laryngeal,fricative,sonorant],
 
     # glides
-    u"w": [glide,voice,bilabial],
-    u"y": [glide,palatal,voice],
+    u"w": [glide,voice,bilabial,sonorant],
+    u"y": [glide,palatal,voice,sonorant],
 
     # liquids
-    u"r": [liquid,voice,approximate,alveolar,coronal],
-    u"r̃": [liquid,trill,voice,coronal],
-    u"r̥̃": [liquid,trill,coronal],
-    u"ř": [liquid,flap,voice,coronal],
-    u"l": [liquid,lateral,voice,alveolar,coronal],
-    u"̌l": [liquid,lateral,voice,alveolar,coronal],
+    u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],
+    u"r̃": [liquid,trill,voice,coronal,sonorant],
+    u"r̥̃": [liquid,trill,coronal,sonorant],
+    u"ř": [liquid,flap,voice,coronal,sonorant],
+    u"l": [liquid,lateral,voice,alveolar,coronal,sonorant],
+    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA
@@ -134,6 +135,7 @@ for k in featureMap:
 vs = [ k for k in featureMap if vowel in featureMap[k] ]
 cs = [ k for k in featureMap if not (vowel in featureMap[k]) ]
 for v in vs:
+    featureMap[v] += [sonorant]
     featureMap[v + u"́"] = featureMap[v] + [highTone]
     featureMap[v + u":"] = featureMap[v] + [longVowel]
     featureMap[v + u"̌"] =  featureMap[v] + [risingTone]
