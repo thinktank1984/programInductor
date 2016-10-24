@@ -258,7 +258,8 @@ Word apply_rule(Rule r, Word u) {
       } else {
 	left_okay = leftAccepting;
 	leftAccepting =
-	  matches_specification(u.s[j], left_trigger.spec2) || (leftAccepting && matches_specification(u.s[j], left_trigger.spec));
+	  (!left_trigger.endOfString && matches_specification(u.s[j], left_trigger.spec2))
+	  || (leftAccepting && matches_specification(u.s[j], left_trigger.spec));
       }
     } else if (left_trigger.endOfString && left_trigger.spec == null) // #_
       left_okay = j == 0;
