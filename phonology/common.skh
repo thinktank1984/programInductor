@@ -212,22 +212,23 @@ Word apply_rule(Rule r, Word u) {
 
   // * applies to the second spec
   if (left_trigger.starred)
-    assert left_trigger.spec != null && left_trigger.spec2 != null && !left_trigger.endOfString;
+    assert left_trigger.spec != null && left_trigger.spec2 != null;
   if (right_trigger.starred)
-    assert right_trigger.spec != null && right_trigger.spec2 != null && !right_trigger.endOfString;
+    assert right_trigger.spec != null && right_trigger.spec2 != null;
 
   // The guard on the right is checked by walking through the string backwards
   bit[u.l] right_okay;
   bit rightAccepting = 0;
   for (int j = u.l - 1; j >= 0; j--) {
-    if (right_trigger.starred) {
+    if (right_trigger.starred) { // _g*g(#?)
       if (j == u.l - 1) {
 	right_okay[j] = 0;
 	rightAccepting = matches_specification(u.s[u.l - 1], right_trigger.spec2);
       } else {
 	right_okay[j] = rightAccepting;
 	rightAccepting =
-	  matches_specification(u.s[j], right_trigger.spec2) || (rightAccepting && matches_specification(u.s[j], right_trigger.spec));
+	  (!right_trigger.endOfString && matches_specification(u.s[j], right_trigger.spec2))
+	  || (rightAccepting && matches_specification(u.s[j], right_trigger.spec));
       }
     } else if (right_trigger.endOfString && right_trigger.spec == null) // _#
       right_okay[j] = j == u.l - 1;
