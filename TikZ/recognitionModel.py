@@ -1,23 +1,47 @@
-from PIL import Image
-from matplotlib import pyplot as plot
+# from matplotlib import pyplot as plot
 import numpy as np
 import tensorflow as tf
-import scipy.misc
 import os
 
 
 learning_rate = 0.1
 
+def loadPictures(filenames):
+    q = tf.train.string_input_producer(filenames)
+    reader = tf.WholeFileReader()
+    _, image_file = reader.read(q)
+    image = tf.image.decode_png(image_file,channels = 1)
+    pictures = []
+    with tf.Session() as session:
+        tf.initialize_all_variables().run()
+
+        coordinate = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(coord = coordinate)
+
+        for _ in range(len(filenames)):
+            image_tensor = ((255.0 - session.run([image])[0])/255.0).reshape((100,100))
+            pictures.append(image_tensor)        
+
+        coordinate.request_stop()
+        coordinate.join(threads)
+
+    print "Loaded",len(filenames),"pictures."
+    return pictures
+
+
+
+
 def loadTrainingData():
-    def load(f):
-        return 1 - scipy.misc.imread(f, mode = 'F')/(256.0**2)
-    lines = [ load("generateOutput/lines/%d.png" % j) for j in range(1000) ]
-    rectangles = [ load("generateOutput/rectangles/%d.png" % j) for j in range(1000) ]
-    circles = [ load("generateOutput/circles/%d.png" % j) for j in range(1000) ]
+    lines = loadPictures([ "generateOutput/lines/%d.png" % j for j in range(1000) ])
+    rectangles = loadPictures(["generateOutput/rectangles/%d.png" % j for j in range(1000) ])
+    circles = loadPictures(["generateOutput/circles/%d.png" % j for j in range(1000) ])
     xs = lines + rectangles + circles
     ys = [[1,0,0]]*len(lines) + [[0,1,0]]*len(rectangles) + [[0,0,1]]*len(circles)
 
+    print "xs = ",np.array(xs)
     return np.array(xs),np.array(ys)
+
+
 
 
 def convolutionLayer(x, w, b, strides = 1):
@@ -35,8 +59,8 @@ def downsample(x, k):
 
 
 def makeModel(x, w, b):
-    x = tf.reshape(x, [-1, 300, 300, 1])
-    x = downsample(x, 3) # x is now 100x100
+    x = tf.reshape(x, [-1, 100, 100, 1])
+#    x = downsample(x, 3) # x is now 100x100
 
     x = convolutionLayer(x, w['c1'], b['c1'])
 
@@ -72,7 +96,7 @@ b = {
     'f1': tf.Variable(tf.random_normal([3]))
 }
 
-x = tf.placeholder(tf.float32, [None, 300, 300])
+x = tf.placeholder(tf.float32, [None, 100, 100])
 y = tf.placeholder(tf.float32, [None, 3])
 predict = makeModel(x,w,b)
 
@@ -86,10 +110,8 @@ optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 xs,ys = loadTrainingData()
 print xs[0]
-print tf.reshape(xs[0],[1,300,300,1])
-print downsample(tf.reshape(xs[0],[1,300,300,1]),3)
-plot.imshow(downsample(tf.reshape(xs[0],[1,300,300,1]),3), cmap = 'Greys')
-plot.show()
+# plot.imshow(xs[2009], cmap = 'Greys')
+# plot.show()
 initializer = tf.initialize_all_variables()
 
 class BatchIterator():

@@ -701,7 +701,7 @@ Explain what phonological rules apply in the following examples (the acute accen
     So the stress rule applies first, and then if {o,e} was unstressed then it gets neutralized to [a]
     With the data below commented out, the system learns:
     [  ] ---> [ -highTone -stressed ] /  _ [  ]* [ +highTone ]
-
+    [ +middle -highTone ] ---> a /  _ [  ]
     ''',
 	#repeated	past		imperative	gloss
 	#imperative
@@ -712,13 +712,13 @@ Explain what phonological rules apply in the following examples (the acute accen
 	# (u"patáŋga",	u"patíle",		u"póta"),#		twist
 	# (u"tatáŋga",		u"tatíle",		u"tóta"),#		sew
 	# (u"dabáŋga",	u"dabíle",		u"dóba"),#		get tired
-	# (u"aváŋga",		u"avíle",		u"óva"),#		miss
+	(u"aváŋga",		u"avíle",		u"óva"),#		miss
 	# (u"amáŋga",	u"amíle",		u"óma"),#		pierce
-	# (u"tapáŋga",	u"tapíle",		u"tépa"),#		bend
+	(u"tapáŋga",	u"tapíle",		u"tépa"),#		bend
 	# (u"patáŋga",	u"patíle",		u"péta"),#		separate
-	# (u"aváŋga",		u"avíle",		u"éva"),#		separate
+	(u"aváŋga",		u"avíle",		u"éva"),#		separate
 	# (u"babáŋga",	u"babíle",		u"béba"),#		hold like a baby
-	# (u"utáŋga",		u"utíle",		u"úta"),#		smoke
+	(u"utáŋga",		u"utíle",		u"úta"),#		smoke
 	# (u"lukáŋga",	u"lukíle",		u"lúka"),#		plait
 	# (u"lumáŋga",	u"lumíle",		u"lúma"),#		bite
 	# (u"uŋgáŋga",	u"uŋgíle",		u"úŋga"),#		tie
