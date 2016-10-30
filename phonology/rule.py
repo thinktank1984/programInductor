@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sketchSyntax import define, FunctionCall
+from sketchSyntax import define, FunctionCall, Constant
 from features import FeatureBank
 
 import re
@@ -26,6 +26,8 @@ class ConstantPhoneme(Specification):
         m = re.search(pattern, output)
         if not m: raise Exception('Failure parsing ConstantPhoneme %s, pattern = %s'%(variable,pattern))
         return ConstantPhoneme(bank.phonemes[int(m.group(1))])
+    def makeConstant(self, bank):
+        return "new ConstantPhoneme(phoneme = phoneme_%d)" % bank.phoneme2index[self.p]
     
 class FeatureMatrix():
     def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
@@ -42,6 +44,15 @@ class FeatureMatrix():
         mask = [ int(x) for x in m.group(1).split(",") ]
         fs = [ (preference[f] == 1, bank.features[f]) for f in range(len(bank.features)) if mask[f] ]
         return FeatureMatrix(fs)
+    def makeConstant(self, bank):
+        mask = [0]*len(bank.features)
+        preference = [0]*len(bank.features)
+        for polarity,feature in self.featuresAndPolarities:
+            mask[bank.feature2index[feature]] = 1
+            preference[bank.feature2index[feature]] = 1 if polarity else 0
+        mask = " ,".join(map(str, mask))
+        preference = " ,".join(map(str, preference))
+        return "new Vector(mask = {%s}, preference = {%s})" % (mask, preference)
 
 class Guard():
     def __init__(self, side, endOfString, starred, specifications):
@@ -69,9 +80,25 @@ class Guard():
         spec = None if m.group(3) == 'null' else Specification.parse(bank, output, m.group(3))
         spec2 = None if m.group(4) == 'null' else Specification.parse(bank, output, m.group(4))
         return Guard(side, endOfString, starred, [spec,spec2])
+    def makeConstant(self, bank):
+        if len(self.specifications) == 2:
+            [spec1,spec2] = self.specifications
+            spec1 = self.specifications[0].makeConstant(bank)
+            spec2 = self.specifications[1].makeConstant(bank)
+        elif len(self.specifications) == 1:
+            spec1 = self.specifications[0].makeConstant(bank)
+            spec2 = "null"
+        else:
+            spec1 = "null"
+            spec2 = "null"
+        
+        return "new Guard(endOfString = %d, starred = %d, spec = %s, spec2 = %s)" % (1 if self.endOfString else 0,
+                                                                                     1 if self.starred else 0,
+                                                                                     spec1,
+                                                                                     spec2)
 
 class Rule():
-    def __init__(self, focus = [], structuralChange = [], leftTriggers = [], rightTriggers = []):
+    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers):
         self.focus = focus
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
@@ -83,6 +110,13 @@ class Rule():
                                               self.structuralChange,
                                               self.leftTriggers,
                                               self.rightTriggers)
+
+    # Produces sketch object
+    def makeConstant(self, bank):
+        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s)" % (self.focus.makeConstant(bank),
+                                                                                                                 self.structuralChange.makeConstant(bank),
+                                                                                                                 self.leftTriggers.makeConstant(bank),
+                                                                                                                 self.rightTriggers.makeConstant(bank)))
                                          
     # Produces sketch object
     @staticmethod

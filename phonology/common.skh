@@ -92,7 +92,25 @@ struct ConstantPhoneme extends Specification{
   Sound phoneme;
 }
 
-
+bit specification_equal(Specification p, Specification q) {
+  if (p == null || q == null) return p == null && q == null;
+  switch (p) {
+  case Vector:{
+    switch (q) {
+    case Vector:{
+      return p.mask == q.mask && p.preference == q.preference;
+    }
+    case ConstantPhoneme:{ return 0; }
+    }
+  }
+  case ConstantPhoneme:{
+    switch (q) {
+    case Vector:{ return 0; }
+    case ConstantPhoneme:{ return p.phoneme == q.phoneme; }
+    }
+  }
+  }
+}
 
 
 bit matches_specification(Sound sound, Specification specification) {
@@ -161,11 +179,25 @@ struct Guard {
   Specification spec2; // Secondary specification - holds one apart from adjacent
 }
 
+bit guard_equal(Guard p, Guard q) {
+  return p.endOfString == q.endOfString &&
+    p.starred == q.starred &&
+    specification_equal(p.spec, q.spec) &&
+    specification_equal(p.spec2, q.spec2);
+}
+
 struct Rule {
   Specification focus;
   Specification structural_change;
   Guard left_trigger;
   Guard right_trigger;
+}
+
+bit rule_equal(Rule p, Rule q) {
+  return specification_equal(p.focus, q.focus) &&
+    specification_equal(p.structural_change, q.structural_change) &&
+    guard_equal(p.left_trigger, q.left_trigger) &&
+    guard_equal(p.right_trigger, q.right_trigger);
 }
 
 generator Guard unknown_guard() {
@@ -242,8 +274,6 @@ Word apply_rule(Rule r, Word u) {
       right_okay[j] = 1;
     }
   }
-
-  
   
   // State machine for starred: either in accepting or rejecting state
   bit leftAccepting = 0;

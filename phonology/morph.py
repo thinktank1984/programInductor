@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sketchSyntax import define, FunctionCall
+from sketch import makeConstantWord
 from features import FeatureBank
 
 import re
@@ -16,6 +17,9 @@ class Morph():
     @staticmethod
     def sample():
         return define("Word", FunctionCall("unknown_word",[]))
+
+    def makeConstant(self, bank):
+        return makeConstantWord(bank, "".join(self.phonemes))
 
     @staticmethod
     def parse(bank, output, variable):

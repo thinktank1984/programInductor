@@ -22,66 +22,97 @@ class UnderlyingProblem():
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
 
-    def sketchSolution(self):
+    def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
+        def applyRules(d):
+            for r in rules: d = applyRule(r,d)
+            return d
+        prediction = [ applyRules(concatenate3(prefixes[i],stem,suffixes[i]))
+                     for i in range(self.numberOfInflections) ]
+        for i in range(self.numberOfInflections):
+            condition(wordEqual(makeConstantWord(self.bank, surfaces[i]),
+                                prediction[i]))
+    
+    def conditionOnData(self, rules, stems, prefixes, suffixes):
+        for i in range(len(stems)):
+            self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
+    
+    def solveAffixes(self):
         Model.Global()
         
         rules = [ Rule.sample() for _ in range(self.depth) ]
-
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
-        def applyRules(d):
-            for r in rules: d = applyRule(r,d)
-            return d
-        surfaces = [ [ applyRules(concatenate3(prefixes[i], stems[l], suffixes[i]))
-                   for i in range(self.numberOfInflections) ]
-                 for l in range(len(stems)) ]
-
-        for l in range(len(stems)):
-            for i in range(self.numberOfInflections):
-                condition(wordEqual(makeConstantWord(self.bank, self.data[l][i]),
-                                    surfaces[l][i]))
+        self.conditionOnData(rules, stems, prefixes, suffixes)
         
-        # for p in prefixes:
-        #     condition(wordLength(p) == 0)
-        # condition(wordLength(suffixes[0]) == 0)
-
         affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
-        ruleSize = sum([ ruleCost(r) for r in rules ])
-
-        # Maximize affix size
         maximize(affixSize)
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             print "Failed at morphological analysis."
-            return
-        for affix in prefixes + suffixes:
-            condition(wordLength(affix) == len(Morph.parse(self.bank, output, affix)))
+            assert False
+        prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
+        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
+        return (prefixes, suffixes)
 
-        print "Here's the unoptimized solution:"
-        for r in rules:
-            print Rule.parse(self.bank, output, r)
-        for i in range(self.numberOfInflections):
-            print "Inflection %d:\t"%i,
-            print Morph.parse(self.bank, output, prefixes[i]),
-            print "+ stem +",
-            print Morph.parse(self.bank, output, suffixes[i])
-        
-    
-        print "Minimizing rules..."
-        minimize(ruleSize)
+    def solveRules(self, prefixes, suffixes):
+        Model.Global()
+
+        rules = [ Rule.sample() for _ in range(self.depth) ]
+        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+
+        # Make the morphology be a global definition
+        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+
+        self.conditionOnData(rules, stems, prefixes, suffixes)
+
+        minimize(sum([ ruleCost(r) for r in rules ]))
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
-            print "Failed at minimizing rules."
-            return
-        for r in rules:
-            print Rule.parse(self.bank, output, r)
+            print "Failed at phonological analysis."
+            assert False
+        return [ Rule.parse(self.bank, output, r) for r in rules ]
+
+    def verify(self, prefixes, suffixes, rules, inflections):
+        Model.Global()
+
+        stem = Morph.sample()
+
+        # Make the morphology/phonology be a global definition
+        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+        rules = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
+
+        self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
+
+        output = solveSketch(self.bank, self.maximumObservationLength)
+        if not output:
+            print "Failed to verify",inflections
+        else:
+            print "Verified: stem =",Morph.parse(self.bank, output, stem)
+        
+    def sketchSolution(self):
+        prefixes, suffixes = self.solveAffixes()
+
+        print "Morphological analysis:"
+        
         for i in range(self.numberOfInflections):
             print "Inflection %d:\t"%i,
-            print Morph.parse(self.bank, output, prefixes[i]),
+            print prefixes[i],
             print "+ stem +",
-            print Morph.parse(self.bank, output, suffixes[i])
+            print suffixes[i]
+
+        rules = self.solveRules(prefixes, suffixes)
+
+        print "Phonological rules:"
+        for r in rules: print r
+
+        print "Beginning verification"
+        for observation in self.data:
+            self.verify(prefixes, suffixes, rules, observation)
+        
                 
 if __name__ == '__main__':
     # Build a "problems" structure, which is a list of (problem, # rules)

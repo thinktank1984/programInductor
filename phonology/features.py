@@ -182,6 +182,8 @@ class FeatureBank():
         self.featureVectorMap = dict([
             (p, [ (f in self.featureMap[p]) for f in self.features ])
             for p in self.phonemes ])
+        self.phoneme2index = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
+        self.feature2index = dict([ (self.features[j],j) for j in range(len(self.features)) ])
     def wordToMatrix(self, w):
         return [ self.featureVectorMap[p] for p in tokenize(w) ]
     

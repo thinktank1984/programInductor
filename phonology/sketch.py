@@ -29,6 +29,8 @@ def concatenate3(x,y,z): pass
 def wordLength(w): return len(w)
 @sketchImplementation("rule_cost")
 def ruleCost(r): return r.cost()
+@sketchImplementation("rule_equal")
+def ruleEqual(p,q): return p == q
 
 def makeConstantVector(v):
     return Array(map(Constant,v))
