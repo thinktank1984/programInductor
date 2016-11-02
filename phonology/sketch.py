@@ -56,7 +56,7 @@ def solveSketch(bank, unroll = 8):
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
-    command = "sketch --bnd-unroll-amnt %d test.sk > %s" % (unroll, outputFile)
+    command = "sketch --bnd-unroll-amnt %d test.sk > %s 2> %s" % (unroll, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     os.system(command)

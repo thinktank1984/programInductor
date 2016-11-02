@@ -11,8 +11,7 @@ from random import random
 import sys
 
 class UnderlyingProblem():
-    def __init__(self, problem, depth):
-        data = problem.data
+    def __init__(self, data, depth):
         self.depth = depth
         self.data = data
         self.bank = FeatureBank([ w for l in data for w in l  ])
@@ -48,6 +47,11 @@ class UnderlyingProblem():
         
         affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
         maximize(affixSize)
+        # We only care about maximizing the affix size
+        # However we also need calculate the rules size, in order to make sure that the next minimization succeeds
+        for r in rules:
+            condition(ruleCost(r) < 20) # totally arbitrary
+        
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             print "Failed at morphological analysis."
@@ -88,31 +92,62 @@ class UnderlyingProblem():
         self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
         output = solveSketch(self.bank, self.maximumObservationLength)
-        if not output:
-            print "Failed to verify",inflections
-        else:
-            print "Verified: stem =",Morph.parse(self.bank, output, stem)
-        
-    def sketchSolution(self):
-        prefixes, suffixes = self.solveAffixes()
+        return (output != None)
 
+    @staticmethod
+    def showMorphologicalAnalysis(prefixes, suffixes):
         print "Morphological analysis:"
-        
-        for i in range(self.numberOfInflections):
+        for i in range(len(prefixes)):
             print "Inflection %d:\t"%i,
             print prefixes[i],
             print "+ stem +",
             print suffixes[i]
 
-        rules = self.solveRules(prefixes, suffixes)
-
+    @staticmethod
+    def showRules(rules):
         print "Phonological rules:"
         for r in rules: print r
 
-        print "Beginning verification"
-        for observation in self.data:
-            self.verify(prefixes, suffixes, rules, observation)
-        
+    def sketchSolution(self):
+        prefixes, suffixes = self.solveAffixes()
+        UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+        rules = self.solveRules(prefixes, suffixes)
+        UnderlyingProblem.showRules(rules)
+
+        return (prefixes, suffixes, rules)
+
+    def counterexampleSolution(self):
+        # Sort the data by length
+        data = sorted([ (sum(map(len,inflections)), inflections) for inflections in self.data ])
+        self.data = [ d[1] for d in data ]
+
+        # Start out with the shortest example
+        trainingData = [ self.data[0] ]
+
+        while True:
+            print "CEGIS: Training data:"
+            for r in trainingData:
+                for i in r: print i,
+                print ""
+            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth).sketchSolution()
+            print "Beginning verification"
+            foundCounterexample = False
+            for observation in self.data:
+                if observation in trainingData: continue
+                if not self.verify(prefixes, suffixes, rules, observation):
+                    trainingData.append(observation)
+                    foundCounterexample = True
+                    print "COUNTEREXAMPLE:\t",
+                    for i in observation: print i,"\t",
+                    print ""
+                    break
+            if not foundCounterexample:
+                print "Final solution:"
+                UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+                UnderlyingProblem.showRules(rules)
+                break
+                
+                
                 
 if __name__ == '__main__':
     # Build a "problems" structure, which is a list of (problem, # rules)
@@ -120,14 +155,15 @@ if __name__ == '__main__':
         problems = [(1,2),
                     (2,1),
                     (3,2),
-                    (5,1)]
+                    (5,1),
+                    (8,2)]
     else:
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         problemIndex = int(sys.argv[1])
         problems = [(problemIndex,depth)]
     
     for problemIndex, depth in problems:
-        data = underlyingProblems[problemIndex - 1]
-        print data.description
-        UnderlyingProblem(data, depth).sketchSolution()
+        p = underlyingProblems[problemIndex - 1]
+        print p.description
+        UnderlyingProblem(p.data, depth).counterexampleSolution()
 

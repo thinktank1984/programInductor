@@ -11,6 +11,12 @@ class Expression:
         if not isinstance(o,Expression):
             o = Constant(o)
         return Equals(self,o)
+    def __gt__(self,o):
+        if not isinstance(o,Expression): o = Constant(o)
+        return LessThan(o,self)
+    def __lt__(self,o):
+        if not isinstance(o,Expression): o = Constant(o)
+        return LessThan(self,o)
     def __str__(self): return self.web()
     def __radd__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
@@ -34,6 +40,13 @@ class Constant(Expression):
     def __init__(self,k): self.k = str(k)
     def sketch(self): return self.k
     def web(self): return self.k
+
+class LessThan(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b
+    def sketch(self): return "((%s) < (%s))" % (self.a.sketch(), self.b.sketch())
+    def web(self): return "((%s) < (%s))" % (self.a.web(), self.b.web())
 
 class Equals(Expression):
     def __init__(self,a,b):

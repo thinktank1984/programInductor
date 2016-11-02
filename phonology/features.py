@@ -3,7 +3,8 @@
 sonorant = "sonorant"
 coronal = "coronal"
 approximate = "approximate"
-stressed = "stressed"
+# because stress and high tones are written the same we model stress as a high tone
+# stressed = "stressed"
 retroflex = "retroflex"
 creaky = "creaky"
 risingTone = "risingTone"
@@ -72,7 +73,7 @@ featureMap = {
     u"v": [labiodental,fricative,voice],
     u"β": [bilabial,fricative,voice],
     u"m": [bilabial,nasal,voice,sonorant],
-    u"́m": [bilabial,nasal,voice,stressed,sonorant],
+#    u"́m": [bilabial,nasal,voice,stressed,sonorant],
     u"m̥": [bilabial,nasal,sonorant],
     u"θ": [dental,fricative,coronal],
     u"d": [alveolar,stop,voice,coronal],
