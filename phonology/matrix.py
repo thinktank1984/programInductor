@@ -150,6 +150,8 @@ class UnderlyingProblem():
                 
                 
 if __name__ == '__main__':
+    useCounterexamples = '--counterexamples' in sys.argv
+    sys.argv = [a for a in sys.argv if a != '--counterexamples']
     # Build a "problems" structure, which is a list of (problem, # rules)
     if sys.argv[1] == 'integration':
         problems = [(1,2),
@@ -165,5 +167,8 @@ if __name__ == '__main__':
     for problemIndex, depth in problems:
         p = underlyingProblems[problemIndex - 1]
         print p.description
-        UnderlyingProblem(p.data, depth).counterexampleSolution()
-
+        if useCounterexamples:
+            UnderlyingProblem(p.data, depth).counterexampleSolution()
+        else:
+            (prefixes, suffixes, rules) = UnderlyingProblem(p.data, depth).sketchSolution()
+            UnderlyingProblem.showRules(rules)
