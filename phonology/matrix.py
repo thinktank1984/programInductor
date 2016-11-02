@@ -11,10 +11,10 @@ from random import random
 import sys
 
 class UnderlyingProblem():
-    def __init__(self, data, depth):
+    def __init__(self, data, depth, bank = None):
         self.depth = depth
         self.data = data
-        self.bank = FeatureBank([ w for l in data for w in l  ])
+        self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l  ])
 
         self.numberOfInflections = len(data[0])
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
@@ -129,7 +129,7 @@ class UnderlyingProblem():
             for r in trainingData:
                 for i in r: print i,
                 print ""
-            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth).sketchSolution()
+            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution()
             print "Beginning verification"
             foundCounterexample = False
             for observation in self.data:
