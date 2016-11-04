@@ -287,10 +287,13 @@ Word apply_rule(Rule r, Word u) {
       right_okay[j] = j == u.l - 1;
     else if (right_trigger.endOfString) // _g#
       assert 0;
-    else if (right_trigger.spec != null) { // _gg?
+    else if (right_trigger.spec != null) { // _gg?#?
       right_okay[j] = j < u.l - 1 && matches_specification(u.s[j + 1], right_trigger.spec);
       if (right_trigger.spec2 != null) // _gg
 	right_okay[j] = right_okay[j] && j < u.l - 2 && matches_specification(u.s[j + 2], right_trigger.spec2);
+
+      if (right_trigger.endOfString)
+	right_okay[j] = right_okay[j] && (j == (right_trigger.spec2 == null ? u.l - 1 : u.l - 2));
     } else {
       right_okay[j] = 1;
     }
@@ -313,17 +316,15 @@ Word apply_rule(Rule r, Word u) {
 	  (!left_trigger.endOfString && matches_specification(u.s[j], left_trigger.spec2))
 	  || (leftAccepting && matches_specification(u.s[j], left_trigger.spec));
       }
-    } else if (left_trigger.endOfString && left_trigger.spec == null) // #_
+    } else if (left_trigger.endOfString && left_trigger.spec == null) { // #_
       _left_okay = j == 0;
-    else if (left_trigger.endOfString) { // #g_
-      assert 0;
     } else if (left_trigger.spec != null) {
       _left_okay = j > 0 && matches_specification(u.s[j - 1], left_trigger.spec);
-      if (left_trigger.spec2 != null) // gg_
+      if (left_trigger.spec2 != null) // (#?)gg_
 	_left_okay = _left_okay && j > 1 && matches_specification(u.s[j - 2], left_trigger.spec2);
 
-      //      if (left_trigger.endOfString)
-      //	_left_okay = _left_okay && (j == (left_trigger.spec2 == null ? 1 : 2));
+      if (left_trigger.endOfString)
+	_left_okay = _left_okay && (j == (left_trigger.spec2 == null ? 1 : 2));
     }
     left_okay[j] = _left_okay;
   }
@@ -339,7 +340,6 @@ Word apply_rule(Rule r, Word u) {
   int output_length; // how long is the output
   // Deletion rule
   if (structural_change == null) {
-    //    assert 0;
     int outputIndex = 0;
     for (int j = 0; j < u.l; j++) {
       if (!triggered[j]) {
