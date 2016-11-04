@@ -158,7 +158,8 @@ if __name__ == '__main__':
                     (2,1),
                     (3,2),
                     (5,1),
-                    (8,2)]
+                    (8,2),
+                    (9,3)]
     else:
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         problemIndex = int(sys.argv[1])
