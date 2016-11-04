@@ -13,7 +13,10 @@ class Specification():
         try:
             return FeatureMatrix.parse(bank, output, variable)
         except:
-            return ConstantPhoneme.parse(bank, output, variable)
+            try:
+                return EmptySpecification.parse(bank, output, variable)
+            except:
+                return ConstantPhoneme.parse(bank, output, variable)
         
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
@@ -28,6 +31,20 @@ class ConstantPhoneme(Specification):
         return ConstantPhoneme(bank.phonemes[int(m.group(1))])
     def makeConstant(self, bank):
         return "new ConstantPhoneme(phoneme = phoneme_%d)" % bank.phoneme2index[self.p]
+
+class EmptySpecification():
+    def __init__(self): pass
+    def __unicode__(self): return u"Ø"
+    def __str__(self): return unicode(self).encode('utf-8')
+
+    @staticmethod
+    def parse(bank, output, variable):
+        pattern = " %s = null;" % variable
+        m = re.search(pattern, output)
+        if not m: raise Exception('Failure parsing empty specification %s'%variable)
+        return EmptySpecification()
+    def makeConstant(self, bank):
+        return "null"
     
 class FeatureMatrix():
     def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
