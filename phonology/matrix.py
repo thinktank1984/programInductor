@@ -6,6 +6,7 @@ from morph import Morph
 from sketch import *
 
 from problems import underlyingProblems
+from countingProblems import CountingProblem
 
 from random import random
 import sys
@@ -168,7 +169,9 @@ if __name__ == '__main__':
     for problemIndex, depth in problems:
         p = underlyingProblems[problemIndex - 1]
         print p.description
-        if useCounterexamples:
+        if problemIndex == 7:
+            CountingProblem(p.data, p.parameters).sketchSolution()
+        elif useCounterexamples:
             UnderlyingProblem(p.data, depth).counterexampleSolution()
         else:
             (prefixes, suffixes, rules) = UnderlyingProblem(p.data, depth).sketchSolution()

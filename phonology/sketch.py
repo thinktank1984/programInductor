@@ -23,6 +23,8 @@ def wordEqual(w1,w2):
 def phonologicalRule(i): pass
 @sketchImplementation("apply_rule")
 def applyRule(r,w): pass
+@sketchImplementation("concatenate")
+def concatenate(x,y): pass
 @sketchImplementation("concatenate3")
 def concatenate3(x,y,z): pass
 @sketchImplementation("word_length")

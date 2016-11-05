@@ -250,6 +250,24 @@ int rule_cost(Rule r) {
 		      specification_cost(r.focus) + specification_cost(r.structural_change));
 }
 
+bit specifies_consonant(Specification s) {
+  switch (s) {
+  case Vector: {
+    int f = 0;
+    repeat(NUMBEROFFEATURES){
+      if (f == 14) {
+	if (!(s.preference[14] == 0 && s.mask[14] == 1)) return 0;
+      } else {
+	if (s.mask[f]) return 0;
+      }
+      f++;
+    }
+    return 1;
+  }
+  case ConstantPhoneme: { return 0; }
+  }
+}
+
 
 Word apply_rule(Rule r, Word u) {
   Specification focus = r.focus;
@@ -292,8 +310,8 @@ Word apply_rule(Rule r, Word u) {
       if (right_trigger.spec2 != null) // _gg
 	right_okay[j] = right_okay[j] && j < u.l - 2 && matches_specification(u.s[j + 2], right_trigger.spec2);
 
-      if (right_trigger.endOfString)
-	right_okay[j] = right_okay[j] && (j == (right_trigger.spec2 == null ? u.l - 1 : u.l - 2));
+      //if (right_trigger.endOfString)
+      //  right_okay[j] = right_okay[j] && (j == (right_trigger.spec2 == null ? u.l - 1 : u.l - 2));
     } else {
       right_okay[j] = 1;
     }
@@ -302,6 +320,11 @@ Word apply_rule(Rule r, Word u) {
   // State machine for starred: either in accepting or rejecting state
   bit leftAccepting = 0;
   bit[u.l] left_okay;
+
+  /*  assert left_trigger.endOfString && left_trigger.spec == null && !left_trigger.starred;
+  assert right_trigger.spec2 == null && !right_trigger.starred && !right_trigger.endOfString && right_trigger.spec != null;
+  assert structural_change == null;
+  assert specifies_consonant(focus) && specifies_consonant(right_trigger.spec);*/
   
   for (int j = 0; j < u.l; j++) {
     // Check to see if the left matches
@@ -323,8 +346,13 @@ Word apply_rule(Rule r, Word u) {
       if (left_trigger.spec2 != null) // (#?)gg_
 	_left_okay = _left_okay && j > 1 && matches_specification(u.s[j - 2], left_trigger.spec2);
 
-      if (left_trigger.endOfString)
-	_left_okay = _left_okay && (j == (left_trigger.spec2 == null ? 1 : 2));
+      if (left_trigger.endOfString) {
+	if (left_trigger.spec2 == null) {
+	  _left_okay = _left_okay && (j == 1);
+	} else {
+	  _left_okay = _left_okay && (j == 2);
+	}
+      }
     }
     left_okay[j] = _left_okay;
   }
@@ -357,5 +385,5 @@ Word apply_rule(Rule r, Word u) {
     output_length = u.l;
   }
   
-  return new Word(s = output, l = output_length);
+  return new Word(s = output[0::output_length], l = output_length);
 }
