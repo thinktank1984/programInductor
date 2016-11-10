@@ -211,6 +211,8 @@ struct Rule {
   Guard right_trigger;
 }
 
+bit is_deletion_rule(Rule r) { return r.structural_change == null; }
+
 bit rule_equal(Rule p, Rule q) {
   return specification_equal(p.focus, q.focus) &&
     specification_equal(p.structural_change, q.structural_change) &&

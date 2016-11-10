@@ -82,16 +82,16 @@ Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g
 alternationProblems.append(Problem(
 u'''
 2: Modern Greek
-Determine whether the two segments [k] and [ky] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [xy] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
+Determine whether the two segments [k] and [k^y] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [xy] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
 Solution:
-{xy,ky} occur only when there is a front vowel to the right
+{xy,k^y} occur only when there is a front vowel to the right
 ''',
     [u"kano",#"do"),
      u"kori",#"daughter"),
      u"xano",		#"lose"),
      u"xori",		#"dances"),
      u"xyino",		#"pour"),
-     u"kyino",		#"move"),
+     u"k^yino",		#"move"),
      u"krima",		#"shame"),
      u"xrima",		#"money"),
      u"xufta",		#"handful"),
@@ -99,11 +99,11 @@ Solution:
      u"kali",		#"charms"),
      u"xali",		#"plight"),
      u"xyeli",		#"eel"),
-     u"kyeri",		#"candle"),
+     u"k^yeri",		#"candle"),
      u"xyeri",		#"hand"),
      u"oxyi"],
     {"type": "alternation",
-     "alternations": [{u"ky": u"k",
+     "alternations": [{u"k^y": u"k",
                        u"xy": u"x"}]}))		#"no")
 
 alternationProblems.append(Problem(
@@ -144,7 +144,7 @@ What rule governs the distribution of [d] versus [ð] in the following data?
     d > ð / _ [ +central ] (systems solution)
 ''',
     [u"dábrĩ",#		"three"),
-     u"áðikhã žã",#	"he lay down"),
+     u"áðik^hã žã",#	"he lay down"),
      u"dačpé",#		"to eat"),
      u"čʔéðe",#		"he killed it"),
      u"dakʔé",#		"to dig"),
@@ -274,9 +274,9 @@ Unaspirated stops occur in similar right contexts but don't occur next to voicel
 	u"ndimi",# "tongues"),
 	u"ŋgoto",# "heart"),
 	u"mbeu",#"seed"),
-	u"n̥thumbii",# "monkey"),
-	u"ŋokhuŋguni",# "bedbug"),
-	u"m̥pheho"],#"wind")
+	u"n̥t^humbii",# "monkey"),
+	u"ŋok^huŋguni",# "bedbug"),
+	u"m̥p^heho"],#"wind")
     {"alternations": [{u"n̥": u"n",
                       u"m̥": u"m"}]}))
 
@@ -299,33 +299,33 @@ The obstruents of Thai are illustrated below. Determine what the obstruent phone
      u"plaa",#   "fish"),
      u"dii",#   "good"),
      u"čaan",#   "dish"),
-     u"thee",#   "pour"),
-     u"thruumɛɛn",#   "Truman"),
-     u"khɛŋ",#   "hard"),
+     u"t^hee",#   "pour"),
+     u"t^hruumɛɛn",#   "Truman"),
+     u"k^hɛŋ",#   "hard"),
      u"panyaa",#   "brains"),
      u"ləəy",#   "pass"),
-     u"phyaa",#    "[title]"),
+     u"p^hyaa",#    "[title]"),
      u"lüak",#   "choose"),
      u"klaaŋ",#   "middle"),
-     u"čhat",#   "clear"),
+     u"č^hat",#   "clear"),
      u"traa",#   "stamp"),
      u"riip",#   "hurry"),
      u"ɔɔk",#   "exit"),
-     u"phrɛɛ",#   "silk cloth"),
+     u"p^hrɛɛ",#   "silk cloth"),
      u"kiə",#   "wooden shoes"),
-     u"khwaa",#   "right side"),
+     u"k^hwaa",#   "right side"),
      u"kɛɛ",#   "old"),
      u"dray",#   "drive (golf)"),
      u"düŋ",#   "pull"),
      u"kan",#   "ward off"),
      u"čuək",#   "pure white"),
-     u"phleeŋ",#   "song"),
-     u"čhan",#   "me"),
+     u"p^hleeŋ",#   "song"),
+     u"č^han",#   "me"),
      u"staaŋ",#   "money"),
      u"rap",#   "take"),
      u"yiisip",#   "twenty"),
-     u"phaa",#   "cloth"),
-     u"khaa",#   "kill"),
+     u"p^haa",#   "cloth"),
+     u"k^haa",#   "kill"),
      u"dam",#   "black"),
      u"raay",#   "case"),
      u"tit",#   "get stuck"),
@@ -380,15 +380,15 @@ alternationProblems.append(Problem(
         u"niŋri",	#"ear"
 	u"moqo",	#"runt"
         u"hoq’ara",	#"deaf"
-	u"phulyu",	#"blanket"
+	u"p^hulyu",	#"blanket"
         u"yuyaŋ",	#"he recalls"
 	u"tulyu",	#"bone"
         u"api",	#"take"
 	u"suti",	#"name"
         u"oNqoy",	#"be sick!"
 	u"čilwi",	#"baby chick"
-        u"čhičiŋ",	#"be whispers"
-	u"čhaNqay",	 #"granulate"
+        u"č^hičiŋ",	#"be whispers"
+	u"č^haNqay",	 #"granulate"
         u"aNqosay", 	#"toast"
 	u"qečuŋ",	#"he disputes"
         u"p’isqo",	#"bird"
@@ -424,7 +424,7 @@ alternationProblems.append(Problem(
         u"kaŋka",	#"roasted"
 	u"waxča",	#"poor"
         u"waleχ",	#"poor"
-	u"thakay",	#"drop"
+	u"t^hakay",	#"drop"
         u"reχsisqa"],#	"known"
     {"alternations": [{u"ŋ": u"N"},
                       {u"o": u"u"},
@@ -492,10 +492,10 @@ alternationProblems.append(Problem(
 	u"qomba",	#"monastery"
 	u"qɔr",	#"coat"
 	u"qɔɔɔɔ",	#"round"
-	u"čhea",	#"half"
-	u"čhuɣum",	#"cheese"
+	u"č^hea",	#"half"
+	u"č^huɣum",	#"cheese"
 	u"topcaa",	#"stairs"
-	u"thoõõ",	#"tonight"
+	u"t^hoõõ",	#"tonight"
 	u"ṭaaãã",	#"post office"
 	u"ṭuɣɨ",	#"harbor"
 	u"ṭuNGo",	#"China"
@@ -568,10 +568,10 @@ underlyingProblems.append(Problem(
     ''',
     [(u"ipə",		u"ipk’o"),
      (u"kupə",		u"kupk’o"),
-     (u"kapha",		u"kapk’o"),
-     (u"ciphə",		u"cipk’o"),
+     (u"kap^ha",		u"kapk’o"),
+     (u"cip^hə",		u"cipk’o"),
      (u"tata",		u"tatk’o"),
-     (u"puthə",		u"putk’o"),
+     (u"put^hə",		u"putk’o"),
      (u"məkə",		u"məkk’o"),
      (u"čukə",		u"čukk’o"),
      (u"ikə",		u"ikk’o"),
@@ -599,14 +599,14 @@ underlyingProblems.append(Problem(
 #	(u"re:s",	u"re:zben",	u"re:stö:l",	u"re:snek"), #	part
 	(u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
 	(u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
-#	(u"ketrets",	u"ketredzben",	u"ketretstö:l",	u"ketretsnek"), #	cage
+#	(u"ketret^s",	u"ketred^zben",	u"ketret^stö:l",	u"ketret^snek"), #	cage
 #	(u"test",	u"tezdben",	u"testtö:l",	u"testnek"), #	body
 	(u"rab",	u"rabban",	u"rapto:l",	u"rabnak"), #	prisoner
 	(u"ka:d",	u"ka:dban",	u"ka:tto:l",	u"ka:dnak"), #	tub
 #	(u"meleg",	u"melegben",	u"melektö:l",	u"melegnek"), #	warm
 #	(u"vi:z",	u"vi:zben",	u"vi:stö:l",	u"vi:znek"), #	water
 	(u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
-	(u"a:gy",	u"a:gyban",	u"a:kyto:l",	u"a:gynak"), #	bed
+	(u"a:g^y",	u"a:g^yban",	u"a:k^yto:l",	u"a:g^ynak"), #	bed
 #	(u"sem",	u"semben",	u"semtö:l",	u"semnek"), #	eye
 #	(u"bün",	u"bünben",	u"büntö:l",	u"bünnek"), #	crime
 	(u"toroñ",	u"toroñban",	u"toroñto:l",	u"toroñnak"), #	tower
@@ -770,12 +770,14 @@ Posit appropriate underlying forms and any rules needed to explain the following
 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
 	(u"yaman",	u"yamanin")]))#	“something that makes noise”
 
-Problem(
+interactingProblems = []
+
+interactingProblems.append(Problem(
     '''1: Kerewe
 
 What two tone rules are motivated by the following data; explain what order the rules apply in.
     ''',
-	#to V	to V e.o	to V for	to V for e.o	to V us	to V it	to V for us	to V it for us
+    #to V	to V e.o	to V for	to V for e.o	to V us	to V it	to V for us	to V it for us
 	[
             (u"kubala",	u"kubalana",	u"kubalila",	u"kubalilana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“count”
 	    (u"kugaya",	u"kugayana",	u"kugayila",	u"kugayilana", u"kutúgáya",	u"kukígáya",	u"kutúgáyila",	u"kukítúgayila"),#	“despise”
@@ -783,14 +785,22 @@ What two tone rules are motivated by the following data; explain what order the 
 	    (u"kubála",	u"kubálána",	u"kubálíla",	u"kubálílana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“kick”
 	    (u"kulúma",	u"kulúmána",	u"kulúmíla",	u"kulúmílana", u"kutúlúma",	u"kukílúma",	u"kutúlúmila",	u"kukítúlumila"),#	“bite”
 	    (u"kusúna",	u"kusúnána",	u"kusúníla",	u"kusúnílana", u"kutúsúna",	u"kukísúna",	u"kutúsúnila",	u"kukítúsunila"),#	“pinch”
-	    (u"kulába",	u"kulábána",	u"kulábíla",	u"kulábílana", u"kutúlába",	u"kukílába",	u"kutúlábila",	u"kukítúlabila")])#	“pass”
+	    (u"kulába",	u"kulábána",	u"kulábíla",	u"kulábílana", u"kutúlába",	u"kukílába",	u"kutúlábila",	u"kukítúlabila")]))#	“pass”
 
-Problem(
-'''2: Polish
+interactingProblems.append(Problem(
+    '''2: Polish
 
 What phonological rules are motivated by the following examples, and what order do those rules apply in?
+Discovered by the system:
+Final solution:
+Morphological analysis:
+Inflection 0:	/  / + stem + /  /
+Inflection 1:	/  / + stem + / i /
+Phonological rules:
+o ---> u /  _ #
+[ -sonorant ] ---> [ -voice ] /  _ #
 ''',
-	#singular	plural		singular	plural
+    #singular	plural		singular	plural
 	[
             (u"klup",	u"klubi"),#	‘club’
             (u"trup",	u"trupi"),#	‘corpse’
@@ -813,9 +823,9 @@ What phonological rules are motivated by the following examples, and what order 
 	    (u"sul",	u"soli"),#	‘salt’
             (u"buy",	u"boyi"),#	‘fight’
 	    (u"šum",	u"šumi"),#	‘noise’
-            (u"žur",	u"žuri")])#	‘soup’
+            (u"žur",	u"žuri")]))#	‘soup’
 
-Problem(
+interactingProblems.append(Problem(
     '''3: Ancient Greek
 
 Discuss the phonological rules and underlying representations which are necessary to account for the following nouns; comment on the ordering of these phonological processes.
@@ -826,18 +836,18 @@ Discuss the phonological rules and underlying representations which are necessar
 	(u"oys",	u"oyos",	u"oyi",	u"oysi"),#	‘sheep’
 	(u"sus",	u"suos",	u"sui",	u"susi"),#	‘sow’
 	(u"klo:ps",	u"klo:pos",	u"klo:pi",	u"klo:psi"),#	‘thief’
-	(u"phle:ps",	u"phle:bos",	u"phle:bi",	u"phle:psi"),#	‘vein’
-	(u"kate:lips",	u"kate:liphos",	u"kate:liphi",	u"kate:lipsi"),#	‘upper story’
-	(u"phulaks",	u"phulakos",	u"phulaki",	u"phulaksi"),#	‘guard’
+	(u"p^hle:ps",	u"p^hle:bos",	u"p^hle:bi",	u"p^hle:psi"),#	‘vein’
+	(u"kate:lips",	u"kate:lip^hos",	u"kate:lip^hi",	u"kate:lipsi"),#	‘upper story’
+	(u"p^hulaks",	u"p^hulakos",	u"p^hulaki",	u"p^hulaksi"),#	‘guard’
 	(u"ayks",	u"aygos",	u"aygi",	u"ayksi"),#	‘goat’
 	(u"salpiŋks",	u"salpiŋgos",	u"salpiŋgi",	u"salpiŋksi"),#	‘trumpet’
-	(u"onuks",	u"onukhos",	u"onukhi",	u"onuksi"),#	‘nail’
-	(u"the:s",	u"the:tos ",	u"the:ti ",	u"the:si"),#	‘serf’
-	(u"kharis",	u"kharitos",	u"khariti",	u"kharisi"),#	‘grace’
+	(u"onuks",	u"onuk^hos",	u"onuk^hi",	u"onuksi"),#	‘nail’
+	(u"t^he:s",	u"t^he:tos ",	u"t^he:ti ",	u"t^he:si"),#	‘serf’
+	(u"k^haris",	u"k^haritos",	u"k^hariti",	u"k^harisi"),#	‘grace’
 	(u"elpis",	u"elpidos",	u"elpidi",	u"elpisi"),#	‘hope’
-	(u"korus",	u"koruthos",	u"koruthi",	u"korusi"),#	‘helmet’
+	(u"korus",	u"korut^hos",	u"korut^hi",	u"korusi"),#	‘helmet’
 	(u"ri:s",	u"ri:nos",	u"ri:ni",	u"ri:si"),#	‘nose’
-	(u"delphi:s",	u"delphi:nos",	u"delphi:ni",	u"delphi:si")])#	‘porpoise’
+	(u"delp^hi:s",	u"delp^hi:nos",	u"delp^hi:ni",	u"delp^hi:si")]))#	‘porpoise’
 
 '''
 Problem(
@@ -1048,17 +1058,17 @@ Provide rules which will account for the alternations in the stem final consonan
 #	‘rice’	‘forest’	‘chestnut’	‘field’	‘sickle’	‘day’	‘face’	‘half’	
 [
     (u"pamman",	u"summan",	u"pamman", u"pamman",	u"namman",	u"namman", u"namman",	u"pamman"),#	only N
-	(u"pammaŋkhɨm",	u"summaŋkhɨm",	u"pammaŋkhɨm", u"pammaŋkhɨm",	u"nammaŋkhɨm",	u"nammaŋkhɨm", u"nammaŋkhɨm",	u"pammaŋkhɨm"),#	as much as N
+	(u"pammaŋk^hɨm",	u"summaŋk^hɨm",	u"pammaŋk^hɨm", u"pammaŋk^hɨm",	u"nammaŋk^hɨm",	u"nammaŋk^hɨm", u"nammaŋk^hɨm",	u"pammaŋk^hɨm"),#	as much as N
 	(u"pamnarɨm",	u"sumnarɨm",	u"pamnarɨm", u"pannarɨm",	u"nannarɨm",	u"nannarɨm", u"nannarɨm",	u"pannarɨm"),#	depending on N
 	(u"pap",	u"sup",	u"pam", u"pat",	u"nat",	u"nat", u"nat",	u"pan"),#	N
 	(u"papt’ero",	u"supt’ero",	u"pamtero", u"patt’ero",	u"natt’ero",	u"natt’ero", u"natt’ero",	u"pantero"),#	like N
 	(u"papk’wa",	u"supk’wa",	u"pamkwa", u"pakk’wa",	u"nakk’wa",	u"nakk’wa", u"nakk’wa",	u"paŋkwa"),#	with N
 	(u"papp’ota",	u"supp’ota",	u"pampota", u"papp’ota",	u"napp’ota",	u"napp’ota", u"napp’ota",	u"pampota"),#	more than N
 	(u"papk’ači",	u"supk’ači",	u"pamk’ači", u"pakk’ači",	u"nakk’ači",	u"nakk’ači", u"nakk’ači",	u"paŋk’ači"),#	until N
-	(u"papi",	u"suphi",	u"pami", u"pačhi",	u"nasi",	u"nači", u"načhi",	u"pani"),#	N (nominative)
-	(u"papɨn",	u"suphɨn",	u"pamɨn", u"pathɨn",	u"nasɨn",	u"načɨn", u"načhɨn",	u"panɨn"),#	N (topic)
-	(u"pape",	u"suphe",	u"pame", u"pathe",	u"nase",	u"nače", u"načhe",	u"pane"),#	to N
-	(u"papita",	u"suphita",	u"pamita", u"pačhita",	u"nasita",	u"načita", u"načhita",	u"panita"),#	it is N
-	(u"papɨro",	u"suphɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"načhɨro",	u"panɨro")])#	using N
+	(u"papi",	u"sup^hi",	u"pami", u"pač^hi",	u"nasi",	u"nači", u"nač^hi",	u"pani"),#	N (nominative)
+	(u"papɨn",	u"sup^hɨn",	u"pamɨn", u"pathɨn",	u"nasɨn",	u"načɨn", u"nač^hɨn",	u"panɨn"),#	N (topic)
+	(u"pape",	u"sup^he",	u"pame", u"pathe",	u"nase",	u"nače", u"nač^he",	u"pane"),#	to N
+	(u"papita",	u"sup^hita",	u"pamita", u"pač^hita",	u"nasita",	u"načita", u"nač^hita",	u"panita"),#	it is N
+	(u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")])#	using N
 
 

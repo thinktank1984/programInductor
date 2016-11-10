@@ -5,7 +5,7 @@ from rule import Rule
 from morph import Morph
 from sketch import *
 
-from problems import underlyingProblems
+from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
 
 from random import random
@@ -33,6 +33,8 @@ class UnderlyingProblem():
                                 prediction[i]))
     
     def conditionOnData(self, rules, stems, prefixes, suffixes):
+        for r in rules:
+            condition(isDeletionRule(r) == 0)
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
     
@@ -122,8 +124,8 @@ class UnderlyingProblem():
         data = sorted([ (sum(map(len,inflections)), inflections) for inflections in self.data ])
         self.data = [ d[1] for d in data ]
 
-        # Start out with the shortest example
-        trainingData = [ self.data[0] ]
+        # Start out with the shortest 2 examples
+        trainingData = [ self.data[0], self.data[1] ]
 
         while True:
             print "CEGIS: Training data:"
@@ -159,15 +161,19 @@ if __name__ == '__main__':
                     (2,1),
                     (3,2),
                     (5,1),
+                    (7,1),
                     (8,2),
-                    (9,3)]
+                    (9,3),
+                    # Chapter five problems
+                    (52,2)]
     else:
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
         problemIndex = int(sys.argv[1])
         problems = [(problemIndex,depth)]
     
     for problemIndex, depth in problems:
-        p = underlyingProblems[problemIndex - 1]
+        
+        p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
         print p.description
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()

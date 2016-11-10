@@ -33,6 +33,8 @@ def wordLength(w): return len(w)
 def ruleCost(r): return r.cost()
 @sketchImplementation("rule_equal")
 def ruleEqual(p,q): return p == q
+@sketchImplementation("is_deletion_rule")
+def isDeletionRule(r): return r.structuralChange == None
 
 def makeConstantVector(v):
     return Array(map(Constant,v))
