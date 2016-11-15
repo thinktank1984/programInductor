@@ -82,7 +82,7 @@ class Guard():
         parts = []
         parts += map(unicode,self.specifications)
         if self.starred: parts[-2] += u'*'
-        if self.endOfString: parts = [u'#']
+        if self.endOfString: parts += [u'#']
         if self.side == 'L': parts.reverse()
         return u" ".join(parts)
 

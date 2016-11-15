@@ -797,7 +797,7 @@ Morphological analysis:
 Inflection 0:	/  / + stem + /  /
 Inflection 1:	/  / + stem + / i /
 Phonological rules:
-o ---> u /  _ #
+o ---> u /  _ [ -nasal +voice ] #
 [ -sonorant ] ---> [ -voice ] /  _ #
 ''',
     #singular	plural		singular	plural
