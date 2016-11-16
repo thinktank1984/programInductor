@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from utilities import *
+
 from features import FeatureBank, tokenize
 from rule import Rule
 from morph import Morph
@@ -21,6 +23,12 @@ class UnderlyingProblem():
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
+
+    def sortDataByLength(self):
+        # Sort the data by length
+        data = sorted([ (sum(map(compose(len,tokenize),inflections)), inflections) for inflections in self.data ])
+        self.data = [ d[1] for d in data ]
+
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
         def applyRules(d):
@@ -82,6 +90,29 @@ class UnderlyingProblem():
             assert False
         return [ Rule.parse(self.bank, output, r) for r in rules ]
 
+    def solveTopRules(self, prefixes, suffixes, k):
+        solutions = []
+        for _ in range(k):
+            Model.Global()
+
+            r = Rule.sample()
+            for other in solutions:
+                condition(ruleEqual(r, other.makeConstant(self.bank)) == 0)
+            stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+
+            # Make the morphology be a global definition
+            prefixVariables = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+            suffixVariables = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+
+            self.conditionOnData([r], stems, prefixVariables, suffixVariables)
+            minimize(ruleCost(r))
+            output = solveSketch(self.bank, self.maximumObservationLength)
+            if not output:
+                print "Found %d rules."%len(solutions)
+                break
+            solutions.append(Rule.parse(self.bank, output, r))
+        return solutions
+
     def verify(self, prefixes, suffixes, rules, inflections):
         Model.Global()
 
@@ -119,11 +150,23 @@ class UnderlyingProblem():
 
         return (prefixes, suffixes, rules)
 
-    def counterexampleSolution(self):
-        # Sort the data by length
-        data = sorted([ (sum(map(len,inflections)), inflections) for inflections in self.data ])
-        self.data = [ d[1] for d in data ]
+    def topSolutions(self,n = 2,k = 1):
+        self.depth = 1
+        self.sortDataByLength()
+        trainingData = self.data[0:n]
+        trainingProblem = UnderlyingProblem(trainingData, 1)
 
+        prefixes, suffixes = trainingProblem.solveAffixes()
+        print prefixes
+        UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+        rules = trainingProblem.solveTopRules(prefixes, suffixes, k)
+        UnderlyingProblem.showRules(rules)
+
+        return (prefixes, suffixes, rules)
+        
+
+    def counterexampleSolution(self):
+        self.sortDataByLength()
         # Start out with the shortest 2 examples
         trainingData = [ self.data[0], self.data[1] ]
 
@@ -154,7 +197,8 @@ class UnderlyingProblem():
                 
 if __name__ == '__main__':
     useCounterexamples = '--counterexamples' in sys.argv
-    sys.argv = [a for a in sys.argv if a != '--counterexamples']
+    topSolutions = '--top'  in sys.argv
+    sys.argv = [a for a in sys.argv if a != '--counterexamples' and a != '--top' ]
     # Build a "problems" structure, which is a list of (problem, # rules)
     if sys.argv[1] == 'integration':
         problems = [(1,2),
@@ -177,6 +221,8 @@ if __name__ == '__main__':
         print p.description
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()
+        elif topSolutions:
+            UnderlyingProblem(p.data, depth).topSolutions(3,10)
         elif useCounterexamples:
             UnderlyingProblem(p.data, depth).counterexampleSolution()
         else:
