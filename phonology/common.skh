@@ -84,6 +84,7 @@ generator Word unknown_word() {
 }
 
 struct Specification{}
+//struct EndOfString extends Specification{}
 struct Vector extends Specification{
   bit[NUMBEROFFEATURES] mask;
   bit[NUMBEROFFEATURES] preference;
@@ -101,14 +102,23 @@ bit specification_equal(Specification p, Specification q) {
       return p.mask == q.mask && (p.preference&p.mask) == (q.preference&q.mask);
     }
     case ConstantPhoneme:{ return 0; }
+      //    case EndOfString:{ return 0; }
     }
   }
   case ConstantPhoneme:{
     switch (q) {
     case Vector:{ return 0; }
     case ConstantPhoneme:{ return p.phoneme == q.phoneme; }
+      //    case EndOfString:{ return 0; }
     }
   }
+  /* case EndOfString:{ */
+  /*   switch (q) { */
+  /*   case EndOfString:{ return 1; } */
+  /*   case Vector:{return 0;} */
+  /*   case ConstantPhoneme:{return 0;} */
+  /*   } */
+  /* } */
   }
 }
 
@@ -127,6 +137,7 @@ bit matches_specification(Sound sound, Specification specification) {
   case ConstantPhoneme: {
     return sound_equal(sound, specification.phoneme);
   }
+    //  case EndOfString:{assert 0;}
   }
 }
 
@@ -142,6 +153,7 @@ Sound apply_specification(Specification specification, Sound sound) {
   case ConstantPhoneme:{
     return specification.phoneme;
   }
+    //  case EndOfString:{assert 0;}
   }
 }
 
@@ -158,6 +170,7 @@ int specification_cost(Specification s) {
   if (s == null) return 2;
   switch(s) {
   case ConstantPhoneme:{ return 2; }
+    //  case EndOfString:{ return 1; }
   case Vector:{
     int c = 1;
     int f = 0;
@@ -174,6 +187,7 @@ int specification_cost(Specification s) {
 int guard_specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
+    //  case EndOfString:{ assert 0; }
   case ConstantPhoneme:{ return 2; }
   case Vector:{
     //    if (empty_vector(s.mask)) return 1;
@@ -209,6 +223,11 @@ struct Rule {
   Specification structural_change;
   Guard left_trigger;
   Guard right_trigger;
+  // Is the focus the end of the string?
+  bit ending;
+  // If we are inserting a new phoneme, copy it from this offset:
+  // 0 = do not copy; -1 = copy from left; +1 = copy from right
+  int copyOffset;
 }
 
 bit is_deletion_rule(Rule r) { return r.structural_change == null; }
@@ -233,7 +252,9 @@ generator Rule unknown_rule() {
   return new Rule(focus = unknown_specification(),
 		  structural_change = {| null | unknown_specification() |},
 		  left_trigger = unknown_guard(),
-		  right_trigger = unknown_guard());
+		  right_trigger = unknown_guard(),
+		  ending = ??,
+		  copyOffset = {| 0 | 1 | -1 |});
 }
 
 int alternation_cost(Rule r) {
@@ -262,7 +283,7 @@ Word apply_rule(Rule r, Word u) {
   if (left_trigger.spec == null) assert left_trigger.spec2 == null;
   if (right_trigger.spec == null) assert right_trigger.spec2 == null;
   
-  Sound[u.l] output;
+  Sound[u.l + 1] output;
 
   // * applies to the second spec
   if (left_trigger.starred)
@@ -349,6 +370,7 @@ Word apply_rule(Rule r, Word u) {
   int output_length; // how long is the output
   // Deletion rule
   if (structural_change == null) {
+    assert !r.ending;
     int outputIndex = 0;
     for (int j = 0; j < u.l; j++) {
       if (!triggered[j]) {
@@ -357,6 +379,35 @@ Word apply_rule(Rule r, Word u) {
       }
     }
     output_length = outputIndex;
+  } else if (r.ending) { // appending rule
+    // Appending rules don't get a right trigger
+    assert right_trigger.spec == null;
+    assert right_trigger.spec2 == null;
+    assert !right_trigger.starred;
+    assert !right_trigger.endOfString;
+
+    // append increases the length by one,
+    // but only if the left guard holds!
+    output_length = u.l + left_okay[u.l - 1];
+    output[0::u.l] = u.s;
+    
+    switch (structural_change){
+    case ConstantPhoneme:{
+      output[u.l] = structural_change.phoneme;
+      assert r.copyOffset == 0;
+    }
+    case Vector:{
+      assert empty_vector(structural_change.mask);
+      // cannot copy from the right because there is nothing to the right when appending
+      assert !(r.copyOffset == 0);
+      assert !(r.copyOffset == 1);
+      
+      output[u.l] =
+	u.s[r.copyOffset == -1 ? // copy from the left
+	    (left_trigger.endOfString ? 0 : u.l - 1) :
+	    -1];
+    }
+    }
   } else { // Modification rule
     for (int j = 0; j < u.l; j++) {
       output[j] = triggered[j] ?

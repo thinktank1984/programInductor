@@ -115,19 +115,20 @@ class Guard():
                                                                                      spec2)
 
 class Rule():
-    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers):
+    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers, ending, copyOffset):
+        self.copyOffset = copyOffset
         self.focus = focus
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
+        self.ending = ending
 
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
-        return u"{} ---> {} / {} _ {}".format(self.focus,
-                                              self.structuralChange,
+        return u"{} ---> {} / {} _ {}".format(u'#' if self.ending else self.focus,
+                                              self.copyOffset if self.copyOffset else self.structuralChange,
                                               self.leftTriggers,
                                               self.rightTriggers)
-
     # Produces sketch object
     def makeConstant(self, bank):
         return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s)" % (self.focus.makeConstant(bank),
@@ -143,7 +144,7 @@ class Rule():
     # Produces a rule object from a sketch output
     @staticmethod
     def parse(bank, output, variable):
-        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+)\)' % str(variable)
+        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), ending=([01]), copyOffset=([\-01\(\)]+)\)' % str(variable)
         m = re.search(pattern, output)
         if not m:
             raise Exception('Failure parsing rule')
@@ -151,4 +152,12 @@ class Rule():
         structuralChange = Specification.parse(bank, output, m.group(2))
         leftTrigger = Guard.parse(bank, output, m.group(3), 'L')
         rightTrigger = Guard.parse(bank, output, m.group(4), 'R')
-        return Rule(focus, structuralChange, leftTrigger, rightTrigger)
+        ending = m.group(5) == '1'
+        offset = eval(m.group(6))
+        return Rule(focus,
+                    structuralChange,
+                    leftTrigger,
+                    rightTrigger,
+                    ending,
+                    offset)
+    
