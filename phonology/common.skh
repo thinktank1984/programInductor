@@ -157,7 +157,7 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
 int specification_cost(Specification s) {
   if (s == null) return 2;
   switch(s) {
-  case ConstantPhoneme:{ return 1; }
+  case ConstantPhoneme:{ return 2; }
   case Vector:{
     int c = 1;
     int f = 0;
@@ -165,7 +165,7 @@ int specification_cost(Specification s) {
       c = validateCost(c + s.mask[f]);
       f++;
     }
-    assert c < 4;
+    //    assert c < 4;
     return c;
   }
   }
@@ -174,9 +174,9 @@ int specification_cost(Specification s) {
 int guard_specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
-  case ConstantPhoneme:{ return 1; }
+  case ConstantPhoneme:{ return 2; }
   case Vector:{
-    if (empty_vector(s.mask)) return 0;
+    //    if (empty_vector(s.mask)) return 1;
     //    assert !empty_vector(s.mask);
     int c = 1;
     int f = 0;
@@ -184,7 +184,7 @@ int guard_specification_cost(Specification s) {
       c = validateCost(c + s.mask[f]);
       f++;
     }
-    assert c < 4;
+    //    assert c < 4;
     return c;
   }
   }

@@ -66,7 +66,7 @@ class UnderlyingProblem():
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             print "Failed at morphological analysis."
-            assert False
+            raise Exception('morphology')
         prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
         return (prefixes, suffixes)
@@ -163,6 +163,41 @@ class UnderlyingProblem():
         UnderlyingProblem.showRules(rules)
 
         return (prefixes, suffixes, rules)
+
+    def counterexampleTop(self):
+        trainingData = [ self.data[0] ]
+
+        while True:
+            print "Training data:"
+            for r in trainingData:
+                for i in r: print i,
+                print ""
+            try:
+                (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, 1).sketchSolution()
+            except:
+                trainingData = trainingData[:-1]
+                UnderlyingProblem(trainingData, 1).topSolutions(len(trainingData),10)
+                return
+            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+            UnderlyingProblem.showRules(rules)
+            foundCounterexample = False
+            for observation in self.data:
+                if observation in trainingData: continue
+                if not self.verify(prefixes, suffixes, rules, observation):
+                    trainingData.append(observation)
+                    foundCounterexample = True
+                    print "COUNTEREXAMPLE:\t",
+                    for i in observation: print i,"\t",
+                    print ""
+                    break
+            if not foundCounterexample:
+                print "Final solution:"
+                UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+                UnderlyingProblem.showRules(rules)
+                break
+
+            
+        
         
 
     def counterexampleSolution(self):
@@ -196,9 +231,9 @@ class UnderlyingProblem():
                 
                 
 if __name__ == '__main__':
-    useCounterexamples = '--counterexamples' in sys.argv
-    topSolutions = '--top'  in sys.argv
-    sys.argv = [a for a in sys.argv if a != '--counterexamples' and a != '--top' ]
+    useCounterexamples = '-c' in sys.argv
+    topSolutions = '-t' in sys.argv
+    sys.argv = [a for a in sys.argv if not a.startswith('-') ]
     # Build a "problems" structure, which is a list of (problem, # rules)
     if sys.argv[1] == 'integration':
         problems = [(1,2),
@@ -222,7 +257,7 @@ if __name__ == '__main__':
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()
         elif topSolutions:
-            UnderlyingProblem(p.data, depth).topSolutions(3,10)
+            UnderlyingProblem(p.data, depth).counterexampleTop()
         elif useCounterexamples:
             UnderlyingProblem(p.data, depth).counterexampleSolution()
         else:
