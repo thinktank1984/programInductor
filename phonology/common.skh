@@ -370,6 +370,7 @@ Word apply_rule(Rule r, Word u) {
   int output_length; // how long is the output
   // Deletion rule
   if (structural_change == null) {
+    assert r.copyOffset == 0;
     assert !r.ending;
     int outputIndex = 0;
     for (int j = 0; j < u.l; j++) {
@@ -409,6 +410,7 @@ Word apply_rule(Rule r, Word u) {
     }
     }
   } else { // Modification rule
+    assert r.copyOffset == 0;
     for (int j = 0; j < u.l; j++) {
       output[j] = triggered[j] ?
 	apply_specification(structural_change, u.s[j]) :
