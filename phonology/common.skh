@@ -226,7 +226,7 @@ struct Rule {
   // Is the focus the end of the string?
   bit ending;
   // If we are inserting a new phoneme, copy it from this offset:
-  // 0 = do not copy; -1 = copy from left; +1 = copy from right
+  // 0 = do not copy; -(1|2) = copy from left; +(1|2) = copy from right
   int copyOffset;
 }
 
@@ -254,7 +254,7 @@ generator Rule unknown_rule() {
 		  left_trigger = unknown_guard(),
 		  right_trigger = unknown_guard(),
 		  ending = ??,
-		  copyOffset = {| 0 | 1 | -1 |});
+		  copyOffset = {| 0 | 1 | -1 | -2 | +2 |});
 }
 
 int alternation_cost(Rule r) {
@@ -400,13 +400,14 @@ Word apply_rule(Rule r, Word u) {
     case Vector:{
       assert empty_vector(structural_change.mask);
       // cannot copy from the right because there is nothing to the right when appending
-      assert !(r.copyOffset == 0);
-      assert !(r.copyOffset == 1);
+      assert r.copyOffset < 0;
       
       output[u.l] =
 	u.s[r.copyOffset == -1 ? // copy from the left
 	    (left_trigger.endOfString ? 0 : u.l - 1) :
-	    -1];
+	    (r.copyOffset == -2 ?
+	     (left_trigger.endOfString ? 1 : u.l - 2)
+	     : -1)];
     }
     }
   } else { // Modification rule

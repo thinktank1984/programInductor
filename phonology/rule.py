@@ -144,7 +144,7 @@ class Rule():
     # Produces a rule object from a sketch output
     @staticmethod
     def parse(bank, output, variable):
-        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), ending=([01]), copyOffset=([\-01\(\)]+)\)' % str(variable)
+        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), ending=([01]), copyOffset=([\-012\(\)]+)\)' % str(variable)
         m = re.search(pattern, output)
         if not m:
             raise Exception('Failure parsing rule')
