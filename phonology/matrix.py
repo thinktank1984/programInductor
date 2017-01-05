@@ -24,6 +24,7 @@ class UnderlyingProblem():
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
 
+
     def sortDataByLength(self):
         # Sort the data by length
         data = sorted([ (sum(map(compose(len,tokenize),inflections)), inflections) for inflections in self.data ])
@@ -46,10 +47,12 @@ class UnderlyingProblem():
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
     
-    def solveAffixes(self):
+    def solveAffixes(self, oldRules = []):
         Model.Global()
         
-        rules = [ Rule.sample() for _ in range(self.depth) ]
+        numberOfNewRules = self.depth - len(oldRules)
+        rules = [ define("Rule", r.makeConstant(self.bank)) for r in oldRules ]
+        rules += [ Rule.sample() for _ in range(numberOfNewRules) ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
@@ -71,10 +74,12 @@ class UnderlyingProblem():
         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
         return (prefixes, suffixes)
 
-    def solveRules(self, prefixes, suffixes):
+    def solveRules(self, prefixes, suffixes, oldRules = []):
         Model.Global()
 
-        rules = [ Rule.sample() for _ in range(self.depth) ]
+        numberOfNewRules = self.depth - len(oldRules)
+        rules = [ define("Rule", r.makeConstant(self.bank)) for r in oldRules ]
+        rules += [ Rule.sample() for _ in range(numberOfNewRules) ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
 
         # Make the morphology be a global definition
@@ -88,7 +93,7 @@ class UnderlyingProblem():
         if not output:
             print "Failed at phonological analysis."
             assert False
-        return [ Rule.parse(self.bank, output, r) for r in rules ]
+        return oldRules + [ Rule.parse(self.bank, output, r) for r in rules[len(oldRules):] ]
 
     def solveTopRules(self, prefixes, suffixes, k):
         solutions = []
@@ -142,10 +147,10 @@ class UnderlyingProblem():
         print "Phonological rules:"
         for r in rules: print r
 
-    def sketchSolution(self):
-        prefixes, suffixes = self.solveAffixes()
+    def sketchSolution(self, oldRules = []):
+        prefixes, suffixes = self.solveAffixes(oldRules)
         UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-        rules = self.solveRules(prefixes, suffixes)
+        rules = self.solveRules(prefixes, suffixes, oldRules)
         UnderlyingProblem.showRules(rules)
 
         return (prefixes, suffixes, rules)
@@ -196,10 +201,6 @@ class UnderlyingProblem():
                 UnderlyingProblem.showRules(rules)
                 break
 
-            
-        
-        
-
     def counterexampleSolution(self):
         self.sortDataByLength()
         # Start out with the shortest 2 examples
@@ -228,11 +229,47 @@ class UnderlyingProblem():
                 UnderlyingProblem.showRules(rules)
                 break
                 
-                
+def incrementalSynthesis(data):
+    '''Incrementally grow a program rule by rule, while growing a training set Lexeme by Lexeme'''
+    trainingSet = [data[0]]
+    bank = FeatureBank([ w for l in data for w in l  ])
+
+    # what do we learn from the first example?
+    prefixes, suffixes, rules = UnderlyingProblem(trainingSet, 1, bank).sketchSolution()
+    rules = [r for r in rules if not r.doesNothing() ]
+
+    foundCounterexample = True
+    while foundCounterexample:
+        foundCounterexample = False
+        # find a counterexample
+        for testingExample in [ e for e in data if not e in trainingSet ]:
+            if UnderlyingProblem([testingExample],1,bank).verify(prefixes, suffixes, rules, testingExample):
+                continue # consistent with the current model
+            foundCounterexample = True
+            trainingSet.append(testingExample)
+
+            # Expand to include another rule but still use all of the old rules
+            print "Current training examples:"
+            for e in trainingSet:
+                print "\t".join(e)
+            prefixes, suffixes, rules = UnderlyingProblem(trainingSet, len(rules) + 1, bank).sketchSolution(rules)
+            rules = [r for r in rules if not r.doesNothing() ]
+            break
+    
+    print "Finished incremental synthesis."
+    UnderlyingProblem.showRules(rules)
+            
+            
+    
+
+    
+
+                        
                 
 if __name__ == '__main__':
     useCounterexamples = '-c' in sys.argv
     topSolutions = '-t' in sys.argv
+    incremental = '-i' in sys.argv
     sys.argv = [a for a in sys.argv if not a.startswith('-') ]
     # Build a "problems" structure, which is a list of (problem, # rules)
     if sys.argv[1] == 'integration':
@@ -256,6 +293,8 @@ if __name__ == '__main__':
         print p.description
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()
+        elif incremental:
+            incrementalSynthesis(p.data)
         elif topSolutions:
             UnderlyingProblem(p.data, depth).counterexampleTop()
         elif useCounterexamples:

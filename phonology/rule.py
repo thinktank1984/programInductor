@@ -22,6 +22,7 @@ class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
     def __unicode__(self): return self.p
     def __str__(self): return unicode(self).encode('utf-8')
+    def doesNothing(self): return False
     
     @staticmethod
     def parse(bank, output, variable):
@@ -37,6 +38,8 @@ class EmptySpecification():
     def __unicode__(self): return u"Ø"
     def __str__(self): return unicode(self).encode('utf-8')
 
+    def doesNothing(self): return False
+
     @staticmethod
     def parse(bank, output, variable):
         pattern = " %s = null;" % variable
@@ -51,6 +54,9 @@ class FeatureMatrix():
     def __str__(self):
         elements = [ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]
         return u"[ {} ]".format(u" ".join(elements))
+
+    def doesNothing(self):
+        return len(self.featuresAndPolarities) == 0
 
     @staticmethod
     def parse(bank, output, variable):
@@ -77,6 +83,10 @@ class Guard():
         self.endOfString = endOfString
         self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
+
+    def doesNothing(self):
+        return not self.endOfString and len(self.specifications) == 0
+    
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         parts = []
@@ -120,6 +130,10 @@ class Rule():
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
+
+    def doesNothing(self):
+        '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''
+        return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing()
 
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):

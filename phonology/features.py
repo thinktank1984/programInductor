@@ -20,7 +20,7 @@ front = "front"
 central = "central"
 back = "back"
 rounded = "rounded"
-unrounded = "unrounded"
+#unrounded = "unrounded"
 bilabial = "bilabial"
 stop = "stop"
 voice = "voice"
@@ -46,16 +46,16 @@ aspirated = "aspirated"
 
 featureMap = {
     # unrounded vowels
-    u"i": [voice,tense,high,front,unrounded],
-    u"ɨ": [voice,tense,high,central,unrounded],
-    u"ɯ": [voice,tense,high,back,unrounded],
-    u"ɩ": [voice,lax,high,front,unrounded],
-    u"e": [voice,tense,middle,front,unrounded],
-    u"ə": [voice,tense,middle,central,unrounded],
-    #    u"gamma vowel": [tense,middle,back,unrounded],
-    u"ɛ": [voice,lax,middle,front,unrounded],
-    u"æ": [voice,low,front,unrounded],
-    u"a": [voice,low,central,unrounded],
+    u"i": [voice,tense,high,front],
+    u"ɨ": [voice,tense,high,central],
+    u"ɯ": [voice,tense,high,back],
+    u"ɩ": [voice,lax,high,front],
+    u"e": [voice,tense,middle,front],
+    u"ə": [voice,tense,middle,central],
+    #    u"gamma vowel": [tense,middle,back],
+    u"ɛ": [voice,lax,middle,front],
+    u"æ": [voice,low,front],
+    u"a": [voice,low,central],
     # rounded vowels
     u"u": [voice,tense,high,back,rounded],
     u"ü": [voice,tense,high,front,rounded],
@@ -203,5 +203,6 @@ class FeatureBank():
             features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))
             h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
+        h += "\n#define VOWELFEATUREINDEX %d\n" % self.feature2index["vowel"]
         h += "\n"
         return h

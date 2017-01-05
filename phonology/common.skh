@@ -2,7 +2,7 @@
 #define MAXIMUMCOST 20
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
-#define MAXIMUMMORPHLENGTH 15
+#define MAXIMUMMORPHLENGTH 8
 #define True 1
 #define False 0
 
@@ -152,6 +152,25 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
     j++;
   }
   return 1;
+}
+
+bit consonant_vowel_specification(Specification s) {
+  if (s == null) return 0;
+  switch(s) {
+  case Vector:{
+    int f = 0;
+    repeat(NUMBEROFFEATURES){
+      if (f == VOWELFEATUREINDEX) {
+	if (!s.mask[f]) return 0;
+      } else {
+	if (s.mask[f]) return 0;
+      }
+      f++;
+    }
+    return 1;
+  }
+  case ConstantPhoneme:{return 0;}
+  }
 }
 
 int specification_cost(Specification s) {
