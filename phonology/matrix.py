@@ -281,6 +281,7 @@ if __name__ == '__main__':
                     (8,2),
                     (9,3),
                     # Chapter five problems
+                    (51,2),
                     (52,2)]
     else:
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
