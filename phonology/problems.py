@@ -601,6 +601,8 @@ underlyingProblems.append(Problem(
     the rule that it learns is needlessly verbose because it doesn't understand that some features are mutually exclusive
     
     
+    This is going to be tricky to learn incrementally because a correct spreading rule is only learned for data points where there is also a vowel harmony.
+    So you really have to do joint inference over everything.
     ''',
 #	noun	in N	from N	to N	gloss
     [
@@ -608,22 +610,23 @@ underlyingProblems.append(Problem(
 	(u"ku:t",	u"ku:dban",	u"ku:tto:l",	u"ku:tnak"), #	well
 	(u"ža:k",	u"ža:gban",	u"ža:kto:l",	u"ža:knak"), #	sack
 	(u"re:s",	u"re:zben",	u"re:stö:l",	u"re:snek"), #	part
-	# (u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
-	# (u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
-	# (u"ketret^s",	u"ketred^zben",	u"ketret^stö:l",	u"ketret^snek"), #	cage
-	# (u"test",	u"tezdben",	u"testtö:l",	u"testnek"), #	body
-	# (u"rab",	u"rabban",	u"rapto:l",	u"rabnak"), #	prisoner
-	# (u"ka:d",	u"ka:dban",	u"ka:tto:l",	u"ka:dnak"), #	tub
-	# (u"meleg",	u"melegben",	u"melektö:l",	u"melegnek"), #	warm
-	# (u"vi:z",	u"vi:zben",	u"vi:stö:l",	u"vi:znek"), #	water
-	# (u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
-	# (u"a:g^y",	u"a:g^yban",	u"a:k^yto:l",	u"a:g^ynak"), #	bed
-	# (u"sem",	u"semben",	u"semtö:l",	u"semnek"), #	eye
-	# (u"bün",	u"bünben",	u"büntö:l",	u"bünnek"), #	crime
-	# (u"toroñ",	u"toroñban",	u"toroñto:l",	u"toroñnak"), #	tower
-	# (u"fal",	u"falban",	u"falto:l",	u"falnak"), #	wall
+	(u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
+	(u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
+	(u"ketret^s",	u"ketred^zben",	u"ketret^stö:l",	u"ketret^snek"), #	cage
+	(u"test",	u"tezdben",	u"testtö:l",	u"testnek"), #	body
+	(u"rab",	u"rabban",	u"rapto:l",	u"rabnak"), #	prisoner
+	(u"ka:d",	u"ka:dban",	u"ka:tto:l",	u"ka:dnak"), #	tub
+	(u"meleg",	u"melegben",	u"melektö:l",	u"melegnek"), #	warm
+	(u"vi:z",	u"vi:zben",	u"vi:stö:l",	u"vi:znek"), #	water
+	(u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
+	(u"a:g^y",	u"a:g^yban",	u"a:k^yto:l",	u"a:g^ynak"), #	bed
+	(u"sem",	u"semben",	u"semtö:l",	u"semnek"), #	eye
+	(u"bün",	u"bünben",	u"büntö:l",	u"bünnek"), #	crime
+	(u"toroñ",	u"toroñban",	u"toroñto:l",	u"toroñnak"), #	tower
+	(u"fal",	u"falban",	u"falto:l",	u"falnak"), #	wall
 	(u"ö:r",	u"ö:rben",	u"ö:rtö:l",	u"ö:rnek"), #	guard
-	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak")])) #	mouth
+	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak") #	mouth
+    ]))
 
 underlyingProblems.append(Problem(
     '''
@@ -853,6 +856,14 @@ interactingProblems.append(Problem(
     '''3: Ancient Greek
 
 Discuss the phonological rules and underlying representations which are necessary to account for the following nouns; comment on the ordering of these phonological processes.
+
+Greedy search discovers
+    [ -sonorant ] ---> [ -aspirated -voice ] /  _ [ -voice ]
+    So we unaspirate whenever the next sound is unvoiced, which bizarrely seems to work.
+    obstructions also become you voiced whenever the next sound is unvoiced
+it also looks like coronal is deleted in certain contexts.
+    deleted after /s/?
+    deleted: {t,d,n} / _ s
     ''',
 #	nom. sg.	gen. sg.	dat. sg	dat. pl.
     [

@@ -13,6 +13,14 @@ from countingProblems import CountingProblem
 from random import random
 import sys
 
+class SynthesisFailure(Exception):
+    pass
+
+def sampleMorphWithLength(l):
+    m = Morph.sample()
+    condition(wordLength(m) == l)
+    return m
+
 class UnderlyingProblem():
     def __init__(self, data, depth, bank = None):
         self.depth = depth
@@ -68,8 +76,8 @@ class UnderlyingProblem():
         
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
-            print "Failed at morphological analysis."
-            raise Exception('morphology')
+            raise SynthesisFailure("Failed at morphological analysis.")
+#            raise Exception('morphology')
         prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
         return (prefixes, suffixes)
@@ -83,16 +91,16 @@ class UnderlyingProblem():
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
 
         # Make the morphology be a global definition
-        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
-        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+        prefixes = [ sampleMorphWithLength(len(p)) for p in prefixes ] #[ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+        suffixes = [ sampleMorphWithLength(len(s)) for s in suffixes ]
 
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         minimize(sum([ ruleCost(r) for r in rules ]))
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
-            print "Failed at phonological analysis."
-            assert False
+            raise SynthesisFailure("Failed at phonological analysis.")
+#            assert False
         return oldRules + [ Rule.parse(self.bank, output, r) for r in rules[len(oldRules):] ]
 
     def solveTopRules(self, prefixes, suffixes, k):
@@ -262,12 +270,40 @@ def incrementalSynthesis(data):
             
     
 
-    
+def greedySynthesis(data):
+    '''Incrementally grow program rule by rule, trying to the rule that covers as much data as possible'''
+    trainingSet = [data[0]]
+    bank = FeatureBank([ w for l in data for w in l  ])
+    blacklist = [] # inconsistent with the training set - ignore these because we'll never get them
 
+    # what do we learn from the first example?
+    prefixes, suffixes, rules = UnderlyingProblem(trainingSet, 1, bank).sketchSolution()
+
+    for example in data:
+        if example in trainingSet: continue
+        if example in blacklist: continue
+        renderedExample = u"|".join(example)
+        if UnderlyingProblem([example],1,bank).verify(prefixes, suffixes, rules, example):
+            print "%s is consistent with the model."%renderedExample
+            continue # consistent with the current model
+        try: # try to revise the current model
+            prefixes, suffixes, rules = UnderlyingProblem(trainingSet + [example], 1, bank).sketchSolution()
+            trainingSet.append(example)
+            print "%s updated the model."%renderedExample
+        except SynthesisFailure: # inconsistent
+            blacklist.append(example)
+            print "%s is inconsistent with the rest of the training data."%renderedExample
+    print "Greedy final answer:"
+    UnderlyingProblem.showRules(rules)
+
+        
+    
+    
                         
                 
 if __name__ == '__main__':
     useCounterexamples = '-c' in sys.argv
+    greedy = '-g' in sys.argv
     topSolutions = '-t' in sys.argv
     incremental = '-i' in sys.argv
     sys.argv = [a for a in sys.argv if not a.startswith('-') ]
@@ -294,6 +330,8 @@ if __name__ == '__main__':
         print p.description
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()
+        elif greedy:
+            greedySynthesis(p.data)
         elif incremental:
             incrementalSynthesis(p.data)
         elif topSolutions:

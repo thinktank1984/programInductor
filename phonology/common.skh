@@ -2,7 +2,7 @@
 #define MAXIMUMCOST 20
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
-#define MAXIMUMMORPHLENGTH 8
+#define MAXIMUMMORPHLENGTH 9
 #define True 1
 #define False 0
 
