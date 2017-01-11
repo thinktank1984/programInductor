@@ -100,8 +100,12 @@ class UnderlyingProblem():
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             raise SynthesisFailure("Failed at phonological analysis.")
-#            assert False
-        return oldRules + [ Rule.parse(self.bank, output, r) for r in rules[len(oldRules):] ]
+
+        rules = oldRules + [ Rule.parse(self.bank, output, r) for r in rules[len(oldRules):] ]
+        prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
+        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
+        return (rules, prefixes, suffixes)
+
 
     def solveTopRules(self, prefixes, suffixes, k):
         solutions = []
@@ -157,10 +161,10 @@ class UnderlyingProblem():
 
     def sketchSolution(self, oldRules = []):
         prefixes, suffixes = self.solveAffixes(oldRules)
+        rules, prefixes, suffixes = self.solveRules(prefixes, suffixes, oldRules)
         UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-        rules = self.solveRules(prefixes, suffixes, oldRules)
         UnderlyingProblem.showRules(rules)
-
+        
         return (prefixes, suffixes, rules)
 
     def topSolutions(self,n = 2,k = 1):
@@ -312,6 +316,7 @@ if __name__ == '__main__':
         problems = [(1,2),
                     (2,1),
                     (3,2),
+                    (4,3),
                     (5,1),
                     (7,1),
                     (8,2),

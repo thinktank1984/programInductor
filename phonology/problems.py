@@ -603,6 +603,18 @@ underlyingProblems.append(Problem(
     
     This is going to be tricky to learn incrementally because a correct spreading rule is only learned for data points where there is also a vowel harmony.
     So you really have to do joint inference over everything.
+
+Morphological analysis:
+Inflection 0:	/  / + stem + /  /
+Inflection 1:	/  / + stem + / b a n /
+Inflection 2:	/  / + stem + / t o: l /
+Inflection 3:	/  / + stem + / n a k /
+Phonological rules:
+[ +vowel ] ---> [ -back +middle -low +tense +front -central ] / [ +front ] [  ]* _ 
+[  ] ---> [ +voice ] /  _ [ +bilabial ]
+[ -sonorant ] ---> [ -voice ] /  _ [ -voice ]
+
+
     ''',
 #	noun	in N	from N	to N	gloss
     [
