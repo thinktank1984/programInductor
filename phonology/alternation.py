@@ -87,15 +87,23 @@ class AlternationProblem():
                 print Rule.parse(self.bank, output, r)
         else:
             print "Failed to find a solution"
-        
-data = alternationProblems[int(sys.argv[1]) - 1]
-print data.description
-for alternation in data.parameters["alternations"]:
-    print "Analyzing alternation:"
-    for k in alternation:
-        print "\t",k,"\t",alternation[k]
-    problem = AlternationProblem(alternation, data.data)
-    problem.sketchSolution()
+
+if __name__ == '__main__':
+    setTemporarySketchName("testAlternation.sk")
+    if sys.argv[1] == 'integration':
+        problems = list(range(1,12))
+    else:
+        problems = [int(sys.argv[1])]
+    for problemIndex in problems:
+        if problemIndex == 8: continue
+        data = alternationProblems[problemIndex - 1]
+        print data.description
+        for alternation in data.parameters["alternations"]:
+            print "Analyzing alternation:"
+            for k in alternation:
+                print "\t",k,"\t",alternation[k]
+            problem = AlternationProblem(alternation, data.data)
+            problem.sketchSolution()
 
 
 

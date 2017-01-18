@@ -15,7 +15,7 @@ ABA = [u"pofepo",
 
 ABB = [ x[0:2] + x[2:4] + x[2:4] for x in ABA ]
 
-trainingData = ABB
+trainingData = ABA
 
 depth = 2
 

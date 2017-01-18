@@ -210,7 +210,16 @@ class UnderlyingProblem():
             for r in trainingData:
                 for i in r: print i,
                 print ""
-            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution()
+            # expand the rule set until we can fit the training data
+            fitsTrainingData = False
+            while not fitsTrainingData:
+                try:
+                    (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution()
+                    fitsTrainingData = True
+                except:
+                    self.depth += 1
+                    print "Expanding rule depth to %d"%self.depth
+            
             print "Beginning verification"
             foundCounterexample = False
             for observation in self.data:
@@ -231,6 +240,7 @@ class UnderlyingProblem():
                 
                 
 if __name__ == '__main__':
+    setTemporarySketchName("testMatrix.sk")
     useCounterexamples = '-c' in sys.argv
     topSolutions = '-t' in sys.argv
     sys.argv = [a for a in sys.argv if not a.startswith('-') ]

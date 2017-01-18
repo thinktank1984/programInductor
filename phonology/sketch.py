@@ -55,12 +55,19 @@ def makeSketch(bank):
     h += makeSketchSkeleton()
     return h
 
+temporarySketchName = "test.sk"
+def setTemporarySketchName(name):
+    global temporarySketchName
+    temporarySketchName = name
+
 def solveSketch(bank, unroll = 8):
+    global temporarySketchName
+    
     source = makeSketch(bank)
-    with open("test.sk","w") as f:
+    with open(temporarySketchName,"w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()
-    command = "sketch --bnd-unroll-amnt %d test.sk > %s 2> %s" % (unroll, outputFile, outputFile)
+    command = "sketch --bnd-unroll-amnt %d %s > %s 2> %s" % (unroll, temporarySketchName, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     os.system(command)
