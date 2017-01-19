@@ -50,8 +50,10 @@ class UnderlyingProblem():
                                 prediction[i]))
     
     def conditionOnData(self, rules, stems, prefixes, suffixes):
+        '''Conditions on inflection matrix. This also modifies the rules in place! Always call this after calculating the cost of the rules.'''
         for r in rules:
             condition(isDeletionRule(r) == 0)
+            condition(fixStructuralChange(r))
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
     
@@ -65,15 +67,16 @@ class UnderlyingProblem():
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
-        self.conditionOnData(rules, stems, prefixes, suffixes)
-        
-        affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
-        maximize(affixSize)
         # We only care about maximizing the affix size
         # However we also need calculate the rules size, in order to make sure that the next minimization succeeds
         for r in rules:
             condition(ruleCost(r) < 20) # totally arbitrary
+
+        self.conditionOnData(rules, stems, prefixes, suffixes)
         
+        affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
+        maximize(affixSize)
+
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             raise SynthesisFailure("Failed at morphological analysis.")
@@ -91,12 +94,12 @@ class UnderlyingProblem():
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
 
         # Make the morphology be a global definition
-        prefixes = [ sampleMorphWithLength(len(p)) for p in prefixes ] #[ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+        prefixes = [ sampleMorphWithLength(len(p)) for p in prefixes ]
         suffixes = [ sampleMorphWithLength(len(s)) for s in suffixes ]
 
+        minimize(sum([ ruleCost(r) for r in rules ]))
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
-        minimize(sum([ ruleCost(r) for r in rules ]))
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             raise SynthesisFailure("Failed at phonological analysis.")
@@ -223,7 +226,16 @@ class UnderlyingProblem():
             for r in trainingData:
                 for i in r: print i,
                 print ""
-            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution()
+            # expand the rule set until we can fit the training data
+            fitsTrainingData = False
+            while not fitsTrainingData:
+                try:
+                    (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution()
+                    fitsTrainingData = True
+                except SynthesisFailure:
+                    self.depth += 1
+                    print "Expanding rule depth to %d"%self.depth
+
             print "Beginning verification"
             foundCounterexample = False
             for observation in self.data:

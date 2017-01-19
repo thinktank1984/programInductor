@@ -179,7 +179,7 @@ class FeatureBank():
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in tokenize(w) ]))
-        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
+        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ] + [high, middle, low]))
         self.featureMap = dict([
             (p, list(set(featureMap[p]) & set(self.features)))
             for p in self.phonemes ])
@@ -204,5 +204,8 @@ class FeatureBank():
             h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
         h += "\n#define VOWELFEATUREINDEX %d\n" % self.feature2index["vowel"]
+        h += "\n#define HIGHFEATURE %d\n" % self.feature2index["high"]
+        h += "\n#define MIDDLEFEATURE %d\n" % self.feature2index["middle"]
+        h += "\n#define LOWFEATURE %d\n" % self.feature2index["low"]
         h += "\n"
         return h

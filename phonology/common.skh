@@ -184,11 +184,12 @@ int specification_cost(Specification s) {
       c = validateCost(c + s.mask[f]);
       f++;
     }
-    //    assert c < 4;
+    assert c < 5; // at most 3 features mentioned
     return c;
   }
   }
 }
+
 
 int guard_specification_cost(Specification s) {
   if (s == null) return 0;
@@ -203,7 +204,7 @@ int guard_specification_cost(Specification s) {
       c = validateCost(c + s.mask[f]);
       f++;
     }
-    //    assert c < 4;
+    assert c < 5; // at most 3 features mentioned
     return c;
   }
   }
@@ -228,6 +229,40 @@ struct Rule {
   Specification structural_change;
   Guard left_trigger;
   Guard right_trigger;
+}
+
+
+/* it's possible for structural changes to be redundant or make no sense
+for example : [+hi  +low] or [-middle] 
+this forces them into a canonical form. */
+
+#define MUTUALLYEXCLUDE_(f1,f2,f3)\
+      assert s.preference[f1];\
+      assert !s.mask[f2];\
+      assert !s.mask[f3];\
+      s.mask[f2] = 1;\
+      s.mask[f3] = 1;\
+      s.preference[f2] = 0;\
+      s.preference[f3] = 0;
+
+#define MUTUALLYEXCLUDE(f1,f2,f3)\
+  if (s.mask[f1]) {\
+MUTUALLYEXCLUDE_(f1,f2,f3)\
+  }else if(s.mask[f2]){	  \
+    MUTUALLYEXCLUDE_(f2,f1,f3)\
+      }else if(s.mask[f3]){\
+    MUTUALLYEXCLUDE_(f3,f1,f2)\
+      }
+
+bit fix_structural_change(Rule r) {
+  Specification s = r.structural_change;
+  switch (s){
+  case ConstantPhoneme:{}
+  case Vector:{
+    MUTUALLYEXCLUDE(HIGHFEATURE,MIDDLEFEATURE,LOWFEATURE)
+      }
+  }
+  return 1;
 }
 
 bit is_deletion_rule(Rule r) { return r.structural_change == null; }

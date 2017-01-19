@@ -601,6 +601,7 @@ underlyingProblems.append(Problem(
     the rule that it learns is needlessly verbose because it doesn't understand that some features are mutually exclusive
     
     
+    
     This is going to be tricky to learn incrementally because a correct spreading rule is only learned for data points where there is also a vowel harmony.
     So you really have to do joint inference over everything.
 
@@ -613,6 +614,11 @@ Phonological rules:
 [ +vowel ] ---> [ -back +middle -low +tense +front -central ] / [ +front ] [  ]* _ 
 [  ] ---> [ +voice ] /  _ [ +bilabial ]
 [ -sonorant ] ---> [ -voice ] /  _ [ -voice ]
+
+If it understood the certain features are mutually exclusive, the spreading rule would be:
+    [ +vowel ] ---> [ +front +tense +middle ] / [ +front ] [  ]* _ 
+    +front implies [-Central -back]
+    +middle implies [-low -high]
 
 
     ''',
@@ -649,7 +655,11 @@ underlyingProblems.append(Problem(
     My analysis:
     [+hi] > [-hi,+mid] / _ [-back]* e
     System discovers:
-    [ +tense ] ---> [ -high +middle ] /  _ [ -central ]* e
+Morphological analysis:
+Inflection 0:	/  / + stem + / a /
+Inflection 1:	/  / + stem + / e r a /
+Phonological rules:
+[ +high ] ---> [ +middle ] /  _ [ -low ]* [ +middle ]
     ''',
 	#verb	verb for
 	[
