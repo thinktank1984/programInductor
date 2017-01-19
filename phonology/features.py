@@ -173,13 +173,14 @@ def tokenize(word):
                 raise Exception(u"No valid prefix: " + word + u" when processing " + originalWord)
     return tokens
 
-
 class FeatureBank():
+    SPECIALFEATURES = ["vowel","high","middle","low","front","central","back"]
+    
     """Builds a bank of features and sounds that are specialized to a particular data set.
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in tokenize(w) ]))
-        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ] + [high, middle, low]))
+        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ] + FeatureBank.SPECIALFEATURES))
         self.featureMap = dict([
             (p, list(set(featureMap[p]) & set(self.features)))
             for p in self.phonemes ])
@@ -203,9 +204,7 @@ class FeatureBank():
             features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))
             h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
-        h += "\n#define VOWELFEATUREINDEX %d\n" % self.feature2index["vowel"]
-        h += "\n#define HIGHFEATURE %d\n" % self.feature2index["high"]
-        h += "\n#define MIDDLEFEATURE %d\n" % self.feature2index["middle"]
-        h += "\n#define LOWFEATURE %d\n" % self.feature2index["low"]
+        for featureName in FeatureBank.SPECIALFEATURES:
+            h += "\n#define %sFEATURE %d\n" % (featureName.upper(), self.feature2index[featureName])
         h += "\n"
         return h

@@ -260,6 +260,9 @@ bit fix_structural_change(Rule r) {
   case ConstantPhoneme:{}
   case Vector:{
     MUTUALLYEXCLUDE(HIGHFEATURE,MIDDLEFEATURE,LOWFEATURE)
+      ;
+    MUTUALLYEXCLUDE(FRONTFEATURE,CENTRALFEATURE,BACKFEATURE)
+      ;
       }
   }
   return 1;
