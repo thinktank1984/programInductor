@@ -294,7 +294,8 @@ generator Rule unknown_rule() {
 }
 
 int alternation_cost(Rule r) {
-  return specification_cost(r.right_trigger.spec) + specification_cost(r.left_trigger.spec);
+  // For alternations the focus and structural change don't matter because they are essentially given by the problem
+  return guard_cost(r.right_trigger) + guard_cost(r.left_trigger);
 }
 
 int guard_cost(Guard g) {
