@@ -16,6 +16,19 @@ ABA = [u"pofepo",
 ABB = [ x[0:2] + x[2:4] + x[2:4] for x in ABA ]
 
 trainingData = ABA
+'''
+ABA Rules:
+Underlying forms:
+/ p o f e /
+/ u g v a /
+/ a b h i /
+/ t i k e /
+/ l a r o /
+Rules:
+# ---> -1 / # [  ] [  ]* _ 
+# ---> -2 / # [  ] [  ]* _ 
+
+'''
 
 depth = 2
 
