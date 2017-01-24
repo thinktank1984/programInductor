@@ -541,8 +541,13 @@ underlyingProblems.append(Problem(
     ɣo in context:
     {t,k,č}
 
-    System discovers:
-    ɣ ---> k / # _ [ -affricate -stop ] o
+    System discovers: (todo: bug? see the other solution below)
+    ɣ > k / # _ [ -affricate -stop ] o
+Final solution:
+Morphological analysis:
+Inflection 0:	/ ɣ o / + stem + / a /
+Phonological rules:
+[  ] ---> k / # _ [  ] [ -affricate -stop ]
     ''',
     [(u"ɣotɛŋɛra",),
      (u"ɣokuua",),
@@ -569,6 +574,14 @@ underlyingProblems.append(Problem(
     There is also a harmony rule something like:
     ə > a / a[-v]*_#
     but you don't need kleene star in this data
+    
+Final solution:
+Morphological analysis:
+Inflection 0:	/  / + stem + / ə /
+Inflection 1:	/  / + stem + / k o /
+Phonological rules:
+[  ] ---> [ -aspirated ] /  _ [ -central ]
+[  ] ---> a / [ +low ] [  ] _ #
     ''',
     [(u"ipə",		u"ipk’o"),
      (u"kupə",		u"kupk’o"),
@@ -707,6 +720,8 @@ Give the underlying forms for the following nouns, and say what phonological rul
 underlyingProblems.append(Problem(
     '''7: Tibetan
 Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
+Final solution:
+[ -nasal ] ---> Ø / # _ 
     ''',
     [
 	u"ǰu",#	‘10’
@@ -738,8 +753,14 @@ Explain what phonological rules apply in the following examples (the acute accen
     [+mid,-stress] > a
     So the stress rule applies first, and then if {o,e} was unstressed then it gets neutralized to [a]
     The system learns:
-    [  ] ---> [ -highTone ] /  _ [  ]* [ +highTone ]
-    [ +middle -highTone ] ---> a /  _ [  ]
+    Final solution:
+Morphological analysis:
+Inflection 0:	/  / + stem + / á ŋ g a /
+Inflection 1:	/  / + stem + / í l e /
+Inflection 2:	/  / + stem + / a /
+Phonological rules:
+[  ] ---> [ -highTone ] /  _ [  ]* [ +highTone ]
+[ +middle -highTone ] ---> a /  _ [  ]
     ''',
 	#repeated	past		imperative	gloss
 	#imperative

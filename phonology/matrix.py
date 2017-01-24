@@ -34,9 +34,10 @@ class UnderlyingProblem():
 
 
     def sortDataByLength(self):
-        # Sort the data by length
-        data = sorted([ (sum(map(compose(len,tokenize),inflections)), inflections) for inflections in self.data ])
-        self.data = [ d[1] for d in data ]
+        # Sort the data by length. Break ties by remembering which one originally came first.
+        dataTaggedWithLength = [ (sum(map(compose(len,tokenize),self.data[j])), j, self.data[j])
+                                 for j in range(len(self.data)) ]
+        self.data = [ d[2] for d in sorted(dataTaggedWithLength) ]
 
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
@@ -328,11 +329,11 @@ if __name__ == '__main__':
         problems = [(1,2),
                     (2,1),
                     (3,2),
-                    (4,3),
+#                    (4,3),
                     (5,1),
                     (7,1),
                     (8,2),
-                    (9,3),
+#                    (9,3),
                     # Chapter five problems
                     (51,2),
                     (52,2)]
