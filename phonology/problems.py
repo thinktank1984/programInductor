@@ -37,6 +37,8 @@ alternationProblems.append(Problem(
 Kikurai
 Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g] in the following data. Accents mark tone: acute is H tone and ‘hacek’ [   ̌] is rising tone.
     [+voice, +fricative] > [+stop, -fricative] / [+nasal] _
+    
+    [ -laryngeal -glide -nasal -vowel -alveopalatal ] ---> [ -fricative -approximate +stop -sonorant -central -liquid ] / [ +nasal ] _ 
     ''',
     [u"aβaánto",#"people"),
      u"aβamúra",#"young men"),
@@ -85,6 +87,7 @@ u'''
 Determine whether the two segments [k] and [k^y] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [xy] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
 Solution:
 {xy,k^y} occur only when there is a front vowel to the right
+[ -liquid +velar ] ---> [ +palatal -alveolar -nasal -liquid -voice ] /  _ [ +front ]
 ''',
     [u"kano",#"do"),
      u"kori",#"daughter"),
@@ -113,6 +116,7 @@ Describe the distribution of the trill [r̃] and the flap [ř].
 Solution found by system:
 trill > flap / [ +vowel ] _ [ -alveolar ]
  / [ +unrounded ] _ [ +vowel ]
+[ +liquid +voice ] ---> [ -trill -low +flap ] / [ +sonorant ] _ [ -alveolar ]
 ''',
     [
 	u"ær̃teš",#		"army"),
@@ -142,6 +146,7 @@ What rule governs the distribution of [d] versus [ð] in the following data?
     ð occurs when there is [i,e] to the right
     ð > d / _ [+low] (my solution)
     d > ð / _ [ +central ] (systems solution)
+    [ -alveolar +coronal -tense -front -alveopalatal +voice ] ---> [ -fricative +alveolar +stop -dental ] /  _ [ +low ]
 ''',
     [u"dábrĩ",#		"three"),
      u"áðik^hã žã",#	"he lay down"),
@@ -164,7 +169,7 @@ Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not
 ɛ occurs in the contexts    :
     {y,š,ž,č,ñ} _ {l,t,g,m,#}
 System discovers:
-"ɛ" > "ə" / [ -palatal -alveopalatal ] _ [  ]
+[ -coronal +lax ] ---> [ +tense -front +central -alveopalatal -lax ] / [ -glide -alveopalatal ] _ 
     ''',
     [
 	u"fərəs",#		"horse"),
@@ -207,7 +212,7 @@ l occurs in the context:
 r occurs in the context:
     {s,t,d,č,ñ,z,s,ǰ} _
 These are all coronal
-    
+[ -middle -nasal +sonorant +coronal ] ---> [ -lateral +approximate ] / [ +coronal ] _     
 ''',
     [u"agble",#"farm"),
      u"agoŋglo",#"lizard"),
@@ -260,6 +265,8 @@ These pretty much looks the same so I don't think there is a alternation between
 Aspirated stops occur in the contexts:
 {n̥,m̥,o} _ {u,e}
 Unaspirated stops occur in similar right contexts but don't occur next to voiceless nasals. So I think that they exist underlyingly, and that what we're seeing is that voiceless nasals don't exist underlying.
+
+[ -laryngeal +sonorant -high -low -velar ] ---> [ +voice ] /  _ [ -aspirated ]
 ''',
     [
 	u"tagi",# "egg"),
@@ -372,6 +379,8 @@ alternationProblems.append(Problem(
     u'''
 '10: Quechua (Cuzco dialect)
 	Describe the distribution of the following four sets of segments: k, x, q, χ; ŋ, N; i, e; u, o. Some pairs of these segments are allophones (positional variants) of a single segment. You should state which contrasts are phonemic (unpredictable) and which could be predicted by a rule. For segments which you think are positional variants of a single phoneme, state which phoneme you think is the underlying variant, and explain why you think so; provide a rule which accounts for all occurrences of the predictable variant. (Reminder: N is a uvular nasal).
+    [ +sonorant +velar ] ---> [ +uvular -low -sonorant -front -liquid -velar ] /  _ [ +uvular ]
+    [ -middle +front -liquid +voice ] ---> [ -high +middle ] / [ -palatal -aspirated -nasal ] _ [ -fricative -bilabial ]* [ -glide -nasal -coronal ]
 ''',
     [
 	u"qori",	#"gold"
@@ -449,7 +458,8 @@ alternationProblems.append(Problem(
     {ŋ,N,m}_{u,a,o}
     voiceless context:
     {ŋ,u,a}
-    
+
+[ -retroflex +velar ] ---> [ +uvular -sonorant -central -velar ] /  _ g* [ -high -stop -front ]    
     ''',
     [
 	u"aŋgu",	#"pigeon"
