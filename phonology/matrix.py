@@ -134,6 +134,19 @@ class UnderlyingProblem():
             solutions.append(Rule.parse(self.bank, output, r))
         return solutions
 
+    def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
+        print "Beginning verification"
+        for observation in self.data:
+            if observation in trainingData: continue
+            if not self.verify(prefixes, suffixes, rules, observation):
+                print "COUNTEREXAMPLE:\t",
+                for i in observation: print i,"\t",
+                print ""
+                return observation
+
+        return None
+
+
     def verify(self, prefixes, suffixes, rules, inflections):
         Model.Global()
 
@@ -178,8 +191,6 @@ class UnderlyingProblem():
         trainingProblem = UnderlyingProblem(trainingData, 1)
 
         prefixes, suffixes = trainingProblem.solveAffixes()
-        print prefixes
-        UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
         rules = trainingProblem.solveTopRules(prefixes, suffixes, k)
         UnderlyingProblem.showRules(rules)
 
@@ -201,21 +212,14 @@ class UnderlyingProblem():
                 return
             UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
             UnderlyingProblem.showRules(rules)
-            foundCounterexample = False
-            for observation in self.data:
-                if observation in trainingData: continue
-                if not self.verify(prefixes, suffixes, rules, observation):
-                    trainingData.append(observation)
-                    foundCounterexample = True
-                    print "COUNTEREXAMPLE:\t",
-                    for i in observation: print i,"\t",
-                    print ""
-                    break
-            if not foundCounterexample:
+            c = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+            if c == None:
                 print "Final solution:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
                 UnderlyingProblem.showRules(rules)
                 break
+            else:
+                trainingData.append(c)
 
     def counterexampleSolution(self):
         self.sortDataByLength()
@@ -237,22 +241,14 @@ class UnderlyingProblem():
                     self.depth += 1
                     print "Expanding rule depth to %d"%self.depth
 
-            print "Beginning verification"
-            foundCounterexample = False
-            for observation in self.data:
-                if observation in trainingData: continue
-                if not self.verify(prefixes, suffixes, rules, observation):
-                    trainingData.append(observation)
-                    foundCounterexample = True
-                    print "COUNTEREXAMPLE:\t",
-                    for i in observation: print i,"\t",
-                    print ""
-                    break
-            if not foundCounterexample:
+            c = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+            if c == None:
                 print "Final solution:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
                 UnderlyingProblem.showRules(rules)
                 break
+            else:
+                trainingData.append(c)
                 
 def incrementalSynthesis(data):
     '''Incrementally grow a program rule by rule, while growing a training set Lexeme by Lexeme'''
