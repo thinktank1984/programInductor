@@ -23,6 +23,7 @@ class ConstantPhoneme(Specification):
     def __unicode__(self): return self.p
     def __str__(self): return unicode(self).encode('utf-8')
     def doesNothing(self): return False
+    def cost(self): return 2
     
     @staticmethod
     def parse(bank, output, variable):
@@ -39,6 +40,8 @@ class EmptySpecification():
     def __str__(self): return unicode(self).encode('utf-8')
 
     def doesNothing(self): return False
+
+    def cost(self): return 2
 
     @staticmethod
     def parse(bank, output, variable):
@@ -57,6 +60,9 @@ class FeatureMatrix():
 
     def doesNothing(self):
         return len(self.featuresAndPolarities) == 0
+
+    def cost(self):
+        return 1 + len(self.featuresAndPolarities)
 
     @staticmethod
     def parse(bank, output, variable):
@@ -86,6 +92,9 @@ class Guard():
 
     def doesNothing(self):
         return not self.endOfString and len(self.specifications) == 0
+
+    def cost(self):
+        return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ])
     
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
@@ -130,6 +139,11 @@ class Rule():
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
+
+    def cost(self):
+        return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
+    def alternationCost(self):
+        return self.leftTriggers.cost() + self.rightTriggers.cost()   
 
     def doesNothing(self):
         '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''

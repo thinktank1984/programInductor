@@ -277,6 +277,11 @@ bit rule_equal(Rule p, Rule q) {
     guard_equal(p.right_trigger, q.right_trigger);
 }
 
+bit alternation_equal(Rule p, Rule q) {
+  return guard_equal(p.left_trigger, q.left_trigger) &&
+    guard_equal(p.right_trigger, q.right_trigger);
+}
+
 generator Guard unknown_guard() {
   Specification s = unknown_specification();
   Specification s2 = unknown_specification();

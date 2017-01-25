@@ -12,6 +12,7 @@ from countingProblems import CountingProblem
 
 from random import random
 import sys
+import pickle
 
 class SynthesisFailure(Exception):
     pass
@@ -81,7 +82,6 @@ class UnderlyingProblem():
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
             raise SynthesisFailure("Failed at morphological analysis.")
-#            raise Exception('morphology')
         prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
         return (prefixes, suffixes)
@@ -110,16 +110,34 @@ class UnderlyingProblem():
         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
         return (rules, prefixes, suffixes)
 
+    def solveUnderlyingForms(self, prefixes, suffixes, rules):
+        Model.Global()
+        rules = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
+        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        self.conditionOnData(rules, stems, prefixes, suffixes)
 
-    def solveTopRules(self, prefixes, suffixes, k):
+        for stem in stems:
+            minimize(wordLength(stem))
+        
+        output = solveSketch(self.bank, self.maximumObservationLength)
+        if not output:
+            raise SynthesisFailure("Failed at morphological analysis.")
+
+        return [ Morph.parse(self.bank, output, s) for s in stems ]
+
+    def solveTopRules(self, prefixes, suffixes, underlyingForms, k):
         solutions = []
+        
         for _ in range(k):
             Model.Global()
 
             r = Rule.sample()
             for other in solutions:
                 condition(ruleEqual(r, other.makeConstant(self.bank)) == 0)
-            stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+
+            stems = [ define("Word", u.makeConstant(self.bank)) for u in underlyingForms ]
 
             # Make the morphology be a global definition
             prefixVariables = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
@@ -184,42 +202,13 @@ class UnderlyingProblem():
         
         return (prefixes, suffixes, rules)
 
-    def topSolutions(self,n = 2,k = 1):
-        self.depth = 1
-        self.sortDataByLength()
-        trainingData = self.data[0:n]
-        trainingProblem = UnderlyingProblem(trainingData, 1)
-
-        prefixes, suffixes = trainingProblem.solveAffixes()
-        rules = trainingProblem.solveTopRules(prefixes, suffixes, k)
-        UnderlyingProblem.showRules(rules)
-
-        return (prefixes, suffixes, rules)
-
     def counterexampleTop(self):
-        trainingData = [ self.data[0] ]
-
-        while True:
-            print "Training data:"
-            for r in trainingData:
-                for i in r: print i,
-                print ""
-            try:
-                (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, 1).sketchSolution()
-            except:
-                trainingData = trainingData[:-1]
-                UnderlyingProblem(trainingData, 1).topSolutions(len(trainingData),10)
-                return
-            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-            UnderlyingProblem.showRules(rules)
-            c = self.findCounterexample(prefixes, suffixes, rules, trainingData)
-            if c == None:
-                print "Final solution:"
-                UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-                UnderlyingProblem.showRules(rules)
-                break
-            else:
-                trainingData.append(c)
+        prefixes, suffixes, rules, trainingData = self.counterexampleSolution()
+        underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
+        print "Showing all plausible short rules with this morphological analysis:"
+        topRules = self.solveTopRules(prefixes, suffixes, underlyingForms, 10)
+        for r in topRules:
+            print r
 
     def counterexampleSolution(self):
         self.sortDataByLength()
@@ -249,6 +238,7 @@ class UnderlyingProblem():
                 break
             else:
                 trainingData.append(c)
+        return prefixes, suffixes, rules, trainingData
                 
 def incrementalSynthesis(data):
     '''Incrementally grow a program rule by rule, while growing a training set Lexeme by Lexeme'''

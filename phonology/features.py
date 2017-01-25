@@ -43,6 +43,7 @@ flap = "flap"
 affricate = "affricate"
 alveopalatal = "alveopalatal"
 aspirated = "aspirated"
+unreleased = "unreleased"
 
 featureMap = {
     # unrounded vowels
@@ -67,6 +68,7 @@ featureMap = {
 
     # consonance
     u"p": [bilabial,stop],
+    u"p|": [bilabial,stop,unreleased],
     u"p^h": [bilabial,stop,aspirated],
     u"b": [bilabial,stop,voice],
     u"f": [labiodental,fricative],
@@ -79,6 +81,7 @@ featureMap = {
     u"d": [alveolar,stop,voice,coronal],
     u"d^z": [alveolar,affricate,coronal,voice],
     u"t": [alveolar,stop,coronal],
+    u"t|": [alveolar,stop,coronal,unreleased],
     u"t^s": [alveolar,affricate,coronal],
     u"t^h": [alveolar,stop,aspirated,coronal],
     u"ṭ": [retroflex,stop,coronal],
@@ -96,6 +99,7 @@ featureMap = {
     u"č": [alveopalatal,affricate,coronal],
     u"č^h": [alveopalatal,affricate,coronal,aspirated],
     u"k": [velar,stop],
+    u"k|": [velar,stop,unreleased],
     u"k^h": [velar,stop,aspirated],
     u"k^y": [velar,stop,palatal],
     u"x": [velar,fricative],

@@ -8,6 +8,7 @@ from problems import alternationProblems
 
 from random import random
 import sys
+import pickle
 
 class AlternationProblem():
     def __init__(self, alternation, corpus):
@@ -55,40 +56,47 @@ class AlternationProblem():
 
     
         
-    def sketchSolution(self):
-        Model.Global()
-        
+    def sketchSolution(self, k = 10):
         depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
-        
-        whichOrientation = flip()
-        rules = [ Rule.sample() for _ in range(depth)  ]
-        
-        for j in range(len(self.surfaceForms)):
-            surface = makeConstantWord(self.bank, self.surfaceForms[j])
-            deep1 = makeConstantWord(self.bank, self.deepAlternatives[j][0])
-            deep2 = makeConstantWord(self.bank, self.deepAlternatives[j][1])
-            deep = ite(whichOrientation,
-                       deep1,
-                       deep2)
-            prediction = deep
-            for r in rules:
-                prediction = applyRule(r, prediction)
+        solutions = []
+
+        for _ in range(k):
+            Model.Global()
+                
+            whichOrientation = flip()
+            rules = [ Rule.sample() for _ in range(depth)  ]
+            minimize(sum([ alternationCost(r) for r in rules ]))
+            for other in solutions:
+                condition(Or([ alternationEqual(other[j].makeConstant(self.bank), rules[j]) == 0 for j in range(depth) ]))
             
-            condition(wordEqual(surface, prediction))
-
-        cost = alternationCost(rules[0])
-        for r in rules[1:]:
-            cost = cost + alternationCost(r)
-        minimize(cost)
-
-        output = solveSketch(self.bank, self.maximumObservationLength)
-        if output:        
-            print "Solution found using constraint solving:"
-            print "With the expected orientation?",parseFlip(output, whichOrientation)
             for r in rules:
-                print Rule.parse(self.bank, output, r)
-        else:
-            print "Failed to find a solution"
+                condition(isDeletionRule(r) == 0)
+                condition(fixStructuralChange(r))
+        
+            for j in range(len(self.surfaceForms)):
+                surface = makeConstantWord(self.bank, self.surfaceForms[j])
+                deep1 = makeConstantWord(self.bank, self.deepAlternatives[j][0])
+                deep2 = makeConstantWord(self.bank, self.deepAlternatives[j][1])
+                deep = ite(whichOrientation,
+                           deep1,
+                           deep2)
+                prediction = deep
+                for r in rules:
+                    prediction = applyRule(r, prediction)
+
+                condition(wordEqual(surface, prediction))
+
+            output = solveSketch(self.bank, self.maximumObservationLength)
+            if output:        
+                print "Solution found using constraint solving:"
+                print "With the expected orientation?",parseFlip(output, whichOrientation)
+                rules = [ Rule.parse(self.bank, output, r) for r in rules ]
+                for r in rules: print r
+                solutions.append(rules)
+            else:
+                print "Failed to find a solution"
+                break
+        return solutions
 
 if __name__ == '__main__':
 #    setTemporarySketchName("testAlternation.sk")
@@ -97,7 +105,6 @@ if __name__ == '__main__':
     else:
         problems = [int(sys.argv[1])]
     for problemIndex in problems:
-        if problemIndex == 8: continue
         data = alternationProblems[problemIndex - 1]
         print data.description
         for alternation in data.parameters["alternations"]:
@@ -105,7 +112,8 @@ if __name__ == '__main__':
             for k in alternation:
                 print "\t",k,"\t",alternation[k]
             problem = AlternationProblem(alternation, data.data)
-            problem.sketchSolution()
+            solutions = problem.sketchSolution()
+            pickle.dump(solutions, open("pickles/alternation_"+str(problemIndex)+".p","wb"))
 
 
 
