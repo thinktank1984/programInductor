@@ -45,7 +45,13 @@ class UnderlyingProblem():
         def applyRules(d):
             for r in rules: d = applyRule(r,d)
             return d
-        prediction = [ applyRules(concatenate3(prefixes[i],stem,suffixes[i]))
+        def buildUnderlyingForm(prefix, suffix):
+            if isinstance(stem, Morph): # underlying form is fixed
+                return (prefix + stem + suffix).makeConstant(self.bank)
+            else: # underlying form is unknown
+                return concatenate3(prefix, stem, suffix)
+            
+        prediction = [ applyRules(buildUnderlyingForm(prefixes[i],suffixes[i]))
                      for i in range(self.numberOfInflections) ]
         for i in range(self.numberOfInflections):
             condition(wordEqual(makeConstantWord(self.bank, surfaces[i]),
@@ -138,14 +144,8 @@ class UnderlyingProblem():
                 condition(And([ ruleEqual(r, o.makeConstant(self.bank))
                                 for r, o in zip(rules, other) ]) == 0)
 
-            stems = [ define("Word", u.makeConstant(self.bank)) for u in underlyingForms ]
-
-            # Make the morphology be a global definition
-            prefixVariables = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
-            suffixVariables = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
-
-            self.conditionOnData(rules, stems, prefixVariables, suffixVariables)
             minimize(sum([ ruleCost(r) for r in rules ]))
+            self.conditionOnData(rules, underlyingForms, prefixes, suffixes)
             output = solveSketch(self.bank, self.maximumObservationLength)
             if not output:
                 print "Found %d rules."%len(solutions)
