@@ -13,6 +13,7 @@ class Morph():
         return u"/ {} /".format(u" ".join(self.phonemes))
     def __str__(self): return unicode(self).encode('utf-8')
     def __len__(self): return len(self.phonemes)
+    def __add__(self, other): return Morph(self.phonemes + other.phonemes)
 
     @staticmethod
     def sample():

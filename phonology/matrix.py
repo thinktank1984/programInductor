@@ -123,7 +123,7 @@ class UnderlyingProblem():
         
         output = solveSketch(self.bank, self.maximumObservationLength)
         if not output:
-            raise SynthesisFailure("Failed at morphological analysis.")
+            raise SynthesisFailure("Failed at underlying form analysis.")
 
         return [ Morph.parse(self.bank, output, s) for s in stems ]
 
@@ -133,9 +133,10 @@ class UnderlyingProblem():
         for _ in range(k):
             Model.Global()
 
-            r = Rule.sample()
+            rules = [ Rule.sample() for _ in range(self.depth) ]
             for other in solutions:
-                condition(ruleEqual(r, other.makeConstant(self.bank)) == 0)
+                condition(And([ ruleEqual(r, o.makeConstant(self.bank))
+                                for r, o in zip(rules, other) ]) == 0)
 
             stems = [ define("Word", u.makeConstant(self.bank)) for u in underlyingForms ]
 
@@ -143,13 +144,13 @@ class UnderlyingProblem():
             prefixVariables = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
             suffixVariables = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
 
-            self.conditionOnData([r], stems, prefixVariables, suffixVariables)
-            minimize(ruleCost(r))
+            self.conditionOnData(rules, stems, prefixVariables, suffixVariables)
+            minimize(sum([ ruleCost(r) for r in rules ]))
             output = solveSketch(self.bank, self.maximumObservationLength)
             if not output:
                 print "Found %d rules."%len(solutions)
                 break
-            solutions.append(Rule.parse(self.bank, output, r))
+            solutions.append([ Rule.parse(self.bank, output, r) for r in rules ])
         return solutions
 
     def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
@@ -194,21 +195,30 @@ class UnderlyingProblem():
         print "Phonological rules:"
         for r in rules: print r
 
-    def sketchSolution(self, oldRules = []):
-        prefixes, suffixes = self.solveAffixes(oldRules)
-        rules, prefixes, suffixes = self.solveRules(prefixes, suffixes, oldRules)
-        UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-        UnderlyingProblem.showRules(rules)
-        
-        return (prefixes, suffixes, rules)
-
-    def counterexampleTop(self):
-        prefixes, suffixes, rules, trainingData = self.counterexampleSolution()
+    def sketchSolution(self, oldRules = [], canAddNewRules = False):
+        try:
+            prefixes, suffixes = self.solveAffixes(oldRules)
+            rules, prefixes, suffixes = self.solveRules(prefixes, suffixes, oldRules)
+            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+            UnderlyingProblem.showRules(rules)
+            return (prefixes, suffixes, rules)
+        except SynthesisFailure:
+            if canAddNewRules:
+                self.depth += 1
+                print "Expanding rule depth to %d"%self.depth
+                return self.sketchSolution(oldRules = oldRules, canAddNewRules = canAddNewRules)
+            else:
+                return None
+            
+    def topSolutions(self, k=10):
+        prefixes, suffixes, rules = self.sketchSolution(canAddNewRules = True)
         underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
         print "Showing all plausible short rules with this morphological analysis:"
-        topRules = self.solveTopRules(prefixes, suffixes, underlyingForms, 10)
-        for r in topRules:
-            print r
+        solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k)
+        for s in solutions:
+            print "\n".join(map(str,s))
+            print "............................."
+        return solutions
 
     def counterexampleSolution(self):
         self.sortDataByLength()
@@ -221,14 +231,7 @@ class UnderlyingProblem():
                 for i in r: print i,
                 print ""
             # expand the rule set until we can fit the training data
-            fitsTrainingData = False
-            while not fitsTrainingData:
-                try:
-                    (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution()
-                    fitsTrainingData = True
-                except SynthesisFailure:
-                    self.depth += 1
-                    print "Expanding rule depth to %d"%self.depth
+            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution(canAddNewRules = True)
 
             c = self.findCounterexample(prefixes, suffixes, rules, trainingData)
             if c == None:
@@ -242,7 +245,8 @@ class UnderlyingProblem():
                 
 def incrementalSynthesis(data):
     '''Incrementally grow a program rule by rule, while growing a training set Lexeme by Lexeme'''
-    trainingSet = [data[0]]
+    pass
+    '''    trainingSet = [data[0]]
     bank = FeatureBank([ w for l in data for w in l  ])
 
     # what do we learn from the first example?
@@ -269,13 +273,15 @@ def incrementalSynthesis(data):
     
     print "Finished incremental synthesis."
     UnderlyingProblem.showRules(rules)
-            
+'''
+
             
     
 
 def greedySynthesis(data):
     '''Incrementally grow program rule by rule, trying to the rule that covers as much data as possible'''
-    trainingSet = [data[0]]
+    pass
+'''    trainingSet = [data[0]]
     bank = FeatureBank([ w for l in data for w in l  ])
     blacklist = [] # inconsistent with the training set - ignore these because we'll never get them
 
@@ -298,7 +304,7 @@ def greedySynthesis(data):
             print "%s is inconsistent with the rest of the training data."%renderedExample
     print "Greedy final answer:"
     UnderlyingProblem.showRules(rules)
-
+'''
         
     
     
@@ -306,9 +312,7 @@ def greedySynthesis(data):
                 
 if __name__ == '__main__':
     useCounterexamples = '-c' in sys.argv
-    greedy = '-g' in sys.argv
     topSolutions = '-t' in sys.argv
-    incremental = '-i' in sys.argv
     sys.argv = [a for a in sys.argv if not a.startswith('-') ]
     # Build a "problems" structure, which is a list of (problem, # rules)
     if sys.argv[1] == 'integration':
@@ -334,12 +338,8 @@ if __name__ == '__main__':
         print p.description
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()
-        elif greedy:
-            greedySynthesis(p.data)
-        elif incremental:
-            incrementalSynthesis(p.data)
         elif topSolutions:
-            UnderlyingProblem(p.data, depth).counterexampleTop()
+            UnderlyingProblem(p.data, depth).topSolutions(20)
         elif useCounterexamples:
             UnderlyingProblem(p.data, depth).counterexampleSolution()
         else:
