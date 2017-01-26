@@ -50,8 +50,10 @@ def makeConstantWord(bank, w):
     return makeWord(w)
 
 
-def makeSketch(bank):
+def makeSketch(bank, alternationProblem = False):
     h = ""
+    if alternationProblem:
+        h += "#define ALTERNATIONPROBLEM\n"
     h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
     h += "#define True 1\n#define False 0\n"
     h += bank.sketch()
@@ -59,8 +61,8 @@ def makeSketch(bank):
     h += makeSketchSkeleton()
     return h
 
-def solveSketch(bank, unroll = 8):
-    source = makeSketch(bank)
+def solveSketch(bank, unroll = 8, alternationProblem = False):
+    source = makeSketch(bank, alternationProblem)
     with open("test.sk","w") as f:
         f.write(source)
     outputFile = "solver_output/%f" % random()

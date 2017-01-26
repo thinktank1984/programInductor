@@ -152,6 +152,10 @@ class Model():
         self.statements.append(Minimize(expression))
     def maximize(self, expression):
         self.statements.append(Maximize(expression))
+    def removeSoftConstraints(self):
+        '''removes all minimize and maximize statements that have been previously added.'''
+        self.statements = [ s for s in self.statements if not (s is Maximize or s is Minimize) ]
+
     def sketch(self):
         h = ""
             
@@ -206,6 +210,9 @@ def minimize(expression):
 
 def maximize(expression):
     currentModel.maximize(expression)
+
+def removeSoftConstraints():
+    currentModel.removeSoftConstraints()
 
 def sketchImplementation(name):
     def namedImplementation(f):

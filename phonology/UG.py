@@ -46,8 +46,6 @@ def expectedFeatureCounts(pickledFile):
         counts = {}
         for r in solution:
             r = str(r)
-            if alternation: # remove the focus and structural change because those are fixed
-                r = r[r.index('/'):]
             for f in re.findall('[\-\+]([a-zA-Z]+)',r):
                 counts[f] = counts.get(f,0.0) + w
         return counts
@@ -66,19 +64,12 @@ aggregateCounts = {}
 for pickledFile in PICKLES:
     aggregateCounts = mergeFeatureCounts(aggregateCounts, expectedFeatureCounts(pickledFile))
 
-print list(reversed(sorted([ (aggregateCounts[f], f) for f in aggregateCounts ])))
-
-features = [ f
-             for problem in alternationProblems
-             for f in getFeaturesFromComment(problem) ]
-frequencies = list(reversed(sorted(list(set([ (len([y for y in features if y == x ]), x) for x in features ])))))
-for c,f in frequencies:
-    print f,c
+counts = list(reversed(sorted([ (aggregateCounts[f], f) for f in aggregateCounts ])))
 
 # make a histogram of which features were popular
-x = range(len(frequencies))
-plot.bar(x, [float(c)/len(features) for c,f in frequencies ])
-plot.xticks(x, [f for c,f in frequencies ], rotation = 'vertical')
+x = range(len(counts))
+plot.bar(x, [ c for c,f in counts ])
+plot.xticks(x, [f for c,f in counts ], rotation = 'vertical')
 
 plot.ylabel('Probability')
 

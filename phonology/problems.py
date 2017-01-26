@@ -523,7 +523,7 @@ alternationProblems.append(Problem(
                       {u"b": u"p",
                        u"g": u"k",
                        u"d": u"t",
-                       u"ṭ": u"ḍ"}]}))
+                       u"ḍ": u"ṭ"}]}))
 
 
 # Chapter 4

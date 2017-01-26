@@ -184,7 +184,11 @@ int specification_cost(Specification s) {
       c = validateCost(c + s.mask[f]);
       f++;
     }
+    // Alternation problems basically have their specification already given
+    // So don't limit it
+#ifndef ALTERNATIONPROBLEM    
     assert c < 5; // at most 3 features mentioned
+#endif
     return c;
   }
   }
