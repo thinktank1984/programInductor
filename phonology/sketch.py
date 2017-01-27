@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from features import FeatureBank
 from sketchSyntax import *
 from rule import Rule
