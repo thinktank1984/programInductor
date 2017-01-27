@@ -133,10 +133,10 @@ class UnderlyingProblem():
 
         return [ Morph.parse(self.bank, output, s) for s in stems ]
 
-    def solveTopRules(self, prefixes, suffixes, underlyingForms, k):
-        solutions = []
+    def solveTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules = None):
+        solutions = [] if existingRules == None else [existingRules]
         
-        for _ in range(k):
+        for _ in range(k - (1 if existingRules else 0)):
             Model.Global()
 
             rules = [ Rule.sample() for _ in range(self.depth) ]
@@ -214,13 +214,13 @@ class UnderlyingProblem():
         prefixes, suffixes, rules = self.sketchSolution(canAddNewRules = True)
         underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
         print "Showing all plausible short rules with this morphological analysis:"
-        solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k)
+        solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, existingRules = rules)
         for s in solutions:
             print "\n".join(map(str,s))
             print "............................."
-        return solutions
+        return prefixes, suffixes, solutions
 
-    def counterexampleSolution(self):
+    def counterexampleSolution(self, k = 1):
         self.sortDataByLength()
         # Start out with the shortest 2 examples
         trainingData = [ self.data[0], self.data[1] ]
@@ -231,17 +231,22 @@ class UnderlyingProblem():
                 for i in r: print i,
                 print ""
             # expand the rule set until we can fit the training data
-            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution(canAddNewRules = True)
+            (prefixes, suffixes, solutions) = UnderlyingProblem(trainingData, self.depth, self.bank).topSolutions(k)
+            self.depth = len(solutions[0]) # update depth because it might have grown
 
-            c = self.findCounterexample(prefixes, suffixes, rules, trainingData)
-            if c == None:
-                print "Final solution:"
+            # Keep the solutions that are consistent with all of the training data
+            counterexamples = [ self.findCounterexample(prefixes, suffixes, rules, trainingData) for rules in solutions ]
+            if [ c for c in counterexamples if c == None ]: # we found a solution that had no counterexamples
+                print "Final solutions:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-                UnderlyingProblem.showRules(rules)
-                break
+                print solutions
+                for j,s in enumerate(solutions):
+                    if counterexamples[j] == None: # no counter example
+                        UnderlyingProblem.showRules(s)
+                        print " ==  ==  == "
+                return [ s for j,s in enumerate(solutions) if counterexamples[j] == None ]
             else:
-                trainingData.append(c)
-        return prefixes, suffixes, rules, trainingData
+                trainingData.append(counterexamples[0])
                 
 def incrementalSynthesis(data):
     '''Incrementally grow a program rule by rule, while growing a training set Lexeme by Lexeme'''
@@ -341,7 +346,7 @@ if __name__ == '__main__':
         elif topSolutions:
             UnderlyingProblem(p.data, depth).topSolutions(20)
         elif useCounterexamples:
-            UnderlyingProblem(p.data, depth).counterexampleSolution()
+            UnderlyingProblem(p.data, depth).counterexampleSolution(10)
         else:
             (prefixes, suffixes, rules) = UnderlyingProblem(p.data, depth).sketchSolution()
             UnderlyingProblem.showRules(rules)
