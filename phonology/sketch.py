@@ -6,7 +6,7 @@ from random import random
 import os
 from time import time
 import re
-
+import tempfile
 
 
 @sketchImplementation("alternation_cost")
@@ -63,16 +63,28 @@ def makeSketch(bank, alternationProblem = False):
 
 def solveSketch(bank, unroll = 8, alternationProblem = False):
     source = makeSketch(bank, alternationProblem)
-    with open("test.sk","w") as f:
-        f.write(source)
-    outputFile = "solver_output/%f" % random()
-    command = "sketch --bnd-unroll-amnt %d test.sk > %s 2> %s" % (unroll, outputFile, outputFile)
+
+    # Temporary file for writing the sketch
+    fd = tempfile.NamedTemporaryFile(mode = 'w',suffix = '.sk',delete = False,dir = '.')
+    fd.write(source)
+    fd.close()
+
+    # Temporary file for collecting the sketch output
+    od = tempfile.NamedTemporaryFile(mode = 'w',delete = False,dir = './solver_output')
+    od.write('') # just create the file that were going to overwrite
+    od.close()
+    outputFile = od.name
+    
+    command = "sketch --bnd-unroll-amnt %d %s > %s 2> %s" % (unroll, fd.name, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     os.system(command)
     print "Ran the solver in %f"%(time() - startTime)
+    
     output = open(outputFile,'r').read()
-    if "The sketch could not be resolved." in output:
+    os.remove(fd.name)
+    
+    if "not be resolved." in output:
         return None
     else:
         return output
