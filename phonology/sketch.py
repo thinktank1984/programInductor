@@ -84,7 +84,7 @@ def solveSketch(bank, unroll = 8, alternationProblem = False):
     output = open(outputFile,'r').read()
     os.remove(fd.name)
     
-    if "not be resolved." in output:
+    if "not be resolved." in output or "Rejected" in output:
         return None
     else:
         return output
