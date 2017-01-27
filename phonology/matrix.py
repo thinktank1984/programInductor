@@ -13,6 +13,7 @@ from countingProblems import CountingProblem
 from random import random
 import sys
 import pickle
+import argparse
 
 class SynthesisFailure(Exception):
     pass
@@ -316,37 +317,34 @@ def greedySynthesis(data):
                         
                 
 if __name__ == '__main__':
-    useCounterexamples = '-c' in sys.argv
-    topSolutions = '-t' in sys.argv
-    sys.argv = [a for a in sys.argv if not a.startswith('-') ]
-    # Build a "problems" structure, which is a list of (problem, # rules)
-    if sys.argv[1] == 'integration':
-        problems = [(1,2),
-                    (2,1),
-                    (3,2),
-#                    (4,3),
-                    (5,1),
-                    (7,1),
-                    (8,2),
-#                    (9,3),
+    parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
+    parser.add_argument('problem')
+    parser.add_argument('-c','--counterexamples', action = 'store_true')
+    parser.add_argument('-t','--top', default = 1, type = int)
+    arguments = parser.parse_args()
+    if arguments.problem == 'integration':
+        problems = [1,
+                    2,
+                    3,
+                    #4,
+                    5,
+                    7,
+                    8,
+                    #9
                     # Chapter five problems
-                    (51,2),
-                    (52,2)]
+                    51,
+                    52]
     else:
-        depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
-        problemIndex = int(sys.argv[1])
-        problems = [(problemIndex,depth)]
+        problemIndex = int(arguments.problem)
+        problems = [problemIndex]
     
-    for problemIndex, depth in problems:
+    for problemIndex in problems:
         
         p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
         print p.description
         if problemIndex == 7:
             CountingProblem(p.data, p.parameters).sketchSolution()
-        elif topSolutions:
-            UnderlyingProblem(p.data, depth).topSolutions(20)
-        elif useCounterexamples:
-            UnderlyingProblem(p.data, depth).counterexampleSolution(10)
-        else:
-            (prefixes, suffixes, rules) = UnderlyingProblem(p.data, depth).sketchSolution()
-            UnderlyingProblem.showRules(rules)
+        elif not arguments.counterexamples:
+            UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
+        elif arguments.counterexamples:
+            UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top)
