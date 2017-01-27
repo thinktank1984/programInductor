@@ -240,12 +240,11 @@ class UnderlyingProblem():
             if [ c for c in counterexamples if c == None ]: # we found a solution that had no counterexamples
                 print "Final solutions:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-                print solutions
-                for j,s in enumerate(solutions):
-                    if counterexamples[j] == None: # no counter example
-                        UnderlyingProblem.showRules(s)
-                        print " ==  ==  == "
-                return [ s for j,s in enumerate(solutions) if counterexamples[j] == None ]
+                solutions = [ s for j,s in enumerate(solutions) if counterexamples[j] == None ]
+                for s in solutions:
+                    UnderlyingProblem.showRules(s)
+                    print " ==  ==  == "
+                return prefixes, suffixes, solutions                
             else:
                 trainingData.append(counterexamples[0])
                 
@@ -339,12 +338,14 @@ if __name__ == '__main__':
         problems = [problemIndex]
     
     for problemIndex in problems:
-        
         p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
         print p.description
+        ss = None # solutions to save out to the pickled file
         if problemIndex == 7:
-            CountingProblem(p.data, p.parameters).sketchSolution()
+            CountingProblem(p.data, p.parameters).sketchSolution() # to do: save these solutions
         elif not arguments.counterexamples:
-            UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
+            _,_,ss = UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
         elif arguments.counterexamples:
-            UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top)
+            _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top)
+        if ss != None:
+            pickle.dump(ss, open("pickles/matrix_"+str(problemIndex)+".p","wb"))
