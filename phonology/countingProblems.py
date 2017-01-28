@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from features import FeatureBank, tokenize
-from rule import Rule
+from rule import *
 from morph import Morph
 from sketch import *
 
@@ -14,10 +14,20 @@ class CountingProblem():
 
         self.maximumObservationLength = max([ len(tokenize(w)) for w in data ]) + 1
 
-    def sketchSolution(self):
+    def topSolutions(self, k = 10):
+        solutions = []
+        for _ in range(k):
+            r = self.sketchSolution(solutions)
+            if r == None: break
+            solutions.append(r)
+        return solutions
+
+    def sketchSolution(self, existingRules):
         Model.Global()
 
         r = Rule.sample()
+        for o in existingRules:
+            condition(ruleEqual(r, o.makeConstant(self.bank)) == 0)
 
         morphs = {}
         morphs[1] = Morph.sample()
@@ -25,6 +35,12 @@ class CountingProblem():
         morphs[5] = Morph.sample()
         morphs[9] = Morph.sample()
         morphs[10] = Morph.sample()
+
+        # intended = Rule(FeatureMatrix([(False,'vowel')]),
+        #                 EmptySpecification(),
+        #                 Guard('L', True, False, []),
+        #                 Guard('R', False, False, [FeatureMatrix([(False,'vowel')])]))
+#        condition(ruleEqual(r,intended.makeConstant(self.bank)))
 
         for j in range(len(self.data)):
             o = self.data[j]
@@ -47,7 +63,9 @@ class CountingProblem():
         
         if not output:
             print "Failed at phonological analysis."
-            assert False
+            return None
 
-        print Rule.parse(self.bank, output, r)
+        r = Rule.parse(self.bank, output, r)
+        print r
+        return r
 

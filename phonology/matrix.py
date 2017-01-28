@@ -342,7 +342,7 @@ if __name__ == '__main__':
         print p.description
         ss = None # solutions to save out to the pickled file
         if problemIndex == 7:
-            CountingProblem(p.data, p.parameters).sketchSolution() # to do: save these solutions
+            ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
         elif not arguments.counterexamples:
             _,_,ss = UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
         elif arguments.counterexamples:
