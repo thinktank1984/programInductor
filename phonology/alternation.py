@@ -113,7 +113,7 @@ if __name__ == '__main__':
             for k in alternation:
                 print "\t",k,"\t",alternation[k]
             problem = AlternationProblem(alternation, data.data)
-            solutions = problem.topSolutions()
+            solutions = problem.topSolutions(50)
             if len(solutions) > 0:
                 pickle.dump(solutions, open("pickles/alternation_"+str(problemIndex)+"_"+str(j)+".p","wb"))
             
