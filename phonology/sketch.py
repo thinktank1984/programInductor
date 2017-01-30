@@ -52,10 +52,11 @@ def makeConstantWord(bank, w):
     return makeWord(w)
 
 
-def makeSketch(bank, alternationProblem = False):
+def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h = ""
     if alternationProblem:
         h += "#define ALTERNATIONPROBLEM\n"
+    h += "#define MAXIMUMMORPHLENGTH %d\n"%maximumMorphLength
     h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
     h += "#define True 1\n#define False 0\n"
     h += bank.sketch()
@@ -63,8 +64,8 @@ def makeSketch(bank, alternationProblem = False):
     h += makeSketchSkeleton()
     return h
 
-def solveSketch(bank, unroll = 8, alternationProblem = False):
-    source = makeSketch(bank, alternationProblem)
+def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False):
+    source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
     # Temporary file for writing the sketch
     fd = tempfile.NamedTemporaryFile(mode = 'w',suffix = '.sk',delete = False,dir = '.')

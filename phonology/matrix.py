@@ -33,6 +33,7 @@ class UnderlyingProblem():
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
+        self.maximumMorphLength = max(9,self.maximumObservationLength - 2)
 
 
     def sortDataByLength(self):
@@ -61,7 +62,8 @@ class UnderlyingProblem():
     def conditionOnData(self, rules, stems, prefixes, suffixes):
         '''Conditions on inflection matrix. This also modifies the rules in place! Always call this after calculating the cost of the rules.'''
         for r in rules:
-            condition(isDeletionRule(r) == 0)
+            if len(rules) > 1: # optimizing heuristic
+                condition(isDeletionRule(r) == 0)
             condition(fixStructuralChange(r))
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
@@ -86,7 +88,7 @@ class UnderlyingProblem():
         affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
         maximize(affixSize)
 
-        output = solveSketch(self.bank, self.maximumObservationLength)
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         if not output:
             raise SynthesisFailure("Failed at morphological analysis.")
         prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
@@ -108,7 +110,7 @@ class UnderlyingProblem():
         minimize(sum([ ruleCost(r) for r in rules ]))
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
-        output = solveSketch(self.bank, self.maximumObservationLength)
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         if not output:
             raise SynthesisFailure("Failed at phonological analysis.")
 
@@ -128,7 +130,7 @@ class UnderlyingProblem():
         for stem in stems:
             minimize(wordLength(stem))
         
-        output = solveSketch(self.bank, self.maximumObservationLength)
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         if not output:
             raise SynthesisFailure("Failed at underlying form analysis.")
 
@@ -147,7 +149,7 @@ class UnderlyingProblem():
 
             minimize(sum([ ruleCost(r) for r in rules ]))
             self.conditionOnData(rules, underlyingForms, prefixes, suffixes)
-            output = solveSketch(self.bank, self.maximumObservationLength)
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
             if not output:
                 print "Found %d rules."%len(solutions)
                 break
@@ -179,7 +181,7 @@ class UnderlyingProblem():
 
         self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
-        output = solveSketch(self.bank, self.maximumObservationLength)
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         return (output != None)
 
     @staticmethod
@@ -327,6 +329,7 @@ if __name__ == '__main__':
                     3,
                     #4,
                     5,
+                    6,
                     7,
                     8,
                     #9

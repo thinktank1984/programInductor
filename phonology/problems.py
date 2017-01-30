@@ -710,6 +710,27 @@ underlyingProblems.append(Problem(
     '''
 6: Farsi
 Give the underlying forms for the following nouns, and say what phonological rule is necessary to explain the following data.
+    
+    Final solutions:
+Morphological analysis:
+Inflection 0:	/  / + stem + /  /
+Inflection 1:	/  / + stem + / a n /
+Phonological rules:
+[  ] ---> Ø / [ +middle ] _ #
+
+My analysis:
+    +gan occurs only after /e/
+    but not after every one:
+     mæleke-an
+     valede-an
+     kæbire-an
+     hamele-an
+    contrast with:
+     bačče-gan
+     setare-gan
+     bænde-gan
+     azade-gan
+     divane-gan
 
     ''',
 	#singular	plural	gloss

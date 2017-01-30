@@ -2,7 +2,6 @@
 #define MAXIMUMCOST 20
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
-#define MAXIMUMMORPHLENGTH 9
 #define True 1
 #define False 0
 
@@ -260,6 +259,7 @@ MUTUALLYEXCLUDE_(f1,f2,f3)\
 
 bit fix_structural_change(Rule r) {
   Specification s = r.structural_change;
+  if (s == null) return 1;
   switch (s){
   case ConstantPhoneme:{}
   case Vector:{
