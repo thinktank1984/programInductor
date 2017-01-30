@@ -27,7 +27,11 @@ def getFeaturesFromComment(problem):
 
 PICKLES = [ "pickles/"+f for f in os.listdir("pickles") if f.endswith('.p') ]
 
-def loadRules(pickledFile): return pickle.load(open(pickledFile, 'rb'))
+def loadRules(pickledFile):
+    ss = pickle.load(open(pickledFile, 'rb'))
+    if isinstance(ss[0],Rule): # if each solution is just a single rule
+        ss = [[s] for s in ss ]
+    return ss
 def expectedFeatureCounts(pickledFile):
     solutions = loadRules(pickledFile)
     alternation = 'alternation' in pickledFile
