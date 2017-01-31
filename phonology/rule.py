@@ -24,6 +24,7 @@ class ConstantPhoneme(Specification):
     def __str__(self): return unicode(self).encode('utf-8')
     def doesNothing(self): return False
     def cost(self): return 2
+    def skeleton(self): return "K"
     
     @staticmethod
     def parse(bank, output, variable):
@@ -40,7 +41,7 @@ class EmptySpecification():
     def __str__(self): return unicode(self).encode('utf-8')
 
     def doesNothing(self): return False
-
+    def skeleton(self): return "0"
     def cost(self): return 2
 
     @staticmethod
@@ -63,6 +64,10 @@ class FeatureMatrix():
 
     def cost(self):
         return 1 + len(self.featuresAndPolarities)
+
+    def skeleton(self):
+        if self.featuresAndPolarities == []: return "[ ]"
+        else: return "[ +/-features ]"
 
     @staticmethod
     def parse(bank, output, variable):
@@ -104,6 +109,13 @@ class Guard():
         if self.endOfString: parts += [u'#']
         if self.side == 'L': parts.reverse()
         return u" ".join(parts)
+    def skeleton(self):
+        parts = []
+        parts += map(lambda spec: spec.skeleton(),self.specifications)
+        if self.starred: parts[-2] += '*'
+        if self.endOfString: parts += ['#']
+        if self.side == 'L': parts.reverse()
+        return " ".join(parts)
 
     @staticmethod
     def parse(bank, output, variable, side):
@@ -155,6 +167,12 @@ class Rule():
                                               self.structuralChange,
                                               self.leftTriggers,
                                               self.rightTriggers)
+
+    def skeleton(self):
+        return "{} ---> {} / {} _ {}".format(self.focus.skeleton(),
+                                              self.structuralChange.skeleton(),
+                                              self.leftTriggers.skeleton(),
+                                              self.rightTriggers.skeleton())
 
     # Produces sketch object
     def makeConstant(self, bank):

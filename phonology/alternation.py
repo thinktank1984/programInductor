@@ -9,6 +9,10 @@ from problems import alternationProblems
 from random import random
 import sys
 import pickle
+import argparse
+import math
+
+RULETEMPERATURE = 3
 
 class AlternationProblem():
     def __init__(self, alternation, corpus):
@@ -37,6 +41,21 @@ class AlternationProblem():
 
         self.deepAlternatives = [ (applySubstitution(substitute, w), applySubstitution(substituteBackwards, w))
                                   for w in corpus ]
+
+        # if the conjectured underlying forms never occur in the surface data,
+        # then we need to add a constraint saying that it has the expected orientation
+        surfacePhonemes = [ t for s in corpus for t in tokenize(s) ]
+        self.forceExpected = not any([ (p in alternation.values()) for p in surfacePhonemes ])
+        print "Force expected orientation?",self.forceExpected
+
+        # How many nats are saved by employing this alternation?'''
+        deepPhonemes = [ self.surfaceToUnderlying.get(p,p) for p in surfacePhonemes ]
+        savingsPerPhoneme = math.log(len(set(surfacePhonemes))) - math.log(len(set(deepPhonemes)))
+        print "Savings per phoneme:",savingsPerPhoneme
+        self.descriptionLengthSavings = savingsPerPhoneme*len(surfacePhonemes)
+        print "Total savings:",self.descriptionLengthSavings
+        
+        
         
 
     def topSolutions(self, k = 10):
@@ -49,13 +68,14 @@ class AlternationProblem():
             solutions.append(newSolution)
         return solutions
 
-        
     def sketchSolution(self, solutions):
-        depth = 1 if len(sys.argv) < 3 else int(sys.argv[2])
+        depth = 1
 
         Model.Global()
 
         whichOrientation = flip()
+        if self.forceExpected:
+            condition(whichOrientation)
         rules = [ Rule.sample() for _ in range(depth)  ]
         minimize(sum([ alternationCost(r) for r in rules ]))
         for other in solutions:
@@ -96,15 +116,31 @@ class AlternationProblem():
         print "With the expected orientation?",parseFlip(output, whichOrientation)
         rules = [ Rule.parse(self.bank, output, r) for r in rules ]
         for r in rules: print r
+        totalRuleCost = sum([r.cost() for r in rules ])
+        if totalRuleCost/RULETEMPERATURE > self.descriptionLengthSavings:
+            print "No net compression!"
+            return None
+    
+        # print "Rule cost: %f"%(totalRuleCost)
+        # print "Threshold temperature for this alternation:", (totalRuleCost / self.descriptionLengthSavings)
+        # totalRuleCost = sum([r.alternationCost() for r in rules ])
+        # print "AlternationRule cost: %f"%(totalRuleCost)
+        # print "(alternative) Threshold temperature for this alternation:", (totalRuleCost / self.descriptionLengthSavings)
+
+        
         return rules
 
 
 if __name__ == '__main__':
-#    setTemporarySketchName("testAlternation.sk")
-    if sys.argv[1] == 'integration':
+    parser = argparse.ArgumentParser(description = 'Analyze an alternation to determine whether it is valid and how much it compresses the data.')
+    parser.add_argument('problem')
+    parser.add_argument('-t','--top', default = 1, type = int)
+    parser.add_argument('-p','--pickle', action = 'store_true')
+    arguments = parser.parse_args()
+    if arguments.problem == 'integration':
         problems = list(range(1,12))
     else:
-        problems = [int(sys.argv[1])]
+        problems = [int(arguments.problem)]
     for problemIndex in problems:
         data = alternationProblems[problemIndex - 1]
         print data.description
@@ -113,8 +149,8 @@ if __name__ == '__main__':
             for k in alternation:
                 print "\t",k,"\t",alternation[k]
             problem = AlternationProblem(alternation, data.data)
-            solutions = problem.topSolutions(50)
-            if len(solutions) > 0:
+            solutions = problem.topSolutions(arguments.top)
+            if arguments.pickle and len(solutions) > 0:
                 pickle.dump(solutions, open("pickles/alternation_"+str(problemIndex)+"_"+str(j)+".p","wb"))
             
 

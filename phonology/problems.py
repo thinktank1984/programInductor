@@ -28,6 +28,22 @@ class Problem():
             print "Number of distinct features: %d" % len(fs)
             print " ==  ==  == "
 
+# Learning tone patterns
+toneProblems = []
+toneProblems.append(Problem(u'''
+Explain HLM tone pattern.
+''',
+                            [u"áu`i¯",
+                             u"íe`i¯",
+                             u"óa`u¯",
+                             u"íu`e¯",
+                             u"úi`a¯"],
+                            {"type": "alternation",
+                             "alternations": [dict([ (toned, toned[0:1])
+                                                     for toned in featureMap.keys()
+                                                     if highTone in featureMap[toned] or
+                                                     lowTone in featureMap[toned] or
+                                                     middleTone in featureMap[toned] ])]}))
 
 # Chapter 3: alternation problems
 alternationProblems = []

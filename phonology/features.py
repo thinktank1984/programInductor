@@ -9,6 +9,8 @@ retroflex = "retroflex"
 creaky = "creaky"
 risingTone = "risingTone"
 highTone = "highTone"
+lowTone = "lowTone"
+middleTone = "middleTone"
 longVowel = "longVowel"
 vowel = "vowel"
 tense = "tense"
@@ -145,6 +147,8 @@ cs = [ k for k in featureMap if not (vowel in featureMap[k]) ]
 for v in vs:
     featureMap[v] += [sonorant]
     featureMap[v + u"́"] = featureMap[v] + [highTone]
+    featureMap[v + u"`"] = featureMap[v] + [lowTone]
+    featureMap[v + u"¯"] = featureMap[v] + [middleTone]
     featureMap[v + u":"] = featureMap[v] + [longVowel]
     featureMap[v + u"̌"] =  featureMap[v] + [risingTone]
     featureMap[v + u"̃"] = featureMap[v] + [nasal]

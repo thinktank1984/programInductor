@@ -234,21 +234,21 @@ class UnderlyingProblem():
                 for i in r: print i,
                 print ""
             # expand the rule set until we can fit the training data
-            (prefixes, suffixes, solutions) = UnderlyingProblem(trainingData, self.depth, self.bank).topSolutions(k)
-            self.depth = len(solutions[0]) # update depth because it might have grown
+            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution(canAddNewRules = True)
+            self.depth = len(rules) # update depth because it might have grown
 
-            # Keep the solutions that are consistent with all of the training data
-            counterexamples = [ self.findCounterexample(prefixes, suffixes, rules, trainingData) for rules in solutions ]
-            if [ c for c in counterexamples if c == None ]: # we found a solution that had no counterexamples
+            counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+            if counterexample == None: # we found a solution that had no counterexamples
                 print "Final solutions:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-                solutions = [ s for j,s in enumerate(solutions) if counterexamples[j] == None ]
+                underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
+                solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, existingRules = rules)
                 for s in solutions:
                     UnderlyingProblem.showRules(s)
                     print " ==  ==  == "
                 return prefixes, suffixes, solutions                
             else:
-                trainingData.append(counterexamples[0])
+                trainingData.append(counterexample)
                 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')

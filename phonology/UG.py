@@ -12,13 +12,13 @@ import matplotlib.pyplot as plot
 import pickle
 import os
 
-def mergeFeatureCounts(m,n):
+def mergeCounts(m,n):
     c = {}
     for f in set(m.keys() + n.keys()):
         c[f] = m.get(f,0.0) + n.get(f,0.0)
     return c
 
-T = 0.10 # temperature
+T = 10 # temperature
 
 def getRulesFromComment(problem):
     return [ l for l in problem.description.split("\n") if '--->' in l ]
@@ -32,7 +32,7 @@ def loadRules(pickledFile):
     if isinstance(ss[0],Rule): # if each solution is just a single rule
         ss = [[s] for s in ss ]
     return ss
-def expectedFeatureCounts(pickledFile):
+def expectedCounts(pickledFile):
     solutions = loadRules(pickledFile)
     alternation = 'alternation' in pickledFile
 
@@ -42,40 +42,51 @@ def expectedFeatureCounts(pickledFile):
         else:
             return sum([ r.cost() for r in solution ])
 
-    posterior = [ math.exp(-solutionCost(s)/T) for s in solutions ]
+    posterior = [ math.exp(-solutionCost(s)/float(T)) for s in solutions ]
     z = sum(posterior)
     posterior = [ p/z for p in posterior ]
 
     def weightedCounts(w,solution):
-        counts = {}
+        fc = {}
+        sc = {}
         for r in solution:
-            r = str(r)
-            for f in re.findall('[\-\+]([a-zA-Z]+)',r):
-                counts[f] = counts.get(f,0.0) + w
-        return counts
+            sc[r.skeleton()] = sc.get(r.skeleton(),0.0) + w
+            for f in re.findall('[\-\+]([a-zA-Z]+)',str(r)):
+                fc[f] = fc.get(f,0.0) + w
+        return fc,sc
 
-    expectedCounts = {}
+    featureCounts = {}
+    skeletonCounts = {}
     for j in range(len(solutions)):
         # for r in solutions[j]: print r
         # print " ==  ==  == "
-        expectedCounts = mergeFeatureCounts(expectedCounts, weightedCounts(posterior[j], solutions[j]))
-    return expectedCounts
+        fs,skeletons = weightedCounts(posterior[j], solutions[j])
+        featureCounts =  mergeCounts(featureCounts, fs)
+        skeletonCounts = mergeCounts(skeletonCounts, skeletons)
+    return featureCounts, skeletonCounts
     
     
     
     
-aggregateCounts = {}
+aggregateFeatureCounts = {}
+aggregateSkeletonCounts = {}
 for pickledFile in PICKLES:
-    aggregateCounts = mergeFeatureCounts(aggregateCounts, expectedFeatureCounts(pickledFile))
+    fc,sc = expectedCounts(pickledFile)
+    aggregateFeatureCounts = mergeCounts(aggregateFeatureCounts, fc)
+    aggregateSkeletonCounts = mergeCounts(aggregateSkeletonCounts, sc)
 
-counts = list(reversed(sorted([ (aggregateCounts[f], f) for f in aggregateCounts ])))
+featureCounts = list(reversed(sorted([ (aggregateFeatureCounts[f], f) for f in aggregateFeatureCounts ])))
+skeletonCounts = list(reversed(sorted([ (aggregateSkeletonCounts[f], f) for f in aggregateSkeletonCounts
+                                        if aggregateSkeletonCounts[f] > 0.5 ])))
+print "\n".join(map(str,skeletonCounts))
 
-# make a histogram of which features were popular
-x = range(len(counts))
-plot.bar(x, [ c for c,f in counts ])
-plot.xticks(x, [f for c,f in counts ], rotation = 'vertical')
+for counts in [featureCounts,skeletonCounts]:
+    # make a histogram of which features were popular
+    x = range(len(counts))
+    plot.bar(x, [ c for c,f in counts ])
+    plot.xticks(x, [f for c,f in counts ], rotation = 'vertical')
 
-plot.ylabel('Probability')
+    plot.ylabel('Relative frequency')
 
-plot.show()
+    plot.show()
 
