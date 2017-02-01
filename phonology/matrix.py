@@ -185,6 +185,8 @@ class UnderlyingProblem():
         suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
         rules = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
 
+        for r in rules: condition(fixStructuralChange(r))
+
         self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
