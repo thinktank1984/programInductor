@@ -70,7 +70,7 @@ Word make_word([int l],Sound[l] s) {
 
 generator Word unknown_word() {
   int l = ??;
-  assert l >= 0;
+  assert l >= 0 && l <= MAXIMUMMORPHLENGTH;
   
   Word w = new Word(l = l);
   int j = 0;

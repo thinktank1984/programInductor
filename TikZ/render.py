@@ -46,7 +46,6 @@ def render(source, showImage = False, output = None, yieldsPixels = False, canva
         greyscale_map = list(im.getdata())
         greyscale_map = np.array(greyscale_map)
         greyscale_map = greyscale_map.reshape((height, width))
-        print greyscale_map
         returnValue = greyscale_map/255.0
 
 
