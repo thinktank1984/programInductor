@@ -83,8 +83,8 @@ class Sequence():
     @staticmethod
     def samplePart():
         x = random()
-        if x < 0.33: return Line.sample()
-        if x < 0.66: return Rectangle.sample()
+        if x < 0.5: return Line.sample()
+#        if x < 0.66: return Rectangle.sample()
         return Circle.sample()
 
     def mutate(self):

@@ -83,10 +83,16 @@ class UnderlyingProblem():
         for r in rules:
             condition(ruleCost(r) < 20) # totally arbitrary
 
+       
+        affixSize = sum([ wordLength(m) for m in prefixes + suffixes ])
+        if len(self.data) > self.numberOfInflections:
+            maximize(affixSize)
+        elif len(self.data) < self.numberOfInflections:
+            minimize(affixSize)
+        else: # indifferent as to the morphologies so just optimize the rules
+            minimize(sum([ruleCost(r) for r in rules ]))
+
         self.conditionOnData(rules, stems, prefixes, suffixes)
-        
-        affixSize = sum([ wordLength(m) for m in  prefixes + suffixes ])
-        maximize(affixSize)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         if not output:
