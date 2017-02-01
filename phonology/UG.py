@@ -18,7 +18,7 @@ def mergeCounts(m,n):
         c[f] = m.get(f,0.0) + n.get(f,0.0)
     return c
 
-T = 10 # temperature
+T = 3 # temperature
 
 def getRulesFromComment(problem):
     return [ l for l in problem.description.split("\n") if '--->' in l ]
@@ -77,7 +77,7 @@ for pickledFile in PICKLES:
 
 featureCounts = list(reversed(sorted([ (aggregateFeatureCounts[f], f) for f in aggregateFeatureCounts ])))
 skeletonCounts = list(reversed(sorted([ (aggregateSkeletonCounts[f], f) for f in aggregateSkeletonCounts
-                                        if aggregateSkeletonCounts[f] > 0.5 ])))
+                                        if aggregateSkeletonCounts[f] >= 1.0 ])))
 print "\n".join(map(str,skeletonCounts))
 
 for counts in [featureCounts,skeletonCounts]:

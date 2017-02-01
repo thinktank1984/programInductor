@@ -1,9 +1,12 @@
 import tempfile
 import sys
 import os
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plot
+import matplotlib.animation as animation
 
-
-def render(source, output = None, canvas = (10,10)):
+def render(source, showImage = False, output = None, yieldsPixels = False, canvas = (10,10)):
     if canvas == None: canvas = ""
     else: canvas = '''
 \draw[fill = white, white] (0,0) rectangle (%d,%d);
@@ -29,12 +32,41 @@ def render(source, output = None, canvas = (10,10)):
     temporaryPrefix = temporaryName[:-3]
     temporaryImage = temporaryPrefix + "png"
 
-    if output != None:
-        os.system("mv %s %s 2> /dev/null" % (temporaryImage, output))
-    else:
+    if showImage:
         os.system("feh %s" % temporaryImage)
 
+    returnValue = []
+    if output != None:
+        os.system("mv %s %s 2> /dev/null" % (temporaryImage, output))
+        temporaryImage = output
+        
+    if yieldsPixels:
+        im = Image.open(temporaryImage).convert('L')
+        (width, height) = im.size
+        greyscale_map = list(im.getdata())
+        greyscale_map = np.array(greyscale_map)
+        greyscale_map = greyscale_map.reshape((height, width))
+        print greyscale_map
+        returnValue = greyscale_map/255.0
+
+
     os.system("rm %s*" % temporaryPrefix)
+    if returnValue != []: return returnValue
+
+def animateMatrices(matrices):
+    fig = plot.figure() # make figure
+    im = plot.imshow(matrices[0], cmap=plot.get_cmap('bone'), vmin=0.0, vmax=1.0)
+
+    # function to update figure
+    def updatefig(j):
+        # set the data in the axesimage object
+        im.set_array(matrices[j])
+        # return the artists set
+        return im,
+    # kick off the animation
+    ani = animation.FuncAnimation(fig, updatefig, frames=range(len(matrices)), 
+                              interval=50, blit=True)
+    plot.show()
 
 if __name__ == "__main__":
     inputFile = sys.argv[1]
