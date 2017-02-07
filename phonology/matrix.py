@@ -127,11 +127,11 @@ class UnderlyingProblem():
 
     def solveUnderlyingForms(self, prefixes, suffixes, rules):
         Model.Global()
-        rules = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
-        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
-        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+        rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
+        prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+        suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
-        self.conditionOnData(rules, stems, prefixes, suffixes)
+        self.conditionOnData(rules_, stems, prefixes_, suffixes_)
 
         for stem in stems:
             minimize(wordLength(stem))
@@ -140,7 +140,24 @@ class UnderlyingProblem():
         if not output:
             raise SynthesisFailure("Failed at underlying form analysis.")
 
-        return [ Morph.parse(self.bank, output, s) for s in stems ]
+        us = [ Morph.parse(self.bank, output, s) for s in stems ]
+
+        print "checking the underlying forms by running the rules manually:"
+
+        for j in range(len(self.inflectionMatrix)):
+            for i in range(self.numberOfInflections):
+                u = prefixes[i] + us[j] + suffixes[i]
+                for r in rules:
+                    print u
+                    print "\t > ",r
+                    u = r.apply(u)
+                print Morph.fromMatrix(u)
+                print Morph(tokenize(self.data[j][i]))
+                assert Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
+            print "\n"
+            print "\n\n"
+
+        return us
 
     def solveTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules = None):
         solutions = [] if existingRules == None else [existingRules]

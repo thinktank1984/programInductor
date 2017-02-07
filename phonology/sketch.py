@@ -2,7 +2,6 @@
 
 from features import FeatureBank
 from sketchSyntax import *
-from rule import Rule
 
 from random import random
 import os

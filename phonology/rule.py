@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from sketchSyntax import define, FunctionCall, Constant
-from features import FeatureBank
+from features import FeatureBank,featureMap
+from morph import Morph
 
 import re
 
@@ -35,6 +36,11 @@ class ConstantPhoneme(Specification):
     def makeConstant(self, bank):
         return "new ConstantPhoneme(phoneme = phoneme_%d)" % bank.phoneme2index[self.p]
 
+    def matches(self, test):
+        return featureMap[self.p] == test
+    def apply(self, test):
+        return featureMap[self.p]
+
 class EmptySpecification():
     def __init__(self): pass
     def __unicode__(self): return u"Ø"
@@ -52,6 +58,11 @@ class EmptySpecification():
         return EmptySpecification()
     def makeConstant(self, bank):
         return "null"
+
+    def matches(self, test):
+        raise Exception('Can not try to match with deletion rule')
+    def apply(self, test):
+        raise Exception('cannot apply deletion rule')
     
 class FeatureMatrix():
     def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
@@ -87,6 +98,30 @@ class FeatureMatrix():
         mask = " ,".join(map(str, mask))
         preference = " ,".join(map(str, preference))
         return "new Vector(mask = {%s}, preference = {%s})" % (mask, preference)
+
+    def implicitMatrix(self):
+        def exclude(fs, m):
+            for j in range(len(fs)):
+                if (True,fs[j]) in m:
+                    fs += [(False,fs[k]) for k in range(len(fs)) if k != j ]
+            return list(set(fs))
+        return exclude(['front','central','back'],
+                       exclude(['high','middle','low'], self.featuresAndPolarities))
+
+    def matches(self, test):
+        for p,f in self.featuresAndPolarities:
+            if p:
+                if not (f in test): return False
+            else:
+                if f in test: return False
+        return True
+    def apply(self, test):
+        for p,f in self.implicitMatrix():
+            if p:
+                test += [f]
+            else:
+                test = [_f for _f in test if not _f == f ]
+        return list(set(test))
 
 class Guard():
     def __init__(self, side, endOfString, starred, specifications):
@@ -198,3 +233,71 @@ class Rule():
         leftTrigger = Guard.parse(bank, output, m.group(3), 'L')
         rightTrigger = Guard.parse(bank, output, m.group(4), 'R')
         return Rule(focus, structuralChange, leftTrigger, rightTrigger)
+
+    def apply(self, u):
+        # First off we convert u to feature matrices if it is a morph
+        if isinstance(u,Morph):
+            u = [ featureMap[p] for p in u.phonemes ]
+            
+        middleOkay = [ self.focus.matches(p) for p in u ]
+
+        leftOkay = []
+        accepting = False
+        # check to see if the left matches
+        for j in range(len(u)):
+            okay = True
+            if self.leftTriggers.starred:
+                if j == 0:
+                    okay = False
+                    accepting = self.leftTriggers.specifications[1].matches(u[0])
+                else:
+                    okay = accepting
+                    accepting = ((not self.leftTriggers.endOfString) and self.leftTriggers.specifications[1].matches(u[j])) or (accepting and self.leftTriggers.specifications[0].matches(u[j]))
+            elif self.leftTriggers.endOfString and len(self.leftTriggers.specifications) == 0: # #_
+                okay = j == 0
+            elif self.leftTriggers.specifications != []:
+                okay = j > 0 and self.leftTriggers.specifications[0].matches(u[j - 1])
+                if len(self.leftTriggers.specifications) == 2: # (#?)gg_
+                    okay = okay and j > 1 and self.leftTriggers.specifications[1].matches(u[j - 2])
+
+                if self.leftTriggers.endOfString:
+                    if len(self.leftTriggers.specifications) == 1:
+                        okay = okay and j == 1
+                    else:
+                        okay = okay and j == 2
+            leftOkay.append(okay)
+
+        # do the same thing on the right but walk backwards
+        rightOkay = [None]*len(u)
+        accepting = False
+        for j in range(len(u) - 1, -1, -1):
+            okay = True
+            if self.rightTriggers.starred: # _g*g(#?)
+                if j == len(u) - 1:
+                    okay = False
+                    accepting = self.rightTriggers.specifications[1].matches(u[len(u) - 1])
+                else:
+                    okay = accepting
+                    accepting = ((not self.rightTriggers.endOfString) and self.rightTriggers.specifications[1].matches(u[j])) or (accepting and self.rightTriggers.specifications[0].matches(u[j]))
+            elif self.rightTriggers.endOfString and self.rightTriggers.specifications == []: # _#
+                okay = j == len(u) - 1
+            elif self.rightTriggers.specifications != []: # _gg?#?
+                okay = j < len(u) - 1 and self.rightTriggers.specifications[0].matches(u[j + 1])
+                if len(self.rightTriggers.specifications) == 2: # _gg#?
+                    okay = okay and j < len(u) - 2 and self.rightTriggers.specifications[1].matches(u[j + 2])
+
+                if self.rightTriggers.endOfString:
+                    if len(self.rightTriggers.specifications) == 1: # _g#
+                        okay = okay and j == len(u) - 2
+                    else: # _gg#
+                        okay = okay and j == len(u) - 3
+            rightOkay[j] = okay
+                
+            
+        triggered = [ middleOkay[j] and rightOkay[j] and leftOkay[j] for j in range(len(u)) ]
+
+        change = self.structuralChange
+        if isinstance(change,EmptySpecification):
+            return [ u[j] for j in range(len(u)) if not triggered[j] ]
+        else:
+            return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]

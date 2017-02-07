@@ -82,6 +82,20 @@ generator Word unknown_word() {
   return w;
 }
 
+/* generator Word unknown_sound_sequence() { */
+/*   int l = ??; */
+/*   assert l >= 0 && l <= MAXIMUMMORPHLENGTH; */
+  
+/*   Word w = new Word(l = l); */
+/*   int j = 0; */
+/*   repeat(MAXIMUMMORPHLENGTH) { */
+/*     if (j < l) */
+/*       w.s[j] = new Sound(f = ??); */
+/*     j++; */
+/*   } */
+/*   return w; */
+/* } */
+
 struct Specification{}
 struct Vector extends Specification{
   bit[NUMBEROFFEATURES] mask;
