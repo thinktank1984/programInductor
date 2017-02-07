@@ -127,7 +127,7 @@ featureMap = {
     u"r̥̃": [liquid,trill,coronal,sonorant],
     u"ř": [liquid,flap,voice,coronal,sonorant],
     u"l": [liquid,lateral,voice,alveolar,coronal,sonorant],
-    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
+#    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA

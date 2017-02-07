@@ -6,6 +6,7 @@ from features import FeatureBank, tokenize
 from rule import Rule
 from morph import Morph
 from sketch import *
+from supervised import solveTopSupervisedRules
 
 from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
@@ -142,22 +143,39 @@ class UnderlyingProblem():
 
         us = [ Morph.parse(self.bank, output, s) for s in stems ]
 
-        print "checking the underlying forms by running the rules manually:"
-
         for j in range(len(self.inflectionMatrix)):
             for i in range(self.numberOfInflections):
                 u = prefixes[i] + us[j] + suffixes[i]
                 for r in rules:
-                    print u
-                    print "\t > ",r
+                    # print u
+                    # print "\t > ",r
                     u = r.apply(u)
-                print Morph.fromMatrix(u)
-                print Morph(tokenize(self.data[j][i]))
+                # print Morph.fromMatrix(u)
+                # print Morph(tokenize(self.data[j][i]))
                 assert Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
-            print "\n"
-            print "\n\n"
+            # print "\n"
+            # print "\n\n"
 
         return us
+
+    def fastTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules):
+        k = int(math.ceil((float(k)**(1.0/depth))))
+
+        inputs = [ prefixes[i] + underlyingForms[j] + suffixes[i]
+                   for j in range(len(self.data))
+                   for i in range(self.numberOfInflections) ]
+
+        def f(xs, rs):
+            if rs == []: return [[]]
+            ys = [ rs[0].apply(x) for x in xs ]
+            alternatives = solveTopSupervisedRules(zip(xs,ys), k, r[0])
+            suffixes = f(ys, rs[1:])
+            return [ [a] + s
+                     for a in alternatives
+                     for s in suffixes ]
+
+        return f(inputs, existingRules)
+        
 
     def solveTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules = None):
         solutions = [] if existingRules == None else [existingRules]
@@ -290,7 +308,7 @@ if __name__ == '__main__':
                     6,
                     7,
                     8,
-                    #9
+                    #9,
                     # Chapter five problems
                     51,
                     52]

@@ -101,12 +101,16 @@ class FeatureMatrix():
 
     def implicitMatrix(self):
         def exclude(fs, m):
-            for j in range(len(fs)):
-                if (True,fs[j]) in m:
-                    fs += [(False,fs[k]) for k in range(len(fs)) if k != j ]
-            return list(set(fs))
-        return exclude(['front','central','back'],
-                       exclude(['high','middle','low'], self.featuresAndPolarities))
+            for f in fs:
+                if (True,f) in m:
+                    # weird Python thing: if you use "m += ..." then m will be modified in place
+                    # and as a result featuresAndPolarities will be mutated!
+                    # Not the intended behavior.
+                    m = m + [(False,o) for o in fs if f != o ]
+            return list(set(m))
+        implicit = exclude(['front','central','back'],
+                           exclude(['high','middle','low'], self.featuresAndPolarities))
+        return implicit
 
     def matches(self, test):
         for p,f in self.featuresAndPolarities:
@@ -118,7 +122,7 @@ class FeatureMatrix():
     def apply(self, test):
         for p,f in self.implicitMatrix():
             if p:
-                test += [f]
+                test = test + [f]
             else:
                 test = [_f for _f in test if not _f == f ]
         return list(set(test))

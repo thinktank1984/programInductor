@@ -191,7 +191,7 @@ System discovers:
 	u"fərəs",#		"horse"),
         u"tənəsa",#		"stand up!"),
 #	u"yɛlɨš̌lɨš̌",#		"grandchild"),
-        u"yɛlɨš̌lɨš",#		"grandchild"),
+        u"yɛlɨšlɨš",#		"grandchild"),
         u"mayɛt",#		"see"),
 	u"gənzəb",#		"money"),
         u"š̌ɛgna",#		"brave"),
