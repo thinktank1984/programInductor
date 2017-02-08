@@ -86,10 +86,11 @@ class UnderlyingProblem():
 
        
         affixSize = sum([ wordLength(m) for m in prefixes + suffixes ])
+        stemSize = sum([ wordLength(m) for m in stems ])
         if len(self.data) > self.numberOfInflections:
             maximize(affixSize)
         elif len(self.data) < self.numberOfInflections:
-            minimize(affixSize)
+            maximize(stemSize)
         else: # indifferent as to the morphologies so just optimize the rules
             minimize(sum([ruleCost(r) for r in rules ]))
 
