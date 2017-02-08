@@ -7,6 +7,7 @@ from rule import Rule
 from morph import Morph
 from sketch import *
 from supervised import solveTopSupervisedRules
+from latex import latexMatrix
 
 from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
@@ -320,6 +321,7 @@ if __name__ == '__main__':
     for problemIndex in problems:
         p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
         print p.description
+        print latexMatrix(p.data)
         ss = None # solutions to save out to the pickled file
         if problemIndex == 7:
             ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
