@@ -147,14 +147,14 @@ class UnderlyingProblem():
             for i in range(self.numberOfInflections):
                 u = prefixes[i] + us[j] + suffixes[i]
                 for r in rules:
-                    # print u
-                    # print "\t > ",r
+                    print u
+                    print "\t > ",r
                     u = r.apply(u)
-                # print Morph.fromMatrix(u)
-                # print Morph(tokenize(self.data[j][i]))
+                print Morph.fromMatrix(u)
+                print Morph(tokenize(self.data[j][i]))
                 assert Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
-            # print "\n"
-            # print "\n\n"
+                print "\n"
+            print "\n\n"
 
         return us
 
