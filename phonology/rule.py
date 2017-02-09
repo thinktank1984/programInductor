@@ -2,6 +2,7 @@
 
 from sketchSyntax import define, FunctionCall, Constant
 from features import FeatureBank,featureMap
+from latex import latexWord
 from morph import Morph
 
 import re
@@ -26,6 +27,7 @@ class ConstantPhoneme(Specification):
     def doesNothing(self): return False
     def cost(self): return 2
     def skeleton(self): return "K"
+    def latex(self): return latexWord(self.p)
     
     @staticmethod
     def parse(bank, output, variable):
@@ -49,6 +51,7 @@ class EmptySpecification():
     def doesNothing(self): return False
     def skeleton(self): return "0"
     def cost(self): return 2
+    def latex(self): return '$\\varnothing$'
 
     @staticmethod
     def parse(bank, output, variable):
@@ -79,6 +82,10 @@ class FeatureMatrix():
     def skeleton(self):
         if self.featuresAndPolarities == []: return "[ ]"
         else: return "[ +/-features ]"
+
+    def latex(self):
+        if self.featuresAndPolarities == []: return '\\verb|[ ]|'
+        return '\\verb|[%s]|'%(" ".join([ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]))
 
     @staticmethod
     def parse(bank, output, variable):
@@ -155,6 +162,13 @@ class Guard():
         if self.endOfString: parts += ['#']
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
+    def latex(self):
+        parts = []
+        parts += map(lambda spec: spec.latex(),self.specifications)
+        if self.starred: parts[-2] += '*'
+        if self.endOfString: parts += ['#']
+        if self.side == 'L': parts.reverse()
+        return " ".join(parts)
 
     @staticmethod
     def parse(bank, output, variable, side):
@@ -212,6 +226,11 @@ class Rule():
                                               self.structuralChange.skeleton(),
                                               self.leftTriggers.skeleton(),
                                               self.rightTriggers.skeleton())
+    def latex(self):
+        return "{} $\\to$ {} / {} \\verb|_| {}".format(self.focus.latex(),
+                                              self.structuralChange.latex(),
+                                              self.leftTriggers.latex(),
+                                              self.rightTriggers.latex())
 
     # Produces sketch object
     def makeConstant(self, bank):

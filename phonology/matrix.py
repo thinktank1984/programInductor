@@ -16,6 +16,7 @@ from random import random
 import sys
 import pickle
 import argparse
+import math
 
 class SynthesisFailure(Exception):
     pass
@@ -149,19 +150,17 @@ class UnderlyingProblem():
             for i in range(self.numberOfInflections):
                 u = prefixes[i] + us[j] + suffixes[i]
                 for r in rules:
-                    print u
-                    print "\t > ",r
+                    # print u,"\n\t > ",r
                     u = r.apply(u)
-                print Morph.fromMatrix(u)
-                print Morph(tokenize(self.data[j][i]))
+                # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
                 assert Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
-                print "\n"
-            print "\n\n"
+                # print "\n"
+            # print "\n\n"
 
         return us
 
     def fastTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules):
-        k = int(math.ceil((float(k)**(1.0/depth))))
+        k = int(math.ceil((float(k)**(1.0/self.depth))))
 
         inputs = [ prefixes[i] + underlyingForms[j] + suffixes[i]
                    for j in range(len(self.data))
@@ -169,8 +168,8 @@ class UnderlyingProblem():
 
         def f(xs, rs):
             if rs == []: return [[]]
-            ys = [ rs[0].apply(x) for x in xs ]
-            alternatives = solveTopSupervisedRules(zip(xs,ys), k, r[0])
+            ys = [ Morph.fromMatrix(rs[0].apply(x)) for x in xs ]            
+            alternatives = solveTopSupervisedRules(zip(xs,ys), k, rs[0])
             suffixes = f(ys, rs[1:])
             return [ [a] + s
                      for a in alternatives
@@ -284,10 +283,12 @@ class UnderlyingProblem():
 
             counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
             if counterexample == None: # we found a solution that had no counterexamples
+                print "Final set of counterexamples:"
+                print latexMatrix(trainingData)
                 print "Final solutions:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
                 underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
-                solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, existingRules = rules)
+                solutions = self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules)
                 for s in solutions:
                     UnderlyingProblem.showRules(s)
                     print " ==  ==  == "
