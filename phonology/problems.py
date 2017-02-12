@@ -194,7 +194,7 @@ System discovers:
         u"yɛlɨšlɨš",#		"grandchild"),
         u"mayɛt",#		"see"),
 	u"gənzəb",#		"money"),
-        u"š̌ɛgna",#		"brave"),
+        u"šɛgna",#		"brave"),
 	u"nəñ",#		"I am"),
         u"məwdəd",#	"to like"),
 	u"mənnəsat",#	"get up"),
@@ -403,7 +403,7 @@ alternationProblems.append(Problem(
 ''',
     [
 	u"qori",	#"gold"
-        u"čoχlu",	#"corn on the cob"
+        u"čoXlu",	#"corn on the cob"
 	u"q’omir",	#"green"
         u"niŋri",	#"ear"
 	u"moqo",	#"runt"
@@ -420,7 +420,7 @@ alternationProblems.append(Problem(
         u"aNqosay", 	#"toast"
 	u"qečuŋ",	#"he disputes"
         u"p’isqo",	#"bird"
-	u"musoχ",	#"new"
+	u"musoX",	#"new"
         u"čuŋka",	#"ten"
 	u"yaNqaŋ", 	#"for free"
         u"čulyu",	#"ice"
@@ -430,30 +430,30 @@ alternationProblems.append(Problem(
         u"qaŋ",	#"you"
 	u"noqa",	#"I"
         u"čaxra",	#"field"
-	u"čeχniŋ",	#"he hates"
-        u"soχta",	#"six"
-	u"aχna",	#"thus"
+	u"čeXniŋ",	#"he hates"
+        u"soXta",	#"six"
+	u"aXna",	#"thus"
         u"lyixlya",	#"small shawl"
 	u"qosa",	#"husband"
         u"qara",	#"skin"
 	u"alqo",	#"dog"
         u"seNqa",	#"nose"
 	u"karu",	#"far"
-        u"atoχ",	#"fox"
+        u"atoX",	#"fox"
 	u"qaŋkuna",	#"you pl."
-        u"pusaχ",	#"eight"
-	u"t’eχway",	#"pluck"
+        u"pusaX",	#"eight"
+	u"t’eXway",	#"pluck"
         u"č’aki",	#"dry"
-	u"wateχ",	#"again"
+	u"wateX",	#"again"
         u"aŋka",	#"eagle"
-	u"waχtay",	#"hit!"
+	u"waXtay",	#"hit!"
         u"haku",	#"let’s go"
 	u"waqay",	#"tears"
         u"kaŋka",	#"roasted"
 	u"waxča",	#"poor"
-        u"waleχ",	#"poor"
+        u"waleX",	#"poor"
 	u"t^hakay",	#"drop"
-        u"reχsisqa"],#	"known"
+        u"reXsisqa"],#	"known"
     {"alternations": [{u"ŋ": u"N"},
                       {u"o": u"u"},
                       {u"i": u"e"},

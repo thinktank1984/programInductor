@@ -55,7 +55,6 @@ featureMap = {
     u"ɩ": [voice,lax,high,front],
     u"e": [voice,tense,middle,front],
     u"ə": [voice,tense,middle,central],
-    #    u"gamma vowel": [tense,middle,back],
     u"ɛ": [voice,lax,middle,front],
     u"æ": [voice,low,front],
     u"a": [voice,low,central],
@@ -77,7 +76,6 @@ featureMap = {
     u"v": [labiodental,fricative,voice],
     u"β": [bilabial,fricative,voice],
     u"m": [bilabial,nasal,voice,sonorant],
-#    u"́m": [bilabial,nasal,voice,stressed,sonorant],
     u"m̥": [bilabial,nasal,sonorant],
     u"θ": [dental,fricative,coronal],
     u"d": [alveolar,stop,voice,coronal],
@@ -90,7 +88,7 @@ featureMap = {
     u"ḍ": [retroflex,stop,coronal,voice],
     u"ð": [dental,fricative,voice,coronal],
     u"z": [alveolar,fricative,voice,coronal],
-    u"ǰ": [alveolar,affricate,voice,coronal],
+    u"ǰ": [alveopalatal,affricate,voice,coronal],
     u"ž": [alveopalatal,fricative,voice,coronal],
     u"s": [alveolar,fricative,coronal],
     u"n": [alveolar,nasal,voice,coronal,sonorant],
@@ -105,7 +103,7 @@ featureMap = {
     u"k^h": [velar,stop,aspirated],
     u"k^y": [velar,stop,palatal],
     u"x": [velar,fricative],
-    u"χ": [velar,fricative],
+    u"X": [uvular,fricative], # χ
     u"x^y": [velar,fricative,palatal],
     u"g": [velar,stop,voice],
     u"g^y": [velar,stop,voice,palatal],
@@ -152,8 +150,6 @@ for v in vs:
     featureMap[v + u":"] = featureMap[v] + [longVowel]
     featureMap[v + u"̌"] =  featureMap[v] + [risingTone]
     featureMap[v + u"̃"] = featureMap[v] + [nasal]
-    # Not sure about these ones
-    featureMap[u"̌" + v] =  featureMap[v] + [risingTone]
 
 def tokenize(word):
     # š can be realized in two different ways
@@ -216,3 +212,10 @@ class FeatureBank():
             h += "\n#define %sFEATURE %d\n" % (featureName.upper(), self.feature2index[featureName])
         h += "\n"
         return h
+
+if __name__ == 'main':
+    for p in featureMap:
+        for q in featureMap:
+            if p == q: continue
+            if set(featureMap[p]) == set(featureMap[q]):
+                print p,q

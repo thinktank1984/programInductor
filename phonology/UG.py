@@ -77,7 +77,7 @@ for pickledFile in PICKLES:
 
 featureCounts = list(reversed(sorted([ (aggregateFeatureCounts[f], f) for f in aggregateFeatureCounts ])))
 skeletonCounts = list(reversed(sorted([ (aggregateSkeletonCounts[f], f) for f in aggregateSkeletonCounts
-                                        if aggregateSkeletonCounts[f] >= 1.0 ])))
+                                        if aggregateSkeletonCounts[f] >= 0.5 ])))
 print "\n".join(map(str,skeletonCounts))
 
 for counts in [featureCounts,skeletonCounts]:

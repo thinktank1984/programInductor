@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from features import FeatureBank, tokenize
+from latex import latexWord
 from rule import *
 from morph import Morph
 from sketch import *
@@ -13,6 +14,20 @@ class CountingProblem():
         self.bank = FeatureBank([ w for w in data ])
 
         self.maximumObservationLength = max([ len(tokenize(w)) for w in data ]) + 1
+
+    def latex(self):
+        r = "\\begin{tabular}{ll}\n"
+        for k,o in zip(self.count, self.data):
+            if k < 11:
+                r += "%d&%s\\\\\n"%(k,latexWord(o))
+            elif k%10 == 0:
+                r += "%d = %d + 10 & %s\\\\\n"%(k,k/10,latexWord(o))
+            elif k < 20:
+                r += "%d = 10 + %d & %s\\\\\n"%(k,k-10,latexWord(o))
+            else:
+                assert False
+        r += "\n\\end{tabular}\n"
+        return r                
 
     def topSolutions(self, k = 10):
         solutions = []
@@ -35,12 +50,6 @@ class CountingProblem():
         morphs[5] = Morph.sample()
         morphs[9] = Morph.sample()
         morphs[10] = Morph.sample()
-
-        # intended = Rule(FeatureMatrix([(False,'vowel')]),
-        #                 EmptySpecification(),
-        #                 Guard('L', True, False, []),
-        #                 Guard('R', False, False, [FeatureMatrix([(False,'vowel')])]))
-#        condition(ruleEqual(r,intended.makeConstant(self.bank)))
 
         for j in range(len(self.data)):
             o = self.data[j]

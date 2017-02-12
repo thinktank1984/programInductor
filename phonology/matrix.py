@@ -17,6 +17,7 @@ import sys
 import pickle
 import argparse
 import math
+from time import time
 
 class SynthesisFailure(Exception):
     pass
@@ -153,7 +154,11 @@ class UnderlyingProblem():
                     # print u,"\n\t > ",r
                     u = r.apply(u)
                 # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
-                assert Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
+                if Morph(tokenize(self.data[j][i])) != Morph.fromMatrix(u):
+                    print Morph(tokenize(self.data[j][i])), "versus", Morph.fromMatrix(u)
+                    print Morph(tokenize(self.data[j][i])).phonemes, "versus", Morph.fromMatrix(u).phonemes
+                    print Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
+                    assert False
                 # print "\n"
             # print "\n\n"
 
@@ -190,7 +195,13 @@ class UnderlyingProblem():
                                 for r, o in zip(rules, other) ]) == 0)
 
             minimize(sum([ ruleCost(r) for r in rules ]))
-            self.conditionOnData(rules, underlyingForms, prefixes, suffixes)
+
+            # Keep morphology variable! Just ensure it has the same cost
+            prefixes_ = [ sampleMorphWithLength(len(p)) for p in prefixes ]
+            suffixes_ = [ sampleMorphWithLength(len(p)) for p in suffixes ]
+            stems_ = [ sampleMorphWithLength(len(p)) for p in underlyingForms ]
+            self.conditionOnData(rules, stems_, prefixes_, suffixes_)
+            
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
             if not output:
                 print "Found %d rules."%len(solutions)
@@ -267,7 +278,7 @@ class UnderlyingProblem():
             print "............................."
         return prefixes, suffixes, solutions
 
-    def counterexampleSolution(self, k = 1):
+    def counterexampleSolution(self, k = 1, threshold = float('inf')):
         self.sortDataByLength()
         # Start out with the shortest 2 examples
         trainingData = [ self.data[0], self.data[1] ]
@@ -277,9 +288,12 @@ class UnderlyingProblem():
             for r in trainingData:
                 for i in r: print i,
                 print ""
+
+            solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution(canAddNewRules = True)
             self.depth = len(rules) # update depth because it might have grown
+            solverTime = time() - solverTime
 
             counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
             if counterexample == None: # we found a solution that had no counterexamples
@@ -288,7 +302,14 @@ class UnderlyingProblem():
                 print "Final solutions:"
                 UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
                 underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
-                solutions = self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules)
+
+                # Do we have enough time in our budget to not be fast?
+                if solverTime*k < threshold:
+                    solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, rules)
+                else:
+                    print "Using the optimized top rules."
+                    solutions = self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules)
+                    
                 for s in solutions:
                     UnderlyingProblem.showRules(s)
                     print " ==  ==  == "
@@ -301,6 +322,8 @@ if __name__ == '__main__':
     parser.add_argument('problem')
     parser.add_argument('-c','--counterexamples', action = 'store_true')
     parser.add_argument('-t','--top', default = 1, type = int)
+    parser.add_argument('-f','--threshold', default = float('inf'), type = int)
+    
     arguments = parser.parse_args()
     if arguments.problem == 'integration':
         problems = [1,
@@ -322,13 +345,17 @@ if __name__ == '__main__':
     for problemIndex in problems:
         p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
         print p.description
-        print latexMatrix(p.data)
+        if problemIndex != 7:
+            print latexMatrix(p.data)
+        else:
+            print CountingProblem(p.data, p.parameters).latex()
+        
         ss = None # solutions to save out to the pickled file
         if problemIndex == 7:
             ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
         elif not arguments.counterexamples:
             _,_,ss = UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
         elif arguments.counterexamples:
-            _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top)
+            _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold)
         if ss != None:
             pickle.dump(ss, open("pickles/matrix_"+str(problemIndex)+".p","wb"))
