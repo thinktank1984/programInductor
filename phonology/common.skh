@@ -236,7 +236,9 @@ bit rule_equal(Rule p, Rule q) {
   return specification_equal(p.focus, q.focus) &&
     specification_equal(p.structural_change, q.structural_change) &&
     guard_equal(p.left_trigger, q.left_trigger) &&
-    guard_equal(p.right_trigger, q.right_trigger);
+    guard_equal(p.right_trigger, q.right_trigger) &&
+    p.ending == q.ending &&
+    p.copyOffset == q.copyOffset;
 }
 
 generator Guard unknown_guard() {

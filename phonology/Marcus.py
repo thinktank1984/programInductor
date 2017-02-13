@@ -112,7 +112,9 @@ def topSolutions(depth, observations, k = 1):
         print "Rules:"
         print "\n".join(map(str,rs))
         solutions.append((rs,us))
+        print "Costs:",(rc,uc)
         solutionCosts.append((rc,uc))
+    
     return solutions, solutionCosts
 
 if __name__ == '__main__':
@@ -136,6 +138,7 @@ if __name__ == '__main__':
     for experiment in range(arguments.experiments):
         print "Experiment %d:"%(1+experiment)
         trainingData = sampling[arguments.problem](arguments.number)
+        surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
 
         points = []
         for d in range(0,arguments.depth + 1):
@@ -147,10 +150,10 @@ if __name__ == '__main__':
     colors = cm.rainbow(np.linspace(0, 1, len(pointsFromEachExperiment)))
     print colors
     for points,color in zip(pointsFromEachExperiment,colors):
-        plot.scatter([ p[0] for p in points],
-                     [ float(6*arguments.number)/p[1] for p in points],
-                     alpha = 0.5, s = 200, color = color)
+        plot.scatter([ -p[0] for p in points],
+                     [ float(surfaceLength)/p[1] for p in points],
+                     alpha = 1.0/arguments.experiments, s = 200, color = color)
     plot.ylabel("Compression ratio")
-    plot.xlabel("Program length")
+    plot.xlabel("-Program length")
     plot.title("Pareto front for %s"%arguments.problem)
     plot.show()
