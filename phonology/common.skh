@@ -270,7 +270,8 @@ int guard_cost(Guard g) {
 
 int rule_cost(Rule r) {
   return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
-		      specification_cost(r.focus) + specification_cost(r.structural_change));
+		      specification_cost(r.focus) + specification_cost(r.structural_change) +
+		      (r.copyOffset != 0 ? 1 : 0));
 }
 
 Word apply_rule(Rule r, Word u) {

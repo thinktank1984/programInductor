@@ -20,6 +20,7 @@ class Specification():
         
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
+    def cost(self): return 2
     def __unicode__(self): return self.p
     def __str__(self): return unicode(self).encode('utf-8')
     
@@ -34,6 +35,7 @@ class ConstantPhoneme(Specification):
 
 class EmptySpecification():
     def __init__(self): pass
+    def cost(self): return 2
     def __unicode__(self): return u"Ø"
     def __str__(self): return unicode(self).encode('utf-8')
 
@@ -48,6 +50,8 @@ class EmptySpecification():
     
 class FeatureMatrix():
     def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
+    def cost(self):
+        return 1 + len(self.featuresAndPolarities)
     def __str__(self):
         elements = [ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]
         return u"[ {} ]".format(u" ".join(elements))
@@ -77,6 +81,8 @@ class Guard():
         self.endOfString = endOfString
         self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
+    def cost(self):
+        return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ])
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         parts = []
@@ -122,7 +128,8 @@ class Rule():
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
         self.ending = ending
-
+    def cost(self):
+        return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         return u"{} ---> {} / {} _ {}".format(u'#' if self.ending else self.focus,

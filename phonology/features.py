@@ -144,8 +144,6 @@ for v in vs:
     featureMap[v + u":"] = featureMap[v] + [longVowel]
     featureMap[v + u"̌"] =  featureMap[v] + [risingTone]
     featureMap[v + u"̃"] = featureMap[v] + [nasal]
-    # Not sure about these ones
-    featureMap[u"̌" + v] =  featureMap[v] + [risingTone]
 
 def tokenize(word):
     # š can be realized in two different ways
