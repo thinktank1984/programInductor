@@ -138,10 +138,12 @@ class Rule():
                                               self.rightTriggers)
     # Produces sketch object
     def makeConstant(self, bank):
-        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s)" % (self.focus.makeConstant(bank),
-                                                                                                                 self.structuralChange.makeConstant(bank),
-                                                                                                                 self.leftTriggers.makeConstant(bank),
-                                                                                                                 self.rightTriggers.makeConstant(bank)))
+        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s, ending = %d, copyOffset = (%d))" % (self.focus.makeConstant(bank),
+                                                                                                                                               self.structuralChange.makeConstant(bank),
+                                                                                                                                               self.leftTriggers.makeConstant(bank),
+                                                                                                                                               self.rightTriggers.makeConstant(bank),
+                                                                                                                                               1 if self.ending else 0,
+                                                                                                                                               self.copyOffset))
                                          
     # Produces sketch object
     @staticmethod

@@ -122,6 +122,14 @@ bit specification_equal(Specification p, Specification q) {
   }
 }
 
+bit empty_specification(Specification p) {
+  switch (p) {
+  case Vector:{
+    return empty_vector(p.mask);
+  }
+  case ConstantPhoneme:{ return 0; }
+  }
+}
 
 bit matches_specification(Sound sound, Specification specification) {
   switch (specification) {
@@ -389,6 +397,7 @@ Word apply_rule(Rule r, Word u) {
     assert right_trigger.spec2 == null;
     assert !right_trigger.starred;
     assert !right_trigger.endOfString;
+    assert empty_specification(r.focus);
 
     // append increases the length by one,
     // but only if the left guard holds!
