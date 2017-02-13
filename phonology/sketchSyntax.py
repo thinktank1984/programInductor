@@ -91,6 +91,22 @@ class Conditional(Expression):
     def web(self):
         return "((%s) ? %s : %s)" % (self.t.web(),self.y.web(),self.n.web())
 
+class And(Expression):
+    def __init__(self,clauses):
+        self.clauses = clauses
+    def sketch(self):
+        return "(%s)" % (" && ".join([c.sketch() for c in self.clauses ]))
+    def web(self):
+        return "(%s)" % (" && ".join([c.web() for c in self.clauses ]))
+
+class Or(Expression):
+    def __init__(self,clauses):
+        self.clauses = clauses
+    def sketch(self):
+        return "(%s)" % (" || ".join([c.sketch() for c in self.clauses ]))
+    def web(self):
+        return "(%s)" % (" || ".join([c.web() for c in self.clauses ]))
+
 class Assertion():
     def __init__(self,p): self.p = p
     def sketch(self): return "assert %s;" % self.p.sketch()
@@ -139,6 +155,7 @@ class Model():
     def removeSoftConstraints(self):
         '''removes all minimize and maximize statements that have been previously added.'''
         self.statements = [ s for s in self.statements if not (s is Maximize or s is Minimize) ]
+
     def sketch(self):
         h = ""
             
