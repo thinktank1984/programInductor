@@ -4,7 +4,7 @@ from features import FeatureBank, tokenize
 from rule import Rule
 from sketch import *
 
-from problems import alternationProblems
+from problems import alternationProblems, toneProblems
 
 from random import random
 import sys
@@ -138,11 +138,13 @@ if __name__ == '__main__':
     parser.add_argument('-p','--pickle', action = 'store_true')
     arguments = parser.parse_args()
     if arguments.problem == 'integration':
-        problems = list(range(1,12))
+        problems = ["tone"] + list(range(1,12))
+    elif arguments.problem == 'tone':
+        problems = ["tone"]
     else:
         problems = [int(arguments.problem)]
     for problemIndex in problems:
-        data = alternationProblems[problemIndex - 1]
+        data = toneProblems[0] if problemIndex == 'tone' else alternationProblems[problemIndex - 1]
         print data.description
         for j, alternation in enumerate(data.parameters["alternations"]):
             print "Analyzing alternation:"

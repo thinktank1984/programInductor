@@ -39,7 +39,7 @@ Explain HLM tone pattern.
                              u"íu`e¯",
                              u"úi`a¯"],
                             {"type": "alternation",
-                             "alternations": [dict([ (toned, toned[0:1])
+                             "alternations": [dict([ (toned, toned[:-1])
                                                      for toned in featureMap.keys()
                                                      if highTone in featureMap[toned] or
                                                      lowTone in featureMap[toned] or
