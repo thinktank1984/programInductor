@@ -15,6 +15,8 @@ print "TARGET:"
 print originalProgram
 print " ==  ==  == "
 target = render([str(originalProgram)], showImage = False, yieldsPixels = True)[0]
+#render([str(Sequence.sample()),str(Sequence.sample())], showImage = False, yieldsPixels = True)
+#assert False
 #animateMatrices([target])
 
 actual = Sequence.sample()

@@ -81,7 +81,7 @@ class FeatureMatrix():
 
     def skeleton(self):
         if self.featuresAndPolarities == []: return "[ ]"
-        else: return "[ +/-features ]"
+        else: return "[ +/-F ]"
 
     def latex(self):
         if self.featuresAndPolarities == []: return '\\verb|[ ]|'

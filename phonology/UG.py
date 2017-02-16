@@ -81,12 +81,14 @@ skeletonCounts = list(reversed(sorted([ (aggregateSkeletonCounts[f], f) for f in
 print "\n".join(map(str,skeletonCounts))
 
 for counts in [featureCounts,skeletonCounts]:
+    z = sum([c for c,f in counts ])
+    counts = [(c/z,f) for c,f in counts ]
     # make a histogram of which features were popular
     x = range(len(counts))
     plot.bar(x, [ c for c,f in counts ])
     plot.xticks(x, [f for c,f in counts ], rotation = 'vertical')
 
-    plot.ylabel('Relative frequency')
+    plot.ylabel('probability')
 
     plot.show()
 
