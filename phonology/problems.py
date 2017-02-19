@@ -100,16 +100,16 @@ Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g
 alternationProblems.append(Problem(
 u'''
 2: Modern Greek
-Determine whether the two segments [k] and [k^y] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [xy] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
+Determine whether the two segments [k] and [k^y] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [x^y] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
 Solution:
-{xy,k^y} occur only when there is a front vowel to the right
+{x^y,k^y} occur only when there is a front vowel to the right
 [ -liquid +velar ] ---> [ +palatal -alveolar -nasal -liquid -voice ] /  _ [ +front ]
 ''',
     [u"kano",#"do"),
      u"kori",#"daughter"),
      u"xano",		#"lose"),
      u"xori",		#"dances"),
-     u"xyino",		#"pour"),
+     u"x^yino",		#"pour"),
      u"k^yino",		#"move"),
      u"krima",		#"shame"),
      u"xrima",		#"money"),
@@ -117,13 +117,13 @@ Solution:
      u"kufeta",		#"bonbons"),
      u"kali",		#"charms"),
      u"xali",		#"plight"),
-     u"xyeli",		#"eel"),
+     u"x^yeli",		#"eel"),
      u"k^yeri",		#"candle"),
-     u"xyeri",		#"hand"),
-     u"oxyi"],
+     u"x^yeri",		#"hand"),
+     u"ox^yi"],
     {"type": "alternation",
      "alternations": [{u"k^y": u"k",
-                       u"xy": u"x"}]}))		#"no")
+                       u"x^y": u"x"}]}))		#"no")
 
 alternationProblems.append(Problem(
 u'''

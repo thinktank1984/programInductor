@@ -6,7 +6,7 @@ from sketch import *
 
 from problems import alternationProblems, toneProblems
 
-from random import random
+from multiprocessing import Process
 import sys
 import pickle
 import argparse
@@ -131,6 +131,18 @@ class AlternationProblem():
         return rules
 
 
+def handleProblem(problemIndex, arguments):
+    data = toneProblems[0] if problemIndex == 'tone' else alternationProblems[problemIndex - 1]
+    print data.description
+    for j, alternation in enumerate(data.parameters["alternations"]):
+        print "Analyzing alternation:"
+        for k in alternation:
+            print "\t",k,"\t",alternation[k]
+        problem = AlternationProblem(alternation, data.data)
+        solutions = problem.topSolutions(arguments.top)
+        if arguments.pickle and len(solutions) > 0:
+            pickle.dump(solutions, open("pickles/alternation_"+str(problemIndex)+"_"+str(j)+".p","wb"))
+            
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Analyze an alternation to determine whether it is valid and how much it compresses the data.')
     parser.add_argument('problem')
@@ -144,17 +156,5 @@ if __name__ == '__main__':
     else:
         problems = [int(arguments.problem)]
     for problemIndex in problems:
-        data = toneProblems[0] if problemIndex == 'tone' else alternationProblems[problemIndex - 1]
-        print data.description
-        for j, alternation in enumerate(data.parameters["alternations"]):
-            print "Analyzing alternation:"
-            for k in alternation:
-                print "\t",k,"\t",alternation[k]
-            problem = AlternationProblem(alternation, data.data)
-            solutions = problem.topSolutions(arguments.top)
-            if arguments.pickle and len(solutions) > 0:
-                pickle.dump(solutions, open("pickles/alternation_"+str(problemIndex)+"_"+str(j)+".p","wb"))
-            
-
-
-
+        process = Process(target = handleProblem, args = (problemIndex,arguments))
+        process.start()
