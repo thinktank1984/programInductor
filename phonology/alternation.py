@@ -6,7 +6,7 @@ from sketch import *
 
 from problems import alternationProblems, toneProblems
 
-from multiprocessing import Process
+from multiprocessing import Pool
 import sys
 import pickle
 import argparse
@@ -131,7 +131,8 @@ class AlternationProblem():
         return rules
 
 
-def handleProblem(problemIndex, arguments):
+def handleProblem(problemInfo):
+    (problemIndex, arguments) = problemInfo
     data = toneProblems[0] if problemIndex == 'tone' else alternationProblems[problemIndex - 1]
     print data.description
     for j, alternation in enumerate(data.parameters["alternations"]):
@@ -148,6 +149,7 @@ if __name__ == '__main__':
     parser.add_argument('problem')
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-p','--pickle', action = 'store_true')
+    parser.add_argument('-c','--cores', default = 1, type = int)
     arguments = parser.parse_args()
     if arguments.problem == 'integration':
         problems = ["tone"] + list(range(1,12))
@@ -155,6 +157,7 @@ if __name__ == '__main__':
         problems = ["tone"]
     else:
         problems = [int(arguments.problem)]
-    for problemIndex in problems:
-        process = Process(target = handleProblem, args = (problemIndex,arguments))
-        process.start()
+
+    # pack up the arguments and then invoke all of them in parallel
+    problemInfo = [ (problemIndex,arguments) for problemIndex in problems ]
+    Pool(arguments.cores).map(handleProblem, problemInfo)
