@@ -166,7 +166,7 @@ class UnderlyingProblem():
         return us
 
     def fastTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules):
-        k = int(math.ceil((float(k)**(1.0/self.depth))))
+        #k = int(math.ceil((float(k)**(1.0/self.depth))))
 
         inputs = [ prefixes[i] + underlyingForms[j] + suffixes[i]
                    for j in range(len(self.data))
