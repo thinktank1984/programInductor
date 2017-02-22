@@ -149,7 +149,7 @@ if __name__ == '__main__':
     parser.add_argument('problem')
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-p','--pickle', action = 'store_true')
-    parser.add_argument('-c','--cores', default = 1, type = int)
+    parser.add_argument('-m','--cores', default = 1, type = int)
     arguments = parser.parse_args()
     if arguments.problem == 'integration':
         problems = ["tone"] + list(range(1,12))

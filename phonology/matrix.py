@@ -12,6 +12,7 @@ from latex import latexMatrix
 from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
 
+from multiprocessing import Pool
 from random import random
 import sys
 import pickle
@@ -316,6 +317,32 @@ class UnderlyingProblem():
                 return prefixes, suffixes, solutions                
             else:
                 trainingData.append(counterexample)
+
+
+def handleProblem(parameters):
+    (problemIndex,arguments) = parameters
+    p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
+    print p.description
+    if problemIndex != 7:
+        print latexMatrix(p.data)
+    else:
+        print CountingProblem(p.data, p.parameters).latex()
+
+    startTime = time()
+
+    ss = None # solutions to save out to the pickled file
+    if problemIndex == 7:
+        ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
+    elif not arguments.counterexamples:
+        _,_,ss = UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
+    elif arguments.counterexamples:
+        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold)
+
+    print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
+    
+    if ss != None:
+        pickle.dump(ss, open("pickles/matrix_"+str(problemIndex)+".p","wb"))
+
                 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
@@ -323,18 +350,19 @@ if __name__ == '__main__':
     parser.add_argument('-c','--counterexamples', action = 'store_true')
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
+    parser.add_argument('-m','--cores', default = 1, type = int)
     
     arguments = parser.parse_args()
     if arguments.problem == 'integration':
         problems = [1,
                     2,
                     3,
-                    #4,
+                    4,
                     5,
                     6,
                     7,
                     8,
-                    #9,
+                    9,
                     # Chapter five problems
                     51,
                     52]
@@ -342,20 +370,7 @@ if __name__ == '__main__':
         problemIndex = int(arguments.problem)
         problems = [problemIndex]
     
-    for problemIndex in problems:
-        p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
-        print p.description
-        if problemIndex != 7:
-            print latexMatrix(p.data)
-        else:
-            print CountingProblem(p.data, p.parameters).latex()
-        
-        ss = None # solutions to save out to the pickled file
-        if problemIndex == 7:
-            ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
-        elif not arguments.counterexamples:
-            _,_,ss = UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
-        elif arguments.counterexamples:
-            _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold)
-        if ss != None:
-            pickle.dump(ss, open("pickles/matrix_"+str(problemIndex)+".p","wb"))
+    # pack up the arguments and then invoke all of them in parallel
+    problemInfo = [ (problemIndex,arguments) for problemIndex in problems ]
+    Pool(arguments.cores).map(handleProblem, problemInfo)
+    
