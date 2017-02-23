@@ -466,13 +466,14 @@ Word apply_rule(Rule r, Word u) {
 	    u.l + r.copyOffset];
     } else if (left_trigger.endOfString && left_trigger.spec == null) {
       // special case: / #_R
+      output_length = u.l + right_okay[0];
+      output[right_okay[0]::u.l]= u.s;
       if (right_okay[0]) {
-	output[0] = extract_constant_sound(structural_change);
-	for (int j = 0; j < u.l; j++) output[j + 1] = u.s[j];
-	output_length = u.l + 1;
-      } else {
-	for (int j = 0; j < u.l; j++) output[j] = u.s[j];
-	output_length = u.l;
+	output[0] = r.copyOffset == 0 ?
+	  extract_constant_sound(structural_change) :
+	  u.s[right_trigger.endOfString ?
+	      (u.l - r.copyOffset) :
+	      (r.copyOffset - 1)];
       }
     } else assert 0;
     
