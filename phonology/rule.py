@@ -199,11 +199,12 @@ class Guard():
                                                                                      spec2)
 
 class Rule():
-    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers):
+    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers, copyOffset):
         self.focus = focus
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
+        self.copyOffset = copyOffset
 
     def cost(self):
         return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
@@ -217,27 +218,28 @@ class Rule():
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         return u"{} ---> {} / {} _ {}".format(self.focus,
-                                              self.structuralChange,
+                                              self.structuralChange if self.copyOffset == 0 else self.copyOffset,
                                               self.leftTriggers,
                                               self.rightTriggers)
 
     def skeleton(self):
         return "{} ---> {} / {} _ {}".format(self.focus.skeleton(),
-                                              self.structuralChange.skeleton(),
-                                              self.leftTriggers.skeleton(),
-                                              self.rightTriggers.skeleton())
+                                             self.structuralChange.skeleton(),
+                                             self.leftTriggers.skeleton(),
+                                             self.rightTriggers.skeleton())
     def latex(self):
         return "{} $\\to$ {} / {} \\verb|_| {}".format(self.focus.latex(),
-                                              self.structuralChange.latex(),
-                                              self.leftTriggers.latex(),
-                                              self.rightTriggers.latex())
+                                                       self.structuralChange.latex() if self.copyOffset == 0 else self.copyOffset,
+                                                       self.leftTriggers.latex(),
+                                                       self.rightTriggers.latex())
 
     # Produces sketch object
     def makeConstant(self, bank):
-        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s)" % (self.focus.makeConstant(bank),
-                                                                                                                 self.structuralChange.makeConstant(bank),
-                                                                                                                 self.leftTriggers.makeConstant(bank),
-                                                                                                                 self.rightTriggers.makeConstant(bank)))
+        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s, copyOffset = %d)" % (self.focus.makeConstant(bank),
+                                                                                                                                  self.structuralChange.makeConstant(bank),
+                                                                                                                                  self.leftTriggers.makeConstant(bank),
+                                                                                                                                  self.rightTriggers.makeConstant(bank),
+                                                                                                                                  self.copyOffset))        
                                          
     # Produces sketch object
     @staticmethod
@@ -247,7 +249,7 @@ class Rule():
     # Produces a rule object from a sketch output
     @staticmethod
     def parse(bank, output, variable):
-        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+)\)' % str(variable)
+        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), copyOffset=([0-9\-\(\)]+)\)' % str(variable)
         m = re.search(pattern, output)
         if not m:
             raise Exception('Failure parsing rule')
@@ -255,7 +257,8 @@ class Rule():
         structuralChange = Specification.parse(bank, output, m.group(2))
         leftTrigger = Guard.parse(bank, output, m.group(3), 'L')
         rightTrigger = Guard.parse(bank, output, m.group(4), 'R')
-        return Rule(focus, structuralChange, leftTrigger, rightTrigger)
+        copyOffset = int("".join([ c for c in m.group(5) if not c in [')','('] ]))
+        return Rule(focus, structuralChange, leftTrigger, rightTrigger, copyOffset)
 
     def apply(self, u):
         # First off we convert u to feature matrices if it is a morph

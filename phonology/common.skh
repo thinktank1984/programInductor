@@ -82,20 +82,6 @@ generator Word unknown_word() {
   return w;
 }
 
-/* generator Word unknown_sound_sequence() { */
-/*   int l = ??; */
-/*   assert l >= 0 && l <= MAXIMUMMORPHLENGTH; */
-  
-/*   Word w = new Word(l = l); */
-/*   int j = 0; */
-/*   repeat(MAXIMUMMORPHLENGTH) { */
-/*     if (j < l) */
-/*       w.s[j] = new Sound(f = ??); */
-/*     j++; */
-/*   } */
-/*   return w; */
-/* } */
-
 struct Specification{}
 struct Vector extends Specification{
   bit[NUMBEROFFEATURES] mask;
@@ -125,6 +111,32 @@ bit specification_equal(Specification p, Specification q) {
   }
 }
 
+bit empty_specification(Specification p) {
+  if (p == null) return 0;
+  switch (p) {
+  case Vector:{
+    return empty_vector(p.mask);
+  }
+  case ConstantPhoneme:{ return 0; }
+  }
+}
+
+bit constant_specification(Specification p) {
+  if (p == null) return 0;
+  switch (p) {
+  case Vector:{return 0;
+  }
+  case ConstantPhoneme:{ return 1; }
+  }
+}
+
+Sound extract_constant_sound(Specification p) {
+  if (p == null) return null;
+  switch (p) {
+  case Vector:{return null;}
+  case ConstantPhoneme:{ return p.phoneme; }
+  }
+}
 
 bit matches_specification(Sound sound, Specification specification) {
   switch (specification) {
@@ -167,22 +179,11 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
   return 1;
 }
 
-bit consonant_vowel_specification(Specification s) {
+bit consonant_specification(Specification s) {
   if (s == null) return 0;
   switch(s) {
-  case Vector:{
-    int f = 0;
-    repeat(NUMBEROFFEATURES){
-      if (f == VOWELFEATUREINDEX) {
-	if (!s.mask[f]) return 0;
-      } else {
-	if (s.mask[f]) return 0;
-      }
-      f++;
-    }
-    return 1;
-  }
-  case ConstantPhoneme:{return 0;}
+  case Vector:{return 0;}
+  case ConstantPhoneme:{return 1;}
   }
 }
 
@@ -246,6 +247,9 @@ struct Rule {
   Specification structural_change;
   Guard left_trigger;
   Guard right_trigger;
+  // If we are inserting a new phoneme, copy it from this offset:
+  // 0 = do not copy; -(1|2) = copy from left; +(1|2) = copy from right
+  int copyOffset;
 }
 
 
@@ -287,12 +291,14 @@ bit fix_structural_change(Rule r) {
 }
 
 bit is_deletion_rule(Rule r) { return r.structural_change == null; }
+bit is_insertion_rule(Rule r) { return r.focus == null; }
 
 bit rule_equal(Rule p, Rule q) {
   return specification_equal(p.focus, q.focus) &&
     specification_equal(p.structural_change, q.structural_change) &&
     guard_equal(p.left_trigger, q.left_trigger) &&
-    guard_equal(p.right_trigger, q.right_trigger);
+    guard_equal(p.right_trigger, q.right_trigger) &&
+    p.copyOffset == q.copyOffset;
 }
 
 bit alternation_equal(Rule p, Rule q) {
@@ -310,10 +316,11 @@ generator Specification unknown_specification() {
 }
   
 generator Rule unknown_rule() {
-  return new Rule(focus = unknown_specification(),
+  return new Rule(focus = {| null | unknown_specification() |},
 		  structural_change = {| null | unknown_specification() |},
 		  left_trigger = unknown_guard(),
-		  right_trigger = unknown_guard());
+		  right_trigger = unknown_guard(),
+		  copyOffset = {| 0 | 1 | -1 | -2 | +2 |});
 }
 
 int alternation_cost(Rule r) {
@@ -342,8 +349,10 @@ Word apply_rule(Rule r, Word u) {
   // sanity check
   if (left_trigger.spec == null) assert left_trigger.spec2 == null;
   if (right_trigger.spec == null) assert right_trigger.spec2 == null;
+  if (focus != null) assert r.copyOffset == 0; // not inserting so don't copy
+  if (r.copyOffset != 0) assert empty_specification(structural_change);
   
-  Sound[u.l] output;
+  Sound[u.l + 1] output;
 
   // * applies to the second spec
   if (left_trigger.starred)
@@ -421,15 +430,16 @@ Word apply_rule(Rule r, Word u) {
 
   bit[u.l] middle_okay;
   for (int j = 0; j < u.l; j++) {
-    middle_okay[j] = matches_specification(u.s[j], focus);
+    middle_okay[j] = focus == null || matches_specification(u.s[j], focus);
   }
 
   bit[u.l] triggered = middle_okay&right_okay&left_okay;
 
-
   int output_length; // how long is the output
   // Deletion rule
   if (structural_change == null) {
+    assert focus != null;
+    
     int outputIndex = 0;
     for (int j = 0; j < u.l; j++) {
       if (!triggered[j]) {
@@ -438,6 +448,34 @@ Word apply_rule(Rule r, Word u) {
       }
     }
     output_length = outputIndex;
+  } else if (focus == null) { // insertion rule
+    if (r.copyOffset == 0) // not copying
+      assert constant_specification(structural_change);
+    else // copying
+      assert empty_specification(structural_change);
+
+    // special case: / L_#
+    if (right_trigger.endOfString && right_trigger.spec == null) {
+      output[0::u.l] = u.s;
+      output_length = u.l + left_okay[u.l - 1];
+      output[u.l] =
+	r.copyOffset == 0 ?
+	extract_constant_sound(structural_change) :
+	u.s[left_trigger.endOfString ?
+	    (-1 - r.copyOffset) :
+	    u.l + r.copyOffset];
+    } else if (left_trigger.endOfString && left_trigger.spec == null) {
+      // special case: / #_R
+      if (right_okay[0]) {
+	output[0] = extract_constant_sound(structural_change);
+	for (int j = 0; j < u.l; j++) output[j + 1] = u.s[j];
+	output_length = u.l + 1;
+      } else {
+	for (int j = 0; j < u.l; j++) output[j] = u.s[j];
+	output_length = u.l;
+      }
+    } else assert 0;
+    
   } else { // Modification rule
     for (int j = 0; j < u.l; j++) {
       output[j] = triggered[j] ?
