@@ -12,6 +12,20 @@ import matplotlib.pyplot as plot
 import pickle
 import os
 
+class UG():
+    def logLikelihood(self, rules):
+        raise Exception('UG: programLikelihood not implemented')
+
+class FlatUG(UG):
+    def __init__(self): pass
+    def logLikelihood(self, rules):
+        return -sum([r.cost() for r in rules ])
+
+class FeatureUG(UG):
+    def __init__(self):
+    def logLikelihood(self, rules):
+        
+
 def mergeCounts(m,n):
     c = {}
     for f in set(m.keys() + n.keys()):
@@ -20,10 +34,6 @@ def mergeCounts(m,n):
 
 T = 3 # temperature
 
-def getRulesFromComment(problem):
-    return [ l for l in problem.description.split("\n") if '--->' in l ]
-def getFeaturesFromComment(problem):
-    return [ f for r in getRulesFromComment(problem) for f in re.findall('[\-\+]([a-zA-Z]+)',r) ]
 
 PICKLES = [ "pickles/"+f for f in os.listdir("pickles") if f.endswith('.p') ]
 

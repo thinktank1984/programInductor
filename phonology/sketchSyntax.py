@@ -132,12 +132,16 @@ class Addition(Expression):
 class Model():
     def __init__(self):
         self.flipCounter = 0
+        self.integerCounter = 0
         self.definitionCounter = 0
         self.statements = []
         self.quantifiedConditions = 0
     def flip(self, p = 0.5):
         self.flipCounter += 1
         return Variable("__FLIP__%d"%self.flipCounter)
+    def unknownInteger(self):
+        self.integerCounter += 1
+        return Variable("__INTEGER__%d"%self.integerCounter)
     def define(self, ty, value):
         name = "__DEFINITION__%d"%self.definitionCounter
         self.definitionCounter += 1
@@ -161,6 +165,8 @@ class Model():
             
         for f in range(self.flipCounter):
             h += "bit __FLIP__%d = ??;\n" % (f + 1)
+        for f in range(self.integerCounter):
+            h += "int __INTEGER__%d = ??;\n" % (f + 1)
 
         h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
         for a in self.statements:
@@ -193,6 +199,9 @@ currentModel = None
 def flip(p = 0.5):
     global currentModel
     return currentModel.flip(p)
+def unknownInteger():
+    global currentModel
+    return currentModel.unknownInteger()
 def ite(condition,yes,no):
     return Conditional(condition,yes,no)
 
@@ -232,6 +241,19 @@ def parseFlip(output, variable):
     for l in range(len(ls)):
         if pattern in ls[l]:
             return " = 1;" in ls[l + 2]
+    print "Could not find",variable
+    print pattern
+    print output
+    return None
+def parseInteger(output, variable):
+    pattern = 'void glblInit_%s__ANONYMOUS_'%str(variable)
+    ls = output.splitlines()
+    for l in range(len(ls)):
+        if pattern in ls[l]:
+            m = re.search(" = ([0-9]+);", ls[l + 2])
+            if not m:
+                raise Exception('error parsing integer')
+            return int(m.group(1))
     print "Could not find",variable
     print pattern
     print output
