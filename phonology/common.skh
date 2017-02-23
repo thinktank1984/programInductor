@@ -475,7 +475,7 @@ Word apply_rule(Rule r, Word u) {
 	      (u.l - r.copyOffset) :
 	      (r.copyOffset - 1)];
       }
-    } else assert 0;
+    } else assert 0; // todo: inserting into the middle of the string
     
   } else { // Modification rule
     for (int j = 0; j < u.l; j++) {
