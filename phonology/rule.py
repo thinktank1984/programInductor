@@ -217,6 +217,7 @@ class Rule():
 
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
+        if not hasattr(self, 'copyOffset'): self.copyOffset = 0
         return u"{} ---> {} / {} _ {}".format(self.focus,
                                               self.structuralChange if self.copyOffset == 0 else self.copyOffset,
                                               self.leftTriggers,
