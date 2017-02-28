@@ -73,64 +73,6 @@ class UnderlyingProblem():
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
     
-    def solveAffixes(self, oldRules = []):
-        Model.Global()
-        
-        numberOfNewRules = self.depth - len(oldRules)
-        rules = [ define("Rule", r.makeConstant(self.bank)) for r in oldRules ]
-        rules += [ Rule.sample() for _ in range(numberOfNewRules) ]
-        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
-        prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
-        suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
-
-        # We only care about maximizing the affix size
-        # However we also need calculate the rules size, in order to make sure that the next minimization succeeds
-        for r in rules:
-            condition(ruleCost(r) < 20) # totally arbitrary
-
-       
-        affixSize = sum([ wordLength(m) for m in prefixes + suffixes ])
-        stemSize = sum([ wordLength(m) for m in stems ])
-        if len(self.data) > self.numberOfInflections:
-            maximize(affixSize)
-        elif len(self.data) < self.numberOfInflections:
-            maximize(stemSize)
-        else: # indifferent as to the morphologies so just optimize the rules
-            minimize(sum([ruleCost(r) for r in rules ]))
-
-        self.conditionOnData(rules, stems, prefixes, suffixes)
-
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        if not output:
-            raise SynthesisFailure("Failed at morphological analysis.")
-        prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
-        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
-        return (prefixes, suffixes)
-
-    def solveRules(self, prefixes, suffixes, oldRules = []):
-        Model.Global()
-
-        numberOfNewRules = self.depth - len(oldRules)
-        rules = [ define("Rule", r.makeConstant(self.bank)) for r in oldRules ]
-        rules += [ Rule.sample() for _ in range(numberOfNewRules) ]
-        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
-
-        # Make the morphology be a global definition
-        prefixes = [ sampleMorphWithLength(len(p)) for p in prefixes ]
-        suffixes = [ sampleMorphWithLength(len(s)) for s in suffixes ]
-
-        minimize(sum([ ruleCost(r) for r in rules ]))
-        self.conditionOnData(rules, stems, prefixes, suffixes)
-
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        if not output:
-            raise SynthesisFailure("Failed at phonological analysis.")
-
-        rules = oldRules + [ Rule.parse(self.bank, output, r) for r in rules[len(oldRules):] ]
-        prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
-        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
-        return (rules, prefixes, suffixes)
-
     def solveUnderlyingForms(self, prefixes, suffixes, rules):
         Model.Global()
         rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
@@ -253,21 +195,6 @@ class UnderlyingProblem():
     def showRules(rules):
         print "Phonological rules:"
         for r in rules: print r
-
-    def sketchSolution(self, oldRules = [], canAddNewRules = False):
-        try:
-            prefixes, suffixes = self.solveAffixes(oldRules)
-            rules, prefixes, suffixes = self.solveRules(prefixes, suffixes, oldRules)
-            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-            UnderlyingProblem.showRules(rules)
-            return (prefixes, suffixes, rules)
-        except SynthesisFailure:
-            if canAddNewRules:
-                self.depth += 1
-                print "Expanding rule depth to %d"%self.depth
-                return self.sketchSolution(oldRules = oldRules, canAddNewRules = canAddNewRules)
-            else:
-                return None
 
     def sketchJointSolution(self, canAddNewRules = False):
         try:
@@ -395,14 +322,14 @@ if __name__ == '__main__':
         problems = [1,
                     2,
                     3,
-#                    4,
+                    4,
                     5,
                     6,
                     7,
                     8,
-#                    9,
+                    9,
                     # Chapter five problems
-#                    51,
+                    51,
                     52]
     else:
         problemIndex = int(arguments.problem)
