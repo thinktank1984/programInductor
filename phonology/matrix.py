@@ -38,7 +38,7 @@ class UnderlyingProblem():
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
-        self.maximumMorphLength = max(9,self.maximumObservationLength - 2)
+        self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
 
     def sortDataByLength(self):
@@ -321,7 +321,7 @@ class UnderlyingProblem():
 
 def handleProblem(parameters):
     (problemIndex,arguments) = parameters
-    p = underlyingProblems[problemIndex - 1] if problemIndex < 10 else interactingProblems[problemIndex - 1 - 50]
+    p = underlyingProblems[problemIndex - 1] if problemIndex < 50 else interactingProblems[problemIndex - 1 - 50]
     print p.description
     if problemIndex != 7:
         print latexMatrix(p.data)

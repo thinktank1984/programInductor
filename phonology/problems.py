@@ -877,6 +877,43 @@ Posit appropriate underlying forms and any rules needed to explain the following
 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
 	(u"yaman",	u"yamanin")]))#	“something that makes noise”
 
+underlyingProblems.append(Problem(
+    '''
+    Samoan: example from the textbook.
+    ''',
+    [
+        (u"olo", u"oloia"),
+        (u"lafo",u"lafoia"),
+        (u"usu",u"usuia"),
+        (u"taui",u"tauia"),
+        (u"naumati",u"naumatia"),
+        (u"lele",u"lelea"),
+        (u"tafe",u"tafea"),
+        (u"palepale",u"palepalea")
+    ]))
+
+underlyingProblems.append(Problem(
+    '''
+    Russian: devoicing of word final obscurant
+    ''',
+    [
+        (u"vagon", u"vagona"),
+        (u"glas", u"glaza"),
+        (u"golos",u"golosa"),
+        (u"ras", u"raza"),
+        (u"les",u"lesa"),
+        (u"porok",u"poroga"),
+        (u"vrak",u"vraga"),
+        (u"urok",u"uroka"),
+        (u"tvet",u"tveta"),
+        (u"prut",u"pruda"),
+        (u"soldat",u"soldata"),
+        (u"zavot",u"zavoda"),
+        (u"xlep",u"xleba"),
+        (u"grip",u"griba"),
+        (u"trup",u"trupa")
+    ]))
+
 interactingProblems = []
 
 interactingProblems.append(Problem(
