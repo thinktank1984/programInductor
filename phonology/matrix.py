@@ -268,9 +268,47 @@ class UnderlyingProblem():
                 return self.sketchSolution(oldRules = oldRules, canAddNewRules = canAddNewRules)
             else:
                 return None
+
+    def sketchJointSolution(self, canAddNewRules = False):
+        try:
+            Model.Global()
+            rules = [ Rule.sample() for _ in range(self.depth) ]
+            stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+            prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+            suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+       
+            affixSize = sum([ wordLength(m) for m in prefixes + suffixes ])
+            # We subtract a constant from the stems size in order to offset the cost
+            # Should have no effect upon the final solution that we find,
+            # but it lets sketch get away with having to deal with smaller numbers
+            stemSize = sum([ wordLength(m)-
+                             (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
+                              else len(self.inflectionMatrix[j][0]) - 3)
+                             for j,m in enumerate(stems) ])
+            ruleSize = sum([ruleCost(r) for r in rules ])
+            minimize(ruleSize + stemSize + affixSize)
+
+            self.conditionOnData(rules, stems, prefixes, suffixes)
+
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            if not output:
+                raise SynthesisFailure("Failed at morphological analysis.")
+            prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
+            suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
+            rules = [ Rule.parse(self.bank, output, r) for r in rules ]
+            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+            UnderlyingProblem.showRules(rules)
+            return (prefixes, suffixes, rules)
+        except SynthesisFailure:
+            if canAddNewRules:
+                self.depth += 1
+                print "Expanding rule depth to %d"%self.depth
+                return self.sketchJointSolution(canAddNewRules = canAddNewRules)
+            else:
+                return None
             
     def topSolutions(self, k=10):
-        prefixes, suffixes, rules = self.sketchSolution(canAddNewRules = True)
+        prefixes, suffixes, rules = self.sketchJointSolution(canAddNewRules = True)
         underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
         print "Showing all plausible short rules with this morphological analysis:"
         solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, existingRules = rules)
@@ -282,7 +320,7 @@ class UnderlyingProblem():
     def counterexampleSolution(self, k = 1, threshold = float('inf')):
         self.sortDataByLength()
         # Start out with the shortest 2 examples
-        trainingData = [ self.data[0], self.data[1] ]
+        trainingData = [ self.data[0], self.data[1] ] if self.numberOfInflections > 1 else self.data
 
         while True:
             print "CEGIS: Training data:"
@@ -292,7 +330,7 @@ class UnderlyingProblem():
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
-            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchSolution(canAddNewRules = True)
+            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True)
             self.depth = len(rules) # update depth because it might have grown
             solverTime = time() - solverTime
 
@@ -357,14 +395,14 @@ if __name__ == '__main__':
         problems = [1,
                     2,
                     3,
-                    4,
+#                    4,
                     5,
                     6,
                     7,
                     8,
-                    9,
+#                    9,
                     # Chapter five problems
-                    51,
+#                    51,
                     52]
     else:
         problemIndex = int(arguments.problem)
@@ -372,5 +410,8 @@ if __name__ == '__main__':
     
     # pack up the arguments and then invoke all of them in parallel
     problemInfo = [ (problemIndex,arguments) for problemIndex in problems ]
-    Pool(arguments.cores).map(handleProblem, problemInfo)
-    
+    if arguments.cores > 1:
+        Pool(arguments.cores).map(handleProblem, problemInfo)
+    else:
+        map(handleProblem, problemInfo)
+        
