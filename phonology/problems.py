@@ -914,6 +914,19 @@ underlyingProblems.append(Problem(
         (u"trup",u"trupa")
     ]))
 
+underlyingProblems.append(Problem(
+    '''
+    English verb inflections.
+    ''',
+    [(u"ro",u"rod",u"roz"),
+     (u"lʊk",u"lʊkt",u"lʊks"),
+     (u"æsk",u"æskt",u"æsks"),
+     (u"wɛrk",u"wɛrkt",u"wɛrks"),
+     (u"sim",u"simd",u"simz"),
+     (u"liv",u"livd",u"livz"),
+     (u"həg",u"həgd",u"həgz"),
+     (u"græb",u"græbd",u"græbz")]))
+
 interactingProblems = []
 
 interactingProblems.append(Problem(
