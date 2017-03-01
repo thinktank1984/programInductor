@@ -204,7 +204,9 @@ class UnderlyingProblem():
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
        
-            affixSize = sum([ wordLength(m) for m in prefixes + suffixes ])
+            affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
+                              (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
+                              for j in range(self.numberOfInflections) ])
             # We subtract a constant from the stems size in order to offset the cost
             # Should have no effect upon the final solution that we find,
             # but it lets sketch get away with having to deal with smaller numbers
@@ -222,10 +224,11 @@ class UnderlyingProblem():
                 raise SynthesisFailure("Failed at morphological analysis.")
             prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
             suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
+            stems = [ Morph.parse(self.bank, output, s) for s in stems ]
             rules = [ Rule.parse(self.bank, output, r) for r in rules ]
             UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
             UnderlyingProblem.showRules(rules)
-            return (prefixes, suffixes, rules)
+            return (prefixes, suffixes, stems, rules)
         except SynthesisFailure:
             if canAddNewRules:
                 self.depth += 1
@@ -234,20 +237,12 @@ class UnderlyingProblem():
             else:
                 return None
             
-    def topSolutions(self, k=10):
-        prefixes, suffixes, rules = self.sketchJointSolution(canAddNewRules = True)
-        underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
-        print "Showing all plausible short rules with this morphological analysis:"
-        solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, existingRules = rules)
-        for s in solutions:
-            print "\n".join(map(str,s))
-            print "............................."
-        return prefixes, suffixes, solutions
-
-    def counterexampleSolution(self, k = 1, threshold = float('inf')):
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2):
+        # Start out with the shortest examples
         self.sortDataByLength()
-        # Start out with the shortest 2 examples
-        trainingData = [ self.data[0], self.data[1] ] if self.numberOfInflections > 1 else self.data
+        if self.numberOfInflections == 1 or initialTrainingSize == 0:
+            initialTrainingSize = len(self.data)
+        trainingData = self.data[:initialTrainingSize]
 
         while True:
             print "CEGIS: Training data:"
@@ -257,7 +252,7 @@ class UnderlyingProblem():
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
-            (prefixes, suffixes, rules) = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True)
+            prefixes, suffixes, stems, rules = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True)
             self.depth = len(rules) # update depth because it might have grown
             solverTime = time() - solverTime
 
@@ -299,7 +294,7 @@ def handleProblem(parameters):
     if problemIndex == 7:
         ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
     elif not arguments.counterexamples:
-        _,_,ss = UnderlyingProblem(p.data, 1).topSolutions(arguments.top)
+        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold, 0)
     elif arguments.counterexamples:
         _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold)
 

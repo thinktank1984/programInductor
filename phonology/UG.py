@@ -111,6 +111,28 @@ class SkeletonUG(UG):
     def ruleLogLikelihood(self, r):
         return math.log(self.likelihoods[r.skeleton()])
 
+class SkeletonFeatureUG(UG):
+    def __init__(self, skeletonFrequencies, featureFrequencies):
+        self.skeletons = SkeletonUG(skeletonFrequencies)
+        self.features = FeatureUG(featureFrequencies)
+
+    def __str__(self):
+        return str(self.skeletons) + "\n" + str(self.features)
+    def plot(self):
+        self.skeletons.plot()
+        self.features.plot()
+
+    def ruleLogLikelihood(self,r):
+        fs = [ self.features.featureLogLikelihood(None, f)
+               for f in re.findall('[\-\+]([a-zA-Z]+)',str(r)) ]
+        return math.log(self.skeletons.likelihoods[r.skeleton()]) + sum(fs)
+
+    @staticmethod
+    def fromPosterior(weightedSolutions):
+        return SkeletonFeatureUG(SkeletonUG.fromPosterior(weightedSolutions).likelihoods,
+                                 FeatureUG.fromPosterior(weightedSolutions).likelihoods)
+    
+
 def estimateUG(problemSolutions, k, iterations = 1, temperature = 1.0, jitter = 0.0):
     # build the initial posterior
     # each solution is a list of rules
@@ -144,7 +166,7 @@ def loadAllSolutions():
 
 
 allSolutions = loadAllSolutions()
-for k in [SkeletonUG,FeatureUG]:
-    g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 4, jitter = 0.5)
+for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
+    g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
     print g
     g.plot()
