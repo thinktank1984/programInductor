@@ -252,7 +252,7 @@ class UnderlyingProblem():
                 compression += c
                 accuracy += a
             print "Average held out accuracy: ",accuracy/len(testingData)
-            print "Average held out compression:",compression/len(testingData)
+            print "Average held out compression:",compression/float(len(testingData))
             return prefixes, suffixes, solutions
             
         # Start out with the shortest examples
@@ -308,7 +308,10 @@ class UnderlyingProblem():
             # if testingIndex  = len(inflections), don't hold anything out
             # we do this to check description length
             trainingIndexes = [ j for j in range(len(inflections)) if j != testingIndex ]
-            
+
+            if len(inflections) == 1 and testingIndex != len(inflections):
+                continue
+                        
             Model.Global()
             
             stem = Morph.sample()
