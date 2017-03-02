@@ -50,6 +50,22 @@ class FlatUG(UG):
     def logLikelihood(self, rules):
         return -sum([r.cost() for r in rules ])
 
+class ChomskyUG(UG):
+    def __init__(self): pass
+    @staticmethod
+    def minimizeRuleSet(rules):
+        if len(rules) < 2: return rules
+        doNotMerge = [rules[0]] + ChomskyUG.minimizeRuleSet(rules[1:])
+        merged = [rules[0].merge(rules[1])] + ChomskyUG.minimizeRuleSet(rules[2:])
+        if sum([r.cost() for r in merged ]) < sum([r.cost() for r in doNotMerge ]):
+            return merged
+        else:
+            return doNotMerge
+    
+    def logLikelihood(self, rules):
+        return -sum([r.cost() for r in ChomskyUG.minimizeRuleSet(rules) ])
+        
+
 class FeatureUG(UG):
     def __init__(self, featureFrequencies):
         z = float(sum(featureFrequencies.values()))
@@ -131,12 +147,24 @@ class SkeletonFeatureUG(UG):
     def fromPosterior(weightedSolutions):
         return SkeletonFeatureUG(SkeletonUG.fromPosterior(weightedSolutions).likelihoods,
                                  FeatureUG.fromPosterior(weightedSolutions).likelihoods)
+
+class ChineseUG():
+    def __init__(self, matrixFrequencies):
+        z = float(sum(matrixFrequencies.values()))
+        self.matrixFrequencies = dict([ (f,matrixFrequencies[f]/z) for f in matrixFrequencies ])
+
+    def featureMatrixLogLikelihood(self, matrix):
+        return math.log(self.matrixFrequencies[str(matrix)])
+
+    
+
+    
     
 
 def estimateUG(problemSolutions, k, iterations = 1, temperature = 1.0, jitter = 0.0):
     # build the initial posterior
     # each solution is a list of rules
-    logPosteriors = [ normalizeLogDistribution([ (FlatUG().logLikelihood(s)/temperature + random()*jitter, s)
+    logPosteriors = [ normalizeLogDistribution([ (ChomskyUG().logLikelihood(s)/temperature + random()*jitter, s)
                                                  for s in solutions ])
                       for solutions in problemSolutions ]
     posteriors = [ [ (math.exp(w), s) for w,s in solutions ]
@@ -162,11 +190,11 @@ def loadAllSolutions():
         return ss
     allSolutions = map(loadRules, PICKLES)
     print "Loaded all solutions in %d seconds"%(int(time() - startTime))
-    return allSolutions
+    return allSolutions, PICKLES
 
-
-allSolutions = loadAllSolutions()
-for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
-    g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
-    print g
-    g.plot()
+if __name__ == '__main__':
+    allSolutions,_ = loadAllSolutions()
+    for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
+        g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
+        print g
+        g.plot()

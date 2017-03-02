@@ -7,6 +7,30 @@ from morph import Morph
 
 import re
 
+class Braces():
+    '''
+SPE-style brackets for rule alternatives.
+'''
+    def __init__(self, r1,r2):
+        self.r1 = r1
+        self.r2 = r2
+
+    def __unicode__(self):
+        return u"{ " + unicode(self.r1) + u" || " + unicode(self.r2) + u" }"
+    def __str__(self): return unicode(self).encode('utf-8')
+    def latex(self):
+        return "\\verb|{ | %s \\verb| , | %s \\verb|}|"%(self.r1.latex(),self.r2.latex())
+    def cost(self):
+        k = self.r1.cost() + self.r2.cost()
+        # do not incur cost of repeating exactly the same structure
+        if isinstance(self.r1,ConstantPhoneme) and isinstance(self.r2,ConstantPhoneme):
+            k -= 1
+        if isinstance(self.r1,FeatureMatrix) and isinstance(self.r2,FeatureMatrix):
+            k -= 1
+        return k
+
+
+
 class Specification():
     def __init__(self): pass
     
@@ -28,6 +52,10 @@ class ConstantPhoneme(Specification):
     def cost(self): return 2
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
+
+    def merge(self, other):
+        if isinstance(other, ConstantPhoneme) and other.p == self.p: return self
+        return Braces(self, other)
     
     @staticmethod
     def parse(bank, output, variable):
@@ -53,6 +81,10 @@ class EmptySpecification():
     def cost(self): return 2
     def latex(self): return '$\\varnothing$'
 
+    def merge(self, other):
+        if isinstance(other, EmptySpecification): return self
+        return Braces(self, other)
+
     @staticmethod
     def parse(bank, output, variable):
         pattern = " %s = null;" % variable
@@ -69,8 +101,10 @@ class EmptySpecification():
     
 class FeatureMatrix():
     def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
+    @staticmethod
+    def strPolarity(p): return '+' if p == True else ('-' if p == False else p)
     def __str__(self):
-        elements = [ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]
+        elements = [ FeatureMatrix.strPolarity(polarity)+f for polarity,f in self.featuresAndPolarities ]
         return u"[ {} ]".format(u" ".join(elements))
 
     def doesNothing(self):
@@ -86,6 +120,18 @@ class FeatureMatrix():
     def latex(self):
         if self.featuresAndPolarities == []: return '\\verb|[ ]|'
         return '\\verb|[%s]|'%(" ".join([ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]))
+
+    def merge(self, other):
+        if isinstance(other, FeatureMatrix):
+            if set([f for _,f in self.featuresAndPolarities ]) == set([f for _,f in other.featuresAndPolarities ]):
+                # introduce feature variables
+                y = dict([(f,p) for p,f in self.featuresAndPolarities ])
+                x = dict([(f,p) for p,f in other.featuresAndPolarities ])
+                fs = [ (x[f] if x[f] == y[f] else
+                        FeatureMatrix.strPolarity(x[f])+'/'+FeatureMatrix.strPolarity(y[f]), f) for f in y ]
+                return FeatureMatrix(fs)
+        
+        return Braces(self, other)
 
     @staticmethod
     def parse(bank, output, variable):
@@ -170,6 +216,15 @@ class Guard():
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
 
+    def merge(self, other):
+        assert other.side == self.side
+        if self.endOfString != other.endOfString or self.starred != other.starred or len(self.specifications) != len(other.specifications):
+            return Braces(self, other)
+        return Guard(self.side,
+                     self.endOfString,
+                     self.starred,
+                     [ x.merge(y) for x,y in zip(self.specifications,other.specifications) ])
+
     @staticmethod
     def parse(bank, output, variable, side):
         pattern = " %s = new Guard\(endOfString=([01]), starred=([01]), spec=([a-zA-Z0-9_]+), spec2=([a-zA-Z0-9_]+)"%variable
@@ -205,6 +260,15 @@ class Rule():
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
         self.copyOffset = copyOffset
+
+    def merge(self, other):
+        return Rule(self.focus.merge(other.focus),
+                    self.structuralChange.merge(other.structuralChange),
+                    self.leftTriggers.merge(other.leftTriggers),
+                    self.rightTriggers.merge(other.rightTriggers),
+                    self.copyOffset if self.copyOffset == other.copyOffset else Braces(self.copyOffset,other.copyOffset))
+                    
+                    
 
     def cost(self):
         return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
@@ -335,3 +399,4 @@ class Rule():
             return output
         else:
             return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]
+
