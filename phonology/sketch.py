@@ -63,7 +63,7 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h += makeSketchSkeleton()
     return h
 
-def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False):
+def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False):
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
     # Temporary file for writing the sketch
@@ -84,7 +84,8 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     print "Ran the solver in %f"%(time() - startTime)
     
     output = open(outputFile,'r').read()
-    os.remove(fd.name)
+    if not leavitt:
+        os.remove(fd.name)
     
     if "not be resolved." in output or "Rejected" in output:
         return None

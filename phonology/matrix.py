@@ -5,6 +5,7 @@ from utilities import *
 from features import FeatureBank, tokenize
 from rule import Rule
 from morph import Morph
+from sketchSyntax import Expression
 from sketch import *
 from supervised import solveTopSupervisedRules
 from latex import latexMatrix
@@ -49,6 +50,7 @@ class UnderlyingProblem():
 
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
+        """surfaces : list of elements, each of which is either a sketch expression or a APA string"""
         def applyRules(d):
             for r in rules: d = applyRule(r,d)
             return d
@@ -59,10 +61,12 @@ class UnderlyingProblem():
                 return concatenate3(prefix, stem, suffix)
             
         prediction = [ applyRules(buildUnderlyingForm(prefixes[i],suffixes[i]))
-                     for i in range(self.numberOfInflections) ]
-        for i in range(self.numberOfInflections):
-            condition(wordEqual(makeConstantWord(self.bank, surfaces[i]),
-                                prediction[i]))
+                     for i in range(len(surfaces)) ]
+        for i in range(len(surfaces)):
+            surface = surfaces[i]
+            if not isinstance(surface,Expression):
+                surface = makeConstantWord(self.bank, surface)
+            condition(wordEqual(surface, prediction[i]))
     
     def conditionOnData(self, rules, stems, prefixes, suffixes):
         '''Conditions on inflection matrix. This also modifies the rules in place! Always call this after calculating the cost of the rules.'''
@@ -274,9 +278,52 @@ class UnderlyingProblem():
                 for s in solutions:
                     UnderlyingProblem.showRules(s)
                     print " ==  ==  == "
+                accuracyCeiling = sum([ self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
+                                        for inflections in self.data ])/len(self.data)
+                print "Accuracy ceiling: ",accuracyCeiling
+                    
                 return prefixes, suffixes, solutions                
             else:
                 trainingData.append(counterexample)
+
+    def inflectionAccuracy(self, prefixes, suffixes, rules, inflections):
+        """inflections : list of APA strings"""
+        correctPredictions = 0
+        for testingIndex in range(len(inflections)):
+            trainingIndexes = [ j for j in range(len(inflections)) if j != testingIndex ]
+            
+            Model.Global()
+            
+            stem = Morph.sample()
+            minimize(wordLength(stem))
+
+            # Make the morphology/phonology be a global definition
+            prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
+            suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+            rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
+            for r in rules_: condition(fixStructuralChange(r))
+
+            prediction = Morph.sample()
+            surfaces = [ (s if j in trainingIndexes else prediction) for j,s in enumerate(inflections) ]
+            
+            self.conditionOnStem(rules_, stem, prefixes_, suffixes_, surfaces)
+
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            if not output:
+                solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, leavitt = True)
+                prediction = None
+            else:
+                prediction = Morph.parse(self.bank, output, prediction)
+            if prediction == Morph(inflections[testingIndex]):
+                correctPredictions += 1
+            else:
+                print "I saw these inflections:","\t".join([s for j,s in enumerate(inflections)
+                                                            if j != testingIndex])
+                print "I predicted ", prediction,"instead of", Morph(inflections[testingIndex])
+                pass
+        return correctPredictions/float(len(inflections))
+
+            
 
 
 def handleProblem(parameters):
