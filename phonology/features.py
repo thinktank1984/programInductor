@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+sibilant = "sibilant"
 sonorant = "sonorant"
 coronal = "coronal"
 approximate = "approximate"
@@ -87,14 +88,14 @@ featureMap = {
     u"ṭ": [retroflex,stop,coronal],
     u"ḍ": [retroflex,stop,coronal,voice],
     u"ð": [dental,fricative,voice,coronal],
-    u"z": [alveolar,fricative,voice,coronal],
+    u"z": [alveolar,fricative,voice,coronal, sibilant],
     u"ǰ": [alveopalatal,affricate,voice,coronal],
-    u"ž": [alveopalatal,fricative,voice,coronal],
-    u"s": [alveolar,fricative,coronal],
+    u"ž": [alveopalatal,fricative,voice,coronal, sibilant],
+    u"s": [alveolar,fricative,coronal, sibilant],
     u"n": [alveolar,nasal,voice,coronal,sonorant],
     u"n̥": [alveolar,nasal,coronal,sonorant],
     u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
-    u"š": [alveopalatal,fricative,coronal],
+    u"š": [alveopalatal,fricative,coronal, sibilant],
     u"c": [palatal,stop,coronal],
     u"č": [alveopalatal,affricate,coronal],
     u"č^h": [alveopalatal,affricate,coronal,aspirated],

@@ -63,7 +63,7 @@ class EmptySpecification():
         return "null"
 
     def matches(self, test):
-        raise Exception('Can not try to match with deletion rule')
+        return True
     def apply(self, test):
         raise Exception('cannot apply deletion rule')
     
@@ -326,5 +326,12 @@ class Rule():
         change = self.structuralChange
         if isinstance(change,EmptySpecification):
             return [ u[j] for j in range(len(u)) if not triggered[j] ]
+        elif isinstance(self.focus, EmptySpecification):
+            output = []
+            for j in range(len(u)):
+                if j > 0 and left_okay[j] and right_okay[j - 1]:
+                    output.append(change.apply(None))
+                output.append(u[j])
+            return output
         else:
             return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]

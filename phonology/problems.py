@@ -925,6 +925,9 @@ underlyingProblems.append(Problem(
      (u"sim",u"simd",u"simz"),
      (u"liv",u"livd",u"livz"),
      (u"həg",u"həgd",u"həgz"),
+     (u"kɩs",u"kɩst",u"kɩsəz"),
+     (u"fɩš",u"fɩšt",u"fɩšəz"),
+     (u"wet",u"wetəd",u"wets"),
      (u"græb",u"græbd",u"græbz")]))
 
 interactingProblems = []
