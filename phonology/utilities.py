@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
+import random
 
 def compose(f,g):
     return lambda x: f(g(x))
@@ -21,3 +22,12 @@ def lseList(l):
 def normalizeLogDistribution(d):
     z = lseList([w for w,_ in d ])
     return [(w-z,x) for w,x in d ]
+
+
+def randomTestSplit(data,ratio):
+    """ratio: what fraction is testing data. returns training,test"""
+    testingSize = min(len(data) - 1, int(round(len(data)*ratio)))
+    trainingSize = len(data) - testingSize
+    data = list(data)
+    random.shuffle(data)
+    return data[:trainingSize], data[trainingSize:]

@@ -612,18 +612,18 @@ Phonological rules:
 [  ] ---> [ -aspirated ] /  _ [ -central ]
 [  ] ---> a / [ +low ] [  ] _ #
     ''',
-    [(u"ipə",		u"ipk’o"),
-     (u"kupə",		u"kupk’o"),
-     (u"kap^ha",		u"kapk’o"),
-     (u"cip^hə",		u"cipk’o"),
-     (u"tata",		u"tatk’o"),
-     (u"put^hə",		u"putk’o"),
-     (u"məkə",		u"məkk’o"),
-     (u"čukə",		u"čukk’o"),
-     (u"ikə",		u"ikk’o"),
-     (u"tak’a",		u"takk’o"),
-     (u"k’ak’a", u"k’akk’o"),
-     (u"sək’ə",		u"səkk’o")]))
+    [(u"ipə",		u"ipko"),
+     (u"kupə",		u"kupko"),
+     (u"kap^ha",		u"kapko"),
+     (u"cip^hə",		u"cipko"),
+     (u"tata",		u"tatko"),
+     (u"put^hə",		u"putko"),
+     (u"məkə",		u"məkko"),
+     (u"čukə",		u"čukko"),
+     (u"ikə",		u"ikko"),
+     (u"taka",		u"takko"),
+     (u"kaka", u"kakko"),
+     (u"səkə",		u"səkko")]))
 
 underlyingProblems.append(Problem(
     '''

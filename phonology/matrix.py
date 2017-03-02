@@ -14,7 +14,7 @@ from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
 
 from multiprocessing import Pool
-from random import random
+from random import random,seed
 import sys
 import pickle
 import argparse
@@ -240,8 +240,21 @@ class UnderlyingProblem():
                 return self.sketchJointSolution(canAddNewRules = canAddNewRules)
             else:
                 return None
+
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0):
+        if testing > 0.0: # we are supposed to hold out some of the data
+            trainingData,testingData = randomTestSplit(self.data, testing)
+            slave = UnderlyingProblem(trainingData, self.depth)
+            prefixes, suffixes, solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize,0.0)
+            accuracy,compression = 0,0
+            for inflections in testingData:
+                a,c = self.inflectionAccuracy(prefixes, suffixes, solutions[0], inflections)
+                compression += c
+                accuracy += a
+            print "Average held out accuracy: ",accuracy/len(testingData)
+            print "Average held out compression:",compression/len(testingData)
+            return prefixes, suffixes, solutions
             
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2):
         # Start out with the shortest examples
         self.sortDataByLength()
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
@@ -278,18 +291,22 @@ class UnderlyingProblem():
                 for s in solutions:
                     UnderlyingProblem.showRules(s)
                     print " ==  ==  == "
-                accuracyCeiling = sum([ self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
-                                        for inflections in self.data ])/len(self.data)
-                print "Accuracy ceiling: ",accuracyCeiling
+                # accuracyCeiling = sum([ self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
+                #                         for inflections in self.data ])/len(self.data)
+                # print "Accuracy ceiling: ",accuracyCeiling
                     
                 return prefixes, suffixes, solutions                
             else:
                 trainingData.append(counterexample)
 
     def inflectionAccuracy(self, prefixes, suffixes, rules, inflections):
-        """inflections : list of APA strings"""
+        """inflections : list of APA strings. Returns (accuracy, descriptionLength)"""
         correctPredictions = 0
-        for testingIndex in range(len(inflections)):
+        encodingLength = sum([ len(Morph(i)) for i in inflections ])
+        
+        for testingIndex in range(len(inflections) + 1):
+            # if testingIndex  = len(inflections), don't hold anything out
+            # we do this to check description length
             trainingIndexes = [ j for j in range(len(inflections)) if j != testingIndex ]
             
             Model.Global()
@@ -309,25 +326,29 @@ class UnderlyingProblem():
             self.conditionOnStem(rules_, stem, prefixes_, suffixes_, surfaces)
 
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-            if not output:
-                solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, leavitt = True)
+            if not output or testingIndex == len(inflections):
                 prediction = None
             else:
                 prediction = Morph.parse(self.bank, output, prediction)
-            if prediction == Morph(inflections[testingIndex]):
-                correctPredictions += 1
-            else:
-                print "I saw these inflections:","\t".join([s for j,s in enumerate(inflections)
-                                                            if j != testingIndex])
-                print "I predicted ", prediction,"instead of", Morph(inflections[testingIndex])
-                pass
-        return correctPredictions/float(len(inflections))
+            if testingIndex < len(inflections): # testing ability to make new inflection
+                if prediction == Morph(tokenize(inflections[testingIndex])):
+                    correctPredictions += 1
+                else:
+                    print "I saw these inflections:","\t".join([s for j,s in enumerate(inflections)
+                                                                if j != testingIndex])
+                    print "I predicted ", prediction,"instead of", Morph(tokenize(inflections[testingIndex]))
+            else: # checking compression
+                if output:
+                    encodingLength = len(Morph.parse(self.bank, output, stem))
+        return correctPredictions/float(len(inflections)), encodingLength
 
             
 
 
 def handleProblem(parameters):
     (problemIndex,arguments) = parameters
+    seed(arguments.seed + problemIndex)
+        
     p = underlyingProblems[problemIndex - 1] if problemIndex < 50 else interactingProblems[problemIndex - 1 - 50]
     print p.description
     if problemIndex != 7:
@@ -341,9 +362,9 @@ def handleProblem(parameters):
     if problemIndex == 7:
         ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
     elif not arguments.counterexamples:
-        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold, 0)
+        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold, 0, testing = arguments.hold)
     elif arguments.counterexamples:
-        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold)
+        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold, 2, testing = arguments.hold)
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
     
@@ -358,8 +379,11 @@ if __name__ == '__main__':
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
-    
+    parser.add_argument('-s','--seed', default = 0, type = int)
+    parser.add_argument('-H','--hold', default = 0.0, type = float)
+
     arguments = parser.parse_args()
+    
     if arguments.problem == 'integration':
         problems = [1,
                     2,
