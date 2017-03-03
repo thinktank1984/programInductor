@@ -9,6 +9,7 @@ from sketchSyntax import Expression
 from sketch import *
 from supervised import solveTopSupervisedRules
 from latex import latexMatrix
+from UG import FlatUG, ChomskyUG, FeatureUG, SkeletonUG, SkeletonFeatureUG
 
 from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
@@ -30,7 +31,9 @@ def sampleMorphWithLength(l):
     return m
 
 class UnderlyingProblem():
-    def __init__(self, data, depth, bank = None):
+    def __init__(self, data, depth, bank = None, inductiveBias = None):
+        if inductiveBias == None:
+            self.inductiveBias = FlatUG()
         self.depth = depth
         self.data = data
         self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l  ])
@@ -127,11 +130,11 @@ class UnderlyingProblem():
                      for a in alternatives
                      for s in suffixes ]
 
-        return f(inputs, existingRules)
+        return sorted(f(inputs, existingRules), key = lambda rs: - self.inductiveBias.logLikelihood(rs))
         
 
     def solveTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules = None):
-        solutions = [] if existingRules == None else [existingRules]
+        solutions = [] if existingRules == None else [(prefixes, suffixes, existingRules)]
         
         for _ in range(k - (1 if existingRules else 0)):
             Model.Global()
@@ -153,8 +156,10 @@ class UnderlyingProblem():
             if not output:
                 print "Found %d rules."%len(solutions)
                 break
-            solutions.append([ Rule.parse(self.bank, output, r) for r in rules ])
-        return solutions
+            solutions.append(([ Morph.parse(self.bank, output, m) for m in suffixes_ ],
+                              [ Morph.parse(self.bank, output, m) for m in prefixes_ ],
+                              [ Rule.parse(self.bank, output, r) for r in rules ]))
+        return sorted(solutions, key = lambda rs: - self.inductiveBias.logLikelihood(rs[2]))
 
     def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
         print "Beginning verification"
@@ -245,15 +250,16 @@ class UnderlyingProblem():
         if testing > 0.0: # we are supposed to hold out some of the data
             trainingData,testingData = randomTestSplit(self.data, testing)
             slave = UnderlyingProblem(trainingData, self.depth)
-            prefixes, suffixes, solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize,0.0)
+            solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize,0.0)
+            prefixes, suffixes, rules = solutions[0]
             accuracy,compression = 0,0
             for inflections in testingData:
-                a,c = self.inflectionAccuracy(prefixes, suffixes, solutions[0], inflections)
+                a,c = self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
                 compression += c
                 accuracy += a
             print "Average held out accuracy: ",accuracy/len(testingData)
             print "Average held out compression:",compression/float(len(testingData))
-            return prefixes, suffixes, solutions
+            return solutions
             
         # Start out with the shortest examples
         self.sortDataByLength()
@@ -286,16 +292,14 @@ class UnderlyingProblem():
                     solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, rules)
                 else:
                     print "Using the optimized top rules."
-                    solutions = self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules)
+                    solutions = [ (prefixes, suffixes, rs)
+                                  for rs in self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules) ]
                     
-                for s in solutions:
+                for _,_,s in solutions:
                     UnderlyingProblem.showRules(s)
                     print " ==  ==  == "
-                # accuracyCeiling = sum([ self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
-                #                         for inflections in self.data ])/len(self.data)
-                # print "Accuracy ceiling: ",accuracyCeiling
                     
-                return prefixes, suffixes, solutions                
+                return solutions                
             else:
                 trainingData.append(counterexample)
 
@@ -364,10 +368,12 @@ def handleProblem(parameters):
     ss = None # solutions to save out to the pickled file
     if problemIndex == 7:
         ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
-    elif not arguments.counterexamples:
-        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold, 0, testing = arguments.hold)
-    elif arguments.counterexamples:
-        _,_,ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top, arguments.threshold, 2, testing = arguments.hold)
+    else:
+        ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top,
+                                                                 arguments.threshold,
+                                                                 2 if arguments.counterexamples else 0,
+                                                                 testing = arguments.hold)
+        ss = [rs for _,_,rs in ss ] # just save the rules
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
     
