@@ -371,20 +371,18 @@ def handleProblem(parameters):
     else:
         ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top,
                                                                  arguments.threshold,
-                                                                 2 if arguments.counterexamples else 0,
                                                                  testing = arguments.hold)
         ss = [rs for _,_,rs in ss ] # just save the rules
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
     
-    if ss != None:
+    if ss != None and arguments.top > 1 and arguments.hold == 0.0:
         pickle.dump(ss, open("pickles/matrix_"+str(problemIndex)+".p","wb"))
 
                 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
     parser.add_argument('problem')
-    parser.add_argument('-c','--counterexamples', action = 'store_true')
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
