@@ -202,6 +202,14 @@ class FeatureBank():
         p2v = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
         return [ "phoneme_%d" % p2v[t] for t in tokens ]
 
+    def defineFeaturesToSound(self):
+        d = "Sound features2sound(bit[NUMBEROFFEATURES] f){\n"
+        for j,p in enumerate(self.phonemes):
+            d += "if (f == {%s})" % (",".join(map(str,self.featureVectorMap[p])))
+            d += " return phoneme_%d;\n"%j
+        d += "assert 0;}\n"
+        return d        
+
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""
         h = ""
@@ -212,6 +220,7 @@ class FeatureBank():
         for featureName in FeatureBank.SPECIALFEATURES:
             h += "\n#define %sFEATURE %d\n" % (featureName.upper(), self.feature2index[featureName])
         h += "\n"
+        h += self.defineFeaturesToSound()
         return h
 
 if __name__ == 'main':

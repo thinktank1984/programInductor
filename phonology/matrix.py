@@ -9,13 +9,13 @@ from sketchSyntax import Expression
 from sketch import *
 from supervised import solveTopSupervisedRules
 from latex import latexMatrix
-from UG import FlatUG, ChomskyUG, FeatureUG, SkeletonUG, SkeletonFeatureUG
+from UG import str2ug #FlatUG, ChomskyUG, FeatureUG, SkeletonUG, SkeletonFeatureUG
 
 from problems import underlyingProblems,interactingProblems
 from countingProblems import CountingProblem
 
 from multiprocessing import Pool
-from random import random,seed
+import random
 import sys
 import pickle
 import argparse
@@ -32,8 +32,7 @@ def sampleMorphWithLength(l):
 
 class UnderlyingProblem():
     def __init__(self, data, depth, bank = None, inductiveBias = None):
-        if inductiveBias == None:
-            self.inductiveBias = FlatUG()
+        self.inductiveBias = str2ug['flat']() if inductiveBias == None else inductiveBias
         self.depth = depth
         self.data = data
         self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l  ])
@@ -75,7 +74,8 @@ class UnderlyingProblem():
         '''Conditions on inflection matrix. This also modifies the rules in place! Always call this after calculating the cost of the rules.'''
         for r in rules:
             if len(rules) > 1: # optimizing heuristic
-                condition(isDeletionRule(r) == 0)
+                #condition(isDeletionRule(r) == 0)
+                pass
             condition(fixStructuralChange(r))
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
@@ -249,17 +249,19 @@ class UnderlyingProblem():
     def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0):
         if testing > 0.0: # we are supposed to hold out some of the data
             trainingData,testingData = randomTestSplit(self.data, testing)
-            slave = UnderlyingProblem(trainingData, self.depth)
-            solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize,0.0)
+            slave = UnderlyingProblem(trainingData, self.depth, inductiveBias = self.inductiveBias)
+            solutions,_,_ = slave.counterexampleSolution(k,threshold,initialTrainingSize,0.0)
             prefixes, suffixes, rules = solutions[0]
             accuracy,compression = 0,0
             for inflections in testingData:
                 a,c = self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
                 compression += c
                 accuracy += a
-            print "Average held out accuracy: ",accuracy/len(testingData)
-            print "Average held out compression:",compression/float(len(testingData))
-            return solutions
+            accuracy = accuracy/len(testingData)
+            print "Average held out accuracy: ",accuracy
+            compression = compression/float(len(testingData))
+            print "Average held out compression:",compression
+            return solutions, accuracy, compression
             
         # Start out with the shortest examples
         self.sortDataByLength()
@@ -295,11 +297,7 @@ class UnderlyingProblem():
                     solutions = [ (prefixes, suffixes, rs)
                                   for rs in self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules) ]
                     
-                for _,_,s in solutions:
-                    UnderlyingProblem.showRules(s)
-                    print " ==  ==  == "
-                    
-                return solutions                
+                return solutions, None, None
             else:
                 trainingData.append(counterexample)
 
@@ -353,8 +351,9 @@ class UnderlyingProblem():
 
 
 def handleProblem(parameters):
-    (problemIndex,arguments) = parameters
-    seed(arguments.seed + problemIndex)
+    problemIndex = parameters['problemIndex']
+    random.seed(parameters['seed'] + problemIndex)
+    ug = str2ug[parameters['universalGrammar']]()
         
     p = underlyingProblems[problemIndex - 1] if problemIndex < 50 else interactingProblems[problemIndex - 1 - 50]
     print p.description
@@ -366,19 +365,30 @@ def handleProblem(parameters):
     startTime = time()
 
     ss = None # solutions to save out to the pickled file
+    accuracy, compression = None, None
     if problemIndex == 7:
-        ss = CountingProblem(p.data, p.parameters).topSolutions(arguments.top)
+        ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
     else:
-        ss = UnderlyingProblem(p.data, 1).counterexampleSolution(arguments.top,
-                                                                 arguments.threshold,
-                                                                 testing = arguments.hold)
+        up = UnderlyingProblem(p.data, 1, inductiveBias = ug)
+        ss, accuracy, compression = up.counterexampleSolution(parameters['top'],
+                                                              parameters['threshold'],
+                                                              testing = parameters['testing'])
         ss = [rs for _,_,rs in ss ] # just save the rules
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
     
-    if ss != None and arguments.top > 1 and arguments.hold == 0.0:
+    if ss != None and parameters['top'] > 1 and parameters['testing'] == 0.0:
         pickle.dump(ss, open("pickles/matrix_"+str(problemIndex)+".p","wb"))
-
+    if accuracy != None and compression != None:
+        parameters['accuracy'] = accuracy
+        parameters['compression'] = compression
+        name = "%d_%s_%f_%d_%d"%(parameters['problemIndex'],
+                                 parameters['universalGrammar'],
+                                 parameters['testing'],
+                                 parameters['top'],
+                                 parameters['seed'])
+        pickle.dump(parameters, open("testingAccuracy/%s.p"%name,"wb"))
+        
                 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
@@ -386,8 +396,9 @@ if __name__ == '__main__':
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
-    parser.add_argument('-s','--seed', default = 0, type = int)
-    parser.add_argument('-H','--hold', default = 0.0, type = float)
+    parser.add_argument('-s','--seed', default = '0', type = str)
+    parser.add_argument('-H','--hold', default = '0.0', type = str)
+    parser.add_argument('-u','--universal', default = 'flat',type = str)
 
     arguments = parser.parse_args()
     
@@ -403,15 +414,26 @@ if __name__ == '__main__':
                     9,
                     # Chapter five problems
                     51,
-                    52]
+                    52,
+                    53]
     else:
         problemIndex = int(arguments.problem)
         problems = [problemIndex]
+
+    parameters = [{'problemIndex': problemIndex,
+                   'seed': seed,
+                   'testing': testing,
+                   'universalGrammar': u,
+                   'top': arguments.top,
+                   'threshold': arguments.threshold}
+                  for problemIndex in problems
+                  for u in arguments.universal.split(',')
+                  for seed in map(int,arguments.seed.split(','))
+                  for testing in map(float,arguments.hold.split(',')) ]
+    print parameters
     
-    # pack up the arguments and then invoke all of them in parallel
-    problemInfo = [ (problemIndex,arguments) for problemIndex in problems ]
     if arguments.cores > 1:
-        Pool(arguments.cores).map(handleProblem, problemInfo)
+        Pool(arguments.cores).map(handleProblem, parameters)
     else:
-        map(handleProblem, problemInfo)
+        map(handleProblem, parameters)
         

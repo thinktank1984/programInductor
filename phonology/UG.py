@@ -15,6 +15,8 @@ import pickle
 import os
 from random import random
 
+
+
 class UG():
     def logLikelihood(self, rules):
         return sum([self.ruleLogLikelihood(r) for r in rules ])
@@ -157,7 +159,8 @@ class ChineseUG():
         return math.log(self.matrixFrequencies[str(matrix)])
 
     
-
+str2ug = {'flat': FlatUG,
+          'Chomsky': ChomskyUG}
     
     
 
@@ -191,6 +194,8 @@ def loadAllSolutions():
     allSolutions = map(loadRules, PICKLES)
     print "Loaded all solutions in %d seconds"%(int(time() - startTime))
     return allSolutions, PICKLES
+
+
 
 if __name__ == '__main__':
     allSolutions,_ = loadAllSolutions()

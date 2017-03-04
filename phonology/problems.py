@@ -1030,7 +1030,7 @@ it also looks like coronal is deleted in certain contexts.
 	(u"ri:s",	u"ri:nos",	u"ri:ni",	u"ri:si"),#	‘nose’
 	(u"delp^hi:s",	u"delp^hi:nos",	u"delp^hi:ni",	u"delp^hi:si")]))#	‘porpoise’
 
-'''
+interactingProblems.append('''
 Problem(
 4: Shona
 	Acute accent indicates H tone and unaccented vowels have L tone. Given the two sets of data immediately below, what tone rule do the following data motivate? There are alternations in the form of adjectives, e.g. kurefú, karefú, marefú all meaning “long”. Adjectives have an agreement prefix, hence ku-refú marks the form of the adjective in one grammatical class, and so on. In some cases, the agreement is realized purely as a change in the initial consonant of the adjective, i.e. gúrú ~ kúrú ~ húrú which need not be explained.
@@ -1101,14 +1101,26 @@ These data provide further illustration of the operation of this tone rule, whic
 	kahúní	‘firewood (dim.)’	kahúní kárefú	‘long firewood’
 	mačírá	‘clothes’	mačírá márefú	‘long clothes’
 	hárí	‘pot’	hárí nhéte	‘thin pot’
-'''
+''')
 
-Problem(
+interactingProblems.append(Problem(
 '''5: Catalan
 
 Give phonological rules which account for the following data, and indicate what ordering is necessary between these rules. For each adjective stem, state what the underlying form of the root is. Pay attention to the difference between surface [b,d,g] and [β,ð,ɣ], in terms of predictability.
+feminine suffix: ə
+word final devoicing
+word finally:
+ð > d > t
+β > b > p
+ɣ > g > k
+
+word final deletions:
+{r,t,n,ð,d} > 0 / _# (this is wrong)
+
+try throwing this at the system and letting it use as many deletion rules as it needs
+
 ''',		
-#	masc	fem		masc	fem	
+#ma	masc	fem		masc	fem	
 #	sing.	sing.		sing.	sing.
     [
 	(u"əkely",	u"əkelyə"),#	‘that’
@@ -1166,9 +1178,9 @@ Give phonological rules which account for the following data, and indicate what 
 	(u"dəsen",	u"dəsentə"),#	‘decent’
 	(u"dulen",	u"dulentə"),#	‘bad’
 	(u"əstuðian",	u"əstuðiantə"),#	‘student’
-	(u"blaŋ",	u"blaŋkə")])#	‘white’
+	(u"blaŋ",	u"blaŋkə")]))#	‘white’
 
-Problem(
+interactingProblems.append(Problem(
     '''6: Finnish
 Propose rules which will account for the following alternations. It would be best not to write a lot of rules which go directly from underlying forms to surface forms in one step; instead, propose a sequence of rules whose combined effect brings about the change in the underlying form. Pay attention to what consonants actually exist in the language.
     ''',
@@ -1230,9 +1242,9 @@ Propose rules which will account for the following alternations. It would be bes
 	(u"sillan",	u"silta",	u"sillat",	u"sillalta",	u"siltana"),#	bridge
 	(u"kullan",	u"kulta",	u"kullat ",	u"kullalta ",	u"kultana "),#	gold
 	(u"virran",	u"virta",	u"virrat",	u"virralta",	u"virtana"),#	stream
-	(u"parran",	u"parta",	u"parrat",	u"parralta",	u"partana")])#	beard
+	(u"parran",	u"parta",	u"parrat",	u"parralta",	u"partana")]))#	beard
 
-Problem(
+interactingProblems.append(Problem(
     '''7: Korean
 Provide rules which will account for the alternations in the stem final consonant in the following examples. State what underlying representation you are assuming for each noun.
     ''',
@@ -1250,6 +1262,6 @@ Provide rules which will account for the alternations in the stem final consonan
 	(u"papɨn",	u"sup^hɨn",	u"pamɨn", u"pathɨn",	u"nasɨn",	u"načɨn", u"nač^hɨn",	u"panɨn"),#	N (topic)
 	(u"pape",	u"sup^he",	u"pame", u"pathe",	u"nase",	u"nače", u"nač^he",	u"pane"),#	to N
 	(u"papita",	u"sup^hita",	u"pamita", u"pač^hita",	u"nasita",	u"načita", u"nač^hita",	u"panita"),#	it is N
-	(u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")])#	using N
+	(u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")]))#	using N
 
 
