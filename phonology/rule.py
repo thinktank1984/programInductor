@@ -393,7 +393,7 @@ class Rule():
         elif isinstance(self.focus, EmptySpecification):
             output = []
             for j in range(len(u)):
-                if j > 0 and left_okay[j] and right_okay[j - 1]:
+                if j > 0 and leftOkay[j] and rightOkay[j - 1]:
                     output.append(change.apply(None))
                 output.append(u[j])
             return output
