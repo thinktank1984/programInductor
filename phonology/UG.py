@@ -198,7 +198,12 @@ def loadAllSolutions():
 
 
 if __name__ == '__main__':
-    allSolutions,_ = loadAllSolutions()
+    allSolutions,solutionNames = loadAllSolutions()
+    for j,solution in enumerate(allSolutions):
+        print solutionNames[j],
+        solution = max(solution, key = lambda r: FlatUG().logLikelihood(r))
+        print [FlatUG().logLikelihood([r]) for r in solution ]
+        print [str(r) for r in solution ]
     for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
         g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
         print g

@@ -142,7 +142,7 @@ class UnderlyingProblem():
             rules = [ Rule.sample() for _ in range(self.depth) ]
             for other in solutions:
                 condition(And([ ruleEqual(r, o.makeConstant(self.bank))
-                                for r, o in zip(rules, other) ]) == 0)
+                                for r, o in zip(rules, other[2]) ]) == 0)
 
             minimize(sum([ ruleCost(r) for r in rules ]))
 

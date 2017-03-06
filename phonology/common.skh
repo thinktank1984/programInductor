@@ -1,5 +1,10 @@
-
-#define MAXIMUMCOST 20
+// alternations basically already have their specifications given
+// so it should be okay that they are a little bit bigger
+#ifndef ALTERNATIONPROBLEM
+#define MAXIMUMCOST 11
+#else
+#define MAXIMUMCOST 14
+#endif
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
 #define True 1
