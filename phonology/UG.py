@@ -158,9 +158,17 @@ class ChineseUG():
     def featureMatrixLogLikelihood(self, matrix):
         return math.log(self.matrixFrequencies[str(matrix)])
 
-    
-str2ug = {'flat': FlatUG,
-          'Chomsky': ChomskyUG}
+savedSkeletonFeature = None    
+def str2ug(n):
+    global savedSkeletonFeature
+    if n == 'flat': return FlatUG()
+    if n == 'Chomsky': return ChomskyUG()
+    if n == 'learned':
+        if savedSkeletonFeature == None:
+            allSolutions,solutionNames = loadAllSolutions()
+            savedSkeletonFeature = estimateUG(allSolutions, SkeletonFeatureUG, temperature = 1.0, iterations = 2, jitter = 0.5)
+        return savedSkeletonFeature
+    assert False
     
     
 
