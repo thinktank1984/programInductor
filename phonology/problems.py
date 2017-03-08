@@ -885,11 +885,16 @@ underlyingProblems.append(Problem(
         (u"olo", u"oloia"),
         (u"lafo",u"lafoia"),
         (u"usu",u"usuia"),
+        (u"tau",u"tauia"),
         (u"taui",u"tauia"),
-        (u"naumati",u"naumatia"),
         (u"lele",u"lelea"),
         (u"tafe",u"tafea"),
-        (u"palepale",u"palepalea")
+        
+        # examples with final consonant cluster deletion
+        (u"tau",u"taulia"),
+        (u"oso",u"osofia"),
+        (u"valu",u"valusia"),
+        (u"u:",u"u:tia")
     ]))
 
 underlyingProblems.append(Problem(
