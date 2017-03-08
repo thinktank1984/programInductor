@@ -5,7 +5,7 @@ from latex import latexWord
 from rule import *
 from morph import Morph
 from sketch import *
-
+from utilities import *
 
 class CountingProblem():
     def __init__(self, data, count):
@@ -27,7 +27,19 @@ class CountingProblem():
             else:
                 assert False
         r += "\n\\end{tabular}\n"
-        return r                
+        return r
+
+    # def heldOutSolution(self, k, testing, inductiveBiases):
+    #     if testing == 0.0:
+    #         return self.topSolutions(k),None,None
+
+    #     training,testing = randomTestSplit(list(range(len(self.data))), testing)
+    #     slave = CountingProblem([ d for j,d in enumerate(self.data) if j in training ],
+    #                             [ d for j,d in enumerate(self.count) if j in training ])
+    #     solution = slave.topSolutions(k)
+
+        
+        
 
     def topSolutions(self, k = 10):
         solutions = []

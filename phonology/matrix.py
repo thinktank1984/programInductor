@@ -31,8 +31,7 @@ def sampleMorphWithLength(l):
     return m
 
 class UnderlyingProblem():
-    def __init__(self, data, depth, bank = None, inductiveBias = None):
-        self.inductiveBias = str2ug['flat']() if inductiveBias == None else inductiveBias
+    def __init__(self, data, depth, bank = None):
         self.depth = depth
         self.data = data
         self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l  ])
@@ -130,7 +129,7 @@ class UnderlyingProblem():
                      for a in alternatives
                      for s in suffixes ]
 
-        return sorted(f(inputs, existingRules), key = lambda rs: - self.inductiveBias.logLikelihood(rs))
+        return f(inputs, existingRules) #, key = lambda rs: - self.inductiveBias.logLikelihood(rs))
         
 
     def solveTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules = None):
@@ -159,7 +158,7 @@ class UnderlyingProblem():
             solutions.append(([ Morph.parse(self.bank, output, m) for m in suffixes_ ],
                               [ Morph.parse(self.bank, output, m) for m in prefixes_ ],
                               [ Rule.parse(self.bank, output, r) for r in rules ]))
-        return sorted(solutions, key = lambda rs: - self.inductiveBias.logLikelihood(rs[2]))
+        return solutions
 
     def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
         print "Beginning verification"
@@ -246,23 +245,34 @@ class UnderlyingProblem():
             else:
                 return None
 
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0):
-        if testing > 0.0: # we are supposed to hold out some of the data
-            trainingData,testingData = randomTestSplit(self.data, testing)
-            slave = UnderlyingProblem(trainingData, self.depth, inductiveBias = self.inductiveBias)
-            solutions,_,_ = slave.counterexampleSolution(k,threshold,initialTrainingSize,0.0)
-            prefixes, suffixes, rules = solutions[0]
-            accuracy,compression = 0,0
-            for inflections in testingData:
-                a,c = self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
-                compression += c
-                accuracy += a
-            accuracy = accuracy/len(testingData)
+    def heldOutSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0, inductiveBiases = []):
+        if testing == 0.0:
+            return self.counterexampleSolution(k, threshold, initialTrainingSize),None,None
+
+        trainingData,testingData = randomTestSplit(self.data, testing)
+        slave = UnderlyingProblem(trainingData, self.depth)
+        solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize)
+
+        accuracies, compressions = {}, {}
+        for bias in inductiveBiases:
+            ug = str2ug(bias)
+            prefixes, suffixes, rules = max(solutions, key = lambda z: ug.logLikelihood(z[2]))
+            accuracy,compression = self.accuracyAndCompression(prefixes, suffixes, rules, testingData)
             print "Average held out accuracy: ",accuracy
-            compression = compression/float(len(testingData))
             print "Average held out compression:",compression
-            return solutions, accuracy, compression
-            
+            accuracies[bias] = accuracy
+            compressions[bias] = compression
+        return solutions, accuracies, compressions
+
+    def accuracyAndCompression(self, prefixes, suffixes, rules, testingData):
+        accuracy,compression = 0,0
+        for inflections in testingData:
+            a,c = self.inflectionAccuracy(prefixes, suffixes, rules, inflections)
+            compression += c
+            accuracy += a
+        return accuracy/len(testingData), compression/float(len(testingData))
+
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2):
         # Start out with the shortest examples
         self.sortDataByLength()
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
@@ -297,7 +307,7 @@ class UnderlyingProblem():
                     solutions = [ (prefixes, suffixes, rs)
                                   for rs in self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules) ]
                     
-                return solutions, None, None
+                return solutions
             else:
                 trainingData.append(counterexample)
 
@@ -353,7 +363,6 @@ class UnderlyingProblem():
 def handleProblem(parameters):
     problemIndex = parameters['problemIndex']
     random.seed(parameters['seed'] + problemIndex)
-    ug = str2ug[parameters['universalGrammar']]()
         
     p = underlyingProblems[problemIndex - 1] if problemIndex < 50 else interactingProblems[problemIndex - 1 - 50]
     print p.description
@@ -369,10 +378,11 @@ def handleProblem(parameters):
     if problemIndex == 7:
         ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
     else:
-        up = UnderlyingProblem(p.data, 1, inductiveBias = ug)
-        ss, accuracy, compression = up.counterexampleSolution(parameters['top'],
-                                                              parameters['threshold'],
-                                                              testing = parameters['testing'])
+        up = UnderlyingProblem(p.data, 1)
+        ss, accuracy, compression = up.heldOutSolution(parameters['top'],
+                                                       parameters['threshold'],
+                                                       testing = parameters['testing'],
+                                                       inductiveBiases = parameters['universalGrammar'])
         ss = [rs for _,_,rs in ss ] # just save the rules
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
@@ -382,8 +392,9 @@ def handleProblem(parameters):
     if accuracy != None and compression != None:
         parameters['accuracy'] = accuracy
         parameters['compression'] = compression
+        print parameters
         name = "%d_%s_%f_%d_%d"%(parameters['problemIndex'],
-                                 parameters['universalGrammar'],
+                                 "_".join(sorted(parameters['universalGrammar'])),
                                  parameters['testing'],
                                  parameters['top'],
                                  parameters['seed'])
@@ -411,23 +422,24 @@ if __name__ == '__main__':
                     6,
                     7,
                     8,
-                    9,
+                    #9, having problems
+                    10,
+                    11,
+                    12,
                     # Chapter five problems
                     51,
                     52,
                     53]
     else:
-        problemIndex = int(arguments.problem)
-        problems = [problemIndex]
+        problems = map(int,arguments.problem.split(','))
 
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,
                    'testing': testing,
-                   'universalGrammar': u,
+                   'universalGrammar': arguments.universal.split(','),
                    'top': arguments.top,
                    'threshold': arguments.threshold}
                   for problemIndex in problems
-                  for u in arguments.universal.split(',')
                   for seed in map(int,arguments.seed.split(','))
                   for testing in map(float,arguments.hold.split(',')) ]
     print parameters
