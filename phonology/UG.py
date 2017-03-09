@@ -96,6 +96,8 @@ class FeatureUG(UG):
         return FeatureUG(counts)
         
     def featureLogLikelihood(self, _, f):
+        if not f in self.likelihoods:
+            f = min([(self.likelihoods[g],g) for g in self.likelihoods])[1]
         return math.log(self.likelihoods[f])/math.log(len(self.likelihoods))
 
 class SkeletonUG(UG):
@@ -127,7 +129,10 @@ class SkeletonUG(UG):
         return SkeletonUG(counts)
         
     def ruleLogLikelihood(self, r):
-        return math.log(self.likelihoods[r.skeleton()])
+        s = r.skeleton()
+        if not s in self.likelihoods:
+            s = min([(self.likelihoods[g],g) for g in self.likelihoods ])[1]
+        return math.log(self.likelihoods[s])
 
 class SkeletonFeatureUG(UG):
     def __init__(self, skeletonFrequencies, featureFrequencies):

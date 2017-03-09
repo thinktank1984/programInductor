@@ -889,8 +889,6 @@ underlyingProblems.append(Problem(
         (u"taui",u"tauia"),
         (u"lele",u"lelea"),
         (u"tafe",u"tafea"),
-        
-        # examples with final consonant cluster deletion
         (u"tau",u"taulia"),
         (u"oso",u"osofia"),
         (u"valu",u"valusia"),
