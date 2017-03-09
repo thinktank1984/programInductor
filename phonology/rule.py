@@ -67,7 +67,7 @@ class ConstantPhoneme(Specification):
         return "new ConstantPhoneme(phoneme = phoneme_%d)" % bank.phoneme2index[self.p]
 
     def matches(self, test):
-        return featureMap[self.p] == test
+        return set(featureMap[self.p]) == set(test)
     def apply(self, test):
         return featureMap[self.p]
 
@@ -329,6 +329,7 @@ class Rule():
         # First off we convert u to feature matrices if it is a morph
         if isinstance(u,Morph):
             u = [ featureMap[p] for p in u.phonemes ]
+        print "APPLY:",u
             
         middleOkay = [ self.focus.matches(p) for p in u ]
 
@@ -392,6 +393,8 @@ class Rule():
             return [ u[j] for j in range(len(u)) if not triggered[j] ]
         elif isinstance(self.focus, EmptySpecification):
             output = []
+            if self.rightTriggers.endOfString and self.rightTriggers.specifications == []: # l_#
+                pass
             for j in range(len(u)):
                 if j > 0 and leftOkay[j] and rightOkay[j - 1]:
                     output.append(change.apply(None))

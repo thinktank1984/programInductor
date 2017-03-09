@@ -42,6 +42,15 @@ class UnderlyingProblem():
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
+    def applyRule(self, r, u):
+        if True:# use the Python implementation of rules
+            return Morph.fromMatrix(r.apply(u))
+        else:
+            Model.Global()
+            result = Morph.sample()
+            condition(wordEqual(result,applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))))
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            return Morph.parse(self.bank, output, result)
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
@@ -100,13 +109,13 @@ class UnderlyingProblem():
             for i in range(self.numberOfInflections):
                 u = prefixes[i] + us[j] + suffixes[i]
                 for r in rules:
-                    # print u,"\n\t > ",r
-                    u = r.apply(u)
+                    #print "Applying",r,"to",u,"gives",r.apply(u),"aka",Morph.fromMatrix(r.apply(u))
+                    u = self.applyRule(r,u) #r.apply(u)
                 # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
-                if Morph(tokenize(self.data[j][i])) != Morph.fromMatrix(u):
-                    print Morph(tokenize(self.data[j][i])), "versus", Morph.fromMatrix(u)
-                    print Morph(tokenize(self.data[j][i])).phonemes, "versus", Morph.fromMatrix(u).phonemes
-                    print Morph(tokenize(self.data[j][i])) == Morph.fromMatrix(u)
+                if Morph(tokenize(self.data[j][i])) != u:
+                    print "underlying:",prefixes[i] + us[j] + suffixes[i]
+                    print Morph(tokenize(self.data[j][i])), "versus", u
+                    print Morph(tokenize(self.data[j][i])).phonemes, "versus", u.phonemes
                     assert False
                 # print "\n"
             # print "\n\n"
