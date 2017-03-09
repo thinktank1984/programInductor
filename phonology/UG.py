@@ -166,7 +166,7 @@ def str2ug(n):
     if n == 'learned':
         if savedSkeletonFeature == None:
             allSolutions,solutionNames = loadAllSolutions()
-            savedSkeletonFeature = estimateUG(allSolutions, SkeletonFeatureUG, temperature = 1.0, iterations = 2, jitter = 0.5)
+            savedSkeletonFeature = estimateUG(allSolutions, SkeletonFeatureUG, temperature = 2.0, iterations = 2, jitter = 0.5)
         return savedSkeletonFeature
     assert False
     
@@ -215,4 +215,4 @@ if __name__ == '__main__':
     for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
         g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
         print g
-        g.plot()
+#        g.plot()
