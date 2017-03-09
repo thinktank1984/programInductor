@@ -329,7 +329,6 @@ class Rule():
         # First off we convert u to feature matrices if it is a morph
         if isinstance(u,Morph):
             u = [ featureMap[p] for p in u.phonemes ]
-        print "APPLY:",u
             
         middleOkay = [ self.focus.matches(p) for p in u ]
 
