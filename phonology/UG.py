@@ -148,7 +148,7 @@ class SkeletonFeatureUG(UG):
     def ruleLogLikelihood(self,r):
         fs = [ self.features.featureLogLikelihood(None, f)
                for f in re.findall('[\-\+]([a-zA-Z]+)',str(r)) ]
-        return math.log(self.skeletons.likelihoods[r.skeleton()]) + sum(fs)
+        return self.skeletons.ruleLogLikelihood(r) + sum(fs)
 
     @staticmethod
     def fromPosterior(weightedSolutions):
