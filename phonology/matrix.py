@@ -49,7 +49,9 @@ class UnderlyingProblem():
             Model.Global()
             result = Morph.sample()
             condition(wordEqual(result,applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))))
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            # IMPORTANT!
+            # if the result is a more than we need to make sure that morphs can be big
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
             return Morph.parse(self.bank, output, result)
 
     def sortDataByLength(self):
