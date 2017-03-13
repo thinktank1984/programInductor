@@ -288,11 +288,14 @@ class UnderlyingProblem():
 
         accuracies, compressions = {}, {}
         for bias in inductiveBiases:
+            print "Considering bias",bias
             ug = str2ug(bias)
             prefixes, suffixes, rules = max(solutions, key = lambda z: ug.logLikelihood(z[2]))
             accuracy,compression = self.accuracyAndCompression(prefixes, suffixes, rules, testingData)
             print "Average held out accuracy: ",accuracy
             print "Average held out compression:",compression
+            print "As a test, trying to calculate on the original training data also:"
+            print self.accuracyAndCompression(prefixes, suffixes, rules, trainingData)
             accuracies[bias] = accuracy
             compressions[bias] = compression
         return solutions, accuracies, compressions
@@ -373,7 +376,10 @@ class UnderlyingProblem():
             
             self.conditionOnStem(rules_, stem, prefixes_, suffixes_, surfaces)
 
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            # IMPORTANT!
+            # Because we are modeling the prediction as a morph,
+            # the maximum morph length most also be the maximum observation length
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
             if not output or testingIndex == len(inflections):
                 prediction = None
             else:
