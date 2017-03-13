@@ -3,7 +3,7 @@
 from utilities import *
 
 from features import FeatureBank, tokenize
-from rule import Rule
+from rule import Rule,Guard,FeatureMatrix
 from morph import Morph
 from sketchSyntax import Expression
 from sketch import *
@@ -224,6 +224,7 @@ class UnderlyingProblem():
             affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
                               (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
                               for j in range(self.numberOfInflections) ])
+
             # We subtract a constant from the stems size in order to offset the cost
             # Should have no effect upon the final solution that we find,
             # but it lets sketch get away with having to deal with smaller numbers
@@ -231,8 +232,31 @@ class UnderlyingProblem():
                              (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
                               else len(self.inflectionMatrix[j][0]) - 3)
                              for j,m in enumerate(stems) ])
+            
             ruleSize = sum([ruleCost(r) for r in rules ])
             minimize(ruleSize + stemSize + affixSize)
+            if False: # testing for fifty one
+                #[  ] ---> [ -highTone ] / [ +highTone ] [  ] _ 
+                #[  ] ---> [ +highTone ] / [ +highTone ] [  ] _ [  ]
+                r1 = Rule(FeatureMatrix([]), FeatureMatrix([(False,"highTone")]),
+                          Guard('L',False,False,[FeatureMatrix([(True,"highTone")]),
+                                                 FeatureMatrix([])]),
+                          Guard('R',False,False,[]),
+                          0)
+                r2 = Rule(FeatureMatrix([]), FeatureMatrix([(True,"highTone")]),
+                          Guard('L',False,False,[FeatureMatrix([(True,"highTone")]),
+                                                 FeatureMatrix([])]),
+                          Guard('R',False,False,[FeatureMatrix([])]),
+                          0)
+                print "I would like to see these rules:"
+                print r1
+                print r2
+                condition(ruleEqual(rules[0],
+                                    r1.makeConstant(self.bank)))
+                if len(rules) > 1:
+                    condition(ruleEqual(rules[1],
+                                    r2.makeConstant(self.bank)))
+                
 
             self.conditionOnData(rules, stems, prefixes, suffixes)
 
@@ -259,7 +283,7 @@ class UnderlyingProblem():
             return self.counterexampleSolution(k, threshold, initialTrainingSize),None,None
 
         trainingData,testingData = randomTestSplit(self.data, testing)
-        slave = UnderlyingProblem(trainingData, self.depth)
+        slave = UnderlyingProblem(trainingData, self.depth, bank = self.bank)
         solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize)
 
         accuracies, compressions = {}, {}

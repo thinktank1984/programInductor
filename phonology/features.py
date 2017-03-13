@@ -212,6 +212,12 @@ class FeatureBank():
 
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""
+        for p in self.featureVectorMap:
+            for q in self.featureVectorMap:
+                if p == q: continue
+                if self.featureVectorMap[p] == self.featureVectorMap[q]:
+                    print "MORNING",p,q
+        
         h = ""
         for j in range(len(self.phonemes)):
             features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))

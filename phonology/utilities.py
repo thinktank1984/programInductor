@@ -28,6 +28,7 @@ def randomTestSplit(data,ratio):
     """ratio: what fraction is testing data. returns training,test"""
     testingSize = min(len(data) - 1, int(round(len(data)*ratio)))
     trainingSize = len(data) - testingSize
-    data = list(data)
-    random.shuffle(data)
-    return data[:trainingSize], data[trainingSize:]
+    shuffledData = list(data)
+    random.shuffle(shuffledData)
+    training, test = shuffledData[:trainingSize], shuffledData[trainingSize:]
+    return [ x for x in data if x in training ], [ x for x in data if x in test ]
