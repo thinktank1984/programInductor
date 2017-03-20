@@ -5,7 +5,7 @@
 from problems import underlyingProblems, interactingProblems, alternationProblems
 from rule import *
 from utilities import *
-
+from fragmentGrammar import *
 from time import time
 import re
 import math
@@ -212,12 +212,31 @@ def loadAllSolutions():
 
 if __name__ == '__main__':
     allSolutions,solutionNames = loadAllSolutions()
+    Chomsky = ChomskyUG()
+    solutionsToFragment = []
     for j,solution in enumerate(allSolutions):
-        print solutionNames[j],
-        solution = max(solution, key = lambda r: FlatUG().logLikelihood(r))
-        print [FlatUG().logLikelihood([r]) for r in solution ]
-        print [str(r) for r in solution ]
-    for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
-        g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
-        print g
-#        g.plot()
+        if "alternation" in solutionNames[j]:
+            continue
+        # for testing only used to button and Samoan
+        if not ("7" in solutionNames[j] or "10" in solutionNames[j]):
+            continue
+        # if not ("52" in solutionNames[j] or "11" in solutionNames[j]):
+        #     continue
+        
+        # take only the top K solutions
+        K = 100
+        if len(solution) > K:
+            solutions = sorted(solution, key = lambda s: Chomsky.logLikelihood(s))[:K]
+        # sort the solutions
+        print solutionNames[j],len(solution),solution[0],solution[0][0]
+        solutionsToFragment.append(solution)
+    induceGrammar(solutionsToFragment)
+        
+    
+#         solution = max(solution, key = lambda r: FlatUG().logLikelihood(r))
+#         print [FlatUG().logLikelihood([r]) for r in solution ]
+#         print [str(r) for r in solution ]
+#     for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
+#         g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
+#         print g
+# #        g.plot()
