@@ -14,7 +14,7 @@ import matplotlib.pyplot as plot
 import pickle
 import os
 from random import random
-
+import cProfile
 
 
 class UG():
@@ -217,8 +217,14 @@ if __name__ == '__main__':
     for j,solution in enumerate(allSolutions):
         if "alternation" in solutionNames[j]:
             continue
-        # for testing only used to button and Samoan
-        if not ("7" in solutionNames[j] or "10" in solutionNames[j]):
+        # for testing only use a few problems
+        testingProblems = [
+            '7',
+            '10',
+            # '52',
+            # '11'
+        ]
+        if not any([ p in solutionNames[j] for p in testingProblems ]):
             continue
         # if not ("52" in solutionNames[j] or "11" in solutionNames[j]):
         #     continue

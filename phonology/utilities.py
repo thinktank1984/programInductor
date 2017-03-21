@@ -10,7 +10,12 @@ def mergeCounts(m,n):
     for f in set(m.keys() + n.keys()):
         c[f] = m.get(f,0.0) + n.get(f,0.0)
     return c
+def isFinite(x):
+    return not (math.isnan(x) or math.isinf(x))
 def lse(x,y):
+    if not isFinite(x): return y
+    if not isFinite(y): return x
+    
     if x > y:
         return x + math.log(1 + math.exp(y - x))
     else:
