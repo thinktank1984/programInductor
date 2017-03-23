@@ -5,6 +5,7 @@ from time import time
 from math import log
 from utilities import *
 import cProfile
+from multiprocessing import Pool
 
 class MatchFailure(Exception):
     pass
@@ -189,6 +190,9 @@ def proposeFragments(problems, verbose = False):
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             fragments[pt] = fragments[pt] | set([ f for f in abstractFragments[pt](pf,qf) if str(f) != pt ])
 
+    # The following is an invalid fragment, because it can be equivalently expressed as the union of two other fragments
+    fragments['GUARD'] = set([ f for f in fragments['GUARD'] if f.name != u'(#?)' ])
+    
     totalNumberOfFragments = sum([len(v) for v in fragments.values() ])
     print "Discovered %d unique fragments in %f seconds"%(totalNumberOfFragments,time() - startTime)
     if verbose:
@@ -200,29 +204,30 @@ def proposeFragments(problems, verbose = False):
 
     return [ (t, f) for t in fragments for f in fragments[t]  ]
 
+def posteriorWithFragmentAdded(parameters):
+    (problems, fragments, newFragment) = parameters
+    newGrammar = FragmentGrammar(fragments + [newFragment])
+    l = sum([ max([ sum([ newGrammar.ruleLogLikelihood(r) for r in s ]) for s in problem ])
+              for problem in problems ])
+    posterior = l + newFragment[1].logPrior
+    f = newFragment
+    print "Considering %s %s\n\t%f + %f = %f"%(f[0],f[1],l,f[1].logPrior,posterior)
+    return posterior
+    
+
 def induceGrammar(problems, maximumGrammarSize = 2):
     fragments = proposeFragments(problems)
-
-    def problemLikelihood(problem, grammar):
-        return max([ sum([ grammar.ruleLogLikelihood(r) for r in s ]) for s in problem ])
-    def grammarLikelihood(grammar):
-        return sum([ problemLikelihood(p, grammar) for p in problems ])
-
-    print "Empty grammar likelihood:",grammarLikelihood(FragmentGrammar())
 
     chosenFragments = []
     
     while len(chosenFragments) < maximumGrammarSize:
         bestFragment = None
         bestPosterior = float('-inf')
-        for f in [ x for x in fragments if not x in chosenFragments]:
-            l = grammarLikelihood(FragmentGrammar(chosenFragments + [f]))
-            posterior = l+f[1].logPrior
-            print "Considering %s %s\n\t%f + %f = %f"%(f[0],f[1],l,f[1].logPrior,posterior)
-            if posterior > bestPosterior:
-                bestPosterior = posterior
-                bestFragment = f
+        parameters = [ (problems, chosenFragments, x) for x in fragments if not x in chosenFragments]
+        posteriors = map(posteriorWithFragmentAdded, parameters) #Pool(2).c
+        (bestPosterior, (_p,_c,bestFragment)) = max(zip(posteriors, parameters))
         print "Best fragment:\n",bestFragment[0],bestFragment[1]
+        print "Best posterior:",bestPosterior
         chosenFragments.append(bestFragment)
     print "Final grammar:"
     for t,f in chosenFragments: print t,f
@@ -268,17 +273,20 @@ class FragmentGrammar():
         return ll
         
     def ruleLogLikelihood(self, r):
+        penalty = 0.0 if self.ruleFragments == [] else log(0.5)
+        
         ll = self.fragmentLikelihood(r, self.ruleFragments)
         ll = lse(ll,
                  self.fCLogLikelihood(r.focus) +
                  self.fCLogLikelihood(r.structuralChange) +
                  self.guardLogLikelihood(r.leftTriggers) +
                  self.guardLogLikelihood(r.rightTriggers) +
-                 log(0.5))
+                 penalty)
         return ll
 
     def fCLogLikelihood(self,s):
-        ll = log(0.33)
+        penalty = 0.0 if self.specificationFragments == [] else log(0.5)
+        ll = log(0.33) + penalty
         if isinstance(s, EmptySpecification):
             pass
         elif isinstance(s, FeatureMatrix):
@@ -291,7 +299,8 @@ class FragmentGrammar():
         return lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
     
     def specificationLogLikelihood(self, s):
-        ll = log(0.5)
+        penalty = 0.0 if self.specificationFragments == [] else log(0.5)
+        ll = log(0.5) + penalty
         if isinstance(s, FeatureMatrix):
             ll += self.matrixLogLikelihood(s)
         elif isinstance(s, ConstantPhoneme):
@@ -315,8 +324,9 @@ class FragmentGrammar():
         else: return log(0.66)
 
     def guardLogLikelihood(self, m):
+        penalty = 0.0 if self.guardFragments == [] else log(0.5)
         # non- fragment case
-        ll = sum([ self.specificationLogLikelihood(s) for s in m.specifications ])
+        ll = sum([ self.specificationLogLikelihood(s) for s in m.specifications ]) + penalty
         ll += log(0.33) if m.endOfString else log(0.66)
         if len(m.specifications) == 2:
             ll += log(0.33) if m.starred else log(0.66)

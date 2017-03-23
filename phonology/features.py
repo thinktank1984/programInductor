@@ -216,7 +216,8 @@ class FeatureBank():
             for q in self.featureVectorMap:
                 if p == q: continue
                 if self.featureVectorMap[p] == self.featureVectorMap[q]:
-                    print "MORNING",p,q
+                    print "WARNING: these have the same feature vectors in the bank:",p,q
+                    assert False
         
         h = ""
         for j in range(len(self.phonemes)):

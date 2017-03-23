@@ -100,12 +100,17 @@ class EmptySpecification():
         raise Exception('cannot apply deletion rule')
     
 class FeatureMatrix():
-    def __init__(self, featuresAndPolarities): self.featuresAndPolarities = featuresAndPolarities
+    def __init__(self, featuresAndPolarities):
+        self.featuresAndPolarities = featuresAndPolarities
+        self.representation = None # string representation
+        
     @staticmethod
     def strPolarity(p): return '+' if p == True else ('-' if p == False else p)
     def __str__(self):
-        elements = [ FeatureMatrix.strPolarity(polarity)+f for polarity,f in self.featuresAndPolarities ]
-        return u"[ {} ]".format(u" ".join(elements))
+        if not hasattr(self, 'representation') or self.representation == None:
+            elements = sorted([ FeatureMatrix.strPolarity(polarity)+f for polarity,f in self.featuresAndPolarities ])
+            self.representation = u"[ {} ]".format(u" ".join(elements))
+        return self.representation
 
     def doesNothing(self):
         return len(self.featuresAndPolarities) == 0
@@ -186,6 +191,7 @@ class Guard():
         self.endOfString = endOfString
         self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
+        self.representation = None # Unicode representation
 
     def doesNothing(self):
         return not self.endOfString and len(self.specifications) == 0
@@ -195,12 +201,15 @@ class Guard():
     
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
-        parts = []
-        parts += map(unicode,self.specifications)
-        if self.starred: parts[-2] += u'*'
-        if self.endOfString: parts += [u'#']
-        if self.side == 'L': parts.reverse()
-        return u" ".join(parts)
+        if not hasattr(self, 'representation') or self.representation == None:
+            parts = []
+            parts += map(unicode,self.specifications)
+            if self.starred: parts[-2] += u'*'
+            if self.endOfString: parts += [u'#']
+            if self.side == 'L': parts.reverse()
+            self.representation = u" ".join(parts)
+        return self.representation
+    
     def skeleton(self):
         parts = []
         parts += map(lambda spec: spec.skeleton(),self.specifications)
@@ -260,6 +269,7 @@ class Rule():
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
         self.copyOffset = copyOffset
+        self.representation = None # Unicode representation
 
     def merge(self, other):
         return Rule(self.focus.merge(other.focus),
@@ -281,12 +291,14 @@ class Rule():
 
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
-        if not hasattr(self, 'copyOffset'): self.copyOffset = 0
-        return u"{} ---> {} / {} _ {}".format(self.focus,
-                                              self.structuralChange if self.copyOffset == 0 else self.copyOffset,
-                                              self.leftTriggers,
-                                              self.rightTriggers)
-
+        if not hasattr(self, 'representation') or self.representation == None:
+            if not hasattr(self, 'copyOffset'): self.copyOffset = 0
+            self.representation = u"{} ---> {} / {} _ {}".format(self.focus,
+                                                                 self.structuralChange if self.copyOffset == 0 else self.copyOffset,
+                                                                 self.leftTriggers,
+                                                                 self.rightTriggers)
+        return self.representation
+    
     def skeleton(self):
         return "{} ---> {} / {} _ {}".format(self.focus.skeleton(),
                                              self.structuralChange.skeleton(),

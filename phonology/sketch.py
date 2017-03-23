@@ -63,13 +63,15 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h += makeSketchSkeleton()
     return h
 
-def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False):
+def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False):
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
     # Temporary file for writing the sketch
     fd = tempfile.NamedTemporaryFile(mode = 'w',suffix = '.sk',delete = False,dir = '.')
     fd.write(source)
     fd.close()
+
+    if showSource: print source
 
     # Temporary file for collecting the sketch output
     od = tempfile.NamedTemporaryFile(mode = 'w',delete = False,dir = './solver_output')

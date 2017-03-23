@@ -1,4 +1,6 @@
 # from matplotlib import pyplot as plot
+import batch
+
 import numpy as np
 import tensorflow as tf
 import os

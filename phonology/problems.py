@@ -939,6 +939,7 @@ interactingProblems.append(Problem(
     '''1: Kerewe
 
 What two tone rules are motivated by the following data; explain what order the rules apply in.
+    I think there is something special about having three examples that allows it to learn the full solution
     Final solution:
 Morphological analysis:
 Inflection 0:	/ k u / + stem + / a /
@@ -955,13 +956,14 @@ Phonological rules:
     ''',
     #to V	to V e.o	to V for	to V for e.o	to V us	to V it	to V for us	to V it for us
 	[
-            (u"kubala",	u"kubalana",	u"kubalila",	u"kubalilana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“count”
-	    (u"kugaya",	u"kugayana",	u"kugayila",	u"kugayilana", u"kutúgáya",	u"kukígáya",	u"kutúgáyila",	u"kukítúgayila"),#	“despise”
-	    (u"kugula",	u"kugulana",	u"kugulila",	u"kugulilana", u"kutúgúla",	u"kukígúla",	u"kutúgúlila",	u"kukítúgulila"),#	“buy”
+           #(u"kubala",	u"kubalana",	u"kubalila",	u"kubalilana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“count”
+	    #(u"kugaya",	u"kugayana",	u"kugayila",	u"kugayilana", u"kutúgáya",	u"kukígáya",	u"kutúgáyila",	u"kukítúgayila"),#	“despise”
+	    # (u"kugula",	u"kugulana",	u"kugulila",	u"kugulilana", u"kutúgúla",	u"kukígúla",	u"kutúgúlila",	u"kukítúgulila"),#	“buy”
 	    (u"kubála",	u"kubálána",	u"kubálíla",	u"kubálílana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“kick”
-	    (u"kulúma",	u"kulúmána",	u"kulúmíla",	u"kulúmílana", u"kutúlúma",	u"kukílúma",	u"kutúlúmila",	u"kukítúlumila"),#	“bite”
+	    (u"kulúma",	u"kulúmána",	u"kulúmíla",	u"kulúmílana", u"kutúlúma",	u"kukílúma",	u"kutúlúmila",	u"kukítúlumila"),#	“bite” suffices to trigger the bug
 	    (u"kusúna",	u"kusúnána",	u"kusúníla",	u"kusúnílana", u"kutúsúna",	u"kukísúna",	u"kutúsúnila",	u"kukítúsunila"),#	“pinch”
-	    (u"kulába",	u"kulábána",	u"kulábíla",	u"kulábílana", u"kutúlába",	u"kukílába",	u"kutúlábila",	u"kukítúlabila")]))#	“pass”
+	    # (u"kulába",	u"kulábána",	u"kulábíla",	u"kulábílana", u"kutúlába",	u"kukílába",	u"kutúlábila",	u"kukítúlabila")
+        ]))#	“pass”
 
 interactingProblems.append(Problem(
     '''2: Polish

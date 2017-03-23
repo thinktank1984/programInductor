@@ -164,7 +164,7 @@ bit matches_specification(Sound sound, Specification specification) {
 Sound apply_specification(Specification specification, Sound sound) {
   switch (specification) {
   case Vector:{
-    return features2sound(//return unew Sound(f = 
+    return features2sound(
 		     // New positives induced by the specification
 		     (specification.mask & specification.preference) |
 		     // Old features minus the ones that were removed by the specification

@@ -22,6 +22,8 @@ import argparse
 import math
 from time import time
 
+USEPYTHONRULES = False
+
 class SynthesisFailure(Exception):
     pass
 
@@ -43,7 +45,7 @@ class UnderlyingProblem():
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
     def applyRule(self, r, u):
-        if True:# use the Python implementation of rules
+        if USEPYTHONRULES:# use the Python implementation of rules
             return Morph.fromMatrix(r.apply(u))
         else:
             Model.Global()
@@ -83,9 +85,6 @@ class UnderlyingProblem():
     def conditionOnData(self, rules, stems, prefixes, suffixes):
         '''Conditions on inflection matrix. This also modifies the rules in place! Always call this after calculating the cost of the rules.'''
         for r in rules:
-            if len(rules) > 1: # optimizing heuristic
-                #condition(isDeletionRule(r) == 0)
-                pass
             condition(fixStructuralChange(r))
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
@@ -174,7 +173,8 @@ class UnderlyingProblem():
     def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
         print "Beginning verification"
         for observation in self.data:
-            if observation in trainingData: continue
+            if observation in trainingData:
+                continue
             if not self.verify(prefixes, suffixes, rules, observation):
                 print "COUNTEREXAMPLE:\t",
                 for i in observation: print i,"\t",
@@ -220,6 +220,8 @@ class UnderlyingProblem():
             Model.Global()
             rules = [ Rule.sample() for _ in range(self.depth) ]
             stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+            # useful for debugging fifty one
+            # for stem in stems: condition(wordLength(stem) == 3)
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
        
@@ -253,16 +255,20 @@ class UnderlyingProblem():
                 print "I would like to see these rules:"
                 print r1
                 print r2
-                condition(ruleEqual(rules[0],
-                                    r1.makeConstant(self.bank)))
-                if len(rules) > 1:
-                    condition(ruleEqual(rules[1],
-                                    r2.makeConstant(self.bank)))
-                
+                if False: # using rule equal
+                    condition(ruleEqual(rules[0],
+                                        r1.makeConstant(self.bank)))
+                    if len(rules) > 1:
+                        condition(ruleEqual(rules[1],
+                                        r2.makeConstant(self.bank)))
+                else:
+                    rules[0] = define("Rule",r1.makeConstant(self.bank))
+                    if len(rules) > 1:
+                        rules[1] = define("Rule",r2.makeConstant(self.bank))
 
             self.conditionOnData(rules, stems, prefixes, suffixes)
 
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
             if not output:
                 raise SynthesisFailure("Failed at morphological analysis.")
             prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
