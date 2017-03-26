@@ -53,6 +53,12 @@ class ConstantPhoneme(Specification):
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
 
+    def share(self, table):
+        k = ('CONSTANT',unicode(self))
+        if k in table: return table[k]
+        table[k] = self
+        return self
+
     def merge(self, other):
         if isinstance(other, ConstantPhoneme) and other.p == self.p: return self
         return Braces(self, other)
@@ -81,6 +87,12 @@ class EmptySpecification():
     def cost(self): return 2
     def latex(self): return '$\\varnothing$'
 
+    def share(self, table):
+        k = ('EMPTYSPECIFICATION',unicode(self))
+        if k in table: return table[k]
+        table[k] = self
+        return self
+
     def merge(self, other):
         if isinstance(other, EmptySpecification): return self
         return Braces(self, other)
@@ -106,7 +118,8 @@ class FeatureMatrix():
         
     @staticmethod
     def strPolarity(p): return '+' if p == True else ('-' if p == False else p)
-    def __str__(self):
+    def __str__(self): return unicode(self).encode('utf-8')
+    def __unicode__(self):
         if not hasattr(self, 'representation') or self.representation == None:
             elements = sorted([ FeatureMatrix.strPolarity(polarity)+f for polarity,f in self.featuresAndPolarities ])
             self.representation = u"[ {} ]".format(u" ".join(elements))
@@ -125,6 +138,12 @@ class FeatureMatrix():
     def latex(self):
         if self.featuresAndPolarities == []: return '\\verb|[ ]|'
         return '\\verb|[%s]|'%(" ".join([ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]))
+
+    def share(self, table):
+        k = ('MATRIX',unicode(self))
+        if k in table: return table[k]
+        table[k] = self
+        return self
 
     def merge(self, other):
         if isinstance(other, FeatureMatrix):
@@ -225,6 +244,13 @@ class Guard():
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
 
+    def share(self, table):
+        k = ('GUARD',self.side,unicode(self))
+        if k in table: return table[k]
+        table[k] = Guard(self.side, self.endOfString, self.starred,
+                         [s.share(table) for s in self.specifications ])
+        return table[k]
+
     def merge(self, other):
         assert other.side == self.side
         if self.endOfString != other.endOfString or self.starred != other.starred or len(self.specifications) != len(other.specifications):
@@ -278,7 +304,15 @@ class Rule():
                     self.rightTriggers.merge(other.rightTriggers),
                     self.copyOffset if self.copyOffset == other.copyOffset else Braces(self.copyOffset,other.copyOffset))
                     
-                    
+    def share(self, table):
+        k = ('RULE',unicode(self))
+        if k in table: return table[k]
+        table[k] = Rule(self.focus.share(table),
+                        self.structuralChange.share(table),
+                        self.leftTriggers.share(table),
+                        self.rightTriggers.share(table),
+                        self.copyOffset)
+        return table[k]
 
     def cost(self):
         return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
@@ -294,10 +328,10 @@ class Rule():
         if not hasattr(self, 'representation') or self.representation == None:
             if not hasattr(self, 'copyOffset'): self.copyOffset = 0
             # check this: should I be calling Unicode recursively?
-            self.representation = u"{} ---> {} / {} _ {}".format(self.focus,
-                                                                 self.structuralChange if self.copyOffset == 0 else self.copyOffset,
-                                                                 self.leftTriggers,
-                                                                 self.rightTriggers)
+            self.representation = u"{} ---> {} / {} _ {}".format(unicode(self.focus),
+                                                                 unicode(self.structuralChange) if self.copyOffset == 0 else self.copyOffset,
+                                                                 unicode(self.leftTriggers),
+                                                                 unicode(self.rightTriggers))
         return self.representation
     
     def skeleton(self):

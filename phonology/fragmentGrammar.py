@@ -247,21 +247,17 @@ def posteriorWithFragmentAdded(parameters):
 def pickFragments(problems, fragments, maximumGrammarSize):
     chosenFragments = []
 
-    calculator = makePosteriorCalculator(fragments, problems)
+    expressionTable = {}
+    problems = [ [ [ r.share(expressionTable) for r in s ] for s in p ]
+                 for p in problems ]
+
     startTime = time()
     while len(chosenFragments) < maximumGrammarSize:
-        newGrammars = [ chosenFragments + [x] for x in fragments if not x in chosenFragments]
-        newChoices = [ [ (1 if f in g else 0) for f in fragments ]
-                       for g in newGrammars ]
-        newPosteriors = map(calculator,newChoices)
-        bestPosterior, bestGrammar = max(zip(newPosteriors,newGrammars))
-        bestFragment = bestGrammar[-1]
-        
-        # bestFragment = None
-        # bestPosterior = float('-inf')
-        # parameters = [ (problems, chosenFragments, x) for x in fragments if not x in chosenFragments]
-        # posteriors = map(posteriorWithFragmentAdded, parameters) #Pool(2).c
-        # (bestPosterior, (_p,_c,bestFragment)) = max(zip(posteriors, parameters))
+        bestFragment = None
+        bestPosterior = float('-inf')
+        parameters = [ (problems, chosenFragments, x) for x in fragments if not x in chosenFragments]
+        posteriors = map(posteriorWithFragmentAdded, parameters) #Pool(2).c
+        (bestPosterior, (_p,_c,bestFragment)) = max(zip(posteriors, parameters))
         print "Best fragment:\n",bestFragment[0],bestFragment[1]
         print "Best posterior:",bestPosterior
         chosenFragments.append(bestFragment)
@@ -274,9 +270,9 @@ def induceGrammar(problems, maximumGrammarSize = 2):
     fragments = proposeFragments(problems, verbose = True)
     p = problems
     picker = pickFragments
-    cProfile.runctx('picker(p, fragments, maximumGrammarSize)', None, locals())
+    chosenFragments = picker(p, fragments, maximumGrammarSize)
 
-#    return FragmentGrammar(chosenFragments)
+    return FragmentGrammar(chosenFragments)
             
 
 class FragmentGrammar():
@@ -288,6 +284,7 @@ class FragmentGrammar():
         self.guardTable = {}
         self.matrixTable = {}
         self.specificationTable = {}
+        self.fCTable = {}
         
         self.likelihoodCalculator = {}
         self.likelihoodCalculator['RULE'] = lambda r: self.ruleLogLikelihood(r)
@@ -340,6 +337,9 @@ class FragmentGrammar():
         return ll
 
     def fCLogLikelihood(self,s):
+        key = unicode(s)
+        if key in self.fCTable: return self.fCTable[key]
+        
         penalty = 0.0 if self.specificationFragments == [] else log(0.5)
         ll = log(0.33) + penalty
         if isinstance(s, EmptySpecification):
@@ -351,7 +351,9 @@ class FragmentGrammar():
         else:
             raise Exception('fCLogLikelihood: got a bad specification!')
 
-        return lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
+        ll = lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
+        self.fCTable[key] = ll
+        return ll
     
     def specificationLogLikelihood(self, s):
         key = unicode(s)
@@ -403,263 +405,3 @@ class FragmentGrammar():
         self.guardTable[key] = ll
         return ll
 
-def makePosteriorCalculator(candidates, problems):
-    numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
-    numberOfFeatures = 40 # same thing
-
-    likelihoodCalculator = {}
-
-    def liftedSummation(functions):
-        return lambda choices: sum([ f(choices) for f in functions ])
-    def liftedPossibilities(possibilities):
-        if len(possibilities) == 0: return lambda _: float('-inf')
-        if len(possibilities) == 1:
-            return lambda choices: possibilities[0][1](choices) if choices[possibilities[0][0]] else float('-inf')
-        suffix = liftedPossibilities(possibilities[1:])
-        return lambda choices: lse(suffix(choices),
-                                   possibilities[0][1](choices) if choices[possibilities[0][0]] else float('-inf'))
-
-    def fragmentLikelihood(program,ty):
-        possibilities = []
-        for j,(t,f) in enumerate(candidates):
-            if t != ty: continue
-            try:
-                m = f.match(program)
-            except MatchFailure:
-                continue
-
-            possibilities.append((j,liftedSummation([ likelihoodCalculator[childType](child)
-                                                   for childType,child in m ])))
-
-        return liftedPossibilities(possibilities)
-            
-    def ruleLikelihood(r):
-        l1 = fragmentLikelihood(r, 'RULE')
-        l2 = fCLikelihood(r.focus)
-        l3 = fCLikelihood(r.structuralChange)
-        l4 = guardLikelihood(r.leftTriggers)
-        l5 = guardLikelihood(r.rightTriggers)
-        return lambda choices: lse(l1(choices), l2(choices) + l3(choices) + l4(choices) + l5(choices))
-                                                         
-    def fCLikelihood(s):
-        ll = log(0.33)
-
-        if isinstance(s, EmptySpecification):
-            return lambda _: ll
-        elif isinstance(s, FeatureMatrix):
-            ml = matrixLikelihood(s)
-            return lambda choices: ll + ml(choices)
-        elif isinstance(s, ConstantPhoneme):
-            kl = constantLikelihood(s)
-            return lambda choices:  ll + kl(choices)
-        else:
-            raise Exception('FCLikelihood: got a bad specification!')
-
-    def specificationLikelihood(s):
-        ll = log(0.5)
-
-        if isinstance(s, FeatureMatrix):
-            ml = matrixLikelihood(s)
-            return lambda choices: ll + ml(choices)
-        elif isinstance(s, ConstantPhoneme):
-            kl = constantLikelihood(s)
-            return lambda choices:  ll + kl(choices)
-
-    def constantLikelihood(k):
-        if not isinstance(k,ConstantPhoneme): raise Exception('constantLikelihood')
-        ll = -log(numberOfPhonemes)
-        return lambda _: ll
-
-    def matrixLikelihood(m):
-        if isinstance(m,FeatureMatrix):
-            ll = len(m.featuresAndPolarities)*(-log(float(numberOfFeatures))) - log(4.0)
-            return lambda _: ll
-        else:
-            raise Exception('matrixLikelihood'+m)
-        
-    def guardLikelihood(m):
-        # non- fragment case
-        specificationCalculator = liftedSummation([ specificationLikelihood(s) for s in m.specifications ])
-        ll = log(0.33) if m.endOfString else log(0.66)
-        if len(m.specifications) == 2:
-            ll += log(0.33) if m.starred else log(0.66)
-        ll += log(3.0) # todo: improved model of number of matrixes
-        return lambda choices: ll + specificationCalculator(choices)
-    
-    likelihoodCalculator['GUARD'] = guardLikelihood
-    likelihoodCalculator['CONSTANT'] = constantLikelihood
-    likelihoodCalculator['SPECIFICATION'] = specificationLikelihood
-    likelihoodCalculator['MATRIX'] = matrixLikelihood
-    likelihoodCalculator['FC'] = fCLikelihood
-
-    def lseFold(expressions):
-        return lambda choices: max([ e(choices) for e in expressions ])
-
-    def solutionLikelihood(s):
-        return liftedSummation(map(ruleLikelihood,s))
-    def problemLikelihood(p):
-        return lseFold(map(solutionLikelihood, p))
-
-    likelihoodObjective = liftedSummation(map(problemLikelihood,problems))
-
-    return likelihoodObjective
-
-def compiledFragmentLikelihood(candidates, problems):
-    numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
-    numberOfFeatures = 40 # same thing
-
-    # annotate each candidate with a variable
-    candidateVariables = ["using[%d]"%j for j in range(len(candidates)) ]
-
-    numberOfRules = "+".join([ v for v,f in zip(candidateVariables,candidates) if f[0] == 'RULE' ])
-
-    likelihoodCalculator = {}
-
-    linesOfCode = []
-    variableCounter = [0]
-    valueToVariable = {}
-    def newVariable(initialValue = None):
-        if initialValue == None and initialValue in valueToVariable:
-            return valueToVariable[initialValue]
-        
-        v = "v%d"%variableCounter[0]
-        variableCounter[0] += 1
-        if initialValue != None:
-            valueToVariable[initialValue] = v
-            
-        if initialValue == None:
-            linesOfCode.append("float %s;"%v)
-        else:
-            linesOfCode.append("float %s = %s;"%(v,initialValue))
-        return v
-
-    def fragmentLikelihood(program,ty):
-        likelihoodExpression = newVariable("-INFINITY")
-        
-        for (t,f),v in zip(candidates, candidateVariables):
-            if t != ty: continue
-            try:
-                m = f.match(program)
-            except MatchFailure:
-                continue
-
-            fragmentLikelihood = newVariable("0.0")
-            for childType,child in m:
-                fragmentLikelihood = newVariable(fragmentLikelihood+" + ("+likelihoodCalculator[childType](child)+")")
-            # fragmentLikelihood is now an expression that will evaluate to the likelihood given this fragment
-
-            likelihoodExpression = newVariable("maybelse(%s, %s, %s)"%(v,fragmentLikelihood,likelihoodExpression))
-
-        return likelihoodExpression
-
-    def ruleLikelihood(r):
-        return newVariable("lse(%s, %s + %s + %s + %s)"%(fragmentLikelihood(r,'RULE'),
-                                                         fCLikelihood(r.focus),
-                                                         fCLikelihood(r.structuralChange),
-                                                         guardLikelihood(r.leftTriggers),
-                                                         guardLikelihood(r.rightTriggers)))
-    def fCLikelihood(s):
-        ll = str(log(0.33))
-
-        if isinstance(s, EmptySpecification):
-            pass
-        elif isinstance(s, FeatureMatrix):
-            ll = ll + " + " + matrixLikelihood(s)
-        elif isinstance(s, ConstantPhoneme):
-            ll = ll + " + " + constantLikelihood(s)
-        else:
-            raise Exception('FCLikelihood: got a bad specification!')
-
-        return newVariable(ll)
-
-    def specificationLikelihood(s):
-        ll = str(log(0.5))
-
-        if isinstance(s, FeatureMatrix):
-            ll = ll + " + " + matrixLikelihood(s)
-        elif isinstance(s, ConstantPhoneme):
-            ll = ll + " + " + constantLikelihood(s)
-        else:
-            raise Exception('specificationLikelihood: got a bad specification!')
-
-        return newVariable(ll)
-
-    def constantLikelihood(k):
-        if not isinstance(k,ConstantPhoneme): raise Exception('constantLikelihood')
-        return str(-log(numberOfPhonemes))
-
-    def matrixLikelihood(m):
-        if isinstance(m,FeatureMatrix):
-            return str(len(m.featuresAndPolarities)*(-log(float(numberOfFeatures))) - log(4.0))
-        else:
-            raise Exception('matrixLikelihood'+m)
-        
-    def guardLikelihood(m):
-        # non- fragment case
-        ll = " + ".join(["0.0"] + [ "(" + specificationLikelihood(s) + ")" for s in m.specifications ])
-        ll = ll + " + " + str(log(0.33) if m.endOfString else log(0.66))
-        if len(m.specifications) == 2:
-            ll = ll + " + " + str(log(0.33) if m.starred else log(0.66))
-        ll = ll + " - " + str(log(3.0)) # todo: improved model of number of matrixes
-        return newVariable(ll)
-
-    
-    likelihoodCalculator['GUARD'] = guardLikelihood
-    likelihoodCalculator['CONSTANT'] = constantLikelihood
-    likelihoodCalculator['SPECIFICATION'] = specificationLikelihood
-    likelihoodCalculator['MATRIX'] = matrixLikelihood
-    likelihoodCalculator['FC'] = fCLikelihood
-
-    def lseFold(expressions):
-        return reduce(lambda x,y: newVariable("max(%s,%s)"%(x,y)), expressions)
-
-    def solutionLikelihood(s):
-        return " + ".join(map(ruleLikelihood,s))
-    def problemLikelihood(p):
-        return lseFold(map(solutionLikelihood, p))
-
-    objective = " + ".join(map(problemLikelihood,problems))
-
-    source = '''
-#include<stdio.h>
-#include<math.h>
-#include<string.h>
-
-float max(float x,float y){
-    if (x > y) return x;
-    return y;
-}
-
-float lse(float x,float y){
-    if (x == -INFINITY) return y;
-    if (y == -INFINITY) return x;
-    if (x > y) return x + log(exp(y - x) + 1);
-    return y + log(exp(x - y) + 1);
-}
-
-float maybelse(int check, float x, float z){
-    if (check) return lse(x,z);
-    return z;
-}
-
-int main(int argc,char **argv) {
-    int using[%d];
-    for (int j = 0; j < %d; j++) using[j] = 0;
-    for (int j = 0; j < strlen(argv[1]); j++) using[j] = argv[1][j] == '1';
-
-    %s
-
-    float likelihood = %s;
-
-    printf("%%f\\n",likelihood);
-
-    return 0;
-}
-'''%(len(candidates),len(candidates),"\n".join(linesOfCode),objective)
-
-    with open('fast.c','w') as handle: handle.write(source)
-    system('time tcc fast.c -lm')
-    system('time ./a.out 00')
-
-    
-    assert False
