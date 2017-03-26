@@ -290,6 +290,8 @@ class UnderlyingProblem():
         if testing == 0.0:
             return self.counterexampleSolution(k, threshold, initialTrainingSize),None,None
 
+        if self.numberOfInflections > 7: initialTrainingSize = 3
+
         trainingData,testingData = randomTestSplit(self.data, testing)
         slave = UnderlyingProblem(trainingData, self.depth, bank = self.bank)
         solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize)

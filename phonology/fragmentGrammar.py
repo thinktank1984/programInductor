@@ -120,8 +120,13 @@ class MatrixFragment(Fragment):
         
     @staticmethod
     def abstract(p,q):
-        if unicode(p) == unicode(q): return [MatrixFragment(p, -p.cost())]
-        else: return [VariableFragment('MATRIX',[FeatureMatrix])]
+        if unicode(p) == unicode(q):
+            if len(p.featuresAndPolarities) < 3:
+                return [MatrixFragment(p, -p.cost())]
+            else:
+                return [] # prefer matrix fragments that are short
+        else:
+            return [VariableFragment('MATRIX',[FeatureMatrix])]
 
 class ConstantFragment(Fragment):
     def __init__(self): raise Exception('should never make a constant fragment')
@@ -210,11 +215,11 @@ def proposeFragments(problems, verbose = False):
 
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             newFragments = [ f for f in abstractFragments[pt](pf,qf) if str(f) != pt ]
-                            if [ f for f in newFragments if "instance at" in str(f) ]:
-                                print pt,pf
-                                print qt,qf
-                                print [ str(f) for f in newFragments if "instance at" in str(f) ]
-                                assert False
+                            # if [ f for f in newFragments if "instance at" in str(f) ]:
+                            #     print pt,pf
+                            #     print qt,qf
+                            #     print [ str(f) for f in newFragments if "instance at" in str(f) ]
+                            #     assert False
                             fragments[pt] = fragments[pt] | set(newFragments)
 
     
@@ -222,7 +227,7 @@ def proposeFragments(problems, verbose = False):
     print "Discovered %d unique fragments in %f seconds"%(totalNumberOfFragments,time() - startTime)
     if verbose:
         for ty in fragments:
-            print "Fragments of type",ty
+            print "Fragments of type %s (%d):"%(ty,len(fragments[ty]))
             for f in fragments[ty]:
                 print f
             print ""
@@ -243,10 +248,9 @@ def posteriorWithFragmentAdded(parameters):
 def induceGrammar(problems, maximumGrammarSize = 2):
     fragments = proposeFragments(problems, verbose = True)
 
-    print compiledFragmentLikelihood(fragments,problems)
-
     chosenFragments = []
-    
+
+    startTime = time()
     while len(chosenFragments) < maximumGrammarSize:
         bestFragment = None
         bestPosterior = float('-inf')
@@ -259,6 +263,8 @@ def induceGrammar(problems, maximumGrammarSize = 2):
     print "Final grammar:"
     for t,f in chosenFragments: print t,f
 
+    print "Search time:",(time() - startTime),"seconds"
+
     return FragmentGrammar(chosenFragments)
             
 
@@ -266,6 +272,12 @@ class FragmentGrammar():
     def __init__(self, fragments = []):
         self.featureLogLikelihoods = {}
 
+        # memorization table for likelihood calculations
+        self.ruleTable = {}
+        self.guardTable = {}
+        self.matrixTable = {}
+        self.specificationTable = {}
+        
         self.likelihoodCalculator = {}
         self.likelihoodCalculator['RULE'] = lambda r: self.ruleLogLikelihood(r)
         self.likelihoodCalculator['SPECIFICATION'] = lambda s: self.specificationLogLikelihood(s)
@@ -300,6 +312,10 @@ class FragmentGrammar():
         return ll
         
     def ruleLogLikelihood(self, r):
+        key = unicode(r)
+        if key in self.ruleTable:
+            return self.ruleTable[key]
+        
         penalty = 0.0 if self.ruleFragments == [] else log(0.5)
         
         ll = self.fragmentLikelihood(r, self.ruleFragments)
@@ -309,6 +325,7 @@ class FragmentGrammar():
                  self.guardLogLikelihood(r.leftTriggers) +
                  self.guardLogLikelihood(r.rightTriggers) +
                  penalty)
+        self.ruleTable[key] = ll
         return ll
 
     def fCLogLikelihood(self,s):
@@ -326,6 +343,9 @@ class FragmentGrammar():
         return lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
     
     def specificationLogLikelihood(self, s):
+        key = unicode(s)
+        if key in self.specificationTable: return self.specificationTable[key]
+        
         penalty = 0.0 if self.specificationFragments == [] else log(0.5)
         ll = log(0.5) + penalty
         if isinstance(s, FeatureMatrix):
@@ -334,9 +354,10 @@ class FragmentGrammar():
             ll += self.constantLogLikelihood(s)
         else:
             raise Exception('specificationLogLikelihood: got a bad specification!')
-            #return float('-inf')
 
-        return lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
+        ll = lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
+        self.specificationTable[key] = ll
+        return ll
 
     def constantLogLikelihood(self, k):
         if isinstance(k,ConstantPhoneme):
@@ -357,6 +378,8 @@ class FragmentGrammar():
         else: return log(0.66)
 
     def guardLogLikelihood(self, m):
+        key = unicode(m)
+        if key in self.guardTable: return self.guardTable[key]
         penalty = 0.0 if self.guardFragments == [] else log(0.5)
         # non- fragment case
         ll = sum([ self.specificationLogLikelihood(s) for s in m.specifications ]) + penalty
@@ -366,6 +389,7 @@ class FragmentGrammar():
         ll -= log(3.0) # todo: improved model of number of matrixes
 
         ll = lse(ll, self.fragmentLikelihood(m, self.guardFragments))
+        self.guardTable[key] = ll
         return ll
 
 
@@ -381,8 +405,27 @@ def compiledFragmentLikelihood(candidates, problems):
 
     likelihoodCalculator = {}
 
+    linesOfCode = []
+    variableCounter = [0]
+    valueToVariable = {}
+    def newVariable(initialValue = None):
+        if initialValue == None and initialValue in valueToVariable:
+            return valueToVariable[initialValue]
+        
+        v = "v%d"%variableCounter[0]
+        variableCounter[0] += 1
+        if initialValue != None:
+            valueToVariable[initialValue] = v
+            
+        if initialValue == None:
+            linesOfCode.append("float %s;"%v)
+        else:
+            linesOfCode.append("float %s = %s;"%(v,initialValue))
+        return v
+
     def fragmentLikelihood(program,ty):
-        likelihoodExpression = "(-INFINITY)"
+        likelihoodExpression = newVariable("-INFINITY")
+        
         for (t,f),v in zip(candidates, candidateVariables):
             if t != ty: continue
             try:
@@ -390,48 +433,46 @@ def compiledFragmentLikelihood(candidates, problems):
             except MatchFailure:
                 continue
 
-            fragmentLikelihood = "0.0"
+            fragmentLikelihood = newVariable("0.0")
             for childType,child in m:
-                fragmentLikelihood = fragmentLikelihood+" + ("+likelihoodCalculator[childType](child)+")"
+                fragmentLikelihood = newVariable(fragmentLikelihood+" + ("+likelihoodCalculator[childType](child)+")")
             # fragmentLikelihood is now an expression that will evaluate to the likelihood given this fragment
 
-            likelihoodExpression = "maybelse(%s, %s, %s)"%(v,fragmentLikelihood,likelihoodExpression)
+            likelihoodExpression = newVariable("maybelse(%s, %s, %s)"%(v,fragmentLikelihood,likelihoodExpression))
 
         return likelihoodExpression
 
     def ruleLikelihood(r):
-        return "lse(%s, %s + %s + %s + %s)"%(fragmentLikelihood(r,'RULE'),
-                                             fCLikelihood(r.focus),
-                                             fCLikelihood(r.structuralChange),
-                                             guardLikelihood(r.leftTriggers),
-                                             guardLikelihood(r.rightTriggers))
+        return newVariable("lse(%s, %s + %s + %s + %s)"%(fragmentLikelihood(r,'RULE'),
+                                                         fCLikelihood(r.focus),
+                                                         fCLikelihood(r.structuralChange),
+                                                         guardLikelihood(r.leftTriggers),
+                                                         guardLikelihood(r.rightTriggers)))
     def fCLikelihood(s):
         ll = str(log(0.33))
 
         if isinstance(s, EmptySpecification):
             pass
         elif isinstance(s, FeatureMatrix):
-            ll += ll + " + " + matrixLikelihood(s)
+            ll = ll + " + " + matrixLikelihood(s)
         elif isinstance(s, ConstantPhoneme):
             ll = ll + " + " + constantLikelihood(s)
         else:
             raise Exception('FCLikelihood: got a bad specification!')
 
-        return ll
+        return newVariable(ll)
 
     def specificationLikelihood(s):
         ll = str(log(0.5))
 
-        if isinstance(s, EmptySpecification):
-            ll = "(-INFINITY)"
-        elif isinstance(s, FeatureMatrix):
-            ll += ll + " + " + matrixLikelihood(s)
+        if isinstance(s, FeatureMatrix):
+            ll = ll + " + " + matrixLikelihood(s)
         elif isinstance(s, ConstantPhoneme):
             ll = ll + " + " + constantLikelihood(s)
         else:
             raise Exception('specificationLikelihood: got a bad specification!')
 
-        return ll
+        return newVariable(ll)
 
     def constantLikelihood(k):
         if not isinstance(k,ConstantPhoneme): raise Exception('constantLikelihood')
@@ -450,7 +491,7 @@ def compiledFragmentLikelihood(candidates, problems):
         if len(m.specifications) == 2:
             ll = ll + " + " + str(log(0.33) if m.starred else log(0.66))
         ll = ll + " - " + str(log(3.0)) # todo: improved model of number of matrixes
-        return ll
+        return newVariable(ll)
 
     
     likelihoodCalculator['GUARD'] = guardLikelihood
@@ -460,14 +501,14 @@ def compiledFragmentLikelihood(candidates, problems):
     likelihoodCalculator['FC'] = fCLikelihood
 
     def lseFold(expressions):
-        return reduce(lambda x,y: "max(%s,\n%s)"%(x,y), expressions)
+        return reduce(lambda x,y: newVariable("max(%s,%s)"%(x,y)), expressions)
 
     def solutionLikelihood(s):
         return " + ".join(map(ruleLikelihood,s))
     def problemLikelihood(p):
         return lseFold(map(solutionLikelihood, p))
 
-    objective = " + \n".join(map(problemLikelihood,problems))
+    objective = " + ".join(map(problemLikelihood,problems))
 
     source = '''
 #include<stdio.h>
@@ -496,16 +537,18 @@ int main(int argc,char **argv) {
     for (int j = 0; j < %d; j++) using[j] = 0;
     for (int j = 0; j < strlen(argv[1]); j++) using[j] = argv[1][j] == '1';
 
+    %s
+
     float likelihood = %s;
 
     printf("%%f\\n",likelihood);
 
     return 0;
 }
-'''%(len(candidates),len(candidates),objective)
+'''%(len(candidates),len(candidates),"\n".join(linesOfCode),objective)
 
     with open('fast.c','w') as handle: handle.write(source)
-    system('time gcc fast.c -lm')
+    system('time tcc fast.c -lm')
     system('time ./a.out 00')
 
     
