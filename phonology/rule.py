@@ -293,6 +293,7 @@ class Rule():
     def __unicode__(self):
         if not hasattr(self, 'representation') or self.representation == None:
             if not hasattr(self, 'copyOffset'): self.copyOffset = 0
+            # check this: should I be calling Unicode recursively?
             self.representation = u"{} ---> {} / {} _ {}".format(self.focus,
                                                                  self.structuralChange if self.copyOffset == 0 else self.copyOffset,
                                                                  self.leftTriggers,

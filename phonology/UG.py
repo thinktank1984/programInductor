@@ -219,10 +219,10 @@ if __name__ == '__main__':
             continue
         # for testing only use a few problems
         testingProblems = [
-            '1',
-            '2',
-            '3',
-            '4',
+            # '1',
+            # '2',
+            # '3',
+            # '4',
             '7',
             '10',
             '52',

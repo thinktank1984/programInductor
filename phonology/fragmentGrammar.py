@@ -244,28 +244,39 @@ def posteriorWithFragmentAdded(parameters):
     print "Considering %s %s\n\t%f + %f = %f"%(f[0],f[1],l,f[1].logPrior,posterior)
     return posterior
     
-
-def induceGrammar(problems, maximumGrammarSize = 2):
-    fragments = proposeFragments(problems, verbose = True)
-
+def pickFragments(problems, fragments, maximumGrammarSize):
     chosenFragments = []
 
+    calculator = makePosteriorCalculator(fragments, problems)
     startTime = time()
     while len(chosenFragments) < maximumGrammarSize:
-        bestFragment = None
-        bestPosterior = float('-inf')
-        parameters = [ (problems, chosenFragments, x) for x in fragments if not x in chosenFragments]
-        posteriors = map(posteriorWithFragmentAdded, parameters) #Pool(2).c
-        (bestPosterior, (_p,_c,bestFragment)) = max(zip(posteriors, parameters))
+        newGrammars = [ chosenFragments + [x] for x in fragments if not x in chosenFragments]
+        newChoices = [ [ (1 if f in g else 0) for f in fragments ]
+                       for g in newGrammars ]
+        newPosteriors = map(calculator,newChoices)
+        bestPosterior, bestGrammar = max(zip(newPosteriors,newGrammars))
+        bestFragment = bestGrammar[-1]
+        
+        # bestFragment = None
+        # bestPosterior = float('-inf')
+        # parameters = [ (problems, chosenFragments, x) for x in fragments if not x in chosenFragments]
+        # posteriors = map(posteriorWithFragmentAdded, parameters) #Pool(2).c
+        # (bestPosterior, (_p,_c,bestFragment)) = max(zip(posteriors, parameters))
         print "Best fragment:\n",bestFragment[0],bestFragment[1]
         print "Best posterior:",bestPosterior
         chosenFragments.append(bestFragment)
     print "Final grammar:"
     for t,f in chosenFragments: print t,f
-
     print "Search time:",(time() - startTime),"seconds"
+    return chosenFragments
 
-    return FragmentGrammar(chosenFragments)
+def induceGrammar(problems, maximumGrammarSize = 2):
+    fragments = proposeFragments(problems, verbose = True)
+    p = problems
+    picker = pickFragments
+    cProfile.runctx('picker(p, fragments, maximumGrammarSize)', None, locals())
+
+#    return FragmentGrammar(chosenFragments)
             
 
 class FragmentGrammar():
@@ -392,7 +403,106 @@ class FragmentGrammar():
         self.guardTable[key] = ll
         return ll
 
+def makePosteriorCalculator(candidates, problems):
+    numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
+    numberOfFeatures = 40 # same thing
 
+    likelihoodCalculator = {}
+
+    def liftedSummation(functions):
+        return lambda choices: sum([ f(choices) for f in functions ])
+    def liftedPossibilities(possibilities):
+        if len(possibilities) == 0: return lambda _: float('-inf')
+        if len(possibilities) == 1:
+            return lambda choices: possibilities[0][1](choices) if choices[possibilities[0][0]] else float('-inf')
+        suffix = liftedPossibilities(possibilities[1:])
+        return lambda choices: lse(suffix(choices),
+                                   possibilities[0][1](choices) if choices[possibilities[0][0]] else float('-inf'))
+
+    def fragmentLikelihood(program,ty):
+        possibilities = []
+        for j,(t,f) in enumerate(candidates):
+            if t != ty: continue
+            try:
+                m = f.match(program)
+            except MatchFailure:
+                continue
+
+            possibilities.append((j,liftedSummation([ likelihoodCalculator[childType](child)
+                                                   for childType,child in m ])))
+
+        return liftedPossibilities(possibilities)
+            
+    def ruleLikelihood(r):
+        l1 = fragmentLikelihood(r, 'RULE')
+        l2 = fCLikelihood(r.focus)
+        l3 = fCLikelihood(r.structuralChange)
+        l4 = guardLikelihood(r.leftTriggers)
+        l5 = guardLikelihood(r.rightTriggers)
+        return lambda choices: lse(l1(choices), l2(choices) + l3(choices) + l4(choices) + l5(choices))
+                                                         
+    def fCLikelihood(s):
+        ll = log(0.33)
+
+        if isinstance(s, EmptySpecification):
+            return lambda _: ll
+        elif isinstance(s, FeatureMatrix):
+            ml = matrixLikelihood(s)
+            return lambda choices: ll + ml(choices)
+        elif isinstance(s, ConstantPhoneme):
+            kl = constantLikelihood(s)
+            return lambda choices:  ll + kl(choices)
+        else:
+            raise Exception('FCLikelihood: got a bad specification!')
+
+    def specificationLikelihood(s):
+        ll = log(0.5)
+
+        if isinstance(s, FeatureMatrix):
+            ml = matrixLikelihood(s)
+            return lambda choices: ll + ml(choices)
+        elif isinstance(s, ConstantPhoneme):
+            kl = constantLikelihood(s)
+            return lambda choices:  ll + kl(choices)
+
+    def constantLikelihood(k):
+        if not isinstance(k,ConstantPhoneme): raise Exception('constantLikelihood')
+        ll = -log(numberOfPhonemes)
+        return lambda _: ll
+
+    def matrixLikelihood(m):
+        if isinstance(m,FeatureMatrix):
+            ll = len(m.featuresAndPolarities)*(-log(float(numberOfFeatures))) - log(4.0)
+            return lambda _: ll
+        else:
+            raise Exception('matrixLikelihood'+m)
+        
+    def guardLikelihood(m):
+        # non- fragment case
+        specificationCalculator = liftedSummation([ specificationLikelihood(s) for s in m.specifications ])
+        ll = log(0.33) if m.endOfString else log(0.66)
+        if len(m.specifications) == 2:
+            ll += log(0.33) if m.starred else log(0.66)
+        ll += log(3.0) # todo: improved model of number of matrixes
+        return lambda choices: ll + specificationCalculator(choices)
+    
+    likelihoodCalculator['GUARD'] = guardLikelihood
+    likelihoodCalculator['CONSTANT'] = constantLikelihood
+    likelihoodCalculator['SPECIFICATION'] = specificationLikelihood
+    likelihoodCalculator['MATRIX'] = matrixLikelihood
+    likelihoodCalculator['FC'] = fCLikelihood
+
+    def lseFold(expressions):
+        return lambda choices: max([ e(choices) for e in expressions ])
+
+    def solutionLikelihood(s):
+        return liftedSummation(map(ruleLikelihood,s))
+    def problemLikelihood(p):
+        return lseFold(map(solutionLikelihood, p))
+
+    likelihoodObjective = liftedSummation(map(problemLikelihood,problems))
+
+    return likelihoodObjective
 
 def compiledFragmentLikelihood(candidates, problems):
     numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
