@@ -122,7 +122,7 @@ class MatrixFragment(Fragment):
     def abstract(p,q):
         if unicode(p) == unicode(q):
             if len(p.featuresAndPolarities) < 3:
-                return [MatrixFragment(p, -p.cost())]
+                return [MatrixFragment(p, emptyFragmentGrammar.matrixLogLikelihood(p))]
             else:
                 return [] # prefer matrix fragments that are short
         else:
@@ -202,6 +202,13 @@ def proposeFragments(problems, verbose = False):
         'SPECIFICATION': SpecificationFragment.abstract
     }
 
+    # Don't allow fragments that are already in the grammar, for example SPECIFICATION -> MATRIX
+    badFragments = {
+        'GUARD': ['GUARD'],
+        'SPECIFICATION': ['MATRIX','CONSTANT','SPECIFICATION'],
+        'RULE': ['RULE']
+        }
+
     startTime = time()
     fragments = {} # map from type to a set of fragments
     for i in range(len(ruleSets) - 1):
@@ -214,7 +221,8 @@ def proposeFragments(problems, verbose = False):
                             if pt != qt: continue
 
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
-                            newFragments = [ f for f in abstractFragments[pt](pf,qf) if str(f) != pt ]
+                            newFragments = [ f for f in abstractFragments[pt](pf,qf)
+                                             if not (str(f) in badFragments[pt]) ]
                             # if [ f for f in newFragments if "instance at" in str(f) ]:
                             #     print pt,pf
                             #     print qt,qf
@@ -222,7 +230,7 @@ def proposeFragments(problems, verbose = False):
                             #     assert False
                             fragments[pt] = fragments[pt] | set(newFragments)
 
-    
+
     totalNumberOfFragments = sum([len(v) for v in fragments.values() ])
     print "Discovered %d unique fragments in %f seconds"%(totalNumberOfFragments,time() - startTime)
     if verbose:
@@ -232,9 +240,9 @@ def proposeFragments(problems, verbose = False):
                 print f
             print ""
 
-    return [ (t, f) for t in fragments for f in fragments[t]  ]
+    return [ (t, f) for t in fragments for f in fragments[t] if t != 'RULE' and t != 'GUARD' ]
 
-def posteriorWithFragmentAdded(parameters):
+def fragmentLikelihood(parameters):
     (problems, fragments, newFragment) = parameters
     newGrammar = FragmentGrammar(fragments + [newFragment])
     l = sum([ max([ sum([ newGrammar.ruleLogLikelihood(r) for r in s ]) for s in problem ])
@@ -242,7 +250,7 @@ def posteriorWithFragmentAdded(parameters):
     posterior = l + newFragment[1].logPrior
     f = newFragment
     print "Considering %s %s\n\t%f + %f = %f"%(f[0],f[1],l,f[1].logPrior,posterior)
-    return posterior
+    return (f, l)
     
 def pickFragments(problems, fragments, maximumGrammarSize):
     chosenFragments = []
@@ -251,22 +259,48 @@ def pickFragments(problems, fragments, maximumGrammarSize):
     problems = [ [ [ r.share(expressionTable) for r in s ] for s in p ]
                  for p in problems ]
 
+    oldPosterior = None
+
+    def showMostLikelySolutions():
+        g = FragmentGrammar(chosenFragments)
+        for j,p in enumerate(problems):
+            bestLikelihood,bestSolution = max([ (sum([ g.ruleLogLikelihood(r) for r in s ]), s)
+                                                for s in p ])
+            print "Problem %d"%j
+            for r in bestSolution:print "\t%s"%(str(r))
+            print
+
+    showMostLikelySolutions()
+
     startTime = time()
     while len(chosenFragments) < maximumGrammarSize:
-        bestFragment = None
-        bestPosterior = float('-inf')
-        parameters = [ (problems, chosenFragments, x) for x in fragments if not x in chosenFragments]
-        posteriors = map(posteriorWithFragmentAdded, parameters) #Pool(2).c
-        (bestPosterior, (_p,_c,bestFragment)) = max(zip(posteriors, parameters))
-        print "Best fragment:\n",bestFragment[0],bestFragment[1]
-        print "Best posterior:",bestPosterior
-        chosenFragments.append(bestFragment)
+        candidateFragments = [ x for x in fragments if not x in chosenFragments ]
+        parameters = [ (problems, chosenFragments, x) for x in candidateFragments ]
+        fragmentLikelihoods = map(fragmentLikelihood, parameters)
+
+        # What is the best fragment according to the likelihood, breaking ties by the prior?
+        priorWeight = 0.75
+        ((bestType,bestFragment),bestLikelihood) = max(fragmentLikelihoods, key = lambda (f,l): (l+priorWeight*f[1].logPrior))
+        print "The best fragment as measured by adjusted posterior is:"
+        bestPrior = bestFragment.logPrior
+        bestPosterior = bestPrior+bestLikelihood
+        print bestType,bestFragment,bestLikelihood,"+",bestPrior,"=",bestPosterior
+        
+        # but is it good enough to keep?
+        newPosterior = bestLikelihood # + sum([ f[1].logPrior for f in chosenFragments ]) + bestPrior
+        if oldPosterior != None and newPosterior < oldPosterior:
+            print "But, adding nothing is better than adding that fragment."
+            break
+        oldPosterior = newPosterior
+        print "New posterior w/ all priors accounted for:",newPosterior            
+        chosenFragments.append((bestType,bestFragment))
+        showMostLikelySolutions()
     print "Final grammar:"
     for t,f in chosenFragments: print t,f
     print "Search time:",(time() - startTime),"seconds"
     return chosenFragments
 
-def induceGrammar(problems, maximumGrammarSize = 2):
+def induceGrammar(problems, maximumGrammarSize = 20):
     fragments = proposeFragments(problems, verbose = True)
     p = problems
     picker = pickFragments
@@ -304,7 +338,6 @@ class FragmentGrammar():
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
 
-
     def fragmentLikelihood(self, program, fragments):
         ll = float('-inf')
         for fragment in fragments:
@@ -316,7 +349,7 @@ class FragmentGrammar():
             fragmentLikelihood = 0.0
             for childType,child in m:
                 fragmentLikelihood += self.likelihoodCalculator[childType](child)
-            ll = lse(ll, fragmentLikelihood + log(0.5) - log(len(fragments)))
+            ll = lse(ll, fragmentLikelihood - log(len(fragments)))
         return ll
         
     def ruleLogLikelihood(self, r):
@@ -324,15 +357,16 @@ class FragmentGrammar():
         if key in self.ruleTable:
             return self.ruleTable[key]
         
-        penalty = 0.0 if self.ruleFragments == [] else log(0.5)
+        # pseudo- counts
+        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.ruleFragments)
         
-        ll = self.fragmentLikelihood(r, self.ruleFragments)
+        ll = self.fragmentLikelihood(r, self.ruleFragments) + fragmentPenalty
         ll = lse(ll,
                  self.fCLogLikelihood(r.focus) +
                  self.fCLogLikelihood(r.structuralChange) +
                  self.guardLogLikelihood(r.leftTriggers) +
                  self.guardLogLikelihood(r.rightTriggers) +
-                 penalty)
+                 recursivePenalty)
         self.ruleTable[key] = ll
         return ll
 
@@ -340,8 +374,8 @@ class FragmentGrammar():
         key = unicode(s)
         if key in self.fCTable: return self.fCTable[key]
         
-        penalty = 0.0 if self.specificationFragments == [] else log(0.5)
-        ll = log(0.33) + penalty
+        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.specificationFragments)
+        ll = log(0.33) + recursivePenalty
         if isinstance(s, EmptySpecification):
             pass
         elif isinstance(s, FeatureMatrix):
@@ -351,16 +385,19 @@ class FragmentGrammar():
         else:
             raise Exception('fCLogLikelihood: got a bad specification!')
 
-        ll = lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
+        ll = lse(ll,
+                 fragmentPenalty + self.fragmentLikelihood(s, self.specificationFragments))
         self.fCTable[key] = ll
         return ll
     
     def specificationLogLikelihood(self, s):
         key = unicode(s)
         if key in self.specificationTable: return self.specificationTable[key]
+
+        # pseudo- counts
+        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.specificationFragments)
         
-        penalty = 0.0 if self.specificationFragments == [] else log(0.5)
-        ll = log(0.5) + penalty
+        ll = recursivePenalty
         if isinstance(s, FeatureMatrix):
             ll += self.matrixLogLikelihood(s)
         elif isinstance(s, ConstantPhoneme):
@@ -368,7 +405,8 @@ class FragmentGrammar():
         else:
             raise Exception('specificationLogLikelihood: got a bad specification!')
 
-        ll = lse(ll, self.fragmentLikelihood(s, self.specificationFragments))
+        ll = lse(ll,
+                 fragmentPenalty + self.fragmentLikelihood(s, self.specificationFragments))
         self.specificationTable[key] = ll
         return ll
 
@@ -378,30 +416,46 @@ class FragmentGrammar():
         else:
             raise Exception('constantLogLikelihood: did not get a constant')
 
+    def matrixSizeLogLikelihood(self,l):
+        if l == 0: return log(0.3)
+        if l == 1: return log(0.6)
+        return log(0.05)
+
     def matrixLogLikelihood(self, m):
         if isinstance(m,FeatureMatrix):
-            # todo: come up with a better model of the number of features in the matrix
-            return len(m.featuresAndPolarities)*(-log(float(self.numberOfFeatures))) - log(4.0)
+            # empirical probabilities on matrix problems: [(0, 0.3225806451612903), (1, 0.6129032258064516), (2, 0.03225806451612903), (3, 0.03225806451612903)]
+            return len(m.featuresAndPolarities)*(-log(float(self.numberOfFeatures))) + self.matrixSizeLogLikelihood(len(m.featuresAndPolarities))
         else:
             raise Exception('matrixLogLikelihood')
 
-    def endingLogLikelihood(self,e):
-        # slight prior preference to not attending to the ending
-        if e: return log(0.33)
-        else: return log(0.66)
+    def guardLengthLogLikelihood(self,l):
+        if l == 0: return log(0.5)
+        if l == 1: return log(0.33)
+        if l == 2: return log(0.17)
+        raise Exception('unhandled guardflength')
 
     def guardLogLikelihood(self, m):
         key = unicode(m)
         if key in self.guardTable: return self.guardTable[key]
-        penalty = 0.0 if self.guardFragments == [] else log(0.5)
+        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.guardFragments)
+        
         # non- fragment case
-        ll = sum([ self.specificationLogLikelihood(s) for s in m.specifications ]) + penalty
-        ll += log(0.33) if m.endOfString else log(0.66)
+        ll = sum([ self.specificationLogLikelihood(s) for s in m.specifications ]) + recursivePenalty
+        ll += log(0.2) if m.endOfString else log(0.8)
         if len(m.specifications) == 2:
             ll += log(0.33) if m.starred else log(0.66)
-        ll -= log(3.0) # todo: improved model of number of matrixes
+        ll += self.guardLengthLogLikelihood(len(m.specifications))
+        # empirical frequencies of guard sizes:
+        # [(0, 0.52), (1, 0.32), (2, 0.16)]
 
-        ll = lse(ll, self.fragmentLikelihood(m, self.guardFragments))
+        ll = lse(ll,
+                 self.fragmentLikelihood(m, self.guardFragments) + fragmentPenalty)
         self.guardTable[key] = ll
         return ll
 
+emptyFragmentGrammar = FragmentGrammar()
+
+def pseudoCountPenalty(pc, fragments):
+    if len(fragments) == 0:
+        return 0.0,float('-inf')
+    return log(float(pc)/(len(fragments)+pc)),log(float(len(fragments))/(len(fragments)+pc))

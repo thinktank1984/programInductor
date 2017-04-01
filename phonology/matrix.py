@@ -54,7 +54,14 @@ class UnderlyingProblem():
             # IMPORTANT!
             # if the result is a more than we need to make sure that morphs can be big
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
-            return Morph.parse(self.bank, output, result)
+            if output != None:
+                return Morph.parse(self.bank, output, result)
+            else:
+                print "WARNING: Gets rejected in applyRule. Falling back on Python implementation."
+                print u
+                print r
+                printSketchFailure()
+                return Morph.fromMatrix(r.apply(u))
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.

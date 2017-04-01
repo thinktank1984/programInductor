@@ -933,6 +933,35 @@ underlyingProblems.append(Problem(
      (u"wet",u"wetəd",u"wets"),
      (u"græb",u"græbd",u"græbz")]))
 
+underlyingProblems.append(Problem(
+    '''
+    Finnish nominative versus positive.
+    Textbook solution:
+    æ > a / [+back] [ ]* _ #
+    e > i / _ #
+    This is also what the system recovers.
+    ''',
+    [(u"aamu",u"aamua"),
+     (u"hopea",u"hopeaa"),
+     (u"katto",u"kattoa"),
+     (u"kello",u"kelloa"),
+#     (u"kirya",u"kiryaa"), # I think this is a typo in the textbook
+     (u"külmæ",u"külmææ"),
+     (u"koulu",u"koulua"),
+     (u"lintu",u"lintua"),
+     (u"hüllü",u"hüllüæ"),
+     (u"kömpelö",u"kömpelöæ"),
+     (u"nækö",u"næköæ"),
+     (u"yoki",u"yokea"),
+     (u"kivi",u"kiveæ"),
+     (u"muuri",u"muuria"),
+     (u"naapuri",u"naapuria"),
+     (u"nimi",u"nimeæ"),
+#      (u"kaappi",u"kaappia"), # this was also be a typo: inconsistent with textbook solution
+     #     (u"kaikki",u"kaikkea"), # oh I think I see what's going on: APA [a] is ambiguous
+     (u"kiirehti",u"kiirehtiæ")
+    ]))
+
 interactingProblems = []
 
 interactingProblems.append(Problem(

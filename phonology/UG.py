@@ -9,8 +9,7 @@ from fragmentGrammar import *
 from time import time
 import re
 import math
-import numpy as np
-import matplotlib.pyplot as plot
+#import matplotlib.pyplot as plot
 import pickle
 import os
 from random import random
@@ -155,13 +154,7 @@ class SkeletonFeatureUG(UG):
         return SkeletonFeatureUG(SkeletonUG.fromPosterior(weightedSolutions).likelihoods,
                                  FeatureUG.fromPosterior(weightedSolutions).likelihoods)
 
-class ChineseUG():
-    def __init__(self, matrixFrequencies):
-        z = float(sum(matrixFrequencies.values()))
-        self.matrixFrequencies = dict([ (f,matrixFrequencies[f]/z) for f in matrixFrequencies ])
 
-    def featureMatrixLogLikelihood(self, matrix):
-        return math.log(self.matrixFrequencies[str(matrix)])
 
 savedSkeletonFeature = None    
 def str2ug(n):
@@ -196,6 +189,29 @@ def estimateUG(problemSolutions, k, iterations = 1, temperature = 1.0, jitter = 
 
     return grammar
 
+def empiricalDistributionOfSizes(rules):
+    guardSizes = []
+    matrixSizes = []
+    hasEnding = []
+    hasStar = []
+    for r in rules:
+        guardSizes.append(len(r.leftTriggers.specifications))
+        guardSizes.append(len(r.rightTriggers.specifications))
+        for g in [r.leftTriggers,r.rightTriggers]:
+            hasEnding.append(int(g.endOfString))
+            if len(g.specifications) == 2:
+                hasStar.append(int(g.starred))
+        for ss in [s
+                   for s in r.rightTriggers.specifications + r.leftTriggers.specifications
+                   if isinstance(s,FeatureMatrix)]:
+            matrixSizes.append(len(ss.featuresAndPolarities))
+    print "Empirical distributions:"
+    print guardSizes
+    print matrixSizes
+    print hasEnding
+    print hasStar
+    print 
+
 def loadAllSolutions():
     startTime = time()
     PICKLES = [ "pickles/"+f for f in os.listdir("pickles") if f.endswith('.p') ]
@@ -219,19 +235,23 @@ if __name__ == '__main__':
             continue
         # for testing only use a few problems
         testingProblems = [
-            # '1',
-            # '2',
-            # '3',
-            # '4',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
             '7',
+            '8',
             '10',
+            '11',
+            '12',
+            '51',
             '52',
-            '11'
+            '53'
         ]
         if not any([ p in solutionNames[j] for p in testingProblems ]):
             continue
-        # if not ("52" in solutionNames[j] or "11" in solutionNames[j]):
-        #     continue
         
         # take only the top K solutions
         K = 100
@@ -240,13 +260,20 @@ if __name__ == '__main__':
         # sort the solutions
         print solutionNames[j],len(solution),solution[0],solution[0][0]
         solutionsToFragment.append(solution)
-    induceGrammar(solutionsToFragment)
+
+    # empirical distribution of matrix and guard size
+    allRules = [ r
+                 for rankedSolutions in solutionsToFragment
+                 for r in rankedSolutions[0] ]
+    print "\n".join(map(str,allRules))
+    empiricalDistributionOfSizes(allRules)
+    induceGrammar(solutionsToFragment, 20)
         
     
-#         solution = max(solution, key = lambda r: FlatUG().logLikelihood(r))
-#         print [FlatUG().logLikelihood([r]) for r in solution ]
-#         print [str(r) for r in solution ]
-#     for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
-#         g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
-#         print g
-# #        g.plot()
+    #     solution = max(solution, key = lambda r: FlatUG().logLikelihood(r))
+    #     print [FlatUG().logLikelihood([r]) for r in solution ]
+    #     print [str(r) for r in solution ]
+    # for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
+    #     g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
+    #     print g
+    #     g.plot()

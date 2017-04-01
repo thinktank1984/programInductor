@@ -730,16 +730,16 @@ Kikuria: &\verb|[ +high ]|$\to$ {\color{red}\texttt{[ +middle ]}} $/$ \verb| _ [
 
 
 
-\subsection{Historical productivity}
+%% \subsection{Historical productivity}
 
-There is an interesting tension between discovering regularities
-that are psychologically real (like things that are used productively)
-and discovering regularities that are in the data but only due to
-historical accidents. Our system cannot distinguish them.
+%% There is an interesting tension between discovering regularities
+%% that are psychologically real (like things that are used productively)
+%% and discovering regularities that are in the data but only due to
+%% historical accidents. Our system cannot distinguish them.
 
-Are these deep analyses real? We don't answer this question, but we do
-raise it. We are agnostic. These are the kinds of regularities that a
-good linguist would notice, and our system notices them too.
+%% Are these deep analyses real? We don't answer this question, but we do
+%% raise it. We are agnostic. These are the kinds of regularities that a
+%% good linguist would notice, and our system notices them too.
 
 \subsection{Artificial Phonologies}
 
@@ -771,9 +771,9 @@ examples of what the programs look like.
 \end{figure}
 
 \begin{table}[h!]
-\centering\begin{tabular}{lcl}
+\centering\begin{tabular}{lcll}
   \toprule
-  Grammar&Example input to learner&MAP grammar\\\midrule
+  Grammar&Example input to learner&MAP grammar&Natural language analogues\\\midrule
   ABA (same/different/same)&
   \begin{tabular}{l}
     wofewo\\
@@ -782,7 +782,8 @@ examples of what the programs look like.
   \end{tabular}&
   \begin{tabular}{l}
 $\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$
-  \end{tabular}\\\midrule
+  \end{tabular}& reduplication?
+  \\\midrule
   ABB (different/same/same)&
   \begin{tabular}{l}
         wofefe\\
@@ -791,7 +792,8 @@ $\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$
   \end{tabular}&
   \begin{tabular}{l}
 $\varnothing\to \sigma_i$\verb| / |$\sigma_i$\verb|_#|
-  \end{tabular}\\\midrule
+  \end{tabular}&
+  Reduplication (eg, Tagalog)\\\midrule
   ABx (different/different/constant)&
   \begin{tabular}{l}
         wofek\\
@@ -800,8 +802,11 @@ $\varnothing\to \sigma_i$\verb| / |$\sigma_i$\verb|_#|
   \end{tabular}&
   \begin{tabular}{l}
 $\varnothing\to x$\verb| / _#|
-  \end{tabular}\\\midrule
-    AAx (same/same/constant)&
+  \end{tabular}&concatenative morphology
+  \\\midrule
+  \begin{tabular}{l}
+    AAx (same/same/constant)\\Gerken~\cite{gerken2010infants}
+    \end{tabular}&
   \begin{tabular}{l}
         wowok\\
     lolok\\
@@ -810,8 +815,13 @@ $\varnothing\to x$\verb| / _#|
   \begin{tabular}{l}
 $\varnothing\to \sigma_i$\verb| / #_|$\sigma_i$\\
 $\varnothing\to x$\verb| / _#|
-  \end{tabular}\\\midrule
-    AxA (same/constant/same)&
+  \end{tabular}&
+  \begin{tabular}{l}
+    reduplication\\concatenative morphology
+    \end{tabular}\\\midrule
+  \begin{tabular}{l}
+    AxA (same/constant/same)\\Gerken~\cite{gerken2010infants}
+    \end{tabular}&
   \begin{tabular}{l}
         wokawo\\
     lokalo\\
@@ -821,7 +831,11 @@ $\varnothing\to x$\verb| / _#|
 $\varnothing$ $\to$ \textipa{a} / \verb|# _| \\
     $\varnothing$ $\to$ \textipa{k} / \verb|# _| \\
     $\varnothing$ $\to\sigma_i$  / \verb|# _| $\sigma$ $\sigma_i$
-  \end{tabular}\\\midrule
+  \end{tabular}&
+  \begin{tabular}{l}
+    Infixing\\Reduplication
+    \end{tabular}
+  \\\midrule
     Pig Latin&
   \begin{tabular}{l}
     \textipa{pIg}$\to$\textipa{Igpe}\\
@@ -832,7 +846,7 @@ $\varnothing$ $\to$ \textipa{a} / \verb|# _| \\
       $\varnothing\to$\verb|C|$_i$ $/$ \verb|#C|$_i$\verb| [ ]* _ #|\\%
       $\varnothing\to$ \textipa{e} $/$ \verb| _ #|\\%
  \verb|C|$\to\varnothing$ $/$ \verb|# _|
-  \end{tabular}  
+  \end{tabular}  & idk
   \bottomrule  \end{tabular}
 \caption{Synthetic grammar learning experiments with 5 examples.}
 \end{table}

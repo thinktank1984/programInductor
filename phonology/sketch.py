@@ -63,7 +63,10 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h += makeSketchSkeleton()
     return h
 
+lastFailureOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False):
+    global lastFailureOutput
+    
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
     # Temporary file for writing the sketch
@@ -90,8 +93,12 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         os.remove(fd.name)
     
     if "not be resolved." in output or "Rejected" in output:
+        lastFailureOutput = source+"\n"+output
         return None
     else:
         return output
 
 
+def printSketchFailure():
+    global lastFailureOutput
+    print lastFailureOutput
