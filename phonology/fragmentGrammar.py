@@ -240,7 +240,7 @@ def proposeFragments(problems, verbose = False):
                 print f
             print ""
 
-    return [ (t, f) for t in fragments for f in fragments[t] if t != 'RULE' and t != 'GUARD' ]
+    return [ (t, f) for t in fragments for f in fragments[t] ] # if t != 'RULE' ] #and t != 'GUARD' ]
 
 def fragmentLikelihood(parameters):
     (problems, fragments, newFragment) = parameters
@@ -272,9 +272,11 @@ def pickFragments(problems, fragments, maximumGrammarSize):
 
     showMostLikelySolutions()
 
+    typeOrdering = ['SPECIFICATION','GUARD','RULE']
+
     startTime = time()
     while len(chosenFragments) < maximumGrammarSize:
-        candidateFragments = [ x for x in fragments if not x in chosenFragments ]
+        candidateFragments = [ x for x in fragments if not x in chosenFragments and x[0] == typeOrdering[0] ]
         parameters = [ (problems, chosenFragments, x) for x in candidateFragments ]
         fragmentLikelihoods = map(fragmentLikelihood, parameters)
 
@@ -290,7 +292,13 @@ def pickFragments(problems, fragments, maximumGrammarSize):
         newPosterior = bestLikelihood # + sum([ f[1].logPrior for f in chosenFragments ]) + bestPrior
         if oldPosterior != None and newPosterior < oldPosterior:
             print "But, adding nothing is better than adding that fragment."
-            break
+            if typeOrdering == []:
+                break
+            else:
+                typeOrdering = typeOrdering[1:]
+                print "Moving onto fragments of type %s"%typeOrdering[0]
+                continue
+        
         oldPosterior = newPosterior
         print "New posterior w/ all priors accounted for:",newPosterior            
         chosenFragments.append((bestType,bestFragment))

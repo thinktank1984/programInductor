@@ -678,6 +678,40 @@ Vowel harmony
   \\
 \bottomrule  \end{tabular*}
 
+\pagebreak
+These problems are solved:
+\begin{itemize}
+\item Kikurai: fricatives alternate with stops after nasals
+\item Greek: Velar stops alternate with palletized versions before front vowels
+\item Farsi: Trills alternate with flaps
+\item Osage: coronal stops become dentals before central vowels
+\item Amharic: alternation between \textipa{@} \& \textipa{E}
+\item Gen: l/r alternation
+\item Kishambaa: voiced/unvoiced nasals alternate
+\item  Thai: stops are unreleased word finally
+\item Palauan: a word initial neutralizing rule
+\item Quechua: Velar becomes uvular when followed by uvular (spreading)
+\item Lhasa Tibetan: no contrast between velar/uvular, or voiced/voiceless stops or fricatives
+\item Axininca Campa: stops become glides
+\item Kikuyu: infinitive prefix can surface as either k or \textipa{G}
+\item Korean: vowel harmony, aspiration only surfaces in certain contexts
+\item Hungarian: vowel harmony and voicing assimilation
+\item Kikuria: vowel harmony
+\item Farsi: a deletion rule explains singular/plural
+\item Tibetan: initial consonant cluster reduction explains counting system
+\item Makonde: stress patterns; unstressed vowels are neutralized
+\item North Saami: 3 neutralization rules explain nominative sg essive
+\item Samoan: 2 deletion rules that explain words that sound the same in one inflection being different in another
+\item     Russian: devoicing of word final obstruent
+\item English: verbal inflections (voicing assimilation, epenthesis)
+\item Finnish: nominative/partive explained by vowel raising and vowel harmony
+\item Kerewe: Interacting tone rules
+\item Polish: vowel alternations interacting with devoicing of word final obstruent in singular/plural
+\item Ancient Greek: voicing assimilation, deaspiration, deletion rule. Order matters.
+\end{itemize}
+18 textbook problems are not solved. 2 of these need a tier-based representation. A couple more of these are due to limitations in the program learner's representation of rules. The rest are because they involve scaling to more than 3 rules, which is about the practical limit for exact search with these methods.
+\pagebreak
+
 
 \subsubsection{An approximation to UG: Program fragments}
 
@@ -774,7 +808,10 @@ examples of what the programs look like.
 \centering\begin{tabular}{lcll}
   \toprule
   Grammar&Example input to learner&MAP grammar&Natural language analogues\\\midrule
-  ABA (same/different/same)&
+  \begin{tabular}{l}
+    ABA (same/different/same)\\
+  Marcus et al. 1999.     
+    \end{tabular}&
   \begin{tabular}{l}
     wofewo\\
     lovilo\\
@@ -782,9 +819,12 @@ examples of what the programs look like.
   \end{tabular}&
   \begin{tabular}{l}
 $\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$
-  \end{tabular}& reduplication?
+  \end{tabular}& Reduplication (eg, Tagalog)
   \\\midrule
-  ABB (different/same/same)&
+  \begin{tabular}{l}
+      ABB (different/same/same)\\
+  Marcus et al. 1999. 
+    \end{tabular}&
   \begin{tabular}{l}
         wofefe\\
     lovivi\\
@@ -796,21 +836,21 @@ $\varnothing\to \sigma_i$\verb| / |$\sigma_i$\verb|_#|
   Reduplication (eg, Tagalog)\\\midrule
   ABx (different/different/constant)&
   \begin{tabular}{l}
-        wofek\\
-    lovik\\
-    fimuk
+        wofeka\\
+    lovika\\
+    fimuka
   \end{tabular}&
   \begin{tabular}{l}
 $\varnothing\to x$\verb| / _#|
   \end{tabular}&concatenative morphology
   \\\midrule
   \begin{tabular}{l}
-    AAx (same/same/constant)\\Gerken~\cite{gerken2010infants}
+    AAx (same/same/constant)\\Gerken 2006. %~\cite{gerken2010infants}
     \end{tabular}&
   \begin{tabular}{l}
-        wowok\\
-    lolok\\
-    fifik
+        wowoka\\
+    loloka\\
+    fifika
   \end{tabular}&
   \begin{tabular}{l}
 $\varnothing\to \sigma_i$\verb| / #_|$\sigma_i$\\
@@ -820,7 +860,7 @@ $\varnothing\to x$\verb| / _#|
     reduplication\\concatenative morphology
     \end{tabular}\\\midrule
   \begin{tabular}{l}
-    AxA (same/constant/same)\\Gerken~\cite{gerken2010infants}
+    AxA (same/constant/same)\\Gerken 2006. %~\cite{gerken2010infants}
     \end{tabular}&
   \begin{tabular}{l}
         wokawo\\
@@ -846,7 +886,7 @@ $\varnothing$ $\to$ \textipa{a} / \verb|# _| \\
       $\varnothing\to$\verb|C|$_i$ $/$ \verb|#C|$_i$\verb| [ ]* _ #|\\%
       $\varnothing\to$ \textipa{e} $/$ \verb| _ #|\\%
  \verb|C|$\to\varnothing$ $/$ \verb|# _|
-  \end{tabular}  & idk
+  \end{tabular}  & 
   \bottomrule  \end{tabular}
 \caption{Synthetic grammar learning experiments with 5 examples.}
 \end{table}
