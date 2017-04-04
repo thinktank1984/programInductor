@@ -262,11 +262,11 @@ $r_1$:      $\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$};
     \draw[ultra thick,->] (morphology.south)-- (lexicon.north);
 
     \node(p1) [align = left] at (9.5,-8) {\verb|stem:| \textipa{pofe}};
-    \node(p2) [draw,align = left] at (9.5,-9.5) {\textipa{pofe}\nextForm{r_1}\\\textipa{pofep}\nextForm{r_2}\\\textipa{pofepo}};
+    \node(p2) [draw,align = left] at (9.5,-9.5) {\textipa{pofe}\nextForm{r_1}\\\textipa{pofepo}};
     \draw [thick,->] (p1.south) -- (p2.north);
     
     \node(w1) [align = left] at (12,-8) {\verb|stem:| \textipa{wug@}};
-    \node(w2) [draw,align = left] at (12,-9.5) {\textipa{wug@}\nextForm{r_1}\\\textipa{wug@w}\nextForm{r_2}\\\textipa{wug@wu}};
+    \node(w2) [draw,align = left] at (12,-9.5) {\textipa{wug@}\nextForm{r_1}\\\textipa{wug@wu}};
     \draw [thick,->] (w1.south) -- (w2.north);
     
     \node[orange,draw,align= left](ABAvocabulary) at (10.5,-11.5){\textipa{pofepo}, \textipa{wug@wu}, $\cdots$ };
@@ -275,13 +275,13 @@ $r_1$:      $\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$};
     \node(ABAlexiconBox)[green,draw,ultra thick, fit = (p1) (w1) (ABAvocabulary)] {};
     \draw [ultra thick,->] (ABAmorphologyBox.south) -- (ABAlexiconBox.north);  
 
-    \node(crib) at (4.5,-8) {\verb|CRIB:| \textipa{\v{z}wub}};
-    \node(Cingular)[draw,align = left] at (3.5,-9.5) {\verb|singular:|\\ \textipa{\v{z}wub}\nextForm{r_1}\\\textipa{\v{z}wob}\nextForm{r_2}\\\textipa{\v{z}wop}};
-    \node(plural)[draw,align = left] at (5.5,-9.5) {\verb|plural:|\\ \textipa{\v{z}wubi}\nextForm{r_1}\\\textipa{\v{z}wubi}\nextForm{r_2}\\\textipa{\v{z}wubi}};
+    \node(crib) at (4.5,-8) {\verb|horn:| \textipa{rog}};
+    \node(Cingular)[draw,align = left] at (3.5,-9.5) {\verb|singular:|\\ \textipa{rog}\nextForm{r_1}\\\textipa{rug}\nextForm{r_2}\\\textipa{ruk}};
+    \node(plural)[draw,align = left] at (5.5,-9.5) {\verb|plural:|\\ \textipa{rogi}\nextForm{r_1}\\\textipa{rogi}\nextForm{r_2}\\\textipa{rogi}};
     \draw [thick,->] (crib.south) -- (Cingular.north);
     \draw [thick,->] (crib.south) -- (plural.north);
 
-    \node[orange,draw,align = left] (polishObservation) at (4.5,-11.5) {\verb|CRIB, singular:| \textipa{\v{z}wop}\\\verb|CRIB, plural:| \textipa{\v{z}wubi}};
+    \node[orange,draw,align = left] (polishObservation) at (4.5,-11.5) {\verb|horn, singular:| \textipa{ruk}\\\verb|horn, plural:| \textipa{rogi}};
     \draw [thick,->] (Cingular.south) -- (polishObservation.north);
     \draw [thick,->] (plural.south) -- (polishObservation.north);
 
@@ -364,13 +364,13 @@ $r_1$:      $\varnothing\to$\verb|C|$_i$ $/$ \verb|#C|$_i$\verb| [ ]* _ #|\\%
     \node(ABAlexiconBox)[draw,ultra thick, fit = (p1) (w1) (ABAvocabulary)] {};
     \draw [ultra thick,->] (ABAmorphologyBox.south) -- (ABAlexiconBox.north);  
 
-    \node(crib) at (4.5,-8) {\verb|CRIB:| \textipa{\v{z}wub}};
-    \node(Cingular)[draw,align = left] at (3.5,-9.5) {\verb|singular:|\\ \textipa{\v{z}wub}\nextForm{r_1}\\\textipa{\v{z}wob}\nextForm{r_2}\\\textipa{\v{z}wop}};
-    \node(plural)[draw,align = left] at (5.5,-9.5) {\verb|plural:|\\ \textipa{\v{z}wubi}\nextForm{r_1}\\\textipa{\v{z}wubi}\nextForm{r_2}\\\textipa{\v{z}wubi}};
+    \node(crib) at (4.5,-8) {\verb|horn:| \textipa{rog}};
+    \node(Cingular)[draw,align = left] at (3.5,-9.5) {\verb|singular:|\\ \textipa{rog}\nextForm{r_1}\\\textipa{rug}\nextForm{r_2}\\\textipa{ruk}};
+    \node(plural)[draw,align = left] at (5.5,-9.5) {\verb|plural:|\\ \textipa{rogi}\nextForm{r_1}\\\textipa{rogi}\nextForm{r_2}\\\textipa{rogi}};
     \draw [thick,->] (crib.south) -- (Cingular.north);
     \draw [thick,->] (crib.south) -- (plural.north);
 
-    \node[magenta,draw,align = left] (polishObservation) at (4.5,-11.5) {\verb|CRIB, singular:| \textipa{\v{z}wop}\\\verb|CRIB, plural:| \textipa{\v{z}wubi}};
+    \node[magenta,draw,align = left] (polishObservation) at (4.5,-11.5) {\verb|horn, singular:| \textipa{\v{z}wop}\\\verb|horn, plural:| \textipa{\v{z}wubi}};
     \draw [thick,->] (Cingular.south) -- (polishObservation.north);
     \draw [thick,->] (plural.south) -- (polishObservation.north);
 
@@ -391,12 +391,13 @@ $\mathcal{R}\to \mathcal{F}\longrightarrow \mathcal{C} / \mathcal{T}\_\mathcal{T
 $\mathcal{T}\to \# \mathcal{T}' | \mathcal{T}'$ & Triggers optionally match end of string\\
 $\mathcal{T}'\to \epsilon | \mathcal{X} \mathcal{T}' | \mathcal{X}^* \mathcal{T}'$ & Triggers are sequences of matrices $\mathcal{X}$ possibly with Kleene star\\
 $\mathcal{X}\to a|t|s|\cdots$&Matrices can be constant phonemes\\
-$\mathcal{X}\to [\pm \mathcal{F} \; \pm \mathcal{F} \; \cdots \; \pm \mathcal{F}]$& Matrices check features $\mathcal{F}$\\
-$\mathcal{F}\to \text{voice}|\text{nasal}|\cdots$&Standard phonological features\\
+$\mathcal{X}\to [\pm \mathcal{G} \; \pm \mathcal{G} \; \cdots \; \pm \mathcal{G}]$& Matrices check features $\mathcal{G}$\\
+$\mathcal{X}\to \sigma$&Matrices can be whole syllables\\
+$\mathcal{G}\to \text{voice}|\text{nasal}|\cdots$&Standard phonological features\\
 $\mathcal{F}\to \mathcal{X}$&Focus can be a feature matrix\\
-$\mathcal{F}\to \#$&Focus can be end-of-string\\
+$\mathcal{F}\to \varnothing$&Focus can be empty (insertion rule)\\
 $\mathcal{F}\to\mathbb{Z}$&Focus can be one of the triggers (copies it)\\
-$\mathcal{C}\to\mathcal{F}$&Structural change can be a feature matrix\\
+$\mathcal{C}\to\mathcal{X}$&Structural change can be a feature matrix\\
 $\mathcal{C}\to\varnothing$&Deletion rule\\
 \bottomrule
 \end{tabular*}

@@ -205,7 +205,7 @@ def proposeFragments(problems, verbose = False):
     # Don't allow fragments that are already in the grammar, for example SPECIFICATION -> MATRIX
     badFragments = {
         'GUARD': ['GUARD'],
-        'SPECIFICATION': ['MATRIX','CONSTANT','SPECIFICATION'],
+        'SPECIFICATION': ['MATRIX','CONSTANT','SPECIFICATION','[  ]'],
         'RULE': ['RULE']
         }
 
