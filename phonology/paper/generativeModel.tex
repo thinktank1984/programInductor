@@ -66,8 +66,8 @@
     \node(polishMorphologyLabel) at (4.5,-3.5) {Polish Morphology};
     \node(polishMorphology) [draw,align = left] at (4.5,-4.3) {\verb|singular|$\to$ \verb|stem|\\\verb|plural|$\to$ \verb|stem|$ + $ /\textipa{i}/};
 
-    \node at (4.5,-5.5) {Polish Phonology};
-    \node(polishPhonology) [draw,align = left] at (4.5,-6.3) {%
+    \node at (4.5,-5.5+0.4) {Polish Phonology};
+    \node(polishPhonology) [draw,align = left] at (4.5,-6.3+0.4) {%
       $r_1$: \textipa{o}$\to$\textipa{u}$/$\verb|_[-nasal +voice]#|\\%
       $r_2$: \verb|[-sonorant]|$\to$\verb|[-voice]|$/$\verb|_#|};
     \node(polishMorphologyBox)[blue,draw,ultra thick, fit = (polishMorphologyLabel) (polishPhonology)] {};
@@ -86,11 +86,11 @@
     \node(w1) [align = left] at (\syntheticX + 1,-8) {\verb|A|$+$\verb|B:| \textipa{wug@}};
     \node(w2) [draw,align = left] at (\syntheticX + 1,-9.5) {\textipa{wug@}\nextForm{r_1}\\\textipa{wuwug@}};
     \draw [thick,->] (w1.south) -- (w2.north);
-    
+    \node(aablexicon) [label = {[name = l] \small \emph{lexicon:}},black,draw,fit = (w1) (p1)] {};    
     \node[magenta,draw,align= left](AABvocabulary) at (\syntheticX,-11.5){\textipa{popofe}, \textipa{wuwug@}, $\cdots$ };
     \draw [thick,->] (p2.south) -- (AABvocabulary.north);
     \draw [thick,->] (w2.south) -- (AABvocabulary.north);
-    \node(AABlexiconBox)[black,draw,ultra thick, fit = (p1) (w1) (AABvocabulary)] {};
+    \node(AABlexiconBox)[black,draw,ultra thick, fit = (p1) (w1) (l) (aablexicon) (AABvocabulary)] {};
     \draw [ultra thick,->] (AABmorphologyBox.south) -- (AABlexiconBox.north);  
 
     \node(p1) [align = left] at (\ChineseX - 1,-8) {\verb|stem:| \textipa{xau}};
@@ -100,15 +100,19 @@
     \node(w1) [align = left] at (\ChineseX + 1,-8) {\verb|stem:| \textipa{\c{c}in}};
     \node(w2) [draw,align = left] at (\ChineseX + 1,-9.5) {\textipa{\c{c}ind@}\nextForm{r_1}\\\textipa{\c{c}in\c{c}ind@}};
     \draw [thick,->] (w1.south) -- (w2.north);
+
+    \node(chineseLexicon) [label = {[name = l] \small \emph{lexicon:}},black,draw,fit = (w1) (p1)] {};
     
     \node[magenta,draw,align= left](Chinesevocabulary) at (\ChineseX,-11.5){\textipa{xauxaud@}, \textipa{\c{c}in\c{c}ind@}, $\cdots$ };
     \draw [thick,->] (p2.south) -- (Chinesevocabulary.north);
     \draw [thick,->] (w2.south) -- (Chinesevocabulary.north);
-    \node(ChineselexiconBox)[black,draw,ultra thick, fit = (p1) (w1) (Chinesevocabulary)] {};
+    \node(ChineselexiconBox)[black,draw,ultra thick, fit = (p1) (w1) (Chinesevocabulary) (chineseLexicon) (l)] {};
     \draw [ultra thick,->] (ChinesemorphologyBox.south) -- (ChineselexiconBox.north);  
+
 
     
     \node(crib) at (4.5,-8) {\verb|horn:| \textipa{rog}};
+    \node(polishLexicon)[label = {[name = l] \small \emph{lexicon:}},black,draw,fit = (crib)] {};
     \node(Cingular)[draw,align = left] at (3.5,-9.5) {\verb|singular:|\\ \textipa{rog}\nextForm{r_1}\\\textipa{rug}\nextForm{r_2}\\\textipa{ruk}};
     \node(plural)[draw,align = left] at (5.5,-9.5) {\verb|plural:|\\ \textipa{rogi}\nextForm{r_1}\\\textipa{rogi}\nextForm{r_2}\\\textipa{rogi}};
     \draw [thick,->] (crib.south) -- (Cingular.north);
@@ -118,8 +122,8 @@
     \draw [thick,->] (Cingular.south) -- (polishObservation.north);
     \draw [thick,->] (plural.south) -- (polishObservation.north);
 
-    \node(polishLexicon)[black,draw,ultra thick, fit = (crib) (Cingular) (plural) (polishObservation)] {};
-    \draw [ultra thick,->] (polishMorphologyBox.south) -- (polishLexicon.north);
+    \node(polishData)[black,draw,ultra thick, fit = (l) (crib) (Cingular) (plural) (polishObservation) (polishLexicon)] {};
+    \draw [ultra thick,->] (polishMorphologyBox.south) -- (polishData.north);
     
   \end{tikzpicture}
   %% \caption{{\color{red}Red}: Both the morphology $\mathcal{M}$ and
