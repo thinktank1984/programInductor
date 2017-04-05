@@ -46,19 +46,19 @@
     \newcommand*{\ChineseX}{10.5}%
 
     \node(AABmorphologyLabel) at (\syntheticX,-3.5) {AAB Morphology};
-    \node(AABmorphology) [draw,align = left] at (\syntheticX,-4){ \verb|observation|$\to$\verb|stem|};
+    \node(AABmorphology) [draw,align = left] at (\syntheticX,-4){ \verb|A|$+$\verb|B|};
 
     \node(AABphonologyLabel) at (\syntheticX,-5.5) {AAB Phonology};
     \node(AABphonology) [draw,align = left] at (\syntheticX,-6) {%
-      $r_1$:      $\varnothing\to \sigma_i$\verb| / #_|$\sigma_i$};
+      $r_1$:      $\varnothing\to \sigma_i$\verb| / | $\sigma_i$\verb|_|$\sigma$};
     \node(AABmorphologyBox)[blue,draw,ultra thick, fit = (AABmorphologyLabel) (AABphonology) (AABmorphology)] {};
 
     \node(ChinesemorphologyLabel) at (\ChineseX,-3.5) {Chinese Morphology};
-    \node(Chinesemorphology) [draw,align = left] at (\ChineseX,-4){ \verb|observation|$\to$\verb|stem|+/\textipa{d@}/};
+    \node(Chinesemorphology) [draw,align = left] at (\ChineseX,-4){ \verb|stem|+/\textipa{d@}/};
 
     \node(ChinesephonologyLabel) at (\ChineseX,-5.5) {Chinese Phonology};
     \node(Chinesephonology) [draw,align = left] at (\ChineseX,-6) {%
-      $r_1$:      $\varnothing\to \sigma_i$\verb| / #_|$\sigma_i$};
+      $r_1$:      $\varnothing\to \sigma_i$\verb| / |$\sigma_i$ \verb|_| \textipa{d@}};
     \node(ChinesemorphologyBox)[blue,draw,ultra thick, fit = (ChinesemorphologyLabel) (Chinesephonology) (Chinesemorphology)] {};
 
 
@@ -79,11 +79,11 @@
     \node(lexicon)[magenta,align = above] at (-1,-10) {\textbf{Observed data}};
     \draw[ultra thick,->] (morphology.south)-- (lexicon.north);
 
-    \node(p1) [align = left] at (\syntheticX - 1,-8) {\verb|stem:| \textipa{pofe}};
+    \node(p1) [align = left] at (\syntheticX - 1,-8) {\verb|A|$+$\verb|B:| \textipa{pofe}};
     \node(p2) [draw,align = left] at (\syntheticX - 1,-9.5) {\textipa{pofe}\nextForm{r_1}\\\textipa{popofe}};
     \draw [thick,->] (p1.south) -- (p2.north);
     
-    \node(w1) [align = left] at (\syntheticX + 1,-8) {\verb|stem:| \textipa{wug@}};
+    \node(w1) [align = left] at (\syntheticX + 1,-8) {\verb|A|$+$\verb|B:| \textipa{wug@}};
     \node(w2) [draw,align = left] at (\syntheticX + 1,-9.5) {\textipa{wug@}\nextForm{r_1}\\\textipa{wuwug@}};
     \draw [thick,->] (w1.south) -- (w2.north);
     
