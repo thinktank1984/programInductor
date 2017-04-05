@@ -235,6 +235,9 @@ class UnderlyingProblem():
             affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
                               (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
                               for j in range(self.numberOfInflections) ])
+            # print "affixSize = ",affixSize
+            # condition(wordLength(prefixes[0]) == 2)
+            # condition(wordLength(suffixes[0]) == 2)
 
             # We subtract a constant from the stems size in order to offset the cost
             # Should have no effect upon the final solution that we find,

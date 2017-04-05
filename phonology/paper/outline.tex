@@ -410,12 +410,10 @@ $\mathcal{C}\to\varnothing$&Deletion rule\\
 \begin{tabular*}{\textwidth}{ll}
 \toprule
 Grammar rule  & English description \\\midrule
-$\mathcal{M}\to \mathcal{M} + \mathcal{M}$&Morphologies $\mathcal{M}$ are concatenations of more basic components\\
-$\mathcal{M}\to $ \verb|stem| & Morphologies can referred to the stem of a lexeme\\
-$\mathcal{M}\to \mathcal{A}$ & Morphologies can include constant affixes\\
-$\mathcal{A}\to $ sequence of phonemes\bottomrule
+$\mathcal{W}\to (\mathcal{M}) \mathcal{M} (\mathcal{M})$&Morphology builds words $\mathcal{W}$ by concatenating morphemes $\mathcal{M}$. Prefix/Suffix optional (in parentheses)\\
+$\mathcal{M}\to$ sequence of phonemes\bottomrule
 \end{tabular*}
-\caption{Grammar over morphologies. The non-terminal $\mathcal{M}$ is the start symbol for the grammar.}
+\caption{Grammar over morphologies. The non-terminal $\mathcal{W}$ is the start symbol for the grammar.}
 \label{morphologyGrammar}
 \end{table*}
 

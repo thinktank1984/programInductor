@@ -962,6 +962,21 @@ underlyingProblems.append(Problem(
      (u"kiirehti",u"kiirehtiæ")
     ]))
 
+underlyingProblems.append(Problem(
+    '''
+    Lithuanian invoicing assimilation
+    ''',
+    [(u"ateiti",),
+     (u"atimti",),
+     (u"atleisti",),
+     (u"atlikti",),
+     (u"atko:pti",),
+     (u"atkurti",),
+     (u"adbekti",),
+     (u"adgauti",),
+     (u"adbukti",),
+     (u"adgimti",)]))
+
 interactingProblems = []
 
 interactingProblems.append(Problem(
