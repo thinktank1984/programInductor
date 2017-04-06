@@ -20,7 +20,7 @@
   \begin{tikzpicture}
 
     \node(UG)[purple,align = center] at (-1,-1) {\textbf{Programming language}\\\textbf{(Universal Grammar)}};
-    \newcommand*{\universalX}{13.5}%
+    \newcommand*{\universalX}{13}%
 
 
     \node(sounds) at (\universalX - 3.5,-0.3) {Phoneme Inventory};
@@ -45,29 +45,29 @@
     \newcommand*{\syntheticX}{15.5}%
     \newcommand*{\ChineseX}{10.5}%
 
-    \node(AABmorphologyLabel) at (\syntheticX,-3.5) {AAB Morphology};
-    \node(AABmorphology) [draw,align = left] at (\syntheticX,-4){ \verb|A|$+$\verb|B|};
+    \node(AABmorphologyLabel) at (\syntheticX-0.5,-3.5) {AAB Morphology};
+    \node(AABmorphology) [draw,align = left] at (\syntheticX-0.5,-4){ \verb|A|$+$\verb|B|};
 
-    \node(AABphonologyLabel) at (\syntheticX,-5.5) {AAB Phonology};
-    \node(AABphonology) [draw,align = left] at (\syntheticX,-6) {%
+    \node(AABphonologyLabel) at (\syntheticX - 0.5,-5.5) {AAB Phonology};
+    \node(AABphonology) [draw,align = left] at (\syntheticX - 0.5,-6) {%
       $r_1$:      $\varnothing\to \sigma_i$\verb| / | $\sigma_i$\verb|_|$\sigma$};
     \node(AABmorphologyBox)[blue,draw,ultra thick, fit = (AABmorphologyLabel) (AABphonology) (AABmorphology)] {};
 
-    \node(ChinesemorphologyLabel) at (\ChineseX,-3.5) {Chinese Morphology};
-    \node(Chinesemorphology) [draw,align = left] at (\ChineseX,-4){ \verb|stem|+/\textipa{d@}/};
+    \node(ChinesemorphologyLabel) at (\ChineseX - 0.5,-3.5) {Chinese Morphology};
+    \node(Chinesemorphology) [draw,align = left] at (\ChineseX - 0.5,-4){ \verb|stem|+/\textipa{d@}/};
 
-    \node(ChinesephonologyLabel) at (\ChineseX,-5.5) {Chinese Phonology};
-    \node(Chinesephonology) [draw,align = left] at (\ChineseX,-6) {%
+    \node(ChinesephonologyLabel) at (\ChineseX - 0.5,-5.5) {Chinese Phonology};
+    \node(Chinesephonology) [draw,align = left] at (\ChineseX - 0.5,-6) {%
       $r_1$:      $\varnothing\to \sigma_i$\verb| / |$\sigma_i$ \verb|_| \textipa{d@}};
     \node(ChinesemorphologyBox)[blue,draw,ultra thick, fit = (ChinesemorphologyLabel) (Chinesephonology) (Chinesemorphology)] {};
 
 
 
-    \node(polishMorphologyLabel) at (4.5,-3.5) {Polish Morphology};
-    \node(polishMorphology) [draw,align = left] at (4.5,-4.3) {\verb|singular|$\to$ \verb|stem|\\\verb|plural|$\to$ \verb|stem|$ + $ /\textipa{i}/};
+    \node(polishMorphologyLabel) at (4.5 - 0.5,-3.5) {Polish Morphology};
+    \node(polishMorphology) [draw,align = left] at (4.5 - 0.5,-4.3) {\verb|singular|$\to$ \verb|stem|\\\verb|plural|$\to$ \verb|stem|$ + $ /\textipa{i}/};
 
-    \node at (4.5,-5.5+0.4) {Polish Phonology};
-    \node(polishPhonology) [draw,align = left] at (4.5,-6.3+0.4) {%
+    \node at (4.5 - 0.5,-5.5+0.4) {Polish Phonology};
+    \node(polishPhonology) [draw,align = left] at (4.5 - 0.5,-6.3+0.4) {%
       $r_1$: \textipa{o}$\to$\textipa{u}$/$\verb|_[-nasal +voice]#|\\%
       $r_2$: \verb|[-sonorant]|$\to$\verb|[-voice]|$/$\verb|_#|};
     \node(polishMorphologyBox)[blue,draw,ultra thick, fit = (polishMorphologyLabel) (polishPhonology)] {};
