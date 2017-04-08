@@ -44,6 +44,15 @@ class UnderlyingProblem():
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
+    @staticmethod
+    def jointSolutionCost(rules = [],stems = [],prefixes = [],suffixes = []):
+        c = 0
+        c += sum([r.cost() for r in rules ])
+        c += sum([len(s) for s in stems ])
+        c += sum([len(s) for s in prefixes ])
+        c += sum([len(s) for s in suffixes ])
+        return c
+
     def applyRule(self, r, u):
         if USEPYTHONRULES:# use the Python implementation of rules
             return Morph.fromMatrix(r.apply(u))
@@ -190,7 +199,6 @@ class UnderlyingProblem():
 
         return None
 
-
     def verify(self, prefixes, suffixes, rules, inflections):
         Model.Global()
 
@@ -235,16 +243,13 @@ class UnderlyingProblem():
             affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
                               (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
                               for j in range(self.numberOfInflections) ])
-            # print "affixSize = ",affixSize
-            # condition(wordLength(prefixes[0]) == 2)
-            # condition(wordLength(suffixes[0]) == 2)
 
             # We subtract a constant from the stems size in order to offset the cost
             # Should have no effect upon the final solution that we find,
             # but it lets sketch get away with having to deal with smaller numbers
             stemSize = sum([ wordLength(m)-
                              (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
-                              else len(self.inflectionMatrix[j][0]) - 3)
+                              else len(self.inflectionMatrix[j][0]) - 4)
                              for j,m in enumerate(stems) ])
             
             ruleSize = sum([ruleCost(r) for r in rules ])
@@ -287,6 +292,7 @@ class UnderlyingProblem():
             rules = [ Rule.parse(self.bank, output, r) for r in rules ]
             UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
             UnderlyingProblem.showRules(rules)
+            
             return (prefixes, suffixes, stems, rules)
         except SynthesisFailure:
             if canAddNewRules:
@@ -348,24 +354,46 @@ class UnderlyingProblem():
             solverTime = time() - solverTime
 
             counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
-            if counterexample == None: # we found a solution that had no counterexamples
-                print "Final set of counterexamples:"
-                print latexMatrix(trainingData)
-                print "Final solutions:"
-                UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-                underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
-
-                # Do we have enough time in our budget to not be fast?
-                if solverTime*k < threshold:
-                    solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, rules)
-                else:
-                    print "Using the optimized top rules."
-                    solutions = [ (prefixes, suffixes, rs)
-                                  for rs in self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules) ]
-                    
-                return solutions
-            else:
+            if counterexample != None:
                 trainingData.append(counterexample)
+                continue
+            
+            # we found a solution that had no counterexamples
+            print "Final set of counterexamples:"
+            print latexMatrix(trainingData)
+
+            # When we expect it to be tractable, we should try doing a little bit deeper
+            if self.depth < 3 and self.numberOfInflections < 3:
+                thisCost = UnderlyingProblem.jointSolutionCost(rules = rules,
+                                                               stems = stems,
+                                                               prefixes = prefixes,
+                                                               suffixes = suffixes)
+                slave = UnderlyingProblem(trainingData, self.depth + 1, self.bank)
+                _p,_s,_stems,_r = slave.sketchJointSolution(canAddNewRules = False)
+                expandedCost = UnderlyingProblem.jointSolutionCost(rules = _r,
+                                                                   stems = _stems,
+                                                                   prefixes = _p,
+                                                                   suffixes = _s)
+                if expandedCost <= thisCost:
+                    prefixes, suffixes, stems, rules = _p,_s,_stems,_r
+                    print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
+                else:
+                    print "Sticking with depth of %d"%(self.depth)
+                    
+            print "Final solutions:"
+            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+            underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
+
+            # Do we have enough time in our budget to not be fast?
+            if solverTime*k < threshold:
+                solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, rules)
+            else:
+                print "Using the optimized top rules."
+                solutions = [ (prefixes, suffixes, rs)
+                              for rs in self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules) ]
+
+            return solutions
+
 
     def inflectionAccuracy(self, prefixes, suffixes, rules, inflections):
         """inflections : list of APA strings. Returns (accuracy, descriptionLength)"""
@@ -481,7 +509,7 @@ if __name__ == '__main__':
                     6,
                     7,
                     8,
-                    #9, having problems
+                    9,
                     10,
                     11,
                     12,

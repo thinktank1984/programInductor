@@ -964,7 +964,7 @@ underlyingProblems.append(Problem(
 
 underlyingProblems.append(Problem(
     '''
-    Lithuanian invoicing assimilation
+    Lithuanian voicing assimilation & epenthesis
     ''',
     [(u"ateiti",),
      (u"atimti",),
@@ -975,7 +975,25 @@ underlyingProblems.append(Problem(
      (u"adbekti",),
      (u"adgauti",),
      (u"adbukti",),
-     (u"adgimti",)]))
+     (u"adgimti",),
+     (u"atiduoti",),
+     (u"atidari:ti",),
+     (u"atideti",),
+     (u"atiteisti",),]))
+
+underlyingProblems.append(Problem(
+    '''
+    Armenian voicing assimilation & epenthesis
+    ''',
+    [(u"kert^ham",),
+     (u"kasiem",),
+     (u"kaniem",),
+     (u"kakaniem",),
+     (u"kurriem",),
+     (u"kətam",),
+     (u"kəkienam",),
+     (u"gəbəzzam",),
+     (u"gəlam",)]))
 
 interactingProblems = []
 
