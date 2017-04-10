@@ -70,6 +70,13 @@ class UnderlyingProblem():
                 print u
                 print r
                 printSketchFailure()
+                # Weaker test
+                Model.Global()
+                condition(wordLength(applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))) > 0)
+                if solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength) == None:
+                    print "WARNING: weaker test also fails"
+                else:
+                    print "WARNING: weaker test succeeds"
                 return Morph.fromMatrix(r.apply(u))
 
     def sortDataByLength(self):
@@ -363,7 +370,7 @@ class UnderlyingProblem():
             print latexMatrix(trainingData)
 
             # When we expect it to be tractable, we should try doing a little bit deeper
-            if self.depth < 3 and self.numberOfInflections < 3:
+            if False and self.depth < 3 and self.numberOfInflections < 3:
                 thisCost = UnderlyingProblem.jointSolutionCost(rules = rules,
                                                                stems = stems,
                                                                prefixes = prefixes,
