@@ -242,8 +242,6 @@ class UnderlyingProblem():
             Model.Global()
             rules = [ Rule.sample() for _ in range(self.depth) ]
             stems = [ Morph.sample() for _ in self.inflectionMatrix ]
-            # useful for debugging fifty one
-            # for stem in stems: condition(wordLength(stem) == 3)
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
        
@@ -261,32 +259,6 @@ class UnderlyingProblem():
             
             ruleSize = sum([ruleCost(r) for r in rules ])
             minimize(ruleSize + stemSize + affixSize)
-            if False: # testing for fifty one
-                #[  ] ---> [ -highTone ] / [ +highTone ] [  ] _ 
-                #[  ] ---> [ +highTone ] / [ +highTone ] [  ] _ [  ]
-                r1 = Rule(FeatureMatrix([]), FeatureMatrix([(False,"highTone")]),
-                          Guard('L',False,False,[FeatureMatrix([(True,"highTone")]),
-                                                 FeatureMatrix([])]),
-                          Guard('R',False,False,[]),
-                          0)
-                r2 = Rule(FeatureMatrix([]), FeatureMatrix([(True,"highTone")]),
-                          Guard('L',False,False,[FeatureMatrix([(True,"highTone")]),
-                                                 FeatureMatrix([])]),
-                          Guard('R',False,False,[FeatureMatrix([])]),
-                          0)
-                print "I would like to see these rules:"
-                print r1
-                print r2
-                if False: # using rule equal
-                    condition(ruleEqual(rules[0],
-                                        r1.makeConstant(self.bank)))
-                    if len(rules) > 1:
-                        condition(ruleEqual(rules[1],
-                                        r2.makeConstant(self.bank)))
-                else:
-                    rules[0] = define("Rule",r1.makeConstant(self.bank))
-                    if len(rules) > 1:
-                        rules[1] = define("Rule",r2.makeConstant(self.bank))
 
             self.conditionOnData(rules, stems, prefixes, suffixes)
 
@@ -370,7 +342,7 @@ class UnderlyingProblem():
             print latexMatrix(trainingData)
 
             # When we expect it to be tractable, we should try doing a little bit deeper
-            if False and self.depth < 3 and self.numberOfInflections < 3:
+            if self.depth < 3 and self.numberOfInflections < 3:
                 thisCost = UnderlyingProblem.jointSolutionCost(rules = rules,
                                                                stems = stems,
                                                                prefixes = prefixes,
