@@ -42,7 +42,7 @@ class UnderlyingProblem():
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
-        self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
+        self.maximumMorphLength = self.maximumObservationLength #max(10,self.maximumObservationLength - 2)
 
     @staticmethod
     def jointSolutionCost(rules = [],stems = [],prefixes = [],suffixes = []):
