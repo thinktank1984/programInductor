@@ -42,7 +42,7 @@ class UnderlyingProblem():
         self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
 
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
-        self.maximumMorphLength = self.maximumObservationLength #max(10,self.maximumObservationLength - 2)
+        self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
     @staticmethod
     def jointSolutionCost(rules = [],stems = [],prefixes = [],suffixes = []):
@@ -125,6 +125,12 @@ class UnderlyingProblem():
         
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         if not output:
+            print "FATAL: Failed underlying form analysis"
+            for observation in self.data:
+                stem = self.verify(prefixes, suffixes, rules, observation)
+                print "Verification of",observation
+                print "\tstem =",stem
+                if stem == False: print "\t(FAILURE)"
             raise SynthesisFailure("Failed at underlying form analysis.")
 
         us = [ Morph.parse(self.bank, output, s) for s in stems ]
@@ -196,9 +202,12 @@ class UnderlyingProblem():
     def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
         print "Beginning verification"
         for observation in self.data:
-            if observation in trainingData:
-                continue
-            if not self.verify(prefixes, suffixes, rules, observation):
+            stem = self.verify(prefixes, suffixes, rules, observation)
+            if stem == False:
+                if observation in trainingData:
+                    print "FATAL: Failed to verify ",observation,"which is in the training data."
+                    assert False
+                    continue
                 print "COUNTEREXAMPLE:\t",
                 for i in observation: print i,"\t",
                 print ""
@@ -207,6 +216,10 @@ class UnderlyingProblem():
         return None
 
     def verify(self, prefixes, suffixes, rules, inflections):
+        '''Checks whether the model can explain these inflections.
+        If it can then it returns an underlying form consistent with the data.
+        Otherwise it returns False.
+        '''
         Model.Global()
 
         stem = Morph.sample()
@@ -221,7 +234,10 @@ class UnderlyingProblem():
         self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        return (output != None)
+        if output == None:
+            return False
+        else:
+            return Morph.parse(self.bank, output, stem)
 
     @staticmethod
     def showMorphologicalAnalysis(prefixes, suffixes):
@@ -265,6 +281,7 @@ class UnderlyingProblem():
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
             if not output:
                 raise SynthesisFailure("Failed at morphological analysis.")
+            
             prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
             suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
             stems = [ Morph.parse(self.bank, output, s) for s in stems ]
@@ -356,6 +373,14 @@ class UnderlyingProblem():
                 if expandedCost <= thisCost:
                     prefixes, suffixes, stems, rules = _p,_s,_stems,_r
                     print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
+                    self.depth += 1
+                    counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+                    if counterexample != None:
+                        trainingData.append(counterexample)
+                        print "Despite being better, there is a counterexample; continue CEGIS"
+                        continue # do another round of counterexample guided synthesis
+                    else:
+                        print "Also, expanded rules have no counter examples."
                 else:
                     print "Sticking with depth of %d"%(self.depth)
                     
