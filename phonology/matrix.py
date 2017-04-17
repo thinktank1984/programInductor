@@ -59,7 +59,9 @@ class UnderlyingProblem():
         else:
             Model.Global()
             result = Morph.sample()
-            condition(wordEqual(result,applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))))
+            _r = define("Rule", r.makeConstant(self.bank))
+            fixStructuralChange(_r)
+            condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank))))
             # IMPORTANT!
             # if the result is a more than we need to make sure that morphs can be big
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
@@ -193,7 +195,7 @@ class UnderlyingProblem():
                               [ Rule.parse(self.bank, output, r) for r in rules ]))
         return solutions
 
-    def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
+    def findCounterexamples(self, prefixes, suffixes, rules, trainingData = []):
         print "Beginning verification"
         for observation in self.data:
             if observation in trainingData:
@@ -202,9 +204,11 @@ class UnderlyingProblem():
                 print "COUNTEREXAMPLE:\t",
                 for i in observation: print i,"\t",
                 print ""
-                return observation
+                yield observation
 
-        return None
+    def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
+        # Returns the first counterexample or None if there are no counterexamples
+        return next(self.findCounterexamples(prefixes, suffixes, rules, trainingData), None)
 
     def verify(self, prefixes, suffixes, rules, inflections):
         Model.Global()
@@ -423,6 +427,117 @@ class UnderlyingProblem():
                     encodingLength = len(Morph.parse(self.bank, output, stem))
         return correctPredictions/float(len(inflections)), encodingLength
 
+    def sketchIncrementalChange(self, existingRules):
+        Model.Global()
+        newRule = Rule.sample()
+        _existingRules = existingRules
+        existingRules = [ define("Rule", r.makeConstant(self.bank)) for r in existingRules ]
+        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+        suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+
+        # Introduce random variables that control what kind of incremental change it is
+        replaceRule = [ flip() for _ in existingRules ]
+        addedRule = flip()
+        flags = [addedRule] + replaceRule
+        condition(Or(flags)) # make a change
+        # make exactly one change
+        for j in range(len(flags) - 1):
+            for k in range(j + 1,len(flags)):
+                condition(Not(And([flags[j],flags[k]])))
+
+        affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
+                          (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
+                          for j in range(self.numberOfInflections) ])
+
+        # We subtract a constant from the stems size in order to offset the cost
+        # Should have no effect upon the final solution that we find,
+        # but it lets sketch get away with having to deal with smaller numbers
+        stemSize = sum([ wordLength(m)-
+                         (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
+                          else len(self.inflectionMatrix[j][0]) - 4)
+                         for j,m in enumerate(stems) ])
+
+        ruleSize = Conditional(addedRule, ruleCost(newRule), Constant(0))
+        for f,r in zip(replaceRule,existingRules):
+            ruleSize += Conditional(f, ruleCost(newRule), ruleCost(r))
+        minimize(ruleSize + stemSize + affixSize)
+
+        for r in [newRule] + existingRules:
+            condition(fixStructuralChange(r))
+
+        for surface,stem in zip(self.data, stems):
+            for i in range(self.numberOfInflections):
+                underlying = concatenate3(prefixes[i],stem,suffixes[i])
+                # transform the underlying representation step-by-step
+                underlying = Conditional(addedRule, applyRule(newRule, underlying), underlying)
+                for f,r in zip(replaceRule,existingRules):
+                    underlying = applyRule(Conditional(f, newRule, r), underlying)
+                condition(wordEqual(makeConstantWord(self.bank, surface[i]), underlying))
+
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
+        if not output:
+            #printSketchFailure()
+            raise SynthesisFailure('Failed at incrementally changing.')
+        replaceRule = [ parseFlip(output, f) for f in replaceRule ]
+        addedRule = parseFlip(output, addedRule)
+        prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
+        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
+        stems = [ Morph.parse(self.bank, output, s) for s in stems ]
+
+        newRule = Rule.parse(self.bank, output, newRule)
+        if addedRule:
+            print "Added rule",newRule
+            rules = [newRule] + _existingRules
+        else:
+            print "Replaced rule",_existingRules[replaceRule.index(True)],"with",newRule
+            rules = [ (newRule if f else r) for f,r in zip(replaceRule, _existingRules) ]
+            
+        UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
+        UnderlyingProblem.showRules(rules)
+
+        return (prefixes, suffixes, stems, rules)
+
+    def incrementallySolve(self):
+        # start out with just the first example
+        print "Starting out with explaining just the first example:"
+        trainingData = self.data[:1]
+        slave = UnderlyingProblem(trainingData, 1, self.bank)
+        prefixes, suffixes, _, rules = slave.sketchJointSolution()
+
+        while True:
+            haveCounterexample = False
+            newExample = None
+            for ce in self.findCounterexamples(prefixes, suffixes, rules, trainingData):
+                haveCounterexample = True
+                slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
+                try:
+                    prefixes, suffixes, _, rules = slave.sketchIncrementalChange(rules)
+                    newExample = ce
+                    break
+                except SynthesisFailure:
+                    print "But, cannot incrementally change rules right now to accommodate that example."
+            if not haveCounterexample:
+                print "No more counterexamples; done."
+                break
+            else:
+                if newExample == None:
+                    print "I can't make any local changes to my rules to accommodate a counterexample."
+                    print "The solution so far is the best I can do."
+                    break
+                else:
+                    trainingData += [ce]
+                    print "Added the counterexample to the training data."
+                    print "Training data:"
+                    for t in trainingData:
+                        print "\t".join(t)
+                    print 
+                    
+                    
+        
+        
+        
+
             
 
 
@@ -445,6 +560,8 @@ def handleProblem(parameters):
         ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
     else:
         up = UnderlyingProblem(p.data, 1)
+        up.incrementallySolve()
+        assert False
         ss, accuracy, compression = up.heldOutSolution(parameters['top'],
                                                        parameters['threshold'],
                                                        testing = parameters['testing'],

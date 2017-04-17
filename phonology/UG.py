@@ -235,20 +235,21 @@ if __name__ == '__main__':
             continue
         # for testing only use a few problems
         testingProblems = [
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '10',
-            '11',
-            '12',
-            '51',
-            '52',
-            '53'
+            # '1',
+            # '2',
+            # '3',
+            # '4',
+            # '5',
+            # '6',
+            # '7',
+            # '8',
+            # '10',
+            # '11',
+            # '12',
+            # '51',
+            # '52',
+            # '53'
+            '9'
         ]
         if not any([ p in solutionNames[j] for p in testingProblems ]):
             continue

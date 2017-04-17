@@ -102,6 +102,12 @@ class And(Expression):
     def web(self):
         return "(%s)" % (" && ".join([c.web() for c in self.clauses ]))
 
+class Not(Expression):
+    def __init__(self,clauses):
+        self.clauses = clauses
+    def sketch(self):
+        return "(!(%s))" % (self.clauses.sketch())
+
 class Or(Expression):
     def __init__(self,clauses):
         self.clauses = clauses
