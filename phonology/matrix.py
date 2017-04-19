@@ -435,8 +435,8 @@ class UnderlyingProblem():
         emptyRuleIndex = 0 # where we stuck the dummy empty rule
         
         Model.Global()
-        newRules = [ Rule.sample() for _ in range(radius) ]
 
+        newRules = [ Rule.sample() for _ in range(radius) ]
         existingRules = [ define("Rule", r.makeConstant(self.bank)) for r in existingRules ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
@@ -446,7 +446,8 @@ class UnderlyingProblem():
         # replaceRule[i][j] = replace existing[i] w/ newRules[j]
         replaceRule = [ [ flip() for _ in range(radius) ]
                         for _ in existingRules ]
-        condition(sum(flatten(replaceRule)) == radius) # make a change of size radius
+        #condition(sum(flatten(replaceRule)) == radius) # make a change of size radius
+        condition(Or(flatten(replaceRule))) # make a change
         # each existing rule can be replaced with only one other rule
         for fs in replaceRule:
             conditionMutuallyExclusive(fs)
@@ -467,8 +468,8 @@ class UnderlyingProblem():
                          for j,m in enumerate(stems) ])
 
         ruleSize = Constant(0)
-        for fs,r in zip(replaceRule,existingRules):
-            if r == EMPTYRULE:
+        for j,(fs,r) in enumerate(zip(replaceRule,existingRules)):
+            if j == emptyRuleIndex:
                 cost = Constant(0)
             else:
                 cost = ruleCost(r)
@@ -502,8 +503,12 @@ class UnderlyingProblem():
 
         newRules = [ Rule.parse(self.bank, output, newRule) for newRule in newRules ]
 
-        rules = [ (newRules[replaceRule[j].index(True)] if any(replaceRule[j]) else existing)
-                  for j,existing in enumerate(_existingRules) ]
+        print "Replacement matrix:"
+        print replaceRule
+        print "New rules:"
+        print "\n".join(map(str,newRules))
+        print "Old rules:"
+        print "\n".join(map(str,_existingRules))
 
         rules = []
         for existingIndex in range(len(existingRules)):
@@ -518,7 +523,7 @@ class UnderlyingProblem():
                 else:
                     print "Replaced rule",old,"with",new
 
-        if rules[emptyRuleIndex].doesNothing() and len(rules) > 1: rules = rules[1:]
+        rules = [ r for r in rules if not r.doesNothing() ]
             
         UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
         UnderlyingProblem.showRules(rules)
