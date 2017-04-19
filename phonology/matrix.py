@@ -537,6 +537,8 @@ class UnderlyingProblem():
         slave = UnderlyingProblem(trainingData, 1, self.bank)
         prefixes, suffixes, _, rules = slave.sketchJointSolution()
 
+        radius = 1
+
         while True:
             haveCounterexample = False
             newExample = None
@@ -544,7 +546,7 @@ class UnderlyingProblem():
                 haveCounterexample = True
                 slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
                 try:
-                    prefixes, suffixes, _, rules = slave.sketchIncrementalChange(rules)
+                    prefixes, suffixes, _, rules = slave.sketchIncrementalChange(rules, radius)
                     newExample = ce
                     break
                 except SynthesisFailure:
@@ -555,15 +557,19 @@ class UnderlyingProblem():
             else:
                 if newExample == None:
                     print "I can't make any local changes to my rules to accommodate a counterexample."
-                    print "The solution so far is the best I can do."
-                    break
+                    radius += 1
+                    print "Increasing search radius to %d"%radius
                 else:
                     trainingData += [ce]
                     print "Added the counterexample to the training data."
                     print "Training data:"
                     for t in trainingData:
                         print "\t".join(t)
-                    print 
+                    print
+                    if radius > 1:
+                        print "(radius set back to 1)"
+                        radius = 1
+                        print 
                     
                     
         
