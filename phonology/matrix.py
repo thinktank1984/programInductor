@@ -3,7 +3,7 @@
 from utilities import *
 
 from features import FeatureBank, tokenize
-from rule import Rule,Guard,FeatureMatrix
+from rule import Rule,Guard,FeatureMatrix,EMPTYRULE
 from morph import Morph
 from sketchSyntax import Expression
 from sketch import *
@@ -427,24 +427,32 @@ class UnderlyingProblem():
                     encodingLength = len(Morph.parse(self.bank, output, stem))
         return correctPredictions/float(len(inflections)), encodingLength
 
-    def sketchIncrementalChange(self, existingRules):
-        Model.Global()
-        newRule = Rule.sample()
+    def sketchIncrementalChange(self, existingRules, radius = 1):
+        # Incremental changing is either replacing an existing rule or adding a new rule
+        # We model adding a new rule by adding the empty rule and letting it be replaced
+        existingRules = [EMPTYRULE] + existingRules
         _existingRules = existingRules
+        emptyRuleIndex = 0 # where we stuck the dummy empty rule
+        
+        Model.Global()
+        newRules = [ Rule.sample() for _ in range(radius) ]
+
         existingRules = [ define("Rule", r.makeConstant(self.bank)) for r in existingRules ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
         # Introduce random variables that control what kind of incremental change it is
-        replaceRule = [ flip() for _ in existingRules ]
-        addedRule = flip()
-        flags = [addedRule] + replaceRule
-        condition(Or(flags)) # make a change
-        # make exactly one change
-        for j in range(len(flags) - 1):
-            for k in range(j + 1,len(flags)):
-                condition(Not(And([flags[j],flags[k]])))
+        # replaceRule[i][j] = replace existing[i] w/ newRules[j]
+        replaceRule = [ [ flip() for _ in range(radius) ]
+                        for _ in existingRules ]
+        condition(sum(flatten(replaceRule)) == radius) # make a change of size radius
+        # each existing rule can be replaced with only one other rule
+        for fs in replaceRule:
+            conditionMutuallyExclusive(fs)
+        # each added rule replaces at most one existing rule
+        for j in range(radius):
+            conditionMutuallyExclusive([ r[j] for r in replaceRule ])
 
         affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
                           (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
@@ -458,40 +466,59 @@ class UnderlyingProblem():
                           else len(self.inflectionMatrix[j][0]) - 4)
                          for j,m in enumerate(stems) ])
 
-        ruleSize = Conditional(addedRule, ruleCost(newRule), Constant(0))
-        for f,r in zip(replaceRule,existingRules):
-            ruleSize += Conditional(f, ruleCost(newRule), ruleCost(r))
+        ruleSize = Constant(0)
+        for fs,r in zip(replaceRule,existingRules):
+            if r == EMPTYRULE:
+                cost = Constant(0)
+            else:
+                cost = ruleCost(r)
+            for newIndex,f in enumerate(fs):
+                cost = Conditional(f, ruleCost(newRules[newIndex]), cost)
+            ruleSize += cost
         minimize(ruleSize + stemSize + affixSize)
 
-        for r in [newRule] + existingRules:
+        for r in newRules + existingRules:
             condition(fixStructuralChange(r))
 
         for surface,stem in zip(self.data, stems):
             for i in range(self.numberOfInflections):
                 underlying = concatenate3(prefixes[i],stem,suffixes[i])
                 # transform the underlying representation step-by-step
-                underlying = Conditional(addedRule, applyRule(newRule, underlying), underlying)
-                for f,r in zip(replaceRule,existingRules):
-                    underlying = applyRule(Conditional(f, newRule, r), underlying)
+                for fs,r in zip(replaceRule,existingRules):
+                    for newRule,f in zip(newRules,fs):
+                        r = Conditional(f,newRule,r)
+                    underlying = applyRule(r, underlying)
                 condition(wordEqual(makeConstantWord(self.bank, surface[i]), underlying))
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
         if not output:
             #printSketchFailure()
             raise SynthesisFailure('Failed at incrementally changing.')
-        replaceRule = [ parseFlip(output, f) for f in replaceRule ]
-        addedRule = parseFlip(output, addedRule)
+        replaceRule = [ [ parseFlip(output, f) for f in fs]
+                        for fs in replaceRule ]
         prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
         stems = [ Morph.parse(self.bank, output, s) for s in stems ]
 
-        newRule = Rule.parse(self.bank, output, newRule)
-        if addedRule:
-            print "Added rule",newRule
-            rules = [newRule] + _existingRules
-        else:
-            print "Replaced rule",_existingRules[replaceRule.index(True)],"with",newRule
-            rules = [ (newRule if f else r) for f,r in zip(replaceRule, _existingRules) ]
+        newRules = [ Rule.parse(self.bank, output, newRule) for newRule in newRules ]
+
+        rules = [ (newRules[replaceRule[j].index(True)] if any(replaceRule[j]) else existing)
+                  for j,existing in enumerate(_existingRules) ]
+
+        rules = []
+        for existingIndex in range(len(existingRules)):
+            old = _existingRules[existingIndex]
+            if not any(replaceRule[existingIndex]):
+                rules.append(old)
+            else:
+                new = newRules[replaceRule[existingIndex].index(True)]
+                rules.append(new)
+                if existingIndex == emptyRuleIndex:
+                    print "Added rule",new
+                else:
+                    print "Replaced rule",old,"with",new
+
+        if rules[emptyRuleIndex].doesNothing() and len(rules) > 1: rules = rules[1:]
             
         UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
         UnderlyingProblem.showRules(rules)
@@ -500,8 +527,8 @@ class UnderlyingProblem():
 
     def incrementallySolve(self):
         # start out with just the first example
-        print "Starting out with explaining just the first example:"
-        trainingData = self.data[:1]
+        print "Starting out with explaining just the first two examples:"
+        trainingData = self.data[:2]
         slave = UnderlyingProblem(trainingData, 1, self.bank)
         prefixes, suffixes, _, rules = slave.sketchJointSolution()
 

@@ -37,3 +37,6 @@ def randomTestSplit(data,ratio):
     random.shuffle(shuffledData)
     training, test = shuffledData[:trainingSize], shuffledData[trainingSize:]
     return [ x for x in data if x in training ], [ x for x in data if x in test ]
+
+def flatten(xss):
+    return [ x for xs in xss for x in xs ]

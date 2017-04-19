@@ -245,6 +245,11 @@ def sketchImplementation(name):
         return wrapper
     return namedImplementation
 
+def conditionMutuallyExclusive(flags):
+    for j in range(len(flags) - 1):
+        for k in range(j + 1,len(flags)):
+            condition(Not(And([flags[j],flags[k]])))
+
 def makeSketchSkeleton():
     return currentModel.sketch()
 def makeWebSkeleton():
