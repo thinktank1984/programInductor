@@ -40,3 +40,12 @@ def randomTestSplit(data,ratio):
 
 def flatten(xss):
     return [ x for xs in xss for x in xs ]
+
+def everyBinaryVector(l,w):
+    if l == 0:
+        if w == 0: yield []
+    elif w > -1:
+        for v in everyBinaryVector(l - 1,w):
+            yield [False] + v
+        for v in everyBinaryVector(l - 1,w - 1):
+            yield [True] + v

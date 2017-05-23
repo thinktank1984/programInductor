@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from utilities import *
-
+from solution import *
 from features import FeatureBank, tokenize
 from rule import Rule,Guard,FeatureMatrix,EMPTYRULE
 from morph import Morph
@@ -31,6 +31,7 @@ def sampleMorphWithLength(l):
     m = Morph.sample()
     condition(wordLength(m) == l)
     return m
+        
 
 class UnderlyingProblem():
     def __init__(self, data, depth, bank = None):
@@ -44,14 +45,8 @@ class UnderlyingProblem():
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
-    @staticmethod
-    def jointSolutionCost(rules = [],stems = [],prefixes = [],suffixes = []):
-        c = 0
-        c += sum([r.cost() for r in rules ])
-        c += sum([len(s) for s in stems ])
-        c += sum([len(s) for s in prefixes ])
-        c += sum([len(s) for s in suffixes ])
-        return c
+    def solveSketch(self):
+        return solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
 
     def applyRule(self, r, u):
         if USEPYTHONRULES:# use the Python implementation of rules
@@ -114,11 +109,15 @@ class UnderlyingProblem():
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
     
-    def solveUnderlyingForms(self, prefixes, suffixes, rules):
+    def solveUnderlyingForms(self, solution):
+        '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
+        if solution.underlyingForms != []:
+            print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
+            
         Model.Global()
-        rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
-        prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
-        suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
+        rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
+        prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
+        suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         self.conditionOnData(rules_, stems, prefixes_, suffixes_)
 
@@ -131,27 +130,27 @@ class UnderlyingProblem():
 
         us = [ Morph.parse(self.bank, output, s) for s in stems ]
 
+        # The only purpose of this nested loop is to verify that there are no bugs
         for j in range(len(self.inflectionMatrix)):
             for i in range(self.numberOfInflections):
                 u = prefixes[i] + us[j] + suffixes[i]
                 for r in rules:
                     #print "Applying",r,"to",u,"gives",r.apply(u),"aka",Morph.fromMatrix(r.apply(u))
-                    u = self.applyRule(r,u) #r.apply(u)
+                    u = self.applyRule(r,u)
                 # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
                 if Morph(tokenize(self.data[j][i])) != u:
                     print "underlying:",prefixes[i] + us[j] + suffixes[i]
                     print Morph(tokenize(self.data[j][i])), "versus", u
                     print Morph(tokenize(self.data[j][i])).phonemes, "versus", u.phonemes
                     assert False
-                # print "\n"
-            # print "\n\n"
 
-        return us
+        return Solution(rules = solution.rules,
+                        prefixes = solution.prefixes,
+                        suffixes = solution.suffixes,
+                        underlyingForms = us)
 
-    def fastTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules):
-        #k = int(math.ceil((float(k)**(1.0/self.depth))))
-
-        inputs = [ prefixes[i] + underlyingForms[j] + suffixes[i]
+    def fastTopRules(self, solution, k):
+        inputs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
                    for j in range(len(self.data))
                    for i in range(self.numberOfInflections) ]
 
@@ -164,61 +163,66 @@ class UnderlyingProblem():
                      for a in alternatives
                      for s in suffixes ]
 
-        return f(inputs, existingRules) #, key = lambda rs: - self.inductiveBias.logLikelihood(rs))
+        return [ Solution(prefixes = solution.prefixes,
+                          suffixes = solution.suffixes,
+                          underlyingForms = solution.underlyingForms,
+                          rules = rs)
+                 for rs in f(inputs, existingRules) ]
         
 
-    def solveTopRules(self, prefixes, suffixes, underlyingForms, k, existingRules = None):
-        solutions = [] if existingRules == None else [(prefixes, suffixes, existingRules)]
+    def solveTopRules(self, solution, k):
+        '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
+        solutions = [solution] if existingRules == None else [(prefixes, suffixes, existingRules)]
         
-        for _ in range(k - (1 if existingRules else 0)):
+        for _ in range(k - 1):
             Model.Global()
 
             rules = [ Rule.sample() for _ in range(self.depth) ]
             for other in solutions:
                 condition(And([ ruleEqual(r, o.makeConstant(self.bank))
-                                for r, o in zip(rules, other[2]) ]) == 0)
+                                for r, o in zip(rules, other.rules) ]) == 0)
 
             minimize(sum([ ruleCost(r) for r in rules ]))
 
             # Keep morphology variable! Just ensure it has the same cost
-            prefixes_ = [ sampleMorphWithLength(len(p)) for p in prefixes ]
-            suffixes_ = [ sampleMorphWithLength(len(p)) for p in suffixes ]
-            stems_ = [ sampleMorphWithLength(len(p)) for p in underlyingForms ]
-            self.conditionOnData(rules, stems_, prefixes_, suffixes_)
+            prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
+            suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
+            stems = [ sampleMorphWithLength(len(p)) for p in solution.underlyingForms ]
+            self.conditionOnData(rules, stems, prefixes, suffixes)
             
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
             if not output:
-                print "Found %d rules."%len(solutions)
+                print "Found %d/%d solutions."%(len(solutions),k)
                 break
-            solutions.append(([ Morph.parse(self.bank, output, m) for m in suffixes_ ],
-                              [ Morph.parse(self.bank, output, m) for m in prefixes_ ],
-                              [ Rule.parse(self.bank, output, r) for r in rules ]))
+            solutions.append(Solution(suffixes = [ Morph.parse(self.bank, output, m) for m in suffixes ],
+                                      prefixes = [ Morph.parse(self.bank, output, m) for m in prefixes ],
+                                      rules = [ Rule.parse(self.bank, output, r) for r in rules ]))
         return solutions
 
-    def findCounterexamples(self, prefixes, suffixes, rules, trainingData = []):
+    def findCounterexamples(self, solution, trainingData = []):
         print "Beginning verification"
         for observation in self.data:
             if observation in trainingData:
                 continue
-            if not self.verify(prefixes, suffixes, rules, observation):
+            if not self.verify(solution, observation):
                 print "COUNTEREXAMPLE:\t",
                 for i in observation: print i,"\t",
                 print ""
                 yield observation
 
-    def findCounterexample(self, prefixes, suffixes, rules, trainingData = []):
+    def findCounterexample(self, solution, trainingData = []):
         # Returns the first counterexample or None if there are no counterexamples
-        return next(self.findCounterexamples(prefixes, suffixes, rules, trainingData), None)
+        return next(self.findCounterexamples(solution, trainingData), None)
 
-    def verify(self, prefixes, suffixes, rules, inflections):
+    def verify(self, solution, inflections):
         Model.Global()
 
         stem = Morph.sample()
 
         # Make the morphology/phonology be a global definition
-        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in prefixes ]
-        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in suffixes ]
-        rules = [ define("Rule", r.makeConstant(self.bank)) for r in rules ]
+        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
+        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
+        rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
 
         for r in rules: condition(fixStructuralChange(r))
 
@@ -227,56 +231,51 @@ class UnderlyingProblem():
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         return (output != None)
 
-    @staticmethod
-    def showMorphologicalAnalysis(prefixes, suffixes):
-        print "Morphological analysis:"
-        for i in range(len(prefixes)):
-            print "Inflection %d:\t"%i,
-            print prefixes[i],
-            print "+ stem +",
-            print suffixes[i]
+    def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None):
+        affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
+                          (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
+                          for j in range(self.numberOfInflections) ])
 
-    @staticmethod
-    def showRules(rules):
-        print "Phonological rules:"
-        for r in rules: print r
+        # We subtract a constant from the stems size in order to offset the cost
+        # Should have no effect upon the final solution that we find,
+        # but it lets sketch get away with having to deal with smaller numbers
+        stemSize = sum([ wordLength(m)-
+                         (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
+                          else len(self.inflectionMatrix[j][0]) - 4)
+                         for j,m in enumerate(stems) ])
 
-    def sketchJointSolution(self, canAddNewRules = False):
+        ruleSize = sum([ruleCost(r) for r in rules ])
+        totalCost = define("int",ruleSize + stemSize + affixSize)
+        if costUpperBound != None:
+            condition(totalCost < costUpperBound)
+        minimize(totalCost)
+
+        return totalCost
+
+    def sketchJointSolution(self, canAddNewRules = False, costUpperBound = None):
         try:
             Model.Global()
             rules = [ Rule.sample() for _ in range(self.depth) ]
             stems = [ Morph.sample() for _ in self.inflectionMatrix ]
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
-       
-            affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
-                              (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
-                              for j in range(self.numberOfInflections) ])
 
-            # We subtract a constant from the stems size in order to offset the cost
-            # Should have no effect upon the final solution that we find,
-            # but it lets sketch get away with having to deal with smaller numbers
-            stemSize = sum([ wordLength(m)-
-                             (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
-                              else len(self.inflectionMatrix[j][0]) - 4)
-                             for j,m in enumerate(stems) ])
-            
-            ruleSize = sum([ruleCost(r) for r in rules ])
-            minimize(ruleSize + stemSize + affixSize)
+            self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
 
             self.conditionOnData(rules, stems, prefixes, suffixes)
 
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
             if not output:
                 raise SynthesisFailure("Failed at morphological analysis.")
-            prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
-            suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
-            stems = [ Morph.parse(self.bank, output, s) for s in stems ]
-            rules = [ Rule.parse(self.bank, output, r) for r in rules ]
-            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-            UnderlyingProblem.showRules(rules)
-            
-            return (prefixes, suffixes, stems, rules)
+
+            solution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
+                                suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
+                                underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
+                                rules = [ Rule.parse(self.bank, output, r) for r in rules ])
+            solution.showMorphologicalAnalysis()
+            solution.showRules()
+            return solution
+        
         except SynthesisFailure:
             if canAddNewRules:
                 self.depth += 1
@@ -332,11 +331,11 @@ class UnderlyingProblem():
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
-            prefixes, suffixes, stems, rules = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True)
-            self.depth = len(rules) # update depth because it might have grown
+            solution = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True)
+            self.depth = solution.depth() # update depth because it might have grown
             solverTime = time() - solverTime
 
-            counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+            counterexample = self.findCounterexample(solution, trainingData)
             if counterexample != None:
                 trainingData.append(counterexample)
                 continue
@@ -347,33 +346,24 @@ class UnderlyingProblem():
 
             # When we expect it to be tractable, we should try doing a little bit deeper
             if self.depth < 3 and self.numberOfInflections < 3:
-                thisCost = UnderlyingProblem.jointSolutionCost(rules = rules,
-                                                               stems = stems,
-                                                               prefixes = prefixes,
-                                                               suffixes = suffixes)
                 slave = UnderlyingProblem(trainingData, self.depth + 1, self.bank)
-                _p,_s,_stems,_r = slave.sketchJointSolution(canAddNewRules = False)
-                expandedCost = UnderlyingProblem.jointSolutionCost(rules = _r,
-                                                                   stems = _stems,
-                                                                   prefixes = _p,
-                                                                   suffixes = _s)
-                if expandedCost <= thisCost:
-                    prefixes, suffixes, stems, rules = _p,_s,_stems,_r
+                expandedSolution = slave.sketchJointSolution(costUpperBound = solution.cost())
+                if expandedSolution.cost() <= solution.cost():
+                    solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
                 else:
                     print "Sticking with depth of %d"%(self.depth)
                     
             print "Final solutions:"
-            UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-            underlyingForms = self.solveUnderlyingForms(prefixes, suffixes, rules)
+            print solution
+            solution = self.solveUnderlyingForms(solution)
 
             # Do we have enough time in our budget to not be fast?
             if solverTime*k < threshold:
-                solutions = self.solveTopRules(prefixes, suffixes, underlyingForms, k, rules)
+                solutions = self.solveTopRules(solution, k)
             else:
                 print "Using the optimized top rules."
-                solutions = [ (prefixes, suffixes, rs)
-                              for rs in self.fastTopRules(prefixes, suffixes, underlyingForms, k, rules) ]
+                solutions = self.fastTopRules(solution, k)
 
             return solutions
 
@@ -427,126 +417,67 @@ class UnderlyingProblem():
                     encodingLength = len(Morph.parse(self.bank, output, stem))
         return correctPredictions/float(len(inflections)), encodingLength
 
-    def sketchIncrementalChange(self, existingRules, radius = 1):
-        # Incremental changing is either replacing an existing rule or adding a new rule
-        # We model adding a new rule by adding the empty rule and letting it be replaced
-        existingRules = [EMPTYRULE] + existingRules
-        _existingRules = existingRules
-        emptyRuleIndex = 0 # where we stuck the dummy empty rule
-        
+    def sketchChangeToSolution(self,solution,keepRule, costUpperBound = None):
         Model.Global()
 
-        newRules = [ Rule.sample() for _ in range(radius) ]
-        existingRules = [ define("Rule", r.makeConstant(self.bank)) for r in existingRules ]
+        rules = [ (rule.defineConstant(self.bank) if keep else Rule.sample())
+                  for keep, rule in zip(keepRule,solution.rules + [None]) ]
         stems = [ Morph.sample() for _ in self.inflectionMatrix ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
-        # Introduce random variables that control what kind of incremental change it is
-        # replaceRule[i][j] = replace existing[i] w/ newRules[j]
-        replaceRule = [ [ flip() for _ in range(radius) ]
-                        for _ in existingRules ]
-        #condition(sum(flatten(replaceRule)) == radius) # make a change of size radius
-        condition(Or(flatten(replaceRule))) # make a change
-        # each existing rule can be replaced with only one other rule
-        for fs in replaceRule:
-            conditionMutuallyExclusive(fs)
-        # each added rule replaces at most one existing rule
-        for j in range(radius):
-            conditionMutuallyExclusive([ r[j] for r in replaceRule ])
+        self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
+        self.conditionOnData(rules, stems, prefixes, suffixes)
 
-        affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
-                          (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
-                          for j in range(self.numberOfInflections) ])
+        output = self.solveSketch()
+        if output == None: raise SynthesisFailure("No satisfying modification possible.")
 
-        # We subtract a constant from the stems size in order to offset the cost
-        # Should have no effect upon the final solution that we find,
-        # but it lets sketch get away with having to deal with smaller numbers
-        stemSize = sum([ wordLength(m)-
-                         (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
-                          else len(self.inflectionMatrix[j][0]) - 4)
-                         for j,m in enumerate(stems) ])
+        return Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
+                        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
+                        underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
+                        rules = [ Rule.parse(self.bank, output, r) for r in rules ])
 
-        ruleSize = Constant(0)
-        for j,(fs,r) in enumerate(zip(replaceRule,existingRules)):
-            if j == emptyRuleIndex:
-                cost = Constant(0)
-            else:
-                cost = ruleCost(r)
-            for newIndex,f in enumerate(fs):
-                cost = Conditional(f, ruleCost(newRules[newIndex]), cost)
-            ruleSize += cost
-        minimize(ruleSize + stemSize + affixSize)
+    def sketchIncrementalChange(self, solution, radius = 1):
+        bestSolution = None
+        bestCost = None
+        # construct change vectors
+        nr = len(solution.rules)
+        keepVectors = list(everyBinaryVector(nr,nr - radius))
+        keepVectors += [ v + [False] for v in everyBinaryVector(nr,nr - radius + 1) ]
 
-        for r in newRules + existingRules:
-            condition(fixStructuralChange(r))
+        for v in keepVectors: print v
 
-        for surface,stem in zip(self.data, stems):
-            for i in range(self.numberOfInflections):
-                underlying = concatenate3(prefixes[i],stem,suffixes[i])
-                # transform the underlying representation step-by-step
-                for fs,r in zip(replaceRule,existingRules):
-                    for newRule,f in zip(newRules,fs):
-                        r = Conditional(f,newRule,r)
-                    underlying = applyRule(r, underlying)
-                condition(wordEqual(makeConstantWord(self.bank, surface[i]), underlying))
-
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
-        if not output:
-            #printSketchFailure()
-            raise SynthesisFailure('Failed at incrementally changing.')
-        replaceRule = [ [ parseFlip(output, f) for f in fs]
-                        for fs in replaceRule ]
-        prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ]
-        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ]
-        stems = [ Morph.parse(self.bank, output, s) for s in stems ]
-
-        newRules = [ Rule.parse(self.bank, output, newRule) for newRule in newRules ]
-
-        print "Replacement matrix:"
-        print replaceRule
-        print "New rules:"
-        print "\n".join(map(str,newRules))
-        print "Old rules:"
-        print "\n".join(map(str,_existingRules))
-
-        rules = []
-        for existingIndex in range(len(existingRules)):
-            old = _existingRules[existingIndex]
-            if not any(replaceRule[existingIndex]):
-                rules.append(old)
-            else:
-                new = newRules[replaceRule[existingIndex].index(True)]
-                rules.append(new)
-                if existingIndex == emptyRuleIndex:
-                    print "Added rule",new
-                else:
-                    print "Replaced rule",old,"with",new
-
-        rules = [ r for r in rules if not r.doesNothing() ]
-            
-        UnderlyingProblem.showMorphologicalAnalysis(prefixes, suffixes)
-        UnderlyingProblem.showRules(rules)
-
-        return (prefixes, suffixes, stems, rules)
-
+        for v in keepVectors:
+            try:
+                s = self.sketchChangeToSolution(solution, v, bestCost)
+                if bestCost == None or s.cost() < bestCost:
+                    bestSolution = s
+                    bestCost = s.cost()
+            except:
+                pass
+        if bestSolution:
+            return bestSolution
+        raise SynthesisFailure('incremental change')
+        
+        
     def incrementallySolve(self):
         # start out with just the first example
         print "Starting out with explaining just the first two examples:"
         trainingData = self.data[:2]
         slave = UnderlyingProblem(trainingData, 1, self.bank)
-        prefixes, suffixes, _, rules = slave.sketchJointSolution()
+        solution = slave.sketchJointSolution()
 
         radius = 1
 
         while True:
             haveCounterexample = False
             newExample = None
-            for ce in self.findCounterexamples(prefixes, suffixes, rules, trainingData):
+            for ce in self.findCounterexamples(solution, trainingData):
                 haveCounterexample = True
                 slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
                 try:
-                    prefixes, suffixes, _, rules = slave.sketchIncrementalChange(rules, radius)
+                    solution = slave.sketchIncrementalChange(solution, radius)
+                    print solution
                     newExample = ce
                     break
                 except SynthesisFailure:
@@ -559,6 +490,10 @@ class UnderlyingProblem():
                     print "I can't make any local changes to my rules to accommodate a counterexample."
                     radius += 1
                     print "Increasing search radius to %d"%radius
+                    if radius > 2:
+                        print "I refuse to use a radius this big."
+                        break
+                    
                 else:
                     trainingData += [ce]
                     print "Added the counterexample to the training data."
@@ -599,6 +534,8 @@ def handleProblem(parameters):
     else:
         up = UnderlyingProblem(p.data, 1)
         up.incrementallySolve()
+        #up.counterexampleSolution()
+        
         assert False
         ss, accuracy, compression = up.heldOutSolution(parameters['top'],
                                                        parameters['threshold'],

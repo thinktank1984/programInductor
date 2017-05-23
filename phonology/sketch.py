@@ -82,7 +82,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     od.close()
     outputFile = od.name
     
-    command = "sketch --bnd-unroll-amnt %d %s > %s 2> %s" % (unroll, fd.name, outputFile, outputFile)
+    command = "sketch  -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (unroll, fd.name, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     os.system(command)
