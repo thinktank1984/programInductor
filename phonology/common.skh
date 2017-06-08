@@ -492,10 +492,10 @@ Word apply_rule(Rule r, Word u) {
 	      (r.copyOffset - 1)];
       }
     } else {
-      //      assert 0; // todo: inserting into the middle of the string
       int inserted = 0;
       for (int j = 0; j < u.l; j++) {
 	if (j > 0 && left_okay[j] && right_okay[j-1]) {
+	    assert inserted == 0;
 	  inserted = 1;
 	  output[j] = extract_constant_sound(structural_change);
 	}

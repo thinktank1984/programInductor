@@ -122,6 +122,12 @@ class UnderlyingProblem():
         
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
         if not output:
+            print "FATAL: Failed underlying form analysis"
+            for observation in self.data:
+                stem = self.verify(prefixes, suffixes, rules, observation)
+                print "Verification of",observation
+                print "\tstem =",stem
+                if stem == False: print "\t(FAILURE)"
             raise SynthesisFailure("Failed at underlying form analysis.")
 
         us = [ Morph.parse(self.bank, output, s) for s in stems ]
@@ -198,9 +204,11 @@ class UnderlyingProblem():
     def findCounterexamples(self, solution, trainingData = []):
         print "Beginning verification"
         for observation in self.data:
-            if observation in trainingData:
-                continue
             if not self.verify(solution, observation):
+                if observation in trainingData:
+                    print "FATAL: Failed to verify ",observation,"which is in the training data."
+                    assert False
+                    continue
                 print "COUNTEREXAMPLE:\t",
                 for i in observation: print i,"\t",
                 print ""
@@ -211,6 +219,10 @@ class UnderlyingProblem():
         return next(self.findCounterexamples(solution, trainingData), None)
 
     def verify(self, solution, inflections):
+        '''Checks whether the model can explain these inflections.
+        If it can then it returns an underlying form consistent with the data.
+        Otherwise it returns False.
+        '''
         Model.Global()
 
         stem = Morph.sample()
@@ -225,7 +237,10 @@ class UnderlyingProblem():
         self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        return (output != None)
+        if output == None:
+            return False
+        else:
+            return Morph.parse(self.bank, output, stem)
 
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None):
         affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
@@ -316,6 +331,14 @@ class UnderlyingProblem():
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
+                    self.depth += 1
+                    counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+                    if counterexample != None:
+                        trainingData.append(counterexample)
+                        print "Despite being better, there is a counterexample; continue CEGIS"
+                        continue # do another round of counterexample guided synthesis
+                    else:
+                        print "Also, expanded rules have no counter examples."
                 else:
                     print "Sticking with depth of %d"%(self.depth)
                     
