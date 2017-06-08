@@ -880,6 +880,7 @@ Posit appropriate underlying forms and any rules needed to explain the following
 underlyingProblems.append(Problem(
     '''
     Samoan: example from the textbook.
+(problem 10)
     ''',
     [
         (u"olo", u"oloia"),
@@ -898,6 +899,7 @@ underlyingProblems.append(Problem(
 underlyingProblems.append(Problem(
     '''
     Russian: devoicing of word final obscurant
+(problem 11)
     ''',
     [
         (u"vagon", u"vagona"),
@@ -920,6 +922,7 @@ underlyingProblems.append(Problem(
 underlyingProblems.append(Problem(
     '''
     English verb inflections.
+(problem 12)
     ''',
     [(u"ro",u"rod",u"roz"),
      (u"lʊk",u"lʊkt",u"lʊks"),
@@ -940,6 +943,7 @@ underlyingProblems.append(Problem(
     æ > a / [+back] [ ]* _ #
     e > i / _ #
     This is also what the system recovers.
+(problem 13)
     ''',
     [(u"aamu",u"aamua"),
      (u"hopea",u"hopeaa"),
@@ -965,6 +969,7 @@ underlyingProblems.append(Problem(
 underlyingProblems.append(Problem(
     '''
     Lithuanian voicing assimilation & epenthesis
+(problem 14)
     ''',
     [(u"ateiti",),
      (u"atimti",),
@@ -984,6 +989,7 @@ underlyingProblems.append(Problem(
 underlyingProblems.append(Problem(
     '''
     Armenian voicing assimilation & epenthesis
+(problem 15)
     ''',
     [(u"kert^ham",),
      (u"kasiem",),
