@@ -102,6 +102,12 @@ class And(Expression):
     def web(self):
         return "(%s)" % (" && ".join([c.web() for c in self.clauses ]))
 
+class Not(Expression):
+    def __init__(self,clauses):
+        self.clauses = clauses
+    def sketch(self):
+        return "(!(%s))" % (self.clauses.sketch())
+
 class Or(Expression):
     def __init__(self,clauses):
         self.clauses = clauses
@@ -238,6 +244,11 @@ def sketchImplementation(name):
             return FunctionCall(name, args)
         return wrapper
     return namedImplementation
+
+def conditionMutuallyExclusive(flags):
+    for j in range(len(flags) - 1):
+        for k in range(j + 1,len(flags)):
+            condition(Not(And([flags[j],flags[k]])))
 
 def makeSketchSkeleton():
     return currentModel.sketch()

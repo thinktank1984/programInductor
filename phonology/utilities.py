@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import sys
+import pickle
 import math
 import random
 
@@ -37,3 +38,26 @@ def randomTestSplit(data,ratio):
     random.shuffle(shuffledData)
     training, test = shuffledData[:trainingSize], shuffledData[trainingSize:]
     return [ x for x in data if x in training ], [ x for x in data if x in test ]
+
+def flatten(xss):
+    return [ x for xs in xss for x in xs ]
+
+def everyBinaryVector(l,w):
+    if l == 0:
+        if w == 0: yield []
+    elif w > -1:
+        for v in everyBinaryVector(l - 1,w):
+            yield [False] + v
+        for v in everyBinaryVector(l - 1,w - 1):
+            yield [True] + v
+
+def dumpPickle(o,f):
+    with open(f,'wb') as handle:
+        pickle.dump(o,handle)
+def loadPickle(f):
+    with open(f,'rb') as handle:
+        o = pickle.load(handle)
+    return o
+def flushEverything():
+    sys.stdout.flush()
+    sys.stderr.flush()

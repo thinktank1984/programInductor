@@ -351,7 +351,11 @@ class Rule():
                                                                                                                                   self.structuralChange.makeConstant(bank),
                                                                                                                                   self.leftTriggers.makeConstant(bank),
                                                                                                                                   self.rightTriggers.makeConstant(bank),
-                                                                                                                                  self.copyOffset))        
+                                                                                                                                  self.copyOffset))
+
+    # Returns a variable that refers to a sketch object
+    def makeDefinition(self, bank):
+        return define("Rule", self.makeConstant(bank))
                                          
     # Produces sketch object
     @staticmethod
@@ -449,3 +453,10 @@ class Rule():
         else:
             return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]
 
+
+EMPTYRULE = Rule(focus = FeatureMatrix([]),
+                 structuralChange = FeatureMatrix([]),
+                 leftTriggers = Guard('L',False,False,[]),
+                 rightTriggers = Guard('R',False,False,[]),
+                 copyOffset = 0)
+assert EMPTYRULE.doesNothing()

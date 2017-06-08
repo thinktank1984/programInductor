@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\usepackage{amsmath}
 \usepackage[margin=0.1in]{geometry}
 \usepackage{booktabs}
 \usepackage{tipa}
@@ -9,10 +10,16 @@
 \usepackage{color}
 \usepackage{multirow}
 \usepackage{hyperref}
+
+ % For algorithms
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
 \title{Inducing Phonological Rules: Insights from Bayesian Program Learning}
 %\author{Kevin Ellis, Timothy O'Donnell}
 
 \newcommand{\nextForm}[1]{\rotatebox[origin=c]{270}{$_{\curvearrowright}$}$_{#1}$}
+\DeclareMathOperator*{\argmin}{arg\,min}
 
 \begin{document}
 \maketitle
@@ -417,13 +424,107 @@ $\mathcal{M}\to$ sequence of phonemes\bottomrule
 \label{morphologyGrammar}
 \end{table*}
 
-%% \subsection{Inference}
+\pagebreak
+\subsection{Inference}
 
-%% I think the right way of bringing sketch into the pictures to describe
-%% it as a way of doing inference in our model. You can write down the
-%% model as a probabilistic program, but it has all of these nasty
-%% combinatorial pieces. What this inference strategy buys you is
-%% tractable inference over highly constrained discrete spaces.
+The solver takes as input:
+\begin{itemize}
+\item A set of inflected surface forms, $\{x_n\}$. Here the variable $x_n$ refers to all of the inflections of a word. So an example set of 3 inflected surface forms might be $\{(\text{fish},\text{fished}), (\text{walk},\text{walked}), (\text{eat},\text{ate})\}$.
+\item A bound on the number of rules to consider synthesizing, $B_R$.
+\end{itemize}
+It produces as output:
+\begin{itemize}
+\item A set of underlying forms, $\{u_n\}$.
+\item A morphology consisting of a prefix ($\{p_i\}$) and a suffix ($\{s_i\}$)  for each inflection
+\item  A sequence of rules, $\{r_j\}_{j = 1}^{B_R}$
+\end{itemize}
+It is \emph{guaranteed} to discover the rules, morphology, and underlying forms minimizing:
+\begin{equation}
+  \text{solver}(\{x_n\},B_R) = \argmin_{\{r_j\}_{j = 1}^{B_R}, \{u_n\}, \{p_i\}, \{s_i\}} \sum_j \text{cost}(r_j) + \sum_i (\text{cost}(p_i) + \text{cost}(s_i) ) + \sum_n \text{cost}(u_n)
+\end{equation}
+In exchange for this strong guarantee, however, it has only a very
+weak guarantee on the amount of time it will take to discover the
+solution: in the worst case, it will take time exponential size of the
+problem. In practice it takes close to a day for it to do exact search over 3 rules.
+For easy problems, like the AGL experiments, I can get away with 4 rules if I wait for a few hours.
+
+One can also ask the solver for the top $K$ solutions minimizing the cost function, which I will write:
+\begin{equation}
+  \text{solver}_K(\{x_n\},B_R) = \text{the }K\text{ minimum cost solutions.}
+\end{equation}
+One can also provide additional constraints to the solver, for example telling it what the underlying forms are,
+or telling it what some of the rules are. I will write these constraints by adding an extra argument to the solver
+that looks like conditioning in Bayesian inference. For example,
+\begin{equation}
+  \text{solver}_K(\{x_n\},B_R|u_1 = \text{fish}) = \text{the }K\text{ minimum cost solutions where }u_1\text{ has to be fish.}
+  \end{equation}
+
+So now the game is to leverage this solver as a ``black box'' inside of an incomplete search algorithm.
+A key subroutine in my attempts at building such a search algorithm is
+\texttt{solveIncrementalChange}, which takes as input an existing set of rules ($\{r_j^e\}_{j = 1}^{B_R}$)
+along with a \textbf{search radius} ($R$),
+and solves for a solution that changes at most \textbf{search radius} rules.
+\begin{equation}
+  \text{solveIncrementalChange}_K (\{x_n\}, \{r_j^e\}_{j = 1}^{B_R}, R)
+   = \text{solver}_K (\{x_n\}, B_R+1 | r_j\not= r_j^e \text{ at most }R\text{ times})
+\end{equation}
+So \texttt{solveIncrementalChange} can add a rule (see $B_R+1$). I didn't build in any explicit mechanism for reordering rules -- if you set the search radius $R$ to 2, then it could effectively swap 2 rules.
+
+In addition to synthesizing large programs, we also have to deal with
+large data sets. Armando already came up with a nice trick for this called CEGIS\footnote{counterexample
+  guided inductive synthesis}.
+The idea behind CEGIS is that you synthesize a program from one example,
+and then you check to see if that program is inconsistent with any other examples.
+If not then you are done.
+Otherwise, you have found a \textbf{counterexample}. You add the counterexample to your
+training data set and repeat.
+
+Combining \texttt{solveIncrementalChange} with CEGIS gives the
+skeleton of the inference algorithm that I have been experimenting
+with, called \texttt{incrementalCEGIS}. See the pseudocode at the top of the next page:
+\pagebreak
+\begin{algorithmic}
+  \STATE \textbf{\texttt{incrementalCEGIS}}:
+  \STATE {\bfseries Input:} Matrix of inflected forms for $N$ lexemes, $X$
+  \STATE {\bfseries Output:} underlying forms, $\{u_n\}$; prefixes $\{p_i\}$; suffixes $\{s_i\}$; rules $\{r_j\}$
+  \STATE // Initialize training set $T$ with a single example
+  \STATE Set $T = $ inflections for any lexeme in $X$
+  \STATE // Find a solution for this single example, using as many rules as you need ($\infty$)
+  \STATE Set $\{r_j\}_{j = 1}^{B_R}, \{p_i\}, \{s_i\} = \text{solver}(T,\infty)$
+  \REPEAT
+  \STATE // Find the set of counterexamples $C$ inconsistent with our current guess as to what the solution is
+  \STATE Set $C = \{x | x\in X \text{ and } x \text{ inconsistent with } \{r_j\}_{j = 1}^{B_R},\{p_i\}, \{s_i\}\}$
+  \STATE // If there are no counterexamples as we are done
+  \STATE \textbf{if} $C = \varnothing$ \textbf{ then return }$\{r_j\}_{j = 1}^{B_R},\{p_i\}, \{s_i\}$
+
+  \STATE // Start out with a search radius of $1$ and increase it until we find a way of accommodating another example
+  \FOR{$R = 1,2,3,4,...$}
+  \FOR {$c\in C$}
+  \STATE Set synthesisResult$ = \text{solveIncrementalChange}(T\cup\{c\},\{r_j\},R)$
+  \IF{synthesisResult$\not= \bot$}
+  \STATE Set $\{r_j\}_{j = 1}^{B_R}, \{p_i\}, \{s_i\} = $synthesisResult
+  \STATE Add $c$ to the set of training examples, $T$
+  \STATE \textbf{break out of loop over }$R$ // Successfully updated both our solution and added another example to the training set
+\end{algorithmic}
+\vspace{1cm} 
+
+One important feature of this approach is that it does not reuse
+previous inferences about the morphology or the underlying forms.
+I think we want to add this.
+For example, we might allow it to change up to $R$ underlying forms,
+or disallow changes in the morphology once the training set is big enough.
+
+Variations of \textbf{incrementalCEGIS} that I have tried:
+\begin{itemize}
+\item[] Maintaining a population of solutions. Instead of taking the top 1 solution every time you synthesize, try taking the top $K$. There is some trade-off here between the cost of solving for more solutions and
+  the benefit of not needing as many counterexamples. I have not done any systematic experiments,
+  but my general sense is that this trade-off favored $K = 1$ in practice (so not maintaining a population of solutions).
+\item[] Letting the solver insert the new rule anywhere vs constraining it to either append or prepended the new rule. Sketch uses up a lot of memory whenever I let it insert the rule anywhere -- not sure why this is.
+\item[] Giving sketch more problems to solve but making each problem smaller. Here what I do is have an outer loop that iterates over all of the different ways you could edit an existing set of rules, and then invoke the solver for each of these. So for example I invoke the solver telling it to change only the first rule,
+  then I invoke it telling it to change only the second rule, etc, finally telling it to keep all the rules the same but add a new rule.
+\end{itemize}
+
+
 
 \section{Related work}
 
