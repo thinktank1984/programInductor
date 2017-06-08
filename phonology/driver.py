@@ -1,0 +1,209 @@
+from problems import underlyingProblems,interactingProblems
+from countingProblems import CountingProblem
+from utilities import *
+
+from matrix import *
+
+import argparse
+from multiprocessing import Pool
+import sys
+import io
+
+def heldOutSolution(data, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0, inductiveBiases = []):
+    numberOfInflections = len(data[0])
+    if numberOfInflections > 7: initialTrainingSize = 3
+    bank = UnderlyingProblem(data,1).bank
+
+    trainingData,testingData = randomTestSplit(data, testing)
+    slave = UnderlyingProblem(trainingData, 1, bank = bank)
+    
+    solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize)
+
+    accuracies, compressions = {}, {}
+    for bias in inductiveBiases:
+        print "Considering bias",bias
+        ug = str2ug(bias)
+        solution = max(solutions, key = lambda z: ug.logLikelihood(z.rules))
+        accuracy,compression = accuracyAndCompression(solution, testingData, bank)
+        print "Average held out accuracy: ",accuracy
+        print "Average held out compression:",compression
+        print "As a test, trying to calculate on the original training data also:"
+        print accuracyAndCompression(solution, trainingData)
+        accuracies[bias] = accuracy
+        compressions[bias] = compression
+    return solutions, accuracies, compressions
+
+def accuracyAndCompression(solution, testingData, bank):
+    accuracy,compression = 0,0
+    for inflections in testingData:
+        a,c = inflectionAccuracy(solution, inflections, bank)
+        compression += c
+        accuracy += a
+    return accuracy/len(testingData), compression/float(len(testingData))
+
+def inflectionAccuracy(solution, inflections, bank):
+    """inflections : list of APA strings. Returns (accuracy, descriptionLength)"""
+    correctPredictions = 0
+    encodingLength = sum([ len(Morph(i)) for i in inflections ])
+
+    for testingIndex in range(len(inflections) + 1):
+        # if testingIndex  = len(inflections), don't hold anything out
+        # we do this to check description length
+        trainingIndexes = [ j for j in range(len(inflections)) if j != testingIndex ]
+
+        if len(inflections) == 1 and testingIndex != len(inflections):
+            continue
+
+        Model.Global()
+
+        stem = Morph.sample()
+        minimize(wordLength(stem))
+
+        # Make the morphology/phonology be a global definition
+        prefixes = [ define("Word", p.makeConstant(bank)) for p in solution.prefixes ]
+        suffixes = [ define("Word", s.makeConstant(bank)) for s in solution.suffixes ]
+        rules = [ define("Rule", r.makeConstant(bank)) for r in solution.rules ]
+        for r in rules: condition(fixStructuralChange(r))
+
+        prediction = Morph.sample()
+        surfaces = [ (s if j in trainingIndexes else prediction) for j,s in enumerate(inflections) ]
+
+        worker = UnderlyingProblem([inflections], 0, bank)
+        worker.conditionOnStem(rules, stem, prefixes, suffixes, surfaces)
+
+        # IMPORTANT!
+        # Because we are modeling the prediction as a morph,
+        # the maximum morph length most also be the maximum observation length
+        output = worker.solveSketch()
+        if not output or testingIndex == len(inflections):
+            prediction = None
+        else:
+            prediction = Morph.parse(bank, output, prediction)
+        if testingIndex < len(inflections): # testing ability to make new inflection
+            if prediction == Morph(tokenize(inflections[testingIndex])):
+                correctPredictions += 1
+            else:
+                print "I saw these inflections:","\t".join([s for j,s in enumerate(inflections)
+                                                            if j != testingIndex])
+                print "I predicted ", prediction,"instead of", Morph(tokenize(inflections[testingIndex]))
+        else: # checking compression
+            if output:
+                encodingLength = len(Morph.parse(bank, output, stem))
+    return correctPredictions/float(len(inflections)), encodingLength
+
+def handleProblem(parameters):
+    problemIndex = parameters['problemIndex']
+    random.seed(parameters['seed'] + problemIndex)
+        
+    p = underlyingProblems[problemIndex - 1] if problemIndex < 50 else interactingProblems[problemIndex - 1 - 50]
+
+    if parameters['redirect']:
+        redirectName = "multicore_output/%d"%problemIndex
+        print "Redirecting output for problem %d to %s"%(problemIndex,redirectName)
+        (oldOutput,oldErrors) = (sys.stdout,sys.stderr)
+        handle = io.open(redirectName,'w',encoding = 'utf-8')#.character_encoding)
+        sys.stdout = handle
+        #        sys.stderr = handle
+    
+    print u"t"
+    print p.description
+    if problemIndex != 7:
+        print latexMatrix(p.data)
+    else:
+        print CountingProblem(p.data, p.parameters).latex()
+
+    startTime = time()
+
+    ss = None # solutions to save out to the pickled file
+    accuracy, compression = None, None
+    
+    if problemIndex == 7:
+        ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
+    else:
+        if parameters['testing'] == 0.0:
+            ss = UnderlyingProblem(p.data, 1).incrementallySolve()
+            print "ss = "
+            print ss
+            ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
+        else:
+            ss, accuracy, compression = heldOutSolution(p.data,
+                                                        parameters['top'],
+                                                        parameters['threshold'],
+                                                        testing = parameters['testing'],
+                                                        inductiveBiases = parameters['universalGrammar'])
+        ss = [s.rules for s in ss ] # just save the rules
+
+    print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
+
+    if parameters['redirect']:
+        sys.stdout,sys.stderr = oldOutput,oldErrors
+        handle.close()
+    
+    if ss != None and parameters['top'] > 1 and parameters['testing'] == 0.0:
+        dumpPickle(ss, "pickles/matrix_"+str(problemIndex)+".p")
+    if accuracy != None and compression != None:
+        parameters['accuracy'] = accuracy
+        parameters['compression'] = compression
+        print parameters
+        name = "%d_%s_%f_%d_%d"%(parameters['problemIndex'],
+                                 "_".join(sorted(parameters['universalGrammar'])),
+                                 parameters['testing'],
+                                 parameters['top'],
+                                 parameters['seed'])
+        dumpPickle(parameters, "testingAccuracy/%s.p"%name)
+        
+                
+
+
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
+    parser.add_argument('problem')
+    parser.add_argument('-t','--top', default = 1, type = int)
+    parser.add_argument('-f','--threshold', default = float('inf'), type = int)
+    parser.add_argument('-m','--cores', default = 1, type = int)
+    parser.add_argument('-s','--seed', default = '0', type = str)
+    parser.add_argument('-H','--hold', default = '0.0', type = str)
+    parser.add_argument('-u','--universal', default = 'flat',type = str)
+
+    arguments = parser.parse_args()
+    
+    if arguments.problem == 'integration':
+        problems = [1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    # Chapter five problems
+                    51,
+                    52,
+                    53]
+    else:
+        problems = map(int,arguments.problem.split(','))
+
+    parameters = [{'problemIndex': problemIndex,
+                   'seed': seed,
+                   'testing': testing,
+                   'universalGrammar': arguments.universal.split(','),
+                   'top': arguments.top,
+                   'threshold': arguments.threshold,
+                   'redirect': False# FMLarguments.cores > 1}
+                   }
+                  for problemIndex in problems
+                  for seed in map(int,arguments.seed.split(','))
+                  for testing in map(float,arguments.hold.split(',')) ]
+    print parameters
+    
+    if arguments.cores > 1 and False:
+        Pool(arguments.cores).map(handleProblem, parameters)
+    else:
+        map(handleProblem, parameters)
+        
