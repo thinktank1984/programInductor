@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import sys
+import pickle
 import math
 import random
 
@@ -49,3 +50,14 @@ def everyBinaryVector(l,w):
             yield [False] + v
         for v in everyBinaryVector(l - 1,w - 1):
             yield [True] + v
+
+def dumpPickle(o,f):
+    with open(f,'wb') as handle:
+        pickle.dump(o,handle)
+def loadPickle(f):
+    with open(f,'rb') as handle:
+        o = pickle.load(handle)
+    return o
+def flushEverything():
+    sys.stdout.flush()
+    sys.stderr.flush()

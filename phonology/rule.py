@@ -351,7 +351,11 @@ class Rule():
                                                                                                                                   self.structuralChange.makeConstant(bank),
                                                                                                                                   self.leftTriggers.makeConstant(bank),
                                                                                                                                   self.rightTriggers.makeConstant(bank),
-                                                                                                                                  self.copyOffset))        
+                                                                                                                                  self.copyOffset))
+
+    # Returns a variable that refers to a sketch object
+    def makeDefinition(self, bank):
+        return define("Rule", self.makeConstant(bank))
                                          
     # Produces sketch object
     @staticmethod

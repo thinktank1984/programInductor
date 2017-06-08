@@ -545,7 +545,7 @@ alternationProblems.append(Problem(
 # Chapter 4
 underlyingProblems = []
 underlyingProblems.append(Problem(
-    '''"
+    u'''"
 1. Axininca Campa
 	Provide underlying representations and a phonological rule which will account for the following alternations.
     Output of system:
@@ -562,7 +562,7 @@ k ---> y / [  ] _
     ]))
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 2. Kikuyu
 	What is the underlying form of the infinitive prefix in Kikuyu? Give a rule that explains the non-underlying pronunciation of the prefix.
     ko in context:
@@ -593,7 +593,7 @@ Phonological rules:
      (u"koɣaya",)]))
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 3: Korean
 	Give the underlying representations of each of the verb stems found below; state what phonological rule applies to these data. [Note: there is a vowel harmony rule which explains the variation between final a and ə in the imperative, which you do not need to be concerned with]
     My analysis:
@@ -626,7 +626,7 @@ Phonological rules:
      (u"səkə",		u"səkko")]))
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 4: Hungarian
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
     
@@ -689,7 +689,7 @@ If it understood the certain features are mutually exclusive, the spreading rule
     ]))
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 5: Kikuria
 	Provide appropriate underlying representations and phonological rules which will account for the following data.
     i > e / _ [ ]* e
@@ -723,7 +723,7 @@ Phonological rules:
 	    (u"siinda",	u"seendera")])) #	‘win’
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 6: Farsi
 Give the underlying forms for the following nouns, and say what phonological rule is necessary to explain the following data.
     
@@ -768,7 +768,7 @@ My analysis:
 	(u"divane",	u"divanegan")])) #	insane
 
 underlyingProblems.append(Problem(
-    '''7: Tibetan
+    u'''7: Tibetan
 Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
 Final solution:
 [ -nasal ] ---> Ø / # _ 
@@ -789,7 +789,7 @@ Final solution:
     parameters = [10,1,11,4,14,40,9,19,90,5,15,50]))
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 8: Makonde
 Explain what phonological rules apply in the following examples (the acute accent in these example marks stress, whose position is predictable).
     My analysis:
@@ -837,7 +837,7 @@ Phonological rules:
 	(u"limáŋga",	u"limíle",		u"líma")]))#		cultivate
 
 underlyingProblems.append(Problem(
-    '''
+    u'''
 9: North Saami
 Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
     My analysis:

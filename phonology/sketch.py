@@ -2,6 +2,7 @@
 
 from features import FeatureBank
 from sketchSyntax import *
+from utilities import *
 
 from random import random
 import os
@@ -66,7 +67,7 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
 lastFailureOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False):
     global lastFailureOutput
-    
+
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
     # Temporary file for writing the sketch
@@ -85,8 +86,10 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     command = "sketch  -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (unroll, fd.name, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
+    flushEverything()
     os.system(command)
     print "Ran the solver in %f"%(time() - startTime)
+    flushEverything()
     
     output = open(outputFile,'r').read()
     if not leavitt:
