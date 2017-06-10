@@ -278,3 +278,16 @@ def parseInteger(output, variable):
     print pattern
     print output
     return None
+def parseMinimalCostValue(output):
+    v = None
+    for l in output.splitlines():
+        if '*********INSIDE minimizeHoleValue' in l:
+             #*********INSIDE minimizeHoleValue, mhsize=1 current value of H__BND0=12,
+             m = re.search('H__BND[0-9]=([0-9]+),',l)
+             if not m:
+                 raise Exception('Error parsing minimize hole value: %s'%l)
+             vp = int(m.group(1))
+             if v != None: assert vp < v
+             v = vp
+    return v
+             

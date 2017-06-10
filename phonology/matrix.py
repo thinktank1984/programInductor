@@ -258,6 +258,7 @@ class UnderlyingProblem():
         ruleSize = sum([ruleCost(r) for r in rules ])
         totalCost = define("int",ruleSize + stemSize + affixSize)
         if costUpperBound != None:
+            print "conditioning upon total cost being less than",costUpperBound
             condition(totalCost < costUpperBound)
         minimize(totalCost)
 
@@ -368,21 +369,24 @@ class UnderlyingProblem():
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
-        adjustedCost = self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
+        print "upper bound = ",costUpperBound
+        self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         output = self.solveSketch()
         if output == None:
             print "\t(no modification possible)"
             raise SynthesisFailure("No satisfying modification possible.")
-        print "\t(modification successful)"
+
+        loss = parseMinimalCostValue(output)
+        print "\t(modification successful; loss = %d)"%loss
 
         return Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
                         underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
                         rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                                   for r,rp in zip(rules,originalRules) ],
-                        adjustedCost = parseInteger(output, adjustedCost))
+                        adjustedCost = loss)
 
     def sketchIncrementalChange(self, solution, radius = 1):
         bestSolution = None
