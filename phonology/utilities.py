@@ -3,6 +3,7 @@ import sys
 import pickle
 import math
 import random
+import itertools
 
 def compose(f,g):
     return lambda x: f(g(x))
@@ -51,6 +52,22 @@ def everyBinaryVector(l,w):
         for v in everyBinaryVector(l - 1,w - 1):
             yield [True] + v
 
+def everyPermutation(l,r):
+    # every permutation of 0 -- (l-1)
+    # each permutation is constrained to exchange exactly r elements
+    assert r > 1
+    for exchangedElements in itertools.combinations(range(l),r):
+        for perm in itertools.permutations(exchangedElements):
+            # every element has to be mapped to a new one
+            if any([ p == e for p,e in zip(list(perm),list(exchangedElements)) ]): continue
+
+            returnValue = list(range(l))
+            for p,e in zip(list(perm),list(exchangedElements)):
+                returnValue[e] = p
+            yield returnValue
+
+
+
 def dumpPickle(o,f):
     with open(f,'wb') as handle:
         pickle.dump(o,handle)
@@ -61,3 +78,4 @@ def loadPickle(f):
 def flushEverything():
     sys.stdout.flush()
     sys.stderr.flush()
+

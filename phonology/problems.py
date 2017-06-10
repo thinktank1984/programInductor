@@ -1321,20 +1321,20 @@ interactingProblems.append(Problem(
     '''7: Korean
 Provide rules which will account for the alternations in the stem final consonant in the following examples. State what underlying representation you are assuming for each noun.
     ''',
-#	‘rice’	‘forest’	‘chestnut’	‘field’	‘sickle’	‘day’	‘face’	‘half’	
-[
+    #	‘rice’	‘forest’	‘chestnut’	‘field’	‘sickle’	‘day’	‘face’	‘half’	
+transposeInflections([
     (u"pamman",	u"summan",	u"pamman", u"pamman",	u"namman",	u"namman", u"namman",	u"pamman"),#	only N
-	(u"pammaŋk^hɨm",	u"summaŋk^hɨm",	u"pammaŋk^hɨm", u"pammaŋk^hɨm",	u"nammaŋk^hɨm",	u"nammaŋk^hɨm", u"nammaŋk^hɨm",	u"pammaŋk^hɨm"),#	as much as N
-	(u"pamnarɨm",	u"sumnarɨm",	u"pamnarɨm", u"pannarɨm",	u"nannarɨm",	u"nannarɨm", u"nannarɨm",	u"pannarɨm"),#	depending on N
-	(u"pap",	u"sup",	u"pam", u"pat",	u"nat",	u"nat", u"nat",	u"pan"),#	N
-	(u"papt’ero",	u"supt’ero",	u"pamtero", u"patt’ero",	u"natt’ero",	u"natt’ero", u"natt’ero",	u"pantero"),#	like N
-	(u"papk’wa",	u"supk’wa",	u"pamkwa", u"pakk’wa",	u"nakk’wa",	u"nakk’wa", u"nakk’wa",	u"paŋkwa"),#	with N
-	(u"papp’ota",	u"supp’ota",	u"pampota", u"papp’ota",	u"napp’ota",	u"napp’ota", u"napp’ota",	u"pampota"),#	more than N
-	(u"papk’ači",	u"supk’ači",	u"pamk’ači", u"pakk’ači",	u"nakk’ači",	u"nakk’ači", u"nakk’ači",	u"paŋk’ači"),#	until N
-	(u"papi",	u"sup^hi",	u"pami", u"pač^hi",	u"nasi",	u"nači", u"nač^hi",	u"pani"),#	N (nominative)
-	(u"papɨn",	u"sup^hɨn",	u"pamɨn", u"pathɨn",	u"nasɨn",	u"načɨn", u"nač^hɨn",	u"panɨn"),#	N (topic)
-	(u"pape",	u"sup^he",	u"pame", u"pathe",	u"nase",	u"nače", u"nač^he",	u"pane"),#	to N
-	(u"papita",	u"sup^hita",	u"pamita", u"pač^hita",	u"nasita",	u"načita", u"nač^hita",	u"panita"),#	it is N
-	(u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")]))#	using N
+    (u"pammaŋk^hɨm",	u"summaŋk^hɨm",	u"pammaŋk^hɨm", u"pammaŋk^hɨm",	u"nammaŋk^hɨm",	u"nammaŋk^hɨm", u"nammaŋk^hɨm",	u"pammaŋk^hɨm"),#	as much as N
+    (u"pamnarɨm",	u"sumnarɨm",	u"pamnarɨm", u"pannarɨm",	u"nannarɨm",	u"nannarɨm", u"nannarɨm",	u"pannarɨm"),#	depending on N
+    (u"pap",	u"sup",	u"pam", u"pat",	u"nat",	u"nat", u"nat",	u"pan"),#	N
+    (u"papt’ero",	u"supt’ero",	u"pamtero", u"patt’ero",	u"natt’ero",	u"natt’ero", u"natt’ero",	u"pantero"),#	like N
+    (u"papk’wa",	u"supk’wa",	u"pamkwa", u"pakk’wa",	u"nakk’wa",	u"nakk’wa", u"nakk’wa",	u"paŋkwa"),#	with N
+    (u"papp’ota",	u"supp’ota",	u"pampota", u"papp’ota",	u"napp’ota",	u"napp’ota", u"napp’ota",	u"pampota"),#	more than N
+    (u"papk’ači",	u"supk’ači",	u"pamk’ači", u"pakk’ači",	u"nakk’ači",	u"nakk’ači", u"nakk’ači",	u"paŋk’ači"),#	until N
+    (u"papi",	u"sup^hi",	u"pami", u"pač^hi",	u"nasi",	u"nači", u"nač^hi",	u"pani"),#	N (nominative)
+    (u"papɨn",	u"sup^hɨn",	u"pamɨn", u"pathɨn",	u"nasɨn",	u"načɨn", u"nač^hɨn",	u"panɨn"),#	N (topic)
+    (u"pape",	u"sup^he",	u"pame", u"pathe",	u"nase",	u"nače", u"nač^he",	u"pane"),#	to N
+    (u"papita",	u"sup^hita",	u"pamita", u"pač^hita",	u"nasita",	u"načita", u"nač^hita",	u"panita"),#	it is N
+    (u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")])))#	using N
 
 

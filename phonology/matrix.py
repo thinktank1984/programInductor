@@ -81,9 +81,7 @@ class UnderlyingProblem():
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
         """surfaces : list of elements, each of which is either a sketch expression or a APA string"""
-        def applyRules(d):
-            for r in rules: d = applyRule(r,d)
-            return d
+        
         def buildUnderlyingForm(prefix, suffix):
             if isinstance(stem, Morph): # underlying form is fixed
                 return (prefix + stem + suffix).makeConstant(self.bank)
@@ -264,10 +262,13 @@ class UnderlyingProblem():
 
         return totalCost
 
-    def sketchJointSolution(self, canAddNewRules = False, costUpperBound = None):
+    def sketchJointSolution(self, canAddNewRules = False, costUpperBound = None, fixedRules = None):
         try:
             Model.Global()
-            rules = [ Rule.sample() for _ in range(self.depth) ]
+            if fixedRules == None:
+                rules = [ Rule.sample() for _ in range(self.depth) ]
+            else:
+                rules = [ r.makeDefinition(self.bank) for r in fixedRules ]
             stems = [ Morph.sample() for _ in self.inflectionMatrix ]
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
@@ -283,7 +284,7 @@ class UnderlyingProblem():
             solution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                                 suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
                                 underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                                rules = [ Rule.parse(self.bank, output, r) for r in rules ])
+                                rules = [ Rule.parse(self.bank, output, r) for r in rules ] if fixedRules == None else fixedRules)
             solution.showMorphologicalAnalysis()
             solution.showRules()
             return solution
@@ -390,7 +391,19 @@ class UnderlyingProblem():
 
     def sketchIncrementalChange(self, solution, radius = 1):
         bestSolution = None
-        bestCost = None
+
+        # can we solve the problem without changing any existing rules but just by reordering them?
+        for perm in everyPermutation(len(solution.rules), radius + 1):
+            print "permutation =",perm
+            permutedRules = [ solution.rules[j] for j in perm ]
+            solution = self.sketchJointSolution(fixedRules = permutedRules)
+            if solution == None: continue
+            if bestSolution == None or solution.cost() < bestSolution.cost():
+                bestSolution = solution
+
+        # did we solve it just by reordering the rules?
+        if bestSolution != None: return bestSolution
+        
         # construct change vectors. These are None for new rule and a rule object otherwise.
         nr = len(solution.rules)
         # do not add a new rule
@@ -404,13 +417,11 @@ class UnderlyingProblem():
                          for v in everyBinaryVector(nr,nr - radius + 1) ]
         
         for v in ruleVectors:
-            print "v = ",v
             try:
                 s = self.sketchChangeToSolution(solution, v,
                                                 costUpperBound = None if bestSolution == None else bestSolution.adjustedCost)
-                if bestCost == None or s.cost() < bestCost:
+                if bestSolution == None or s.cost() < bestSolution.cost():
                     bestSolution = s
-                    bestCost = s.cost()
             except SynthesisFailure: pass
         if bestSolution:
             return bestSolution
@@ -463,4 +474,31 @@ class UnderlyingProblem():
                         print 
                     
                     
-        
+    def solutionDescriptionLength(self,solution,inflections = None):
+        if inflections == None:
+            return sum([self.solutionDescriptionLength(solution,i)
+                        for i in self.data ])
+
+        Model.Global()
+        stem = Morph.sample()
+
+        # Make the morphology/phonology be a global definition
+        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
+        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
+        rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
+
+        for r in rules: condition(fixStructuralChange(r))
+
+        predictions = [ applyRules(concatenate3(prefixes[j],stem,suffixes[j]))
+                        for j in range(self.numberOfInflections) ]
+
+        cost = wordLength(stem)
+        for j in range(self.numberOfInflections):
+            m = Morph(inflections[j])
+            cost = cost + Conditional(wordEqual(predictions[j], m.makeConstant(self.bank)),
+                                      Constant(0),
+                                      Constant(len(m)))
+
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
+        assert output != None
+        return parseMinimalCostValue(output)
