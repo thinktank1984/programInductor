@@ -327,7 +327,7 @@ class UnderlyingProblem():
             # When we expect it to be tractable, we should try doing a little bit deeper
             if self.depth < 3 and self.numberOfInflections < 3:
                 slave = UnderlyingProblem(trainingData, self.depth + 1, self.bank)
-                expandedSolution = slave.sketchJointSolution(costUpperBound = solution.cost())
+                expandedSolution = slave.sketchJointSolution(costUpperBound = solution.adjustedCost)
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
@@ -357,6 +357,7 @@ class UnderlyingProblem():
 
 
     def sketchChangeToSolution(self,solution, rules, costUpperBound = None):
+        # costUpperBound: an upper bound on the cost; includes fancy index manipulations
         Model.Global()
 
         originalRules = list(rules) # save it for later
@@ -367,7 +368,7 @@ class UnderlyingProblem():
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
-        self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
+        adjustedCost = self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         output = self.solveSketch()
@@ -380,7 +381,8 @@ class UnderlyingProblem():
                         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
                         underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
                         rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
-                                  for r,rp in zip(rules,originalRules) ])
+                                  for r,rp in zip(rules,originalRules) ],
+                        adjustedCost = parseInteger(output, adjustedCost))
 
     def sketchIncrementalChange(self, solution, radius = 1):
         bestSolution = None
@@ -400,7 +402,8 @@ class UnderlyingProblem():
         for v in ruleVectors:
             print "v = ",v
             try:
-                s = self.sketchChangeToSolution(solution, v) #, bestCost)
+                s = self.sketchChangeToSolution(solution, v,
+                                                costUpperBound = None if bestSolution == None else bestSolution.adjustedCost)
                 if bestCost == None or s.cost() < bestCost:
                     bestSolution = s
                     bestCost = s.cost()

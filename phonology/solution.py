@@ -1,12 +1,13 @@
 
 
 class Solution():
-    def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = []):
+    def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
         assert len(prefixes) == len(suffixes)
         self.rules = rules
         self.prefixes = prefixes
         self.suffixes = suffixes
         self.underlyingForms = underlyingForms
+        self.adjustedCost = adjustedCost
 
     def __str__(self):
         return "\n".join([ "rule: %s"%(str(r)) for r in self.rules ] +
