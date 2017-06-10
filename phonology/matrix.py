@@ -88,7 +88,7 @@ class UnderlyingProblem():
             else: # underlying form is unknown
                 return concatenate3(prefix, stem, suffix)
             
-        prediction = [ applyRules(buildUnderlyingForm(prefixes[i],suffixes[i]))
+        prediction = [ applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]))
                      for i in range(len(surfaces)) ]
         for i in range(len(surfaces)):
             surface = surfaces[i]
@@ -489,7 +489,7 @@ class UnderlyingProblem():
 
         for r in rules: condition(fixStructuralChange(r))
 
-        predictions = [ applyRules(concatenate3(prefixes[j],stem,suffixes[j]))
+        predictions = [ applyRules(rules, concatenate3(prefixes[j],stem,suffixes[j]))
                         for j in range(self.numberOfInflections) ]
 
         cost = wordLength(stem)

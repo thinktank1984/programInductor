@@ -16,7 +16,7 @@ def alternationCost(r): pass
 @sketchImplementation("applyRule")
 def applyRule(rule,i):
     pass
-def applyRules(d):
+def applyRules(rules,d):
     for r in rules: d = applyRule(r,d)
     return d
 @sketchImplementation("make_word")
