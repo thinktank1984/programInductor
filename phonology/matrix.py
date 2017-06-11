@@ -396,10 +396,10 @@ class UnderlyingProblem():
         for perm in everyPermutation(len(solution.rules), radius + 1):
             print "permutation =",perm
             permutedRules = [ solution.rules[j] for j in perm ]
-            solution = self.sketchJointSolution(fixedRules = permutedRules)
-            if solution == None: continue
-            if bestSolution == None or solution.cost() < bestSolution.cost():
-                bestSolution = solution
+            newSolution = self.sketchJointSolution(fixedRules = permutedRules)
+            if newSolution == None: continue
+            if bestSolution == None or newSolution.cost() < bestSolution.cost():
+                bestSolution = newSolution
 
         # did we solve it just by reordering the rules?
         if bestSolution != None: return bestSolution
