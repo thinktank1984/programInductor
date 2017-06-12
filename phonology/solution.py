@@ -20,6 +20,10 @@ class Solution():
         return sum([ r.cost() for r in self.rules ] +
                    [ len(s) for s in (self.prefixes + self.suffixes + self.underlyingForms) ])
 
+    def modelCost(self):
+        return sum([ r.cost() for r in self.rules ] +
+                   [ len(s) for s in (self.prefixes + self.suffixes) ])
+
     def depth(self): return len(self.rules)
 
     def showMorphologicalAnalysis(self):

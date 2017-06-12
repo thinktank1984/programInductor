@@ -172,12 +172,12 @@ class UnderlyingProblem():
 
     def solveTopRules(self, solution, k):
         '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
-        solutions = [solution] if existingRules == None else [(prefixes, suffixes, existingRules)]
+        solutions = [solution]
         
         for _ in range(k - 1):
             Model.Global()
 
-            rules = [ Rule.sample() for _ in range(self.depth) ]
+            rules = [ Rule.sample() for _ in range(len(solution.rules)) ]
             for other in solutions:
                 condition(And([ ruleEqual(r, o.makeConstant(self.bank))
                                 for r, o in zip(rules, other.rules) ]) == 0)
@@ -205,6 +205,8 @@ class UnderlyingProblem():
             if not self.verify(solution, observation):
                 if observation in trainingData:
                     print "FATAL: Failed to verify ",observation,"which is in the training data."
+                    print "The solution we were verifying was:"
+                    print solution
                     assert False
                     continue
                 print "COUNTEREXAMPLE:\t",
@@ -381,6 +383,10 @@ class UnderlyingProblem():
 
         loss = parseMinimalCostValue(output)
         print "\t(modification successful; loss = %d)"%loss
+        if costUpperBound != None and False:
+            print output
+            print makeSketch(self.bank)
+            assert False
 
         return Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
@@ -428,12 +434,12 @@ class UnderlyingProblem():
         raise SynthesisFailure('incremental change')
         
         
-    def incrementallySolve(self):
+    def incrementallySolve(self, stubborn = False, beam = 1):
         # start out with just the first example
         print "Starting out with explaining just the first two examples:"
         trainingData = self.data[:2]
         slave = UnderlyingProblem(trainingData, 1, self.bank)
-        solution = slave.sketchJointSolution()
+        solution = slave.sketchJointSolution(canAddNewRules = True)
 
         radius = 1
 
@@ -450,28 +456,43 @@ class UnderlyingProblem():
                     break
                 except SynthesisFailure:
                     print "But, cannot incrementally change rules right now to accommodate that example."
+                    # stubborn: insist on explaining earlier examples before explaining later examples
+                    # so we want to break out of the loop over counterexamples
+                    if stubborn: break
             if not haveCounterexample:
                 print "No more counterexamples; done."
                 return self.solveUnderlyingForms(solution)
+
+            if newExample == None:
+                print "I can't make any local changes to my rules to accommodate a counterexample."
+                radius += 1
+                print "Increasing search radius to %d"%radius
+                if radius > 2:
+                    print "I refuse to use a radius this big."
+                    return None                    
             else:
-                if newExample == None:
-                    print "I can't make any local changes to my rules to accommodate a counterexample."
-                    radius += 1
-                    print "Increasing search radius to %d"%radius
-                    if radius > 2:
-                        print "I refuse to use a radius this big."
-                        return None                    
-                else:
-                    trainingData += [ce]
-                    print "Added the counterexample to the training data."
-                    print "Training data:"
-                    for t in trainingData:
-                        print u"\t".join(t)
+                trainingData += [ce]
+                print "Added the counterexample to the training data."
+                print "Training data:"
+                for t in trainingData:
+                    print u"\t".join(t)
+                print
+                if radius > 1:
+                    print "(radius set back to 1)"
+                    radius = 1
                     print
-                    if radius > 1:
-                        print "(radius set back to 1)"
-                        radius = 1
-                        print 
+
+                # Should we enumerate alternative hypotheses?
+                if beam > 1:
+                    worker = UnderlyingProblem(trainingData, 0, self.bank)
+                    solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                                      for s in worker.solveTopRules(solution, beam) ]
+                    print "Alternative solutions and their scores:"
+                    for c,s in solutionScores:
+                        print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
+
+                    solution = min(solutionScores)[1]
+                    
                     
                     
     def solutionDescriptionLength(self,solution,inflections = None):
@@ -498,6 +519,8 @@ class UnderlyingProblem():
             cost = cost + Conditional(wordEqual(predictions[j], m.makeConstant(self.bank)),
                                       Constant(0),
                                       Constant(len(m)))
+
+        minimize(cost)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
         assert output != None

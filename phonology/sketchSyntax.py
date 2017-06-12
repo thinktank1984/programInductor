@@ -16,7 +16,7 @@ class Expression:
         return Equals(self,o)
     def __gt__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
-        return LessThan(o,self)
+        return GreaterThan(o,self)
     def __lt__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
         return LessThan(self,o)
@@ -50,6 +50,13 @@ class LessThan(Expression):
         self.b = b
     def sketch(self): return "((%s) < (%s))" % (self.a.sketch(), self.b.sketch())
     def web(self): return "((%s) < (%s))" % (self.a.web(), self.b.web())
+
+class GreaterThan(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b
+    def sketch(self): return "((%s) > (%s))" % (self.a.sketch(), self.b.sketch())
+    def web(self): return "((%s) > (%s))" % (self.a.web(), self.b.web())
 
 class Equals(Expression):
     def __init__(self,a,b):

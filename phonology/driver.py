@@ -121,7 +121,8 @@ def handleProblem(parameters):
         ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
     else:
         if parameters['testing'] == 0.0:
-            ss = UnderlyingProblem(p.data, 1).incrementallySolve()
+            ss = UnderlyingProblem(p.data, 1).incrementallySolve(stubborn = parameters['stubborn'],
+                                                                 beam = parameters['beam'])
             print "ss = "
             print ss
             ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
@@ -166,6 +167,8 @@ if __name__ == '__main__':
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
+    parser.add_argument('--stubborn', default = False, action = 'store_true')
+    parser.add_argument('--beam',default = 1,type = int)
 
     arguments = parser.parse_args()
     
@@ -195,7 +198,9 @@ if __name__ == '__main__':
                    'universalGrammar': arguments.universal.split(','),
                    'top': arguments.top,
                    'threshold': arguments.threshold,
-                   'redirect': False# FMLarguments.cores > 1}
+                   'redirect': False,
+                   'stubborn': arguments.stubborn,
+                   'beam': arguments.beam
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))
