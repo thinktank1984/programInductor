@@ -536,3 +536,75 @@ class UnderlyingProblem():
             printSketchFailure()
             assert False
         return parseMinimalCostValue(output)
+
+    def paretoFront(self, k, temperature, useMorphology = False):
+        assert self.numberOfInflections == 1
+        self.maximumObservationLength += 1
+
+        def affix():
+            if useMorphology: return Morph.sample()
+            else: return Morph([]).makeConstant(self.bank)
+        def parseAffix(output, morph):
+            if useMorphology: return Morph.parse(self.bank, output, morph)
+            else: return Morph([])
+            
+        Model.Global()
+        rules = [ Rule.sample() for _ in range(self.depth) ]
+
+        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        prefixes = [ affix() for _ in range(self.numberOfInflections) ]
+        suffixes = [ affix() for _ in range(self.numberOfInflections) ]
+
+        for i in range(len(stems)):
+            self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
+
+        stemCostExpression = sum([ wordLength(u) for u in stems ] + [ wordLength(u) for u in suffixes ] + [ wordLength(u) for u in prefixes ])
+        stemCostVariable = unknownInteger()
+        condition(stemCostVariable == stemCostExpression)
+        minimize(stemCostExpression)
+        ruleCostExpression = sum([ ruleCost(r) for r in rules ])
+        ruleCostVariable = unknownInteger()
+        condition(ruleCostVariable == ruleCostExpression)
+        if len(rules) > 0:
+            minimize(ruleCostExpression)
+
+        solutions = []
+        solutionCosts = []
+        for _ in range(k):
+            # Excludes solutions we have already found
+            for rc,uc in solutionCosts:
+                condition(And([ruleCostVariable == rc,stemCostVariable == uc]) == 0)
+
+            output = self.solveSketch(minimizeBound = 64)
+
+            if output == None: break
+                        
+
+            s = Solution(suffixes = [ parseAffix(output, m) for m in suffixes ],
+                         prefixes = [ parseAffix(output, m) for m in prefixes ],
+                         rules = [ Rule.parse(self.bank, output, r) for r in rules ],
+                         underlyingForms = [ Morph.parse(self.bank, output, m) for m in stems ])
+            solutions.append(s)
+            print s
+
+            rc = sum([r.cost() for r in s.rules ])
+            uc = sum([len(u) for u in s.prefixes+s.suffixes+s.underlyingForms ])
+            print "Costs:",(rc,uc)
+            actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
+            assert actualCosts == (rc,uc)
+            (rc,uc) = actualCosts
+            solutionCosts.append((rc,uc))
+
+        if len(solutions) > 0:
+            optimalCost, optimalSolution = min([(uc + float(rc)/temperature, s)
+                                                for ((rc,uc),s) in zip(solutionCosts, solutions) ])
+            print "Optimal solution:"
+            print optimalSolution
+            print "Optimal cost:",optimalCost
+
+        return solutions, solutionCosts
+
+
+
+
+

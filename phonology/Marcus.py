@@ -6,6 +6,7 @@ from features import FeatureBank, tokenize, featureMap
 from rule import Rule
 from morph import Morph
 from sketch import *
+from matrix import UnderlyingProblem
 
 from random import choice,seed
 import matplotlib.pyplot as plot
@@ -228,7 +229,8 @@ if __name__ == '__main__':
 
         points = []
         for d in range(0,arguments.depth + 1):
-            solutions, costs = paretoFront(d, trainingData, arguments.top)
+            worker = UnderlyingProblem([(w,) for w in trainingData ],d)
+            solutions, costs = worker.paretoFront(arguments.top, TEMPERATURE)
             points += costs
         pointsFromEachExperiment.append(removePointsNotOnFront(points))
         
