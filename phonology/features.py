@@ -208,7 +208,11 @@ class FeatureBank():
             d += "if (f == {%s})" % (",".join(map(str,self.featureVectorMap[p])))
             d += " return phoneme_%d;\n"%j
         d += "assert 0;}\n"
-        return d        
+        return d
+
+    def __unicode__(self):
+        return u'FeatureBank({' + u','.join(self.phonemes) + u'})'
+    def __str__(self): return unicode(self).encode('utf-8')
 
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""

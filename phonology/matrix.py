@@ -523,5 +523,13 @@ class UnderlyingProblem():
         minimize(cost)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
-        assert output != None
+        if output == None:
+            print "Fatal error: "
+            print "Could not compute description length of:"
+            print u"\t".join(inflections)
+            print "For model:"
+            print solution
+            print "Solver output:"
+            printSketchFailure()
+            assert False
         return parseMinimalCostValue(output)
