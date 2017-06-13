@@ -529,6 +529,8 @@ class UnderlyingProblem():
             print u"\t".join(inflections)
             print "For model:"
             print solution
+            print "Bank:"
+            print self.bank
             print "Solver output:"
             printSketchFailure()
             assert False
