@@ -41,8 +41,8 @@ class UnderlyingProblem():
         self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
-    def solveSketch(self):
-        return solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
+    def solveSketch(self, minimizeBound = 31):
+        return solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
     def applyRule(self, r, u):
         if USEPYTHONRULES:# use the Python implementation of rules
@@ -522,7 +522,8 @@ class UnderlyingProblem():
 
         minimize(cost)
 
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength,
+                             minimizeBound = sum([len(tokenize(i)) for i in inflections ]))
         if output == None:
             print "Fatal error: "
             print "Could not compute description length of:"

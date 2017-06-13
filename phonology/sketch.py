@@ -4,6 +4,7 @@ from features import FeatureBank
 from sketchSyntax import *
 from utilities import *
 
+import math
 from random import random
 import os
 from time import time
@@ -68,10 +69,16 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     return h
 
 lastFailureOutput = None
-def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False):
+def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None):
     global lastFailureOutput
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
+
+    # figure out how many bits you need for the minimization bound
+    if minimizeBound != None:
+        minimizeBound = int(math.ceil(math.log(minimizeBound + 1)/math.log(2)))
+    else:
+        minimizeBound = 5
 
     # Temporary file for writing the sketch
     fd = tempfile.NamedTemporaryFile(mode = 'w',suffix = '.sk',delete = False,dir = '.')
@@ -86,7 +93,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     od.close()
     outputFile = od.name
     
-    command = "sketch  -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (unroll, fd.name, outputFile, outputFile)
+    command = "sketch --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (minimizeBound, unroll, fd.name, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
