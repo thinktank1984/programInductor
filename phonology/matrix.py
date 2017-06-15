@@ -372,6 +372,12 @@ class UnderlyingProblem():
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
+        # Should we hold the morphology fixed?
+        if len(solution.underlyingForms) > 2:
+            for j in range(self.numberOfInflections):
+                condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
+                condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
+
         print "upper bound = ",costUpperBound
         self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
         self.conditionOnData(rules, stems, prefixes, suffixes)
@@ -523,7 +529,7 @@ class UnderlyingProblem():
         minimize(cost)
 
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength,
-                             minimizeBound = sum([len(tokenize(i)) for i in inflections ]))
+                             minimizeBound = sum([len(tokenize(i)) for i in inflections ]) + 1)
         if output == None:
             print "Fatal error: "
             print "Could not compute description length of:"
