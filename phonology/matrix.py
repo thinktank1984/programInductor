@@ -378,6 +378,10 @@ class UnderlyingProblem():
                 condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
                 condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
 
+            if len(solution.underlyingForms) > 3:
+                for stemVariable,oldValue in zip(stems,solution.underlyingForms):
+                    condition(wordEqual(stemVariable, oldValue))
+
         print "upper bound = ",costUpperBound
         self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
         self.conditionOnData(rules, stems, prefixes, suffixes)
