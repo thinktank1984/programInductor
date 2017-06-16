@@ -8,7 +8,10 @@ class Problem():
     def __init__(self,description,data,parameters = None):
         self.parameters = parameters
         self.description = description
-        self.data = data
+        if parameters:
+            self.data = [ x.replace(u"’",u"") for x in data ]
+        else:
+            self.data = [ tuple([ x.replace(u"’",u"") for x in inflections ]) for inflections in data ]
 
         # As a sanity check we try to tokenize all of the data
         # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features
