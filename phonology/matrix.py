@@ -498,6 +498,8 @@ class UnderlyingProblem():
                         print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
 
                     solution = min(solutionScores)[1]
+                    print " [+] New solution:"
+                    print solution
                     
                     
                     
