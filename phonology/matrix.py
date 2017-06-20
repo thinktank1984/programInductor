@@ -531,6 +531,7 @@ class UnderlyingProblem():
 
         ur = solution.transduceUnderlyingForm(self.bank, inflections)
         if ur != None: return len(ur)
+        else: return sum([ len(tokenize(s)) for s in inflections ])
 
         Model.Global()
         stem = Morph.sample()
