@@ -467,6 +467,18 @@ class UnderlyingProblem():
         trainingData = self.data[:2]
         slave = UnderlyingProblem(trainingData, 1, self.bank)
         solution = slave.sketchJointSolution(canAddNewRules = True)
+        # Should we enumerate alternative hypotheses?
+        if beam > 1:
+            worker = UnderlyingProblem(trainingData, 0, self.bank)
+            solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                              for s in worker.solveTopRules(solution, beam) ]
+            print "Alternative solutions and their scores:"
+            for c,s in solutionScores:
+                print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
+
+            solution = min(solutionScores)[1]
+            print " [+] New solution:"
+            print solution
 
         radius = 1
 
