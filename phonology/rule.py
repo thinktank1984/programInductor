@@ -5,6 +5,7 @@ from features import FeatureBank,featureMap
 from latex import latexWord
 from morph import Morph
 
+from foma import *
 import re
 
 class Braces():
@@ -52,6 +53,8 @@ class ConstantPhoneme(Specification):
     def cost(self): return 2
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
+    def fst(self,bank):
+        return bank.phoneme2fst(self.p)
 
     def share(self, table):
         k = ('CONSTANT',unicode(self))
@@ -134,6 +137,15 @@ class FeatureMatrix():
     def skeleton(self):
         if self.featuresAndPolarities == []: return "[ ]"
         else: return "[ +/-F ]"
+
+    def fst(self,bank):
+        # which phonemes in the bank does this refer to?
+        setOfPhonemes = [ bank.phoneme2fst(p)
+                          for p in bank.phonemes
+                          if self.matches(featureMap[p]) ]
+        assert len(setOfPhonemes) > 0
+        if len(setOfPhonemes) == 1: return setOfPhonemes[0]
+        return '[%s]'%('|'.join(setOfPhonemes))
 
     def latex(self):
         if self.featuresAndPolarities == []: return '\\verb|[ ]|'
@@ -244,6 +256,13 @@ class Guard():
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
 
+    def fst(self,bank):
+        parts = [ s.fst(bank) for s in self.specifications ]
+        if self.starred: parts[-2] += '*'
+        if self.endOfString: parts += ['.#.']
+        if self.side == 'L': parts.reverse()
+        return ' '.join(parts)
+
     def share(self, table):
         k = ('GUARD',self.side,unicode(self))
         if k in table: return table[k]
@@ -344,6 +363,34 @@ class Rule():
                                                        self.structuralChange.latex() if self.copyOffset == 0 else self.copyOffset,
                                                        self.leftTriggers.latex(),
                                                        self.rightTriggers.latex())
+
+    def fst(self,bank):
+        # construct the input/output mapping
+        if isinstance(self.focus,ConstantPhoneme):
+            inputs = [self.focus.p]
+        elif isinstance(self.focus,FeatureMatrix):
+            inputs = [ p
+                       for p in bank.phonemes
+                       if self.focus.matches(featureMap[p]) ]
+        else: assert False
+
+        outputs = [ frozenset(self.structuralChange.apply(featureMap[i])) for i in inputs ]
+        print "outputs = ",outputs
+        outputs = [ bank.matrix2phoneme.get(o,None) for o in outputs ]
+
+        mapping = [ (i,o) for (i,o) in zip(inputs, outputs) if outputs != None ]
+        print "MAPPING"
+        print self
+        print mapping
+        print
+
+        mapping = ", ".join([ "%s -> %s"%(bank.phoneme2fst(i), bank.phoneme2fst(o))
+                              for i,o in mapping ])
+        regex = "%s || %s _ %s"%(mapping, self.leftTriggers.fst(bank), self.rightTriggers.fst(bank))
+        print "regular expression"
+        print regex
+        print 
+        return FST(regex)        
 
     # Produces sketch object
     def makeConstant(self, bank):
@@ -460,3 +507,61 @@ EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  rightTriggers = Guard('R',False,False,[]),
                  copyOffset = 0)
 assert EMPTYRULE.doesNothing()
+
+def runTransducer(bank,t,x):
+    if isinstance(x,Morph):
+        x = x.phonemes
+    elif isinstance(x,basestring):
+        x = tokenize(x)
+    elif isinstance(x,list):
+        assert isinstance(x[0],basestring)
+    else: assert False
+
+    x = ''.join([ bank.phoneme2fst(p) for p in x ])
+    y = t[x]
+    assert len(y) == 1
+    return Morph([ bank.fst2phoneme(f) for f in y[0] ])
+def composedTransducer(bank,rs):
+    ts = [r.fst(bank) for r in rs ]
+    t = ts[0]
+    ts = ts[1:]
+    while len(ts) > 0:
+        t = t.compose(ts[0])
+        ts = ts[1:]
+    return t
+def constantTransducer(x):
+    t = FST('[?*] .x. [%s]'%(' '.join(x)))
+    print "constant transducer for",x,"has the regular expression",t.regex
+    return t
+
+def conditionalProjection(t,x):
+    return (t & constantTransducer(x)).upper()
+
+
+def invertParallelTransducers(transducers, surfaces):
+    assert len(transducers) == len(surfaces)
+
+    projections = [ conditionalProjection(t,s) for t,s in zip(transducers, surfaces) ]
+
+    intersections = projections[0]
+    for p in projections[1:]: intersections = intersections&p
+
+    return intersections.words()
+    
+
+if __name__ == '__main__':
+    m1 = FST('[..] -> t s ||  _ .#.')
+    m2 = FST('[..] -> y s ||  _ .#.')
+    print invertParallelTransducers([m1,m2],
+                              ['mangots',
+                               'mangoys'])
+    assert False
+    print g
+    print g.apply_up('cinnamontest').next()
+    print g.lower()
+    print g.upper()
+    generator = g.lowerwords()
+    for _ in range(10):
+        print generator.next()
+
+        

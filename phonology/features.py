@@ -47,6 +47,7 @@ affricate = "affricate"
 alveopalatal = "alveopalatal"
 aspirated = "aspirated"
 unreleased = "unreleased"
+syllableBoundary = "syllableBoundary"
 
 featureMap = {
     # unrounded vowels
@@ -131,6 +132,8 @@ featureMap = {
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA
     # u"ɲ": []
+
+    u"-": [syllableBoundary],
 }
 
 # Automatically annotate vowels
@@ -194,6 +197,10 @@ class FeatureBank():
             for p in self.phonemes ])
         self.phoneme2index = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
         self.feature2index = dict([ (self.features[j],j) for j in range(len(self.features)) ])
+        self.matrix2phoneme = dict([ (frozenset(featureMap[p]),p) for p in self.phonemes ])
+
+        self.hasSyllables = syllableBoundary in self.features
+        
     def wordToMatrix(self, w):
         return [ self.featureVectorMap[p] for p in tokenize(w) ]
     
@@ -214,6 +221,12 @@ class FeatureBank():
         return u'FeatureBank({' + u','.join(self.phonemes) + u'})'
     def __str__(self): return unicode(self).encode('utf-8')
 
+    FSTSYMBOLS = [chr(ord('a') + j) for j in range(26) ] + [chr(ord('A') + j) for j in range(26) ] + [str(j) for j in range(1,10) ]
+    def phoneme2fst(self,p):
+        return FeatureBank.FSTSYMBOLS[self.phoneme2index[p]]
+    def fst2phoneme(self,s):
+        return self.phonemes[FeatureBank.FSTSYMBOLS.index(s)]        
+
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""
         for p in self.featureVectorMap:
@@ -224,6 +237,10 @@ class FeatureBank():
                     assert False
         
         h = ""
+        if self.hasSyllables:
+            h += "#define SYLLABLEBOUNDARYPHONEME phoneme_%d\n"%(self.phoneme2index[u"-"])
+            h += "#define SYLLABLEBOUNDARYFEATURE %d\n"%(self.feature2index[syllableBoundary])
+        
         for j in range(len(self.phonemes)):
             features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))
             h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)

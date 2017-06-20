@@ -1,4 +1,6 @@
+from rule import *
 
+from foma import *
 
 class Solution():
     def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
@@ -37,3 +39,44 @@ class Solution():
     def showRules(self):
         print "Phonological rules:"
         for r in self.rules: print r
+
+    def phonologyTransducer(self,bank):
+        return composedTransducer(bank, self.rules)
+
+    def morphologyTransducers(self, bank):
+        def makeTransducer(prefix, suffix):
+            if len(prefix) > 0:
+                t1 = '[..] -> %s || .#. _'%(' '.join([ bank.phoneme2fst(p) for p in prefix.phonemes ]))
+                print "prefix regular expression", t1
+                t1 = FST(t1)
+            else:
+                t1 = getIdentityFST()
+            if len(suffix) > 0:
+                print suffix
+                t2 = '[..] -> %s ||  _ .#.'%(' '.join([ bank.phoneme2fst(p) for p in suffix.phonemes ]))
+                print "suffix regular expression",t2
+                t2 = FST(t2)
+            else:
+                t2 = getIdentityFST()
+            return t1.compose(t2)
+
+        return [ makeTransducer(prefix, suffix) for prefix, suffix in zip(self.prefixes, self.suffixes) ]
+
+    def inflectionTransducers(self, bank):
+        phonology = self.phonologyTransducer(bank)
+        # return [ phonology.compose(m) for m in self.morphologyTransducers(bank) ]
+        return [ m.compose(phonology) for m in self.morphologyTransducers(bank) ]
+
+    def transduceUnderlyingForm(self, bank, surfaces):
+        transducers = self.inflectionTransducers(bank)
+
+        ur = invertParallelTransducers(transducers,
+                                       [ ''.join([ bank.phoneme2fst(p) for p in s ]) for s in surfaces])
+        candidates = []
+        for u in ur:
+            candidates.append(u)
+            if len(candidates) > 10: break
+            
+        if candidates == []: return None
+        bestCandidate = min(candidates, key = lambda c: len(c))
+        return Morph([ bank.fst2phoneme(p) for p in bestCandidate ])

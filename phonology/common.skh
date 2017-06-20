@@ -185,13 +185,50 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
   return 1;
 }
 
-bit consonant_specification(Specification s) {
-  if (s == null) return 0;
-  switch(s) {
-  case Vector:{return 0;}
-  case ConstantPhoneme:{return 1;}
+#ifdef SYLLABLEBOUNDARYFEATURE
+int syllable_starting_at(Word u, int e) {
+  // returns -1 if there is no syllable starting at e
+  // returns the index of the end of the syllable otherwise
+  if (e == 0 || u[e] == SYLLABLEBOUNDARYPHONEME) {
+    for (int d = 1; d < 4; d++) {
+      int test_index = e + d;
+      if (test_index == u.l) return u.l - 1;
+      if (u[test_index] == SYLLABLEBOUNDARYPHONEME)
+	return test_index - 1;
+    }
+  }
+  return -1;
+}
+int syllable_ending_at(Word u, int e) {
+  // returns -1 if there is no syllable ending at e
+  // returns the index of the start of the syllable otherwise
+  if (e == u.l || u[e] == SYLLABLEBOUNDARYPHONEME) {
+    for (int d = 1; d < 4; d++) {
+      int test_index = e - d;
+      if (test_index == 0) return 0;
+      if (u[test_index] == SYLLABLEBOUNDARYPHONEME)
+	return test_index + 1;
+    }
+  }
+  return -1;
+}
+int is_syllable_specification(Specification s) {
+  if (s == null) { return 0; }
+  switch(s){
+  case Vector:{ return 0; }
+  case ConstantPhoneme:{ return s.phoneme == SYLLABLEBOUNDARYPHONEME;}
   }
 }
+int has_syllable_feature(Specification s) {
+  if (s == null) { return 0; }
+  switch(s){
+  case Vector:{
+    return s.mask[SYLLABLEBOUNDARYFEATURE];
+  }
+  case ConstantPhoneme:{ return 0;}
+  }
+}
+#endif
 
 int specification_cost(Specification s) {
   if (s == null) return 2;
@@ -357,6 +394,15 @@ Word apply_rule(Rule r, Word u) {
   if (right_trigger.spec == null) assert right_trigger.spec2 == null;
   if (focus != null) assert r.copyOffset == 0; // not inserting so don't copy
   if (r.copyOffset != 0) assert empty_specification(structural_change);
+#ifdef SYLLABLEBOUNDARYFEATURE
+  // Syllables are encoded only as the special syllable phoneme
+  assert !has_syllable_feature(left_trigger.spec);
+  assert !has_syllable_feature(left_trigger.spec2);
+  assert !has_syllable_feature(right_trigger.spec);
+  assert !has_syllable_feature(right_trigger.spec2);
+  assert !has_syllable_feature(focus);
+  assert !has_syllable_feature(structural_change);
+#endif
   
   Sound[u.l + 1] output;
 
@@ -384,7 +430,13 @@ Word apply_rule(Rule r, Word u) {
     } else if (right_trigger.endOfString && right_trigger.spec == null) // _#
       _r = j == u.l - 1;
     else if (right_trigger.spec != null) { // _gg?#?
-      _r = j < u.l - 1 && matches_specification(u.s[j + 1], right_trigger.spec);
+      _r = j < u.l - 1;
+	_r = _r && (
+#ifdef SYLLABLEBOUNDARYFEATURE
+  is_syllable_specification(right_trigger.spec)?
+  syllable_starting_at(u,j + 1) != -1 :
+#endif
+  matches_specification(u.s[j + 1], right_trigger.spec));
       if (right_trigger.spec2 != null) // _gg
 	_r = _r && j < u.l - 2 && matches_specification(u.s[j + 2], right_trigger.spec2);
 

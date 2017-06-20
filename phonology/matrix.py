@@ -3,7 +3,7 @@
 from utilities import *
 from solution import *
 from features import FeatureBank, tokenize
-from rule import Rule,Guard,FeatureMatrix,EMPTYRULE
+from rule import * # Rule,Guard,FeatureMatrix,EMPTYRULE
 from morph import Morph
 from sketchSyntax import Expression
 from sketch import *
@@ -45,6 +45,8 @@ class UnderlyingProblem():
         return solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
     def applyRule(self, r, u):
+        t = r.fst(self.bank)
+        return runTransducer(self.bank,t,u)
         if USEPYTHONRULES:# use the Python implementation of rules
             return Morph.fromMatrix(r.apply(u))
         else:
@@ -107,6 +109,12 @@ class UnderlyingProblem():
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
         if solution.underlyingForms != []:
             print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
+
+        return Solution(rules = solution.rules,
+                        prefixes = solution.prefixes,
+                        suffixes = solution.suffixes,
+                        underlyingForms = [ solution.transduceUnderlyingForm(self.bank, inflections)
+                                            for inflections in self.data ])
             
         Model.Global()
         rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
@@ -223,6 +231,9 @@ class UnderlyingProblem():
         If it can then it returns an underlying form consistent with the data.
         Otherwise it returns False.
         '''
+
+        return solution.transduceUnderlyingForm(self.bank, inflections) != None
+        
         Model.Global()
 
         stem = Morph.sample()
@@ -511,6 +522,9 @@ class UnderlyingProblem():
         if inflections == None:
             return sum([self.solutionDescriptionLength(solution,i)
                         for i in self.data ])
+
+        ur = solution.transduceUnderlyingForms(self.bank, inflections)
+        if ur != None: return len(ur)
 
         Model.Global()
         stem = Morph.sample()
