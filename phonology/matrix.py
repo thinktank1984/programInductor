@@ -107,7 +107,7 @@ class UnderlyingProblem():
     
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
-        if solution.underlyingForms != []:
+        if solution.underlyingForms != [] and getVerbosity() > 0:
             print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
 
         return Solution(rules = solution.rules,
@@ -200,7 +200,8 @@ class UnderlyingProblem():
             
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
             if not output:
-                print "Found %d/%d solutions."%(len(solutions),k)
+                if getVerbosity() > 0:
+                    print "Found %d/%d solutions."%(len(solutions),k)
                 break
             solutions.append(Solution(suffixes = [ Morph.parse(self.bank, output, m) for m in suffixes ],
                                       prefixes = [ Morph.parse(self.bank, output, m) for m in prefixes ],
@@ -208,7 +209,8 @@ class UnderlyingProblem():
         return solutions
 
     def findCounterexamples(self, solution, trainingData = []):
-        print "Beginning verification"
+        if getVerbosity() > 0:
+            print "Beginning verification"
         for observation in self.data:
             if not self.verify(solution, observation):
                 if observation in trainingData:
@@ -269,7 +271,7 @@ class UnderlyingProblem():
         ruleSize = sum([ruleCost(r) for r in rules ])
         totalCost = define("int",ruleSize + stemSize + affixSize)
         if costUpperBound != None:
-            print "conditioning upon total cost being less than",costUpperBound
+            if getVerbosity() > 1: print "conditioning upon total cost being less than",costUpperBound
             condition(totalCost < costUpperBound)
         minimize(totalCost)
 
@@ -389,11 +391,12 @@ class UnderlyingProblem():
                 condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
                 condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
 
-            if len(solution.underlyingForms) > 3:
+            # this piece of code will also hold the underlying forms fixed
+            if False and len(solution.underlyingForms) > 3:
                 for stemVariable,oldValue in zip(stems,solution.underlyingForms):
-                    condition(wordEqual(stemVariable, oldValue))
+                    condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
 
-        print "upper bound = ",costUpperBound
+        if getVerbosity() > 1: print "upper bound = ",costUpperBound
         self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
@@ -424,7 +427,10 @@ class UnderlyingProblem():
             print "permutation =",perm
             permutedRules = [ solution.rules[j] for j in perm ]
             newSolution = self.sketchJointSolution(fixedRules = permutedRules)
-            if newSolution == None: continue
+            if newSolution == None:
+                print "\t(that permutation does not give a solution)"
+                continue
+            print "\t(got a solution from the permutation)"
             if bestSolution == None or newSolution.cost() < bestSolution.cost():
                 bestSolution = newSolution
 
@@ -523,7 +529,7 @@ class UnderlyingProblem():
             return sum([self.solutionDescriptionLength(solution,i)
                         for i in self.data ])
 
-        ur = solution.transduceUnderlyingForms(self.bank, inflections)
+        ur = solution.transduceUnderlyingForm(self.bank, inflections)
         if ur != None: return len(ur)
 
         Model.Global()

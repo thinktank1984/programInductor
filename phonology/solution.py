@@ -1,4 +1,7 @@
+from utilities import *
 from rule import *
+from features import *
+
 
 from foma import *
 
@@ -47,14 +50,15 @@ class Solution():
         def makeTransducer(prefix, suffix):
             if len(prefix) > 0:
                 t1 = '[..] -> %s || .#. _'%(' '.join([ bank.phoneme2fst(p) for p in prefix.phonemes ]))
-                print "prefix regular expression", t1
+                if getVerbosity() >= 5:
+                    print "prefix regular expression", t1
                 t1 = FST(t1)
             else:
                 t1 = getIdentityFST()
             if len(suffix) > 0:
-                print suffix
                 t2 = '[..] -> %s ||  _ .#.'%(' '.join([ bank.phoneme2fst(p) for p in suffix.phonemes ]))
-                print "suffix regular expression",t2
+                if getVerbosity() >= 5:
+                    print "suffix regular expression",t2
                 t2 = FST(t2)
             else:
                 t2 = getIdentityFST()
@@ -71,7 +75,7 @@ class Solution():
         transducers = self.inflectionTransducers(bank)
 
         ur = invertParallelTransducers(transducers,
-                                       [ ''.join([ bank.phoneme2fst(p) for p in s ]) for s in surfaces])
+                                       [ ''.join([ bank.phoneme2fst(p) for p in tokenize(s) ]) for s in surfaces])
         candidates = []
         for u in ur:
             candidates.append(u)

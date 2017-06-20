@@ -4,6 +4,7 @@ from sketchSyntax import define, FunctionCall, Constant
 from features import FeatureBank,featureMap
 from latex import latexWord
 from morph import Morph
+from utilities import *
 
 from foma import *
 import re
@@ -375,21 +376,24 @@ class Rule():
         else: assert False
 
         outputs = [ frozenset(self.structuralChange.apply(featureMap[i])) for i in inputs ]
-        print "outputs = ",outputs
+        if getVerbosity() >= 5:
+            print "outputs = ",outputs
         outputs = [ bank.matrix2phoneme.get(o,None) for o in outputs ]
 
-        mapping = [ (i,o) for (i,o) in zip(inputs, outputs) if outputs != None ]
-        print "MAPPING"
-        print self
-        print mapping
-        print
+        mapping = [ (i,o) for (i,o) in zip(inputs, outputs) if o != None ]
+        if getVerbosity() >= 5:
+            print "MAPPING"
+            print self
+            print mapping
+            print
 
         mapping = ", ".join([ "%s -> %s"%(bank.phoneme2fst(i), bank.phoneme2fst(o))
                               for i,o in mapping ])
         regex = "%s || %s _ %s"%(mapping, self.leftTriggers.fst(bank), self.rightTriggers.fst(bank))
-        print "regular expression"
-        print regex
-        print 
+        if getVerbosity() >= 5:
+            print "regular expression"
+            print regex
+            print 
         return FST(regex)        
 
     # Produces sketch object
@@ -531,7 +535,8 @@ def composedTransducer(bank,rs):
     return t
 def constantTransducer(x):
     t = FST('[?*] .x. [%s]'%(' '.join(x)))
-    print "constant transducer for",x,"has the regular expression",t.regex
+    if getVerbosity() >= 5:
+        print "constant transducer for",x,"has the regular expression",t.regex
     return t
 
 def conditionalProjection(t,x):

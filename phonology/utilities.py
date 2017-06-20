@@ -79,3 +79,12 @@ def flushEverything():
     sys.stdout.flush()
     sys.stderr.flush()
 
+
+
+VERBOSITYLEVEL = 0
+def getVerbosity():
+    global VERBOSITYLEVEL
+    return VERBOSITYLEVEL
+def setVerbosity(v):
+    global VERBOSITYLEVEL
+    VERBOSITYLEVEL = v

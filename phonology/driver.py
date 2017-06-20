@@ -169,8 +169,10 @@ if __name__ == '__main__':
     parser.add_argument('-u','--universal', default = 'flat',type = str)
     parser.add_argument('--stubborn', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
+    parser.add_argument('-V','--verbosity', default = 0, type = int)
 
     arguments = parser.parse_args()
+    setVerbosity(arguments.verbosity)
     
     if arguments.problem == 'integration':
         problems = [1,
