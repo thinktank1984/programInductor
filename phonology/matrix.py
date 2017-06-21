@@ -538,12 +538,18 @@ class UnderlyingProblem():
                     
     def solutionDescriptionLength(self,solution,inflections = None):
         if inflections == None:
+            print "Calculating description length of:"
+            print solution
             return sum([self.solutionDescriptionLength(solution,i)
                         for i in self.data ])
 
         ur = solution.transduceUnderlyingForm(self.bank, inflections)
-        if ur != None: return len(ur)
-        else: return sum([ len(tokenize(s)) for s in inflections ])
+        print "Transducing UR of:",u"\t".join(inflections)
+        print "\tUR = ",ur
+        if ur != None:
+            return len(ur)
+        else:
+            return sum([ len(tokenize(s)) for s in inflections ])
 
         Model.Global()
         stem = Morph.sample()
