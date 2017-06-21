@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from problems import interactingProblems
 from sketchSyntax import define, FunctionCall, Constant
-from features import FeatureBank,featureMap
+from features import FeatureBank,featureMap,tokenize
 from latex import latexWord
 from morph import Morph
 from utilities import *
@@ -397,6 +398,9 @@ class Rule():
                                                        self.rightTriggers.latex())
 
     def fst(self,bank):
+        insertion = False
+        deletion = isinstance(self.structuralChange,EmptySpecification)
+        
         # construct the input/output mapping
         if isinstance(self.focus,ConstantPhoneme):
             inputs = [self.focus.p]
@@ -404,23 +408,35 @@ class Rule():
             inputs = [ p
                        for p in bank.phonemes
                        if self.focus.matches(featureMap[p]) ]
+        elif isinstance(self.focus,EmptySpecification):
+            # insertion rule
+            assert isinstance(self.structuralChange,ConstantPhoneme)
+            insertion = True
+            inputs = ['[..]']
         else: assert False
 
-        outputs = [ frozenset(self.structuralChange.apply(featureMap[i])) for i in inputs ]
-        if getVerbosity() >= 5:
-            print "outputs = ",outputs
-        outputs = [ bank.matrix2phoneme.get(o,None) for o in outputs ]
+        if deletion:
+            outputs = [ '0' for _ in inputs ]
+        else:
+            if not insertion:
+                outputs = [ frozenset(self.structuralChange.apply(featureMap[i])) for i in inputs ]
+            else:
+                outputs = [ frozenset(featureMap[self.structuralChange.p]) ]
+            if getVerbosity() >= 5: print "outputs = ",outputs
+            outputs = [ bank.matrix2phoneme.get(o,None) for o in outputs ]
+
 
         mapping = [ (i,o) for (i,o) in zip(inputs, outputs) ]
         if getVerbosity() >= 5:
             print "MAPPING"
             print self
-            print mapping
+            print "\n".join([ u'\t%s > %s\n'%(x,y) for (x,y) in  mapping])
             print
 
         havePotentialFailures = any([ o == None for i,o in mapping ])
 
-        mapping = ", ".join([ "%s -> %s"%(bank.phoneme2fst(i), 'FAILURE' if o == None else bank.phoneme2fst(o))
+        mapping = ", ".join([ "%s -> %s"%(i if insertion else bank.phoneme2fst(i),
+                                          o if deletion  else ('FAILURE' if o == None else bank.phoneme2fst(o)))
                               for i,o in mapping ])
         regex = "%s || %s _ %s"%(mapping, self.leftTriggers.fst(bank), self.rightTriggers.fst(bank))
         if getVerbosity() >= 5:
@@ -592,6 +608,21 @@ def invertParallelTransducers(transducers, surfaces):
     
 
 if __name__ == '__main__':
+    r = Rule(focus = FeatureMatrix([(False,'sonorant')]),
+             structuralChange = FeatureMatrix([(False,'voice')]),
+             leftTriggers = Guard('L',False,False,[]),
+             rightTriggers = Guard('R',True,False,[]),
+             copyOffset = 0)
+    b = FeatureBank(flatten(interactingProblems[4].data))
+    print b
+    print r
+    setVerbosity(9)
+    t = r.fst(b)
+    print t
+    print t[b.surface2fst(u'')]
+    assert False
+
+    
     if False:
         m1 = FST('[..] -> t s ||  _ .#.')
         m2 = FST('[..] -> y s ||  _ .#.')

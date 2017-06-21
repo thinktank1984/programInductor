@@ -138,22 +138,22 @@ trill > flap / [ +vowel ] _ [ -alveolar ]
 [ +liquid +voice ] ---> [ -trill -low +flap ] / [ +sonorant ] _ [ -alveolar ]
 ''',
     [
-	u"ær̃teš",#		"army"),
+	u"ær̃teš",#		"army"),
         u"far̃si",#		"Persian"),
 	u"qædr̃i",#		"a little bit"),
         u"r̃ah",#		"road"),
 	u"r̃ast",#		"right"),
-        u"r̃iš",#		"beard"),
+        u"r̃iš",#		"beard"),
 	u"ahar̥̃",#		"starch"),
         u"axær̥̃",#		"last"),
 	u"hær̃towr̥̃",#	"however"),
-        u"šir̥̃",#		"lion"),
+        u"šir̥̃",#		"lion"),
 	u"ahaři",#		"starched"),
         u"bæřadær̥̃",#	"brother"),
 	u"čeřa",#		"why?"),
         u"dařid",#		"you have"),
 	u"biřæng",#		"pale"),
-        u"šiřini"],#		"pastry")
+        u"šiřini"],#		"pastry")
     {"type": "alternation",
      "alternations": [{u"ř": u"r̃"}]}))
 
@@ -175,8 +175,8 @@ What rule governs the distribution of [d] versus [ð] in the following data?
      u"ðéze",#		"tongue"),
      u"dálĩ",#		"good"),
      u"ðíe",#		"you"),
-     u"daštú",#		"to bite"),
-     u"ðíški"],#		"to wash")])
+     u"daštú",#		"to bite"),
+     u"ðíški"],#		"to wash")])
     {"alternations": [{u"ð": u"d"}]}))
 
 alternationProblems.append(Problem(
@@ -186,7 +186,7 @@ Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not
 "ə" occurs in the contexts:
     {f,r,t,n,g,z,m,d,k,l,b} _ {r,s,n,b,w,d,m,t,g,b,k,č,#}
 ɛ occurs in the contexts    :
-    {y,š,ž,č,ñ} _ {l,t,g,m,#}
+    {y,š,ž,č,ñ} _ {l,t,g,m,#}
 System discovers:
 [ -coronal +lax ] ---> [ +tense -front +central -alveopalatal -lax ] / [ -glide -alveopalatal ] _ 
     ''',
@@ -213,9 +213,9 @@ System discovers:
 	u"k’ažžɛ",#		"he talked in his sleep"),
         u"žɛmmərə",#	"he started"),
 	u"lačč’ɛ",#		"he shaved"),
-        u"aššɛ",#		"he rubbed"),
+        u"aššɛ",#		"he rubbed"),
 	u"bəkk’ələ",#	"it germinated"),
-        u"šɛməggələ"],#	"he became old")])
+        u"šɛməggələ"],#	"he became old")])
     {"alternations": [{u"ɛ": u"ə"}]}))
 
 
@@ -295,7 +295,7 @@ Unaspirated stops occur in similar right contexts but don't occur next to voicel
 	u"ŋombe",# "cow"),
 	u"matagi",#"eggs"),
 	u"dodoa",# "pick up"),
-	u"goša",# "sleep!"),
+	u"goša",# "sleep!"),
 	u"babu",#"skin"),
 	u"ndimi",# "tongues"),
 	u"ŋgoto",# "heart"),
@@ -673,15 +673,15 @@ If it understood the certain features are mutually exclusive, the spreading rule
 	(u"ku:t",	u"ku:dban",	u"ku:tto:l",	u"ku:tnak"), #	well
 	(u"ža:k",	u"ža:gban",	u"ža:kto:l",	u"ža:knak"), #	sack
 	(u"re:s",	u"re:zben",	u"re:stö:l",	u"re:snek"), #	part
-	(u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
-	(u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
+	(u"šro:f ",	u"šro:vban ",	u"šro:fto:l ",	u"šro:fnak"), #	screw
+	(u"laka:š",	u"laka:žban",	u"laka:što:l",	u"laka:šnak"), #	apartment
 	(u"ketret^s",	u"ketred^zben",	u"ketret^stö:l",	u"ketret^snek"), #	cage
 	(u"test",	u"tezdben",	u"testtö:l",	u"testnek"), #	body
 	(u"rab",	u"rabban",	u"rapto:l",	u"rabnak"), #	prisoner
 	(u"ka:d",	u"ka:dban",	u"ka:tto:l",	u"ka:dnak"), #	tub
 	(u"meleg",	u"melegben",	u"melektö:l",	u"melegnek"), #	warm
 	(u"vi:z",	u"vi:zben",	u"vi:stö:l",	u"vi:znek"), #	water
-	(u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
+	(u"vara:ž",	u"vara:žban",	u"vara:što:l",	u"vara:žnak"), #	magic
 	(u"a:g^y",	u"a:g^yban",	u"a:k^yto:l",	u"a:g^ynak"), #	bed
 	(u"sem",	u"semben",	u"semtö:l",	u"semnek"), #	eye
 	(u"bün",	u"bünben",	u"büntö:l",	u"bünnek"), #	crime
@@ -780,9 +780,9 @@ Final solution:
 	u"ǰu",#	‘10’
 	u"ǰig",#	‘1’
         u"ǰugǰig",#	‘11’
-	u"ši",#	‘4’
-	u"ǰubši",#	‘14’
-        u"šibǰu",#	‘40’
+	u"ši",#	‘4’
+	u"ǰubši",#	‘14’
+        u"šibǰu",#	‘40’
 	u"gu",#	‘9’
 	u"ǰurgu",#	‘19’
 	u"gubǰu",#	‘90’
@@ -845,7 +845,7 @@ underlyingProblems.append(Problem(
 Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
     My analysis:
     {h,g,b,ð} > t / _ #
-    {ǰ} > š / _ #
+    {ǰ} > š / _ #
     m > n / _ #
     Not affected: s
     ''',
@@ -853,25 +853,25 @@ Posit appropriate underlying forms and any rules needed to explain the following
     [
 	(u"varit",	u"varihin"),#	“2 year old reindeer buck”
 	(u"oahpis",	u"oahpisin"),#	“acquaintance”
-	(u"čoarvuš",	u"čoarvušin"),#	“antlers & skullcap”
-	(u"lottaaš",	u"lottaaǰin"),#	“small bird”
+	(u"čoarvuš",	u"čoarvušin"),#	“antlers & skullcap”
+	(u"lottaaš",	u"lottaaǰin"),#	“small bird”
 	(u"čuoivvat",	u"čuoivvagin"),#	“yellow-brown reindeer”
 	(u"ahhkut",	u"ahhkubin"),#	“grandchild of woman”
 	(u"suohkat",	u"suohkaðin"),#	“thick”
-	(u"heeǰoš",	u"heeǰoǰin"),#	“poor guy”
+	(u"heeǰoš",	u"heeǰoǰin"),#	“poor guy”
 	(u"aaǰǰut",	u"aaǰǰubin"),#	“grandchild of man”
 	(u"bissobeahtset",	u"bissobeahtsehin"),#	“butt of gun”
 	(u"čeahtsit",	u"čeahtsibin"),#	“children of elder brother of man”
 	(u"yaaʔmin",	u"yaaʔmimin"),#	“death”
 	(u"čuoivat",	u"čuoivagin"),#	“yellow-grey reindeer”
-	(u"laageš",	u"laageǰin"),#	“mountain birch”
+	(u"laageš",	u"laageǰin"),#	“mountain birch”
 	(u"gahpir",	u"gahpirin"),#	“cap”
 	(u"gaauhtsis",	u"gaauhtsisin"),#	“8 people”
 	(u"aaslat",	u"aaslagin"),#	man’s name
-	(u"baðoošgaattset",	u"baðoošgaattsebin"),#	“bird type”
+	(u"baðoošgaattset",	u"baðoošgaattsebin"),#	“bird type”
 	(u"ahhkit",	u"ahhkiðin"),#	“boring”
 	(u"bahaanaalat",	u"bahaanaalagin"),#	“badly behaved”
-	(u"beštor",	u"beštorin"),#	“bird type”
+	(u"beštor",	u"beštorin"),#	“bird type”
 	(u"heevemeahhtun",	u"heevemeahhtunin"),#	“inappropriate”
 	(u"beeǰot",	u"beeǰohin"),#	“white reindeer”
 	(u"bissomeahtun",	u"bissomeahtumin"),#	“unstable”
@@ -1071,7 +1071,7 @@ o ---> u /  _ [ -nasal +voice ] #
             (u"vuw",	u"vowi"),#	‘ox’
 	    (u"sul",	u"soli"),#	‘salt’
             (u"buy",	u"boyi"),#	‘fight’
-	    (u"šum",	u"šumi"),#	‘noise’
+	    (u"šum",	u"šumi"),#	‘noise’
             (u"žur",	u"žuri")]))#	‘soup’
 
 interactingProblems.append(Problem(
@@ -1113,7 +1113,7 @@ Problem(
 
 	bveni	‘baboon’	bveni pfúpi	‘short baboon’
 	táfura	‘table’	táfura húrú	‘big table’
-	šoko	‘word’	šoko bvúpi	‘short word’
+	šoko	‘word’	šoko bvúpi	‘short word’
 	ɓadzá	‘hoe’	ɓadzá gúrú	‘big hoe’
 	zigómaná	‘boy (aug.)’	zigómaná gúrú	‘big boy (aug.)’
 	imbá	‘house’	imbá čéna	‘clean house’
@@ -1153,7 +1153,7 @@ These data provide further illustration of the operation of this tone rule, whic
 	búku	‘book’	búku refú	‘long book’
 	ɓadzá	‘hoe’	ɓadzá refú	‘long hoe’
 	nuŋgú	‘porcupine’	nuŋgú ndefú	‘long porcupine’
-	mašoko	‘words’	mašoko marefú	‘long words’
+	mašoko	‘words’	mašoko marefú	‘long words’
 	kunyíka	‘to the land’	kunyíka kurefú	‘to the long land’
 	mapadzá	‘hoes’	mapadzá márefú	‘long hoes’
 	kamhará	‘gazelle (dim.)’	kamhará kárefú	‘long gazelle (dim.)’
@@ -1203,12 +1203,12 @@ try throwing this at the system and letting it use as many deletion rules as it 
 	(u"mal",	u"malə"),#	‘bad’
 	(u"siβil",	u"siβilə"),#	‘civil’
 	(u"əskerp",	u"əskerpə"),#	‘shy’
-	(u"šop",	u"šopə"),#	‘drenched’
+	(u"šop",	u"šopə"),#	‘drenched’
 	(u"sɛk",	u"sɛkə"),#	‘dry’
 	(u"əspɛs",	u"əspɛsə"),#	‘thick’
 	(u"gros",	u"grosə"),#	‘large’
-	(u"baš",	u"bašə"),#	‘short’
-	(u"koš",	u"košə"),#	‘lame’
+	(u"baš",	u"bašə"),#	‘short’
+	(u"koš",	u"košə"),#	‘lame’
 	(u"tot",	u"totə"),#	‘all’
 	(u"brut",	u"brutə"),#	‘dirty’
 	(u"pɔk",	u"pɔkə"),#	‘little’
@@ -1222,7 +1222,7 @@ try throwing this at the system and letting it use as many deletion rules as it 
 	(u"orp",	u"orβə"),#	‘blind’
 	(u"lyark",	u"lyarɣə"),#	‘long’
 	(u"sek",	u"seɣə"),#	‘blind’
-	(u"fəšuk",	u"fəšuɣə"),#	‘heavy’
+	(u"fəšuk",	u"fəšuɣə"),#	‘heavy’
 	(u"grok",	u"groɣə"),#	‘yellow’
 	(u"puruk",	u"puruɣə"),#	‘fearful’
 	(u"kandit",	u"kandiðə"),#	‘candid’

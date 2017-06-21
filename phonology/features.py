@@ -159,7 +159,10 @@ for v in vs:
 
 def tokenize(word):
     # š can be realized in two different ways
-    word = word.replace(u"š",u"š")
+    if u"š" in word:
+        print u"ERROR: š should have been purged."
+        print "word =",word
+        assert False
     # ɲ is valid IPA but is invalid APA
     word = word.replace(u"ɲ", u"ñ")
     # remove all the spaces
@@ -226,6 +229,8 @@ class FeatureBank():
     FSTSYMBOLS = [chr(ord('a') + j) for j in range(26) ] + [chr(ord('A') + j) for j in range(26) ] + [str(j) for j in range(1,10) ]
     def phoneme2fst(self,p):
         return FeatureBank.FSTSYMBOLS[self.phoneme2index[p]]
+    def surface2fst(self,s):
+        return ''.join([ self.phoneme2fst(p) for p in tokenize(s) ])
     def fst2phoneme(self,s):
         return self.phonemes[FeatureBank.FSTSYMBOLS.index(s)]
     def identityFST(self):

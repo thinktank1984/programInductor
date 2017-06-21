@@ -195,7 +195,7 @@ class UnderlyingProblem():
             # Keep morphology variable! Just ensure it has the same cost
             prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
             suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
-            stems = [ sampleMorphWithLength(len(p)) for p in solution.underlyingForms ]
+            stems = [ Morph.sample() for p in solution.underlyingForms ]
             self.conditionOnData(rules, stems, prefixes, suffixes)
             
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
