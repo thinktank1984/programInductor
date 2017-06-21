@@ -557,11 +557,14 @@ class UnderlyingProblem():
 
         predictions = [ applyRules(rules, concatenate3(prefixes[j],stem,suffixes[j]))
                         for j in range(self.numberOfInflections) ]
+        predictionFlags = [flip() for _ in range(self.numberOfInflections) ]
 
+        # the flag indicates that the model explains that inflection
         cost = wordLength(stem)
         for j in range(self.numberOfInflections):
             m = Morph(inflections[j])
-            cost = cost + Conditional(wordEqual(predictions[j], m.makeConstant(self.bank)),
+            condition(Or([Not(predictionFlags[j]), wordEqual(predictions[j], m.makeConstant(self.bank))]))
+            cost = cost + Conditional(predictionFlags[j],
                                       Constant(0),
                                       Constant(len(m)))
 
@@ -580,7 +583,13 @@ class UnderlyingProblem():
             print "Solver output:"
             printSketchFailure()
             assert False
-        return parseMinimalCostValue(output)
+
+        predictionFlags = [ parseFlip(output,f) for f in predictionFlags ]
+        stem = Morph.parse(self.bank, output, stem)
+        cost = len(stem) + sum([ int(not predictionFlags[j])*len(Morph(inflections[j]))
+                                 for j in range(self.numberOfInflections) ])
+        assert cost == parseMinimalCostValue(output)
+        return cost
 
     def paretoFront(self, k, temperature, useMorphology = False):
         assert self.numberOfInflections == 1

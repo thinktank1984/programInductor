@@ -43,6 +43,10 @@ def randomTestSplit(data,ratio):
 def flatten(xss):
     return [ x for xs in xss for x in xs ]
 
+def randomlyRemoveOne(x):
+    t = random.choice(x)
+    return [ y for y in x if t != y ]
+
 def everyBinaryVector(l,w):
     if l == 0:
         if w == 0: yield []

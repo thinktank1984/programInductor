@@ -8,6 +8,7 @@ from utilities import *
 
 from foma import *
 import re
+from random import choice
 
 class Braces():
     '''
@@ -56,6 +57,7 @@ class ConstantPhoneme(Specification):
     def latex(self): return latexWord(self.p)
     def fst(self,bank):
         return bank.phoneme2fst(self.p)
+    def mutate(self,bank): return ConstantPhoneme(choice(bank.phonemes))
 
     def share(self, table):
         k = ('CONSTANT',unicode(self))
@@ -119,6 +121,16 @@ class FeatureMatrix():
     def __init__(self, featuresAndPolarities):
         self.featuresAndPolarities = featuresAndPolarities
         self.representation = None # string representation
+
+    def mutate(self, bank):
+        # delete a feature
+        if self.featuresAndPolarities != [] and random() < 0.5:
+            toRemove = choice(self.featuresAndPolarities)
+            return FeatureMatrix([ fp for fp in self.featuresAndPolarities if fp != toRemove ])
+        else:
+            fp = (choice([True,False]),choice(bank.features))
+            return FeatureMatrix(list(set(self.featuresAndPolarities + [fp])))
+            
         
     @staticmethod
     def strPolarity(p): return '+' if p == True else ('-' if p == False else p)
@@ -224,6 +236,25 @@ class Guard():
         self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
         self.representation = None # Unicode representation
+
+    def mutate(self,bank):
+        endOfString = self.endOfString
+        if random() < 0.15: endOfString = not endOfString
+
+        specifications = [ (s if random() < 0.9 else s.mutate()) for s in self.specifications ]
+        # with some small probability remove a specification
+        if specifications != [] and random() < 0.1:
+            specifications = randomlyRemoveOne(specifications)
+        # with the same probability adding specification
+        elif len(specifications) < 2 and random() < 0.1:
+            if choice([True,False]): specifications = specifications + [Specification.sample()]
+            else: specifications = [Specification.sample()] + specifications
+
+        starred = self.starred
+        if random() < 0.1: starred = not starred
+        if len(specifications) < 2: starred = False
+
+        return Guard(self.side, endOfString, starred, specifications)
 
     def doesNothing(self):
         return not self.endOfString and len(self.specifications) == 0
@@ -380,21 +411,27 @@ class Rule():
             print "outputs = ",outputs
         outputs = [ bank.matrix2phoneme.get(o,None) for o in outputs ]
 
-        mapping = [ (i,o) for (i,o) in zip(inputs, outputs) if o != None ]
+        mapping = [ (i,o) for (i,o) in zip(inputs, outputs) ]
         if getVerbosity() >= 5:
             print "MAPPING"
             print self
             print mapping
             print
 
-        mapping = ", ".join([ "%s -> %s"%(bank.phoneme2fst(i), bank.phoneme2fst(o))
+        havePotentialFailures = any([ o == None for i,o in mapping ])
+
+        mapping = ", ".join([ "%s -> %s"%(bank.phoneme2fst(i), 'FAILURE' if o == None else bank.phoneme2fst(o))
                               for i,o in mapping ])
         regex = "%s || %s _ %s"%(mapping, self.leftTriggers.fst(bank), self.rightTriggers.fst(bank))
         if getVerbosity() >= 5:
             print "regular expression"
             print regex
-            print 
-        return FST(regex)        
+            print
+        regex = FST(regex)
+        if havePotentialFailures:
+            if getVerbosity() >= 5: print "Composing with the identity FST so that the failures will be removed"
+            regex = bank.identityFST().compose(regex)
+        return regex        
 
     # Produces sketch object
     def makeConstant(self, bank):
@@ -555,16 +592,14 @@ def invertParallelTransducers(transducers, surfaces):
     
 
 if __name__ == '__main__':
-    m1 = FST('[..] -> t s ||  _ .#.')
-    m2 = FST('[..] -> y s ||  _ .#.')
-    print invertParallelTransducers([m1,m2],
-                              ['mangots',
-                               'mangoys'])
+    if False:
+        m1 = FST('[..] -> t s ||  _ .#.')
+        m2 = FST('[..] -> y s ||  _ .#.')
+        print invertParallelTransducers([m1,m2],
+                                  ['mangots',
+                                   'mangoys'])
+    print FST('[[a:a]|[b:b]]*')['abac']
     assert False
-    print g
-    print g.apply_up('cinnamontest').next()
-    print g.lower()
-    print g.upper()
     generator = g.lowerwords()
     for _ in range(10):
         print generator.next()

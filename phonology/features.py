@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from foma import *
+
 sibilant = "sibilant"
 sonorant = "sonorant"
 coronal = "coronal"
@@ -225,7 +227,9 @@ class FeatureBank():
     def phoneme2fst(self,p):
         return FeatureBank.FSTSYMBOLS[self.phoneme2index[p]]
     def fst2phoneme(self,s):
-        return self.phonemes[FeatureBank.FSTSYMBOLS.index(s)]        
+        return self.phonemes[FeatureBank.FSTSYMBOLS.index(s)]
+    def identityFST(self):
+        return FST('[%s]*'%('|'.join([ '[%s:%s]'%(s,s) for s in FeatureBank.FSTSYMBOLS[:len(self.phonemes)] ])))
 
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""
