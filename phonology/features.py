@@ -83,6 +83,7 @@ featureMap = {
     u"m̥": [bilabial,nasal,sonorant],
     u"θ": [dental,fricative,coronal],
     u"d": [alveolar,stop,voice,coronal],
+    u"d̺": [dental,stop,voice,coronal],
     u"d^z": [alveolar,affricate,coronal,voice],
     u"t": [alveolar,stop,coronal],
     u"t|": [alveolar,stop,coronal,unreleased],

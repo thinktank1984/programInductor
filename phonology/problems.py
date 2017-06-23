@@ -1183,17 +1183,13 @@ interactingProblems.append(Problem(
 '''5: Catalan
 
 Give phonological rules which account for the following data, and indicate what ordering is necessary between these rules. For each adjective stem, state what the underlying form of the root is. Pay attention to the difference between surface [b,d,g] and [β,ð,ɣ], in terms of predictability.
+NOTE: This problem set had a bug in it that Tim discovered.
+/d/ is actually a dental in this language
+So I have replaced it with /d̺/
 feminine suffix: ə
 word final devoicing
-word finally:
-ð > d > t
-β > b > p
-ɣ > g > k
+in between sonants voiced fricatives become stops
 
-word final deletions:
-{r,t,n,ð,d} > 0 / _# (this is wrong)
-
-try throwing this at the system and letting it use as many deletion rules as it needs
 
 ''',		
 #ma	masc	fem		masc	fem	
@@ -1203,56 +1199,56 @@ try throwing this at the system and letting it use as many deletion rules as it 
 	(u"mal",	u"malə"),#	‘bad’
 	(u"siβil",	u"siβilə"),#	‘civil’
 	(u"əskerp",	u"əskerpə"),#	‘shy’
-	(u"šop",	u"šopə"),#	‘drenched’
-	(u"sɛk",	u"sɛkə"),#	‘dry’
+	(u"šop",	u"šopə"),#	‘d̺renched̺’
+	(u"sɛk",	u"sɛkə"),#	‘d̺ry’
 	(u"əspɛs",	u"əspɛsə"),#	‘thick’
 	(u"gros",	u"grosə"),#	‘large’
 	(u"baš",	u"bašə"),#	‘short’
 	(u"koš",	u"košə"),#	‘lame’
 	(u"tot",	u"totə"),#	‘all’
-	(u"brut",	u"brutə"),#	‘dirty’
+	(u"brut",	u"brutə"),#	‘d̺irty’
 	(u"pɔk",	u"pɔkə"),#	‘little’
 	(u"prəsis",	u"prəsizə"),#	‘precise’
 	(u"frənses",	u"frənsezə"),#	‘French’
 	(u"gris",	u"grizə"),#	‘grey’
-	(u"kəzat",	u"kəzaðə"),#	‘married’
+	(u"kəzat",	u"kəzaðə"),#	‘married̺’
 	(u"bwit",	u"bwiðə"),#	‘empty’
-	(u"rɔč",	u"rɔžə"),#	‘red’
+	(u"rɔč",	u"rɔžə"),#	‘red̺’
 	(u"boč",	u"božə"),#	‘crazy’
-	(u"orp",	u"orβə"),#	‘blind’
+	(u"orp",	u"orβə"),#	‘blind̺’
 	(u"lyark",	u"lyarɣə"),#	‘long’
-	(u"sek",	u"seɣə"),#	‘blind’
+	(u"sek",	u"seɣə"),#	‘blind̺’
 	(u"fəšuk",	u"fəšuɣə"),#	‘heavy’
 	(u"grok",	u"groɣə"),#	‘yellow’
 	(u"puruk",	u"puruɣə"),#	‘fearful’
-	(u"kandit",	u"kandiðə"),#	‘candid’
-	(u"frɛt",	u"frɛðə"),#	‘cold’
+	(u"kand̺it",	u"kand̺iðə"),#	‘cand̺id̺’
+	(u"frɛt",	u"frɛðə"),#	‘cold̺’
 	(u"səɣu",	u"səɣurə"),#	‘sure’
-	(u"du",	u"durə"),#	‘hard’
+	(u"d̺u",	u"d̺urə"),#	‘hard̺’
 	(u"səɣəðo",	u"səɣəðorə"),#	‘reaper’
 	(u"kla",	u"klarə"),#	‘clear’
-	(u"nu",	u"nuə"),#	‘nude’
+	(u"nu",	u"nuə"),#	‘nud̺e’
 	(u"kru",	u"kruə"),#	‘raw’
 	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft’
-	(u"dropu",	u"dropə"),#	‘lazy’
+	(u"d̺ropu",	u"d̺ropə"),#	‘lazy’
 	(u"əgzaktə",	u"əgzaktə"),#	‘exact’
 	(u"əlβi",	u"əlβinə"),#	‘albino’
 	(u"sa",	u"sanə"),#	‘healthy’
 	(u"pla",	u"planə"),#	‘level’
-	(u"bo",	u"bonə"),#	‘good’
+	(u"bo",	u"bonə"),#	‘good̺’
 	(u"sərɛ",	u"sərɛnə"),#	‘calm’
 	(u"suβlim",	u"suβlimə"),#	‘sublime’
 	(u"al",	u"altə"),#	‘tall’
 	(u"fɔr",	u"fɔrtə"),#	‘strong’
 	(u"kur",	u"kurtə"),#	‘short’
-	(u"sor",	u"sorðə"),#	‘deaf’
+	(u"sor",	u"sorðə"),#	‘d̺eaf’
 	(u"bɛr",	u"bɛrðə"),#	‘green’
 	(u"san",	u"santə"),#	‘saint’
 	(u"kəlɛn",	u"kəlɛntə"),#	‘hot’
-	(u"prufun",	u"prufundə"),#	‘deep’
-	(u"fəkun",	u"fəkundə"),#	‘fertile’
-	(u"dəsen",	u"dəsentə"),#	‘decent’
-	(u"dulen",	u"dulentə"),#	‘bad’
+	(u"prufun",	u"prufund̺ə"),#	‘d̺eep’
+	(u"fəkun",	u"fəkund̺ə"),#	‘fertile’
+	(u"d̺əsen",	u"d̺əsentə"),#	‘d̺ecent’
+	(u"d̺ulen",	u"d̺ulentə"),#	‘bad̺’
 	(u"əstuðian",	u"əstuðiantə"),#	‘student’
 	(u"blaŋ",	u"blaŋkə")]))#	‘white’
 
