@@ -1188,6 +1188,9 @@ NOTE: This problem set had a bug in it that Tim discovered.
 So I have replaced it with /d̺/
 /t/ might actually also be a dental
 So I have replaced it with /t̺/
+The fricative /ž/ alternates with /č/ (not a stop but a affricate). This is a bug - it should be a stop
+Call it /č|/
+Also introduce /ǰ|/, also modeled as a stop
 feminine suffix: ə
 word final devoicing
 in between sonants voiced fricatives become stops
@@ -1215,8 +1218,8 @@ in between sonants voiced fricatives become stops
 	(u"gris",	u"grizə"),#	‘grey’
 	(u"kəzat̺",	u"kəzaðə"),#	‘married̺’
 	(u"bwit̺",	u"bwiðə"),#	‘empt̺y’
-	(u"rɔč",	u"rɔžə"),#	‘red̺’
-	(u"boč",	u"božə"),#	‘crazy’
+	(u"rɔč|",	u"rɔžə"),#	‘red̺’
+	(u"boč|",	u"božə"),#	‘crazy’
 	(u"orp",	u"orβə"),#	‘blind̺’
 	(u"lyark",	u"lyarɣə"),#	‘long’
 	(u"sek",	u"seɣə"),#	‘blind̺’
@@ -1231,7 +1234,7 @@ in between sonants voiced fricatives become stops
 	(u"kla",	u"klarə"),#	‘clear’
 	(u"nu",	u"nuə"),#	‘nud̺e’
 	(u"kru",	u"kruə"),#	‘raw’
-	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft̺’
+	(u"flɔñǰ|u",	u"flɔñǰ|ə"),#	‘soft̺’
 	(u"d̺ropu",	u"d̺ropə"),#	‘lazy’
 	(u"əgzakt̺ə",	u"əgzakt̺ə"),#	‘exact̺’
 	(u"əlβi",	u"əlβinə"),#	‘albino’
