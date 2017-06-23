@@ -43,6 +43,39 @@ class Solution():
         print "Phonological rules:"
         for r in self.rules: print r
 
+    def mutate(self,bank):
+        # mutate a phoneme
+        if random() < 0.3:
+            i = choice(range(len(self.prefixes)))
+            newPrefixes = list(self.prefixes)
+            newSuffixes = list(self.suffixes)
+            if choice([True,False]): # mutate a prefix
+                newPrefixes[i] = newPrefixes[i].mutate(bank)
+            else:
+                newSuffixes[i] = newSuffixes[i].mutate(bank)
+            return Solution(self.rules,newPrefixes,newSuffixes)
+                
+        # mutate a rule
+        if random() < 0.5:
+            r = choice(self.rules)
+            newRules = [ (r.mutate(bank) if q == r else q) for q in self.rules ]
+            return Solution(newRules,self.prefixes,self.suffixes)
+        # reorder the rules
+        if len(self.rules) > 1 and random() < 0.3:
+            i = choice(range(len(self.rules)))
+            j = choice([ k for k in range(len(self.rules)) if k != i ])
+            newRules = [ self.rules[i if k == j else (j if k == i else k)]
+                         for k in range(len(self.rules)) ]
+            return Solution(newRules,self.prefixes,self.suffixes)
+        # delete a rule
+        if len(self.rules) > 1 and random() < 0.3:
+            newRules = randomlyRemoveOne(self.rules)
+            return Solution(newRules,self.prefixes,self.suffixes)
+        # insert a rule
+        newRules = list(self.rules)
+        newRules.insert(choice(range(len(self.rules)+1)), EMPTYRULE.mutate(bank).mutate(bank).mutate(bank).mutate(bank))
+        return Solution(newRules,self.prefixes,self.suffixes)
+        
     def phonologyTransducer(self,bank):
         return composedTransducer(bank, self.rules)
 
@@ -67,12 +100,15 @@ class Solution():
         return [ makeTransducer(prefix, suffix) for prefix, suffix in zip(self.prefixes, self.suffixes) ]
 
     def inflectionTransducers(self, bank):
-        phonology = self.phonologyTransducer(bank)
-        # return [ phonology.compose(m) for m in self.morphologyTransducers(bank) ]
-        return [ m.compose(phonology) for m in self.morphologyTransducers(bank) ]
+        if not hasattr(self,'savedInflectionTransducers'):
+            phonology = self.phonologyTransducer(bank)
+            self.savedInflectionTransducers = [ m.compose(phonology) for m in self.morphologyTransducers(bank) ]
+        return self.savedInflectionTransducers
 
     def transduceUnderlyingForm(self, bank, surfaces):
-        transducers = self.inflectionTransducers(bank)
+        try:
+            transducers = self.inflectionTransducers(bank)
+        except InvalidRule: return None
 
         ur = invertParallelTransducers(transducers,
                                        [ ''.join([ bank.phoneme2fst(p) for p in tokenize(s) ]) for s in surfaces])

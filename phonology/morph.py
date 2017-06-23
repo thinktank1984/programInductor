@@ -3,7 +3,9 @@
 from sketchSyntax import define, FunctionCall
 from sketch import makeConstantWord
 from features import FeatureBank,featureMap
+from utilities import *
 
+from random import choice
 import re
 
 class Morph():
@@ -18,6 +20,16 @@ class Morph():
         return str(self) == str(other)
     def __ne__(self, other):
         return str(self) != str(other)
+
+    def mutate(self,bank):
+        # remove a phoneme
+        if len(self) > 0 and choice([True,False]):
+            return Morph(randomlyRemoveOne(self.phonemes))
+        # insert a phoneme
+        p = choice(bank.phonemes)
+        newPhonemes = list(self.phonemes)
+        newPhonemes.insert(choice(range(len(self) + 1)),p)
+        return Morph(newPhonemes)
 
     @staticmethod
     def sample():

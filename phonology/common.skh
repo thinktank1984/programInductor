@@ -471,7 +471,13 @@ Word apply_rule(Rule r, Word u) {
     } else if (left_trigger.endOfString && left_trigger.spec == null) { // #_
       _left_okay = j == 0;
     } else if (left_trigger.spec != null) {
-      _left_okay = j > 0 && matches_specification(u.s[j - 1], left_trigger.spec);
+      _left_okay = j > 0;
+      _left_okay = _left_okay && (
+#ifdef SYLLABLEBOUNDARYFEATURE
+				  is_syllable_specification(left_trigger.spec)?
+				  syllable_starting_at(u,j - 1) != -1 :
+#endif
+				  matches_specification(u.s[j - 1], left_trigger.spec));
       if (left_trigger.spec2 != null) // (#?)gg_
 	_left_okay = _left_okay && j > 1 && matches_specification(u.s[j - 2], left_trigger.spec2);
 

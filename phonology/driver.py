@@ -121,8 +121,11 @@ def handleProblem(parameters):
         ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
     else:
         if parameters['testing'] == 0.0:
-            ss = UnderlyingProblem(p.data, 1).incrementallySolve(stubborn = parameters['stubborn'],
-                                                                 beam = parameters['beam'])
+            if parameters['stochastic']:
+                UnderlyingProblem(p.data, 1).stochasticSearch(20, parameters['beam'])
+            else:
+                ss = UnderlyingProblem(p.data, 1).incrementallySolve(stubborn = parameters['stubborn'],
+                                                                     beam = parameters['beam'])
             print "ss = "
             print ss
             ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
@@ -168,6 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
     parser.add_argument('--stubborn', default = False, action = 'store_true')
+    parser.add_argument('--stochastic', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
@@ -202,7 +206,8 @@ if __name__ == '__main__':
                    'threshold': arguments.threshold,
                    'redirect': False,
                    'stubborn': arguments.stubborn,
-                   'beam': arguments.beam
+                   'beam': arguments.beam,
+                   'stochastic': arguments.stochastic,
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))

@@ -538,14 +538,16 @@ class UnderlyingProblem():
                     
     def solutionDescriptionLength(self,solution,inflections = None):
         if inflections == None:
-            print "Calculating description length of:"
-            print solution
+            if getVerbosity() > 3:
+                print "Calculating description length of:"
+                print solution
             return sum([self.solutionDescriptionLength(solution,i)
                         for i in self.data ])
 
         ur = solution.transduceUnderlyingForm(self.bank, inflections)
-        print "Transducing UR of:",u"\t".join(inflections)
-        print "\tUR = ",ur
+        if getVerbosity() > 3:
+            print "Transducing UR of:",u"\t".join(inflections)
+            print "\tUR = ",ur
         if ur != None:
             return len(ur)
         else:
@@ -664,7 +666,19 @@ class UnderlyingProblem():
 
         return solutions, solutionCosts
 
-
-
-
-
+    def stochasticSearch(self, iterations, width):
+        population = [Solution([EMPTYRULE],
+                               [Morph([])]*self.numberOfInflections,
+                               [Morph([])]*self.numberOfInflections)]
+        for i in range(iterations):
+            # expand the population
+            children = [ parent.mutate(self.bank)
+                         for parent in population
+                         for _ in range(width) ]
+            population += children
+            populationScores = [ (self.solutionDescriptionLength(s),s)
+                                 for s in population ]
+            populationScores.sort()
+            population = [ s
+                           for _,s in populationScores[:width] ]
+            print population[0]

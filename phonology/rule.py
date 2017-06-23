@@ -9,7 +9,11 @@ from utilities import *
 
 from foma import *
 import re
-from random import choice
+from random import choice,random
+import numpy as np
+
+class InvalidRule(Exception):
+    pass
 
 class Braces():
     '''
@@ -37,6 +41,19 @@ SPE-style brackets for rule alternatives.
 
 class Specification():
     def __init__(self): pass
+
+    @staticmethod
+    def sample(bank, canBeEmpty = False):
+        if canBeEmpty and random() < 0.3:
+            return EmptySpecification()
+
+        if choice([True,False]):
+            return ConstantPhoneme(choice(bank.phonemes))
+        else:
+            numberOfFeatures = min(len(bank.features),sampleGeometric(0.5))
+            return FeatureMatrix([ (choice([True,False]),f)
+                                   for f in np.random.choice(bank.features,size = numberOfFeatures,replace = False) ])
+
     
     @staticmethod
     def parse(bank, output, variable):
@@ -93,6 +110,7 @@ class EmptySpecification():
     def skeleton(self): return "0"
     def cost(self): return 2
     def latex(self): return '$\\varnothing$'
+    def mutate(self,_): return self
 
     def share(self, table):
         k = ('EMPTYSPECIFICATION',unicode(self))
@@ -157,7 +175,7 @@ class FeatureMatrix():
         setOfPhonemes = [ bank.phoneme2fst(p)
                           for p in bank.phonemes
                           if self.matches(featureMap[p]) ]
-        assert len(setOfPhonemes) > 0
+        if len(setOfPhonemes) == 0: raise InvalidRule('FeatureMatrix: %s'%str(self))
         if len(setOfPhonemes) == 1: return setOfPhonemes[0]
         return '[%s]'%('|'.join(setOfPhonemes))
 
@@ -242,20 +260,28 @@ class Guard():
         endOfString = self.endOfString
         if random() < 0.15: endOfString = not endOfString
 
-        specifications = [ (s if random() < 0.9 else s.mutate()) for s in self.specifications ]
+        specifications = [ (s if random() < 0.9 else s.mutate(bank)) for s in self.specifications ]
         # with some small probability remove a specification
         if specifications != [] and random() < 0.1:
             specifications = randomlyRemoveOne(specifications)
         # with the same probability adding specification
         elif len(specifications) < 2 and random() < 0.1:
-            if choice([True,False]): specifications = specifications + [Specification.sample()]
-            else: specifications = [Specification.sample()] + specifications
+            if choice([True,False]): specifications = specifications + [Specification.sample(bank)]
+            else: specifications = [Specification.sample(bank)] + specifications
 
         starred = self.starred
         if random() < 0.1: starred = not starred
         if len(specifications) < 2: starred = False
 
         return Guard(self.side, endOfString, starred, specifications)
+
+    @staticmethod
+    def sample(bank,side):
+        numberOfSpecifications = choice([0,1,2])
+        return Guard(side,
+                     choice([True,False]),
+                     choice([True,False]) and numberOfSpecifications == 2,
+                     [ Specification.sample(bank) for _ in range(numberOfSpecifications) ])
 
     def doesNothing(self):
         return not self.endOfString and len(self.specifications) == 0
@@ -341,6 +367,8 @@ class Guard():
                                                                                      spec2)
 
 class Rule():
+    SAVEDTRANSDUCERS = {}
+    
     def __init__(self, focus, structuralChange, leftTriggers, rightTriggers, copyOffset):
         self.focus = focus
         self.structuralChange = structuralChange
@@ -397,7 +425,25 @@ class Rule():
                                                        self.leftTriggers.latex(),
                                                        self.rightTriggers.latex())
 
+    def mutate(self,bank):
+        f = self.focus
+        s = self.structuralChange
+        l = self.leftTriggers
+        r = self.rightTriggers
+        if random() < 0.3:
+            f = f.mutate(bank) if random() < 0.8 else Specification.sample(bank,
+                                                                           s.skeleton() == 'K')
+        if random() < 0.3:
+            s = s.mutate(bank) if random() < 0.8 else Specification.sample(bank, f.skeleton() != '0')
+        if random() < 0.3:
+            l = l.mutate(bank) if random() < 0.8 else Guard.sample(bank,'L')
+        if random() < 0.3:
+            r = r.mutate(bank) if random() < 0.8 else Guard.sample(bank,'R')
+        return Rule(f,s,l,r,0)
+
     def fst(self,bank):
+        if unicode(self) in Rule.SAVEDTRANSDUCERS: return Rule.SAVEDTRANSDUCERS[unicode(self)]
+        
         insertion = False
         deletion = isinstance(self.structuralChange,EmptySpecification)
         
@@ -433,6 +479,8 @@ class Rule():
             print "\n".join([ u'\t%s > %s\n'%(x,y) for (x,y) in  mapping])
             print
 
+        if len(mapping) == 0: raise InvalidRule('mapping has length zero')
+
         havePotentialFailures = any([ o == None for i,o in mapping ])
 
         mapping = ", ".join([ "%s -> %s"%(i if insertion else bank.phoneme2fst(i),
@@ -443,10 +491,13 @@ class Rule():
             print "regular expression"
             print regex
             print
+        
         regex = FST(regex)
         if havePotentialFailures:
             if getVerbosity() >= 5: print "Composing with the identity FST so that the failures will be removed"
-            regex = bank.identityFST().compose(regex)
+            regex = regex.compose(bank.identityFST())
+
+        Rule.SAVEDTRANSDUCERS[unicode(self)] = regex
         return regex        
 
     # Produces sketch object
@@ -608,12 +659,34 @@ def invertParallelTransducers(transducers, surfaces):
     
 
 if __name__ == '__main__':
+    m1 = FST('[..] -> t s ||  _ .#.')
+    m2 = FST('[..] -> y s ||  _ .#.')
+    if False:
+        print invertParallelTransducers([m1,m2],
+                                  ['mangots',
+                                   'mangoys'])
+    else:
+        print m1.compose(m2)['Apple']
+        assert False
+
+        
+    print FST('[[a:a]|[b:b]]*')['abac']
+    assert False
+    generator = g.lowerwords()
+    for _ in range(10):
+        print generator.next()
+
+        
+
+    b = FeatureBank(flatten(interactingProblems[4].data))
+    for _ in range(100):
+        print EMPTYRULE.mutate(b)
+    assert False
     r = Rule(focus = FeatureMatrix([(False,'sonorant')]),
              structuralChange = FeatureMatrix([(False,'voice')]),
              leftTriggers = Guard('L',False,False,[]),
              rightTriggers = Guard('R',True,False,[]),
              copyOffset = 0)
-    b = FeatureBank(flatten(interactingProblems[4].data))
     print b
     print r
     setVerbosity(9)
@@ -623,16 +696,3 @@ if __name__ == '__main__':
     assert False
 
     
-    if False:
-        m1 = FST('[..] -> t s ||  _ .#.')
-        m2 = FST('[..] -> y s ||  _ .#.')
-        print invertParallelTransducers([m1,m2],
-                                  ['mangots',
-                                   'mangoys'])
-    print FST('[[a:a]|[b:b]]*')['abac']
-    assert False
-    generator = g.lowerwords()
-    for _ in range(10):
-        print generator.next()
-
-        

@@ -208,8 +208,10 @@ class FST(object):
                 output = foma_apply_down(c_void_p(self.getitemapplyer), None)
             
     def __del__(self):
-        if self.fsthandle:
-            foma_fsm_destroy(self.fsthandle)
+        try:
+            if self.fsthandle:
+                foma_fsm_destroy(self.fsthandle)
+        except: pass
 
     def __str__(self):
         if not self.fsthandle:
@@ -376,6 +378,7 @@ class FST(object):
         return new
 
     def compose(self, other, minimize = True):
+        ''' a.compose(b): run a and then run b'''
         new = FST()
         new.fsthandle = self._fomacallbinary(other, foma_fsm_compose, minimize)
         return new
