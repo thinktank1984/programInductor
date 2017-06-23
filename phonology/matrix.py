@@ -436,7 +436,7 @@ class UnderlyingProblem():
                 bestSolution = newSolution
 
         # did we solve it just by reordering the rules?
-        if bestSolution != None: return bestSolution
+        if bestSolution != None: return [bestSolution]
         
         # construct change vectors. These are None for new rule and a rule object otherwise.
         nr = len(solution.rules)
@@ -449,16 +449,18 @@ class UnderlyingProblem():
         # add a new rule to the beginning
         ruleVectors += [ [None] + [ (r if k else None) for k,r in zip(v,solution.rules) ]
                          for v in everyBinaryVector(nr,nr - radius + 1) ]
-        
+
+        allSolutions = []
         for v in ruleVectors:
             try:
                 s = self.sketchChangeToSolution(solution, v,
                                                 costUpperBound = None if bestSolution == None else bestSolution.adjustedCost)
+                allSolutions.append(s)
                 if bestSolution == None or s.cost() < bestSolution.cost():
                     bestSolution = s
             except SynthesisFailure: pass
         if bestSolution:
-            return bestSolution
+            return sorted(allSolutions,key = lambda s: s.cost())
         raise SynthesisFailure('incremental change')
         
         
@@ -490,7 +492,13 @@ class UnderlyingProblem():
                 haveCounterexample = True
                 slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
                 try:
-                    solution = slave.sketchIncrementalChange(solution, radius)
+                    solutions = slave.sketchIncrementalChange(solution, radius)
+                    if len(solutions) == 1: solution = solutions
+                    else: # see which of the solutions is best overall
+                        assert solutions != []
+                        solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                                          for s in solutions ]
+                        solution = min(solutionScores)[1]
                     print solution
                     newExample = ce
                     break
