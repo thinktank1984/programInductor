@@ -1186,6 +1186,8 @@ Give phonological rules which account for the following data, and indicate what 
 NOTE: This problem set had a bug in it that Tim discovered.
 /d/ is actually a dental in this language
 So I have replaced it with /d̺/
+/t/ might actually also be a dental
+So I have replaced it with /t̺/
 feminine suffix: ə
 word final devoicing
 in between sonants voiced fricatives become stops
@@ -1195,24 +1197,24 @@ in between sonants voiced fricatives become stops
 #ma	masc	fem		masc	fem	
 #	sing.	sing.		sing.	sing.
     [
-	(u"əkely",	u"əkelyə"),#	‘that’
+	(u"əkely",	u"əkelyə"),#	‘t̺hat̺’
 	(u"mal",	u"malə"),#	‘bad’
 	(u"siβil",	u"siβilə"),#	‘civil’
 	(u"əskerp",	u"əskerpə"),#	‘shy’
 	(u"šop",	u"šopə"),#	‘d̺renched̺’
 	(u"sɛk",	u"sɛkə"),#	‘d̺ry’
-	(u"əspɛs",	u"əspɛsə"),#	‘thick’
+	(u"əspɛs",	u"əspɛsə"),#	‘t̺hick’
 	(u"gros",	u"grosə"),#	‘large’
-	(u"baš",	u"bašə"),#	‘short’
+	(u"baš",	u"bašə"),#	‘short̺’
 	(u"koš",	u"košə"),#	‘lame’
-	(u"tot",	u"totə"),#	‘all’
-	(u"brut",	u"brutə"),#	‘d̺irty’
-	(u"pɔk",	u"pɔkə"),#	‘little’
+	(u"t̺ot̺",	u"t̺ot̺ə"),#	‘all’
+	(u"brut̺",	u"brut̺ə"),#	‘d̺irt̺y’
+	(u"pɔk",	u"pɔkə"),#	‘lit̺t̺le’
 	(u"prəsis",	u"prəsizə"),#	‘precise’
 	(u"frənses",	u"frənsezə"),#	‘French’
 	(u"gris",	u"grizə"),#	‘grey’
-	(u"kəzat",	u"kəzaðə"),#	‘married̺’
-	(u"bwit",	u"bwiðə"),#	‘empty’
+	(u"kəzat̺",	u"kəzaðə"),#	‘married̺’
+	(u"bwit̺",	u"bwiðə"),#	‘empt̺y’
 	(u"rɔč",	u"rɔžə"),#	‘red̺’
 	(u"boč",	u"božə"),#	‘crazy’
 	(u"orp",	u"orβə"),#	‘blind̺’
@@ -1221,35 +1223,35 @@ in between sonants voiced fricatives become stops
 	(u"fəšuk",	u"fəšuɣə"),#	‘heavy’
 	(u"grok",	u"groɣə"),#	‘yellow’
 	(u"puruk",	u"puruɣə"),#	‘fearful’
-	(u"kand̺it",	u"kand̺iðə"),#	‘cand̺id̺’
-	(u"frɛt",	u"frɛðə"),#	‘cold̺’
+	(u"kand̺it̺",	u"kand̺iðə"),#	‘cand̺id̺’
+	(u"frɛt̺",	u"frɛðə"),#	‘cold̺’
 	(u"səɣu",	u"səɣurə"),#	‘sure’
 	(u"d̺u",	u"d̺urə"),#	‘hard̺’
 	(u"səɣəðo",	u"səɣəðorə"),#	‘reaper’
 	(u"kla",	u"klarə"),#	‘clear’
 	(u"nu",	u"nuə"),#	‘nud̺e’
 	(u"kru",	u"kruə"),#	‘raw’
-	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft’
+	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft̺’
 	(u"d̺ropu",	u"d̺ropə"),#	‘lazy’
-	(u"əgzaktə",	u"əgzaktə"),#	‘exact’
+	(u"əgzakt̺ə",	u"əgzakt̺ə"),#	‘exact̺’
 	(u"əlβi",	u"əlβinə"),#	‘albino’
-	(u"sa",	u"sanə"),#	‘healthy’
+	(u"sa",	u"sanə"),#	‘healt̺hy’
 	(u"pla",	u"planə"),#	‘level’
 	(u"bo",	u"bonə"),#	‘good̺’
 	(u"sərɛ",	u"sərɛnə"),#	‘calm’
 	(u"suβlim",	u"suβlimə"),#	‘sublime’
-	(u"al",	u"altə"),#	‘tall’
-	(u"fɔr",	u"fɔrtə"),#	‘strong’
-	(u"kur",	u"kurtə"),#	‘short’
+	(u"al",	u"alt̺ə"),#	‘t̺all’
+	(u"fɔr",	u"fɔrt̺ə"),#	‘st̺rong’
+	(u"kur",	u"kurt̺ə"),#	‘short̺’
 	(u"sor",	u"sorðə"),#	‘d̺eaf’
 	(u"bɛr",	u"bɛrðə"),#	‘green’
-	(u"san",	u"santə"),#	‘saint’
-	(u"kəlɛn",	u"kəlɛntə"),#	‘hot’
+	(u"san",	u"sant̺ə"),#	‘saint̺’
+	(u"kəlɛn",	u"kəlɛnt̺ə"),#	‘hot̺’
 	(u"prufun",	u"prufund̺ə"),#	‘d̺eep’
-	(u"fəkun",	u"fəkund̺ə"),#	‘fertile’
-	(u"d̺əsen",	u"d̺əsentə"),#	‘d̺ecent’
-	(u"d̺ulen",	u"d̺ulentə"),#	‘bad̺’
-	(u"əstuðian",	u"əstuðiantə"),#	‘student’
+	(u"fəkun",	u"fəkund̺ə"),#	‘fert̺ile’
+	(u"d̺əsen",	u"d̺əsent̺ə"),#	‘d̺ecent̺’
+	(u"d̺ulen",	u"d̺ulent̺ə"),#	‘bad̺’
+	(u"əst̺uðian",	u"əst̺uðiant̺ə"),#	‘student’
 	(u"blaŋ",	u"blaŋkə")]))#	‘white’
 
 interactingProblems.append(Problem(

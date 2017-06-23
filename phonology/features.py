@@ -86,6 +86,7 @@ featureMap = {
     u"d̺": [dental,stop,voice,coronal],
     u"d^z": [alveolar,affricate,coronal,voice],
     u"t": [alveolar,stop,coronal],
+    u"t̺": [dental,stop,coronal],
     u"t|": [alveolar,stop,coronal,unreleased],
     u"t^s": [alveolar,affricate,coronal],
     u"t^h": [alveolar,stop,aspirated,coronal],

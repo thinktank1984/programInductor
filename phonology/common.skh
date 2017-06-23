@@ -403,6 +403,9 @@ Word apply_rule(Rule r, Word u) {
   assert !has_syllable_feature(focus);
   assert !has_syllable_feature(structural_change);
 #endif
+#ifndef SYLLABLEBOUNDARYFEATURE
+  assert  r.copyOffset == None;
+#endif
   
   Sound[u.l + 1] output;
 

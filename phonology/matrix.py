@@ -396,6 +396,7 @@ class UnderlyingProblem():
                 for stemVariable,oldValue in zip(stems,solution.underlyingForms):
                     condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
 
+        costUpperBound = None # I don't believe in that any of that upper bound nonsense
         if getVerbosity() > 1: print "upper bound = ",costUpperBound
         self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
         self.conditionOnData(rules, stems, prefixes, suffixes)
@@ -676,9 +677,13 @@ class UnderlyingProblem():
                          for parent in population
                          for _ in range(width) ]
             population += children
-            populationScores = [ (self.solutionDescriptionLength(s),s)
+            populationScores = [ (self.solutionDescriptionLength(s) + s.modelCost(),s)
                                  for s in population ]
             populationScores.sort()
             population = [ s
                            for _,s in populationScores[:width] ]
-            print population[0]
+            setVerbosity(4)
+            mdl = self.solutionDescriptionLength(population[0])
+            setVerbosity(0)
+            print "MDL:",mdl+population[0].modelCost()
+

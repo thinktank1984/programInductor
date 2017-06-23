@@ -46,13 +46,14 @@ class Solution():
     def mutate(self,bank):
         # mutate a phoneme
         if random() < 0.3:
-            i = choice(range(len(self.prefixes)))
             newPrefixes = list(self.prefixes)
             newSuffixes = list(self.suffixes)
-            if choice([True,False]): # mutate a prefix
-                newPrefixes[i] = newPrefixes[i].mutate(bank)
-            else:
-                newSuffixes[i] = newSuffixes[i].mutate(bank)
+            for _ in range(sampleGeometric(0.7) + 1):
+                i = choice(range(len(self.prefixes)))
+                if choice([True,False]): # mutate a prefix
+                    newPrefixes[i] = newPrefixes[i].mutate(bank)
+                else:
+                    newSuffixes[i] = newSuffixes[i].mutate(bank)
             return Solution(self.rules,newPrefixes,newSuffixes)
                 
         # mutate a rule

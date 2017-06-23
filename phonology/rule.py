@@ -659,8 +659,8 @@ def invertParallelTransducers(transducers, surfaces):
     
 
 if __name__ == '__main__':
-    m1 = FST('[..] -> t s ||  _ .#.')
-    m2 = FST('[..] -> y s ||  _ .#.')
+    m1 = FST('[..] -> FAILURE ||  _ .#.')
+    m2 = FST('FAILURE -> 0 || _ ')
     if False:
         print invertParallelTransducers([m1,m2],
                                   ['mangots',
