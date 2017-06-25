@@ -540,7 +540,7 @@ class UnderlyingProblem():
                 if beam > 1:
                     worker = UnderlyingProblem(trainingData, 0, self.bank)
                     solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                                      for s in (worker.solveTopRules(solution, beam) if solution.depth < 3 else worker.fastTopRules(solution, beam, maximumNumberOfSolutions = 1000) ]
+                                      for s in (worker.solveTopRules(solution, beam) if solution.depth < 3 else worker.fastTopRules(solution, beam, maximumNumberOfSolutions = 1000)) ]
                     print "Alternative solutions and their scores:"
                     for c,s in solutionScores:
                         print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
