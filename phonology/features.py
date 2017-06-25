@@ -49,6 +49,8 @@ affricate = "affricate"
 alveopalatal = "alveopalatal"
 aspirated = "aspirated"
 unreleased = "unreleased"
+laryngeal = "laryngeal"
+pharyngeal = "pharyngeal"
 syllableBoundary = "syllableBoundary"
 
 featureMap = {
@@ -62,6 +64,7 @@ featureMap = {
     u"ɛ": [voice,lax,middle,front],
     u"æ": [voice,low,front],
     u"a": [voice,low,central],
+    u"ʌ": [voice,central,middle,lax],
     # rounded vowels
     u"u": [voice,tense,high,back,rounded],
     u"ü": [voice,tense,high,front,rounded],
@@ -83,10 +86,10 @@ featureMap = {
     u"m̥": [bilabial,nasal,sonorant],
     u"θ": [dental,fricative,coronal],
     u"d": [alveolar,stop,voice,coronal],
-    u"d̺": [dental,stop,voice,coronal],
+    u"d̪": [dental,stop,voice,coronal],
     u"d^z": [alveolar,affricate,coronal,voice],
     u"t": [alveolar,stop,coronal],
-    u"t̺": [dental,stop,coronal],
+    u"t̪": [dental,stop,coronal],
     u"t|": [alveolar,stop,coronal,unreleased],
     u"t^s": [alveolar,affricate,coronal],
     u"t^h": [alveolar,stop,aspirated,coronal],
@@ -99,6 +102,7 @@ featureMap = {
     u"ž": [alveopalatal,fricative,voice,coronal],
     u"s": [alveolar,fricative,coronal, sibilant],
     u"n": [alveolar,nasal,voice,coronal,sonorant],
+    u"ṇ": [retroflex,nasal,voice,sonorant],
     u"n̥": [alveolar,nasal,coronal,sonorant],
     u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
     u"š": [alveopalatal,fricative,coronal, sibilant],
@@ -122,6 +126,7 @@ featureMap = {
     u"G": [uvular,stop,voice],
     u"ʔ": [laryngeal,stop,sonorant],
     u"h": [laryngeal,fricative,sonorant],
+    u"ħ": [pharyngeal,fricative,sonorant],
 
     # glides
     u"w": [glide,voice,bilabial,sonorant],
@@ -129,6 +134,7 @@ featureMap = {
 
     # liquids
     u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],
+    u"ṛ": [retroflex,coronal,voice,sonorant], # I don't really know what features are for this
     u"r̃": [liquid,trill,voice,coronal,sonorant],
     u"r̥̃": [liquid,trill,coronal,sonorant],
     u"ř": [liquid,flap,voice,coronal,sonorant],
@@ -139,6 +145,7 @@ featureMap = {
     # I think it is a mistranscription, as it is in IPA but not APA
     # u"ɲ": []
 
+    u"ʕ": [pharyngeal,voice,fricative],
     u"-": [syllableBoundary],
 }
 

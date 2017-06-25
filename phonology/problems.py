@@ -11,7 +11,9 @@ class Problem():
         if parameters:
             self.data = [ x.replace(u"’",u"") for x in data ]
         else:
-            self.data = [ tuple([ x.replace(u"’",u"") for x in inflections ]) for inflections in data ]
+            self.data = [ tuple([ (None if x == None else x.replace(u"’",u""))
+                                  for x in inflections ])
+                          for inflections in data ]
 
         # As a sanity check we try to tokenize all of the data
         # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features
@@ -21,15 +23,19 @@ class Problem():
                 tokenize(d)
             else:
                 for x in d:
-                    if x != "~":
+                    if x != "~" and x != None:
                         tokenize(x)
         # If this is an alternation problem
-        if parameters and "alternations" in parameters and False:
-            ps = set([ p for w in data for p in tokenize(w) ])
-            print "Number of distinct phonemes: %d" % len(ps)
-            fs = set([ f  for p in ps for f in featureMap[p] ])
-            print "Number of distinct features: %d" % len(fs)
-            print " ==  ==  == "
+        if parameters and "alternations" in parameters:
+            if False:
+                ps = set([ p for w in data for p in tokenize(w) ])
+                print "Number of distinct phonemes: %d" % len(ps)
+                fs = set([ f  for p in ps for f in featureMap[p] ])
+                print "Number of distinct features: %d" % len(fs)
+                print " ==  ==  == "
+        elif not parameters:#this is a matrix problem
+            for inflections in self.data:
+                assert len(inflections) == len(self.data[0])
 
 # Learning tone patterns
 toneProblems = []
@@ -1185,9 +1191,9 @@ interactingProblems.append(Problem(
 Give phonological rules which account for the following data, and indicate what ordering is necessary between these rules. For each adjective stem, state what the underlying form of the root is. Pay attention to the difference between surface [b,d,g] and [β,ð,ɣ], in terms of predictability.
 NOTE: This problem set had a bug in it that Tim discovered.
 /d/ is actually a dental in this language
-So I have replaced it with /d̺/
+So I have replaced it with /d̪/
 /t/ might actually also be a dental
-So I have replaced it with /t̺/
+So I have replaced it with /t̪/
 The fricative /ž/ alternates with /č/ (not a stop but a affricate). This is a bug - it should be a stop
 Call it /č|/
 Also introduce /ǰ|/, also modeled as a stop
@@ -1200,61 +1206,61 @@ in between sonants voiced fricatives become stops
 #ma	masc	fem		masc	fem	
 #	sing.	sing.		sing.	sing.
     [
-	(u"əkely",	u"əkelyə"),#	‘t̺hat̺’
+	(u"əkely",	u"əkelyə"),#	‘t̪hat̪’
 	(u"mal",	u"malə"),#	‘bad’
 	(u"siβil",	u"siβilə"),#	‘civil’
 	(u"əskerp",	u"əskerpə"),#	‘shy’
-	(u"šop",	u"šopə"),#	‘d̺renched̺’
-	(u"sɛk",	u"sɛkə"),#	‘d̺ry’
-	(u"əspɛs",	u"əspɛsə"),#	‘t̺hick’
+	(u"šop",	u"šopə"),#	‘d̪renched̪’
+	(u"sɛk",	u"sɛkə"),#	‘d̪ry’
+	(u"əspɛs",	u"əspɛsə"),#	‘t̪hick’
 	(u"gros",	u"grosə"),#	‘large’
-	(u"baš",	u"bašə"),#	‘short̺’
+	(u"baš",	u"bašə"),#	‘short̪’
 	(u"koš",	u"košə"),#	‘lame’
-	(u"t̺ot̺",	u"t̺ot̺ə"),#	‘all’
-	(u"brut̺",	u"brut̺ə"),#	‘d̺irt̺y’
-	(u"pɔk",	u"pɔkə"),#	‘lit̺t̺le’
+	(u"t̪ot̪",	u"t̪ot̪ə"),#	‘all’
+	(u"brut̪",	u"brut̪ə"),#	‘d̪irt̪y’
+	(u"pɔk",	u"pɔkə"),#	‘lit̪t̪le’
 	(u"prəsis",	u"prəsizə"),#	‘precise’
 	(u"frənses",	u"frənsezə"),#	‘French’
 	(u"gris",	u"grizə"),#	‘grey’
-	(u"kəzat̺",	u"kəzaðə"),#	‘married̺’
-	(u"bwit̺",	u"bwiðə"),#	‘empt̺y’
-	(u"rɔč|",	u"rɔžə"),#	‘red̺’
+	(u"kəzat̪",	u"kəzaðə"),#	‘married̪’
+	(u"bwit̪",	u"bwiðə"),#	‘empt̪y’
+	(u"rɔč|",	u"rɔžə"),#	‘red̪’
 	(u"boč|",	u"božə"),#	‘crazy’
-	(u"orp",	u"orβə"),#	‘blind̺’
+	(u"orp",	u"orβə"),#	‘blind̪’
 	(u"lyark",	u"lyarɣə"),#	‘long’
-	(u"sek",	u"seɣə"),#	‘blind̺’
+	(u"sek",	u"seɣə"),#	‘blind̪’
 	(u"fəšuk",	u"fəšuɣə"),#	‘heavy’
 	(u"grok",	u"groɣə"),#	‘yellow’
 	(u"puruk",	u"puruɣə"),#	‘fearful’
-	(u"kand̺it̺",	u"kand̺iðə"),#	‘cand̺id̺’
-	(u"frɛt̺",	u"frɛðə"),#	‘cold̺’
+	(u"kand̪it̪",	u"kand̪iðə"),#	‘cand̪id̪’
+	(u"frɛt̪",	u"frɛðə"),#	‘cold̪’
 	(u"səɣu",	u"səɣurə"),#	‘sure’
-	(u"d̺u",	u"d̺urə"),#	‘hard̺’
+	(u"d̪u",	u"d̪urə"),#	‘hard̪’
 	(u"səɣəðo",	u"səɣəðorə"),#	‘reaper’
 	(u"kla",	u"klarə"),#	‘clear’
-	(u"nu",	u"nuə"),#	‘nud̺e’
+	(u"nu",	u"nuə"),#	‘nud̪e’
 	(u"kru",	u"kruə"),#	‘raw’
-	(u"flɔñǰ|u",	u"flɔñǰ|ə"),#	‘soft̺’
-	(u"d̺ropu",	u"d̺ropə"),#	‘lazy’
-	(u"əgzakt̺ə",	u"əgzakt̺ə"),#	‘exact̺’
+	(u"flɔñǰ|u",	u"flɔñǰ|ə"),#	‘soft̪’
+	(u"d̪ropu",	u"d̪ropə"),#	‘lazy’
+	(u"əgzakt̪ə",	u"əgzakt̪ə"),#	‘exact̪’
 	(u"əlβi",	u"əlβinə"),#	‘albino’
-	(u"sa",	u"sanə"),#	‘healt̺hy’
+	(u"sa",	u"sanə"),#	‘healt̪hy’
 	(u"pla",	u"planə"),#	‘level’
-	(u"bo",	u"bonə"),#	‘good̺’
+	(u"bo",	u"bonə"),#	‘good̪’
 	(u"sərɛ",	u"sərɛnə"),#	‘calm’
 	(u"suβlim",	u"suβlimə"),#	‘sublime’
-	(u"al",	u"alt̺ə"),#	‘t̺all’
-	(u"fɔr",	u"fɔrt̺ə"),#	‘st̺rong’
-	(u"kur",	u"kurt̺ə"),#	‘short̺’
-	(u"sor",	u"sorðə"),#	‘d̺eaf’
+	(u"al",	u"alt̪ə"),#	‘t̪all’
+	(u"fɔr",	u"fɔrt̪ə"),#	‘st̪rong’
+	(u"kur",	u"kurt̪ə"),#	‘short̪’
+	(u"sor",	u"sorðə"),#	‘d̪eaf’
 	(u"bɛr",	u"bɛrðə"),#	‘green’
-	(u"san",	u"sant̺ə"),#	‘saint̺’
-	(u"kəlɛn",	u"kəlɛnt̺ə"),#	‘hot̺’
-	(u"prufun",	u"prufund̺ə"),#	‘d̺eep’
-	(u"fəkun",	u"fəkund̺ə"),#	‘fert̺ile’
-	(u"d̺əsen",	u"d̺əsent̺ə"),#	‘d̺ecent̺’
-	(u"d̺ulen",	u"d̺ulent̺ə"),#	‘bad̺’
-	(u"əst̺uðian",	u"əst̺uðiant̺ə"),#	‘student’
+	(u"san",	u"sant̪ə"),#	‘saint̪’
+	(u"kəlɛn",	u"kəlɛnt̪ə"),#	‘hot̪’
+	(u"prufun",	u"prufund̪ə"),#	‘d̪eep’
+	(u"fəkun",	u"fəkund̪ə"),#	‘fert̪ile’
+	(u"d̪əsen",	u"d̪əsent̪ə"),#	‘d̪ecent̪’
+	(u"d̪ulen",	u"d̪ulent̪ə"),#	‘bad̪’
+	(u"əst̪uðian",	u"əst̪uðiant̪ə"),#	‘student’
 	(u"blaŋ",	u"blaŋkə")]))#	‘white’
 
 interactingProblems.append(Problem(
@@ -1342,3 +1348,912 @@ transposeInflections([
     (u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")])))#	using N
 
 
+
+sevenProblems = []
+sevenProblems.append(Problem(
+'''
+1: Serbo-Croatian
+	These data from Serbo-Croatian have been simplified in two ways, to make the problem more manageable. Vowel length is omitted, and the only accent that is included is the predictable accent. Invariant lexical acent is not marked, and your analysis should explain how accent is assigned in the predictable-accent class, where accent is marked. You cannot write rules which predict accent for those words in the unpredictable accent class, and you cannot (and should not try to) write a rule which somehow predicts whether a word receives a predictable accent. Ignore the accent of words with no accent mark (other parts of the phonology of such words must be accounted for). Past tense verbs all have the same general past tense suffix, and that the difference between masculine, feminine and neuter past tense involves the same suffixes as are used to mark gender in adjectives.
+''',
+#	Adjectives
+#	Masc.	Fem.	Neut.	Pl.
+	[
+            (u"mlád",	u"mladá",	u"mladó",	u"mladí"),#	young
+            (u"túp",	u"tupá",	u"tupó",	u"tupí"),#	blunt
+            (u"blág",	u"blagá",	u"blagó",	u"blagí"),#	mild
+            (u"grúb",	u"grubá",	u"grubó",	u"grubí"),#	coarse
+            (u"béo",	u"belá",	u"beló",	u"belí"),#	white
+            (u"veseo",	u"vesela",	u"veselo",	u"veseli"),#	gay
+            (u"debéo",	u"debelá",	u"debeló",	u"debelí"),#	fat
+            (u"mío",	u"milá",	u"miló",	u"milí"),#	dear
+            (u"zelén",	u"zelená",	u"zelenó",	u"zelení"),#	green
+            (u"kradén",	u"kradená", 	u"kradenó", 	u"kradení"),#	stolen
+            (u"dalék",	u"daleká", 	u"dalekó", 	u"dalekí"),#	far
+            (u"visók",	u"visoká", 	u"visokó", 	u"visokí"),#	high
+            (u"dubók",	u"duboká",	u"dubokó",	u"dubokí"),#	deep
+            (u"križan",	u"križana",	u"križano",	u"križani"),#	cross
+            (u"sunčan", 	u"sunčana", 	u"sunčano", 	u"sunčani"),#	sunny
+            (u"svečan", 	u"svečana", 	u"svečano", 	u"svečani"),#	formal
+            (u"bogat",	u"bogata",	u"bogato",	u"bogati"),#	rich
+            (u"rapav",	u"rapava",	u"rapavo",	u"rapavi"),#	rough
+            (u"yásan",	u"yasná",	u"yasnó",	u"yasní"),#	clear
+            (u"vážan",	u"važná",	u"važnó",	u"važní"),#	important
+            (u"sítan",	u"sitná",	u"sitnó",	u"sitní"),#	tiny
+            (u"ledan",	u"ledna",	u"ledno",	u"ledni"),#	frozen
+            (u"tának",	u"tanká",	u"tankó",	u"tankí"),#	slim
+            (u"krátak",	u"kratká",	u"kratkó",	u"kratkí"),#	short
+            (u"blízak",	u"bliská",	u"bliskó",	u"bliskí"),#	close
+            (u"úzak",	u"uská",	u"uskó",	u"uskí"),#	narrow
+            (u"dóbar",	u"dobrá",	u"dobró",	u"dobrí"),#	kind
+            (u"óštar",	u"oštrá",	u"oštró",	u"oštrí"),#	sharp
+            (u"bodar",	u"bodra",	u"bodro",	u"bodri"),#	alert
+            (u"ustao",	u"ustala",	u"ustalo",	u"ustali"),#	tired
+            (u"múkao",	u"muklá",	u"mukló",	u"muklí"),#	hoarse
+            (u"óbao",	u"oblá",	u"obló",	u"oblí"),#	plump
+            (u"pódao",	u"podlá",	u"podló",	u"podlí"),#	base
+
+	# Verbs
+	# 1sg pres	masc. past	fem. past	neut. past	
+	# tepém	tépao	teplá	tepló	wander
+	# skubém	skúbao	skublá	skubló	tear
+	# tresém	trésao	treslá	tresló	shake
+	# vezém	vézao	vezlá	vezló	lead
+]))
+
+sevenProblems.append(Problem('''2: Standard Ukrainian
+	Standard Ukrainian has palatalized and non-palatalized consonants, but only non-palatalized consonants before e. Consonants are generally palatalized before i, with some apparent exceptions such as bily ‘ache’, which need not be seen as exceptions, given the right analysis. Give ordered rules to account for the alternations of the following nouns. The alternation between o and e is limited to suffixes. Also for masculine nouns referring to persons, ov/ev is inserted between the root and the case suffix in the locative singular (see ‘son-in-law’, ‘grandfather’). The data are initially ambiguous as to whether or not the alternations between o and i and between e and i are to be implemented by the same rule. Consider both possibilities; give an argument for selecting one of these solutions. 
+''',
+#	Masculine nouns
+#	Nom. sg.	Dat. pl. 	 Dat. sg.	Loc. sg.	Gloss
+[
+	(u"zub",	u"zubam",	u"zubovyi",	u"zubyi"),#	tooth
+	(u"svyit",	u"svyitam",	u"svyitovyi",	u"svyityi"),#	light
+	(u"zyaty",	u"zyatyam",	u"zyatevyi",	u"zyatevyi"),#	son-in-law
+	(u"košyily",	u"košelyam",	u"košelevyi",	u"košelyi"),#	basket
+	(u"zlodyiy",	u"zlodyiyam",	u"zlodyiyevyi",	u"zlodyiyevyi"),# 	thief
+	(u"myisyatsy",	u"myisyatsyam",	u"myisyatsevyi",	u"myisyatsyi"),#	month
+	(u"korovay",	u"korovayam",	u"korovayevyi",	u"korovayi"),#	round loaf
+	(u"kamyiny",	u"kamenyam",	u"kamenevyi",	u"kamenyi"),#	stone
+	(u"myidy",	u"myidyam",	u"myidevyi",	u"myidyi"),#	copper
+	(u"xlyiw",	u"xlyivam",	u"xlyivovyi",	u"xlyivyi"),#	stable
+	(u"holub",	u"holubam",	u"holubovyi",	u"holubyi"),#	dove
+	(u"syin",	u"syinam",	u"syinovyi",	u"syinyi"),#	son
+	(u"lebyidy",	u"lebedyam",	u"lebedevyi",	u"lebedyi"),#	swan
+	(u"susyid", 	u"susyidam", 	u"susyidovyi", 	u"susyidovyi"),#	neighbor
+	(u"čolovyik", 	u"čolovyikam", 	u"čolovyikovyi", 	u"čolovyikovyi"),#	man
+	(u"lyid",	u"ledam",	u"ledovyi",	u"ledyi"),#	ice
+	(u"bily",	u"bolyam",	u"bolevyi",	u"bolyi"),#	ache
+	(u"riw",	u"rovam",	u"rovovyi",	u"rovyi"),#	ditch
+	(u"stiw",	u"stolam",	u"stolovyi",	u"stolyi"),#	table
+	(u"dyid",	u"dyidam",	u"dyidovyi",	u"dyidovyi"),#	grandfather
+	(u"lyit",	u"lyotam",	u"lyotovyi",	u"lyotyi"),#	flight
+	(u"mist",	u"mostam",	u"mostovyi",	u"mostyi"),#	bridge
+	(u"večir",	u"večoram",	u"večorovyi",	u"večoryi"),#	evening
+	
+	# Neuter nouns
+	# Nom. sg.	Gen. sg.	Dat. sg.	Loc. sg.	Gen. pl.	Gloss
+	# tyilo	tyila	tyilu	tyilyi	tyiw	body
+	# koleso	kolesa	kolesu	kolesyi	kolyis	wheel
+	# ozero	ozera	ozeru	ozeryi	ozyir	lake
+	# selo	sela	selu	selyi	syiw	village
+	# pole	polya	polyu	polyi	pily	field
+	# slovo	slova	slovu	slovyi	sliw	word
+	# more	morya	moryu	moryi	miry	sea
+]))
+
+sevenProblems.append(Problem('''3: Somali
+	In the following Somali data, [ḍ] is a voiced retroflex stop and [ṛ] is a voiced retroflex spirant. Account for all phonological alternations in these data. In your discussion of these forms, be sure to make it clear what you assume the underlying representations of relevant morphemes are. Your discussion should also make it clear what motivates your underlying representations and rules. For instance if you could analyse some alternation by assuming underlying X and rule Y, say why (or whether) that choice is preferable to the alternative of assuming underlying P and rule Q.''',
+[
+#	Singular	Sing. Definite	Plural	Gloss
+	(u"daar",	u"daarta",	u"daaro"),#	house
+	(u"gees",	u"geesta",	u"geeso"),#	side
+	(u"laf",	u"lafta",	u"lafo"),#	bone
+	(u"lug",	u"lugta",  	u"luɣo"),#	leg
+	(u"naag",	u"naagta",	u"naaɣo"),#	woman
+	(u"tib",	u"tibta",    	u"tiβo"),#	pestle
+	(u"sab",	u"sabta",    	u"saβo"),#	outcast
+	(u"bad",	u"bada",	u"baðo"),#	sea
+	(u"šid",	u"šida",	u"šiðo"),#	person
+	(u"feeḍ",	u"feeḍa",  	u"feeṛo"),#	rib
+	(u"ʕiir",	u"ʕiirta",	u"ʕiiro"),#	buttermilk
+	(u"ʔul",	u"ʔuša",	u"ʔulo"),#	stick
+	(u"bil",	u"biša",	u"bilo"),#	month
+	(u"meel",	u"meeša",	u"meelo"),#	place
+	(u"kaliil",	u"kaliiša",	u"kaliilo"),#	summer
+	(u"nayl",	u"nayša",	u"naylo"),#	female lamb
+	(u"sun",	u"sunta",	u"sumo"),#	poison
+	(u"laan",	u"laanta",	u"laamo"),#	branch
+	(u"sin",	u"sinta",	u"simo"),#	hip
+	(u"dan",	u"danta",	u"dano"),#	affair
+	(u"daan",	u"daanta",	u"daano"),#	river bank
+	(u"saan",	u"saanta",	u"saano"),#	hide
+	(u"nirig",	u"nirigta",	u"nirgo"),#	baby female camel
+	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo"),#	girl
+	(u"hoɣol",	u"hoɣoša",	u"hoglo"),#	downpour
+	(u"baɣal",	u"baɣaša",	u"baglo"),#	mule
+	(u"waħar",	u"waħarta",	u"waħaro"),#	female kid
+	(u"irbad",	u"irbada",	u"irbaðo"),#	needle
+	(u"kefed",	u"kefeda",	u"kefeðo"),#	pan
+	(u"šilin",	u"šilinta",	u"šilino"),#	female dwarf
+	(u"bohol",	u"bohoša",	u"boholo"),#	hole
+    # todo: figure out what /j/ is supposed to be
+	#(u"jirid",	u"jirida",	u"jirdo"),#	trunk
+	(u"ʔaayad",	u"ʔaayada",	u"ʔaayaðo"),#	miracle
+	(u"gaʕan",	u"gaʕanta",	u"gaʕmo"),#	hand
+	(u"ʔinan",	u"ʔinanta",	u"ʔinano"),#	daughter
+
+	# 3sg msc. pst	3sg fem. past	1pl past	Gloss
+	# suɣay	sugtay	sugnay	wait
+	# kaβay	kabtay	kabnay	fix
+	# siðay	siday	sidnay	carry
+	# dilay	dišay	dillay	kill
+	# ganay	gantay	gannay	aim
+	# tumay	tuntay	tunnay	hammer
+	# argay	aragtay	aragnay	see
+	# gudbay	guðubtay	guðubnay	cross a river
+	# qoslay	qosošay	qosollay	laugh
+	# hadlay	haðašay	haðallay	talk
+]))
+
+sevenProblems.append(Problem('''4: Latin
+	Provide a complete account of the following phonological alternations in Latin, including underlying forms for nouns stems.
+''',
+[
+#	Nominative		Genitive  		Gloss
+	(u"arks",			u"arkis"),#			fortress
+	(u"duks",			u"dukis"),#			leader
+	(u"daps",			u"dapis"),#			feast
+	(u"re:ks",			u"re:gis"),#			king
+	(u"falanks",		u"falangis"),#		phalanx
+	(u"filiks",			u"filikis"),#			fern
+	(u"lapis",			u"lapidis"),#   		stone
+	(u"li:s",			u"li:tis"),#			strife
+	(u"fraws",			u"frawdis"),#   		deceit
+	(u"noks",			u"noktis"),#    		night
+	(u"frons",			u"frontis"),#   		brow
+	(u"frons",			u"frondis"),#   		leaf
+	(u"inku:s",			u"inku:dis"),#  		anvil
+	(u"sors",			u"sortis"),#			lot
+	(u"fu:r",			u"fu:ris"),#			thief
+	(u"murmur",    		u"murmuris"),#  		murmur
+	(u"augur",     		u"auguris"),#   		augur
+	(u"arbor",			u"arboris"),#   		tree
+	(u"pugil",			u"pugilis"),#   		boxer
+	(u"sal",			u"salis"),#			salt
+	(u"adeps",			u"adipis"),#			fat
+	(u"apeks",			u"apikis"),#			top
+	(u"pri:nkeps", 		u"pri:nkipis"),#		chief
+	(u"ekwes",			u"ekwitis"),#   		horseman
+	(u"miles",			u"militis"),#   		soldier
+	(u"no:men",    		u"no:minis"),#  		name
+	(u"karmen",    		u"karminis"),# 		song
+	(u"lu:men",    		u"lu:minis"),#  		light
+	(u"wenter",    		u"wentris"),#   		belly
+	(u"pater",			u"patris"),#			father
+	(u"kada:wer",  		u"kada:weris"),#		corpse
+	(u"tu:ber",			u"tu:beris"),#  		swelling
+	(u"piper",			u"piperis"),#   		pepper
+	(u"karker",    		u"karkeris"),#  		prison
+	
+# 	The following 6 nouns and adjectives select a different genitive suffix, -i: as opposed to is. You cannot predict on phonological grounds what nouns take this suffix, but otherwise these words follow the rules motivated in the language.
+	
+# 	die:s	die:i:	day
+# 	li:ber	li:beri:  	free
+# 	miser	miseri:   	wretched
+# 	ager	agri:	field
+# 	sinister  	sinistri: 	left
+# 	liber	libri:	book
+
+# What other phonological rule or rules are needed to account for the following data?
+	
+# 	as			assis			whole
+# 	os			ossis			bone
+# 	far			farris			spell
+# 	mel			mellis			honey
+# 	o:s			o:ris			mouth
+# 	flo:s			flo:ris			flower
+# 	mu:s			mu:ris    		mouse
+# 	cru:s			cru:ris   		leg
+# 	kinis			kineris   		ash
+# 	pulvis    		pulveris  		dust
+    ]))
+	
+sevenProblems.append(Problem('''5: Turkish
+	Provide a phonological analysis of the following data from Turkish.
+''',[
+    
+#	nom	poss	dat	abl	nom. pl
+	(u"oda",	u"odasɨ",	u"odaya",	u"odadan",	u"odalar"),#	room
+	(u"dere",	u"deresi",	u"dereye",	u"dereden",	u"dereler"),#	river
+	(u"ütü",	u"ütüsü",	u"ütüye",	u"ütüden",	u"ütüler"),#	iron
+	(u"balo",	u"balosu",	u"baloya",	u"balodan",	u"balolar"),#	ball
+	(u"arɨ",	u"arɨsɨ", 	u"arɨya",	u"arɨdan",	u"arɨlar"),#	bee
+	(u"la:",	u"la:sɨ",	u"la:ya",	u"la:dan",	u"la:lar"),#	la (note)
+	(u"bina:",	u"bina:sɨ",	u"bina:ya",	u"bina:dan",	u"bina:lar"),#	building
+	(u"imla:",	u"imla:sɨ",	u"imla:ya",	u"imla:dan",	u"imla:lar"),#	spelling
+	(u"be:",	u"be:si",	u"be:ye",	u"be:den",	u"be:ler"),#	B (letter)
+	(u"kep",	u"kepi",	u"kepe",	u"kepten",	u"kepler"),#	cap
+	(u"at",	u"atɨ",	u"ata",	u"attan",	u"atlar"),#	horse
+	(u"ek",	u"eki",	u"eke",	u"ekten",	u"ekler"),#	affix
+	(u"ok",	u"oku",	u"oka",	u"oktan",	u"oklar"),#	arrow
+	(u"güč",	u"güǰü",	u"güǰe",	u"güčten",	u"güčler"),#	power
+	(u"ahmet",	u"ahmedi",	u"ahmede",	u"ahmetten",	u"ahmetler"),#	Ahmed
+	(u"kurt",	u"kurdu",	u"kurda",	u"kurttan",	u"kurtlar"),#	worm
+	(u"türk",	u"türkü",	u"türke",	u"türkten",	u"türkler"),#	Turk
+	(u"genč",	u"genči",	u"genče",	u"genčten",	u"genčler"),#	young
+	(u"halk",	u"halkɨ",	u"halka",	u"halktan",	u"halklar"),#	folk
+	(u"üst",	u"üstü",	u"üste",	u"üstten",	u"üstler"),#	upper plane
+	(u"sarp",	u"sarpɨ",	u"sarpa",	u"sarptan",	u"sarplar"),#	steep
+	(u"harp",	u"harbɨ",	u"harba",	u"harptan",	u"harplar"),#	war
+	(u"alt",	u"altɨ",	u"alta",	u"alttan",	u"altlar"),#	bottom
+	(u"renk",	u"rengi",	u"renge",	u"renkten",	u"renkler"),#	color
+	(u"his",	u"hissi",	u"hisse",	u"histen",	u"hisler"),#	feeling
+	(u"hür",	u"hürrü",	u"hürre",	u"hürden",	u"hürler"),#	free
+	(u"mahal",	u"mahallɨ",	u"mahalla",	u"mahaldan",	u"mahallar"),#	place
+	(u"hak",	u"hakkɨ",	u"hakka",	u"haktan",	u"haklar"),#	right
+	(u"zam",	u"zammɨ",	u"zamma",	u"zamdan",	u"zamlar"),#	inflation
+	(u"af",	u"affɨ",	u"affa",	u"aftan",	u"aflar"),#	excuse
+	(u"arap",	u"arabɨ",	u"araba",	u"araptan",	u"araplar"),#	Arab
+	(u"koyun",	u"koyunu",	u"koyuna",	u"koyundan",	u"koyunlar"),#	sheep
+	(u"pilot",	u"pilotu",	u"pilota",	u"pilottan",	u"pilotlar"),#	pilot
+	(u"kitap",	u"kitabɨ",	u"kitaba",	u"kitaptan",	u"kitaplar"),#	book
+	(u"domuz",	u"domuzu",	u"domuza",	u"domuzdan",	u"domuzlar"),#	pig
+	(u"davul",	u"davulu",	u"davula",	u"davuldan",	u"davullar"),#	drum
+	(u"bayɨr",	u"bayɨrɨ",	u"bayɨra",	u"bayɨrdan",	u"bayɨrlar"),#	slope
+	(u"somun",	u"somunu",	u"somuna",	u"somundan",	u"somunlar"),#	loaf
+	(u"fikir",	u"fikri",	u"fikre",	u"fikirden",	u"fikirler"),#	idea
+	(u"isim",	u"ismi",	u"isme",	u"isimden",	u"isimler"),#	name
+	(u"boyun",	u"boynu",	u"boyna",	u"boyundan",	u"boyunlar"),#	neck
+	(u"čevir",	u"čevri",	u"čevre",	u"čevirden",	u"čevirler"),#	injustice
+	(u"devir",	u"devri",	u"devre",	u"devirden",	u"devirler"),#	transfer
+	(u"koyun",	u"koynu",	u"koyna",	u"koyundan",	u"koyunlar"),#	bosom
+	(u"karɨn",	u"karnɨ",	u"karna",	u"karɨndan",	u"karɨnlar"),#	thorax
+	(u"burun",	u"burnu",	u"burna",	u"burundan",	u"burunlar"),#	nose
+	(u"akɨl",	u"aklɨ",	u"akla",	u"akɨldan",	u"akɨllar"),#	intelligence
+	(u"šehir",	u"šehri",	u"šehre",	u"šehirden",	u"šehirler"),#	city
+	(u"namaz",	u"namazɨ",	u"namaza",	u"namazdan",	u"namazlar"),#	worship
+	(u"zaman",	u"zama:nɨ",	u"zama:na",	u"zamandan",	u"zamanlar"),#	time
+	(u"harap",	u"hara:bɨ",	u"hara:ba",	u"haraptan",	u"haraplar"),#	ruined
+	(u"i:kaz",	u"i:ka:zɨ",	u"i:ka:za",	u"i:kazdan",	u"i:kazlar"),#	warning
+	(u"hayat",	u"haya:tɨ",	u"haya:ta",	u"hayattan",	u"hayatlar"),#	life
+	(u"ispat",	u"ispa:tɨ",	u"ispa:ta",	u"ispattan",	u"ispatlar"),#	proof
+	(u"inek",	u"inei",	u"inee",	u"inekten",	u"inekler"),#	cow
+	(u"mantɨk",	u"mantɨɨ",	u"mantɨa",	u"mantɨktan",	u"mantɨklar"),#	logic
+	(u"ayak",	u"ayaɨ",	u"ayaa",	u"ayaktan",	u"ayaklar"),#	foot
+	(u"čabuk",	u"čabuu",	u"čabua",	u"čabuktan",	u"čabuklar"),#	quick
+	(u"dakik",	u"dakii",	u"dakie",	u"dakikten",	u"dakikler"),#	punctual
+	(u"merak",	u"mera:kɨ",	u"mera:ka",	u"meraktan",	u"meraklar"),#	curiosity
+	(u"tebrik",	u"tebri:ki",	u"tebri:ke",	u"tebrikten",	u"tebrikler"),#	greetings
+	(u"hukuk",	u"huku:ku",	u"huku:ka",	u"hukuktan",	u"hukuklar"),#	law
+]))
+
+sevenProblems.append(Problem('''6: Kera
+	Propose rules to account for the following alternations. It will prove useful to think about Kera vowels in terms of high versus non-high vowels. Also, in this language it would be convenient to assume that [h] and [ʔ] are specified as [+low]. Pay attention to both verbs like bɨlan ‘want me’, balnan ‘wanted me’ and bal-l-a ‘you must want!’, i.e. there are present, past and imperative forms involved, certain tenses being marked by suffixes. Finally, pay attention to what might look like a coincidence in the distribution of vowels in the underlying forms of verb roots: there are no coincidences.
+''',
+	# hama-n  	‘eat me’	se:ne-n	‘my brother’	
+	# hama-m  	‘eat you m.’	se:ne-m 	‘your masc. brother’
+	# hɨm-i	‘eat you f.’	si:n-i	‘your fem. brother’
+	# hɨm-u	‘eat him’	si:n-u	‘his brother’
+	# ham-a	‘eat her’	se:n-a	‘her brother’
+	# hama-ŋ  	‘eat you pl.’	se:ne-ŋ	‘your pl. brother’
+
+	# kolo-n	‘change me’	gi:di-n	‘my belly’
+	# kolo-m	‘change you masc.’	gi:di-m	‘your masc. belly’
+	# kul-i	‘change you fem.’	gi:d-i	‘your fem. belly’
+	# kul-u	‘change him’	gi:du	‘his belly’
+	# kol-a	‘change her’	gi:d-ɨ	‘her belly’
+	# kolo-ŋ	‘change you pl.’	gi:di-ŋ	‘your pl. belly’
+	
+	# cɨ:rɨ-n	‘my head’	gunu-n	‘wake me’
+	# cɨ:rɨ-m	‘your masc. head’	gunu-m 	‘wake you masc.’
+	# ci:r-i	‘your fem. head’	gun-i	‘wake you fem.’
+	# cu:r-u	‘his head’	gun-u	‘wake him’
+	# cɨ:r-ɨ	‘her head’	gun-ɨ	‘wake her’
+	# cɨ:rɨ-ŋ	‘your pl. head’	gunu-ŋ	‘wake you pl.’
+	
+	# bɨla-n	‘want me’	ŋɨfa-n	‘meet me’
+	# bɨla-m	‘want you masc.’	ŋɨfa-m	‘meet you masc.’
+	# bɨl-i	‘want you fem.’	ŋɨf-i	‘meet you fem.’
+	# bɨl-u	‘want him’	ŋɨf-u	‘meet him’
+	# bɨl-a	‘want her’	ŋɨf-a	‘meet her’
+	# bɨla-ŋ	‘want you pl.’	ŋɨfa-ŋ	‘meet you pl.’
+
+	# ʔasa-n	‘know me’	ʔapa-n	‘find me’
+	# ʔasa-m	‘know you masc.’	ʔapa-m	‘find you masc.’
+	# ʔɨs-i	‘know you fem.’	ʔɨp-i	‘find you fem.’
+	# ʔɨs-u	‘know him’	ʔɨp-u	‘find him’
+	# ʔas-a	‘know her’	ʔap-a	‘find her’
+	# ʔasa-ŋ	‘know you pl.’	ʔapa-ŋ	‘find you pl.’
+
+	# hara-n	‘give me back’
+	# hara-m	‘give you masc. back’
+	# hɨr-i	‘give you fem. back’
+	# hɨr-u	‘give him back’
+	# har-a	‘give her back’
+	# hara-ŋ	‘give you pl. back’
+	
+	# balna-n  	‘wanted me’	ŋafna-n 	‘met me’
+	# balna-m 	‘wanted you masc.’	ŋafna-m	‘met you masc.’
+	# bɨln-i	‘wanted you fem.’	ŋɨfn-i	‘met you fem.’
+	# bɨln-u	‘wanted him’	ŋɨfn-u	‘met him’
+	# baln-a	‘wanted her’	ŋafn-a	‘met her’
+	# balna-ŋ  	‘wanted you pl.’	ŋafna-ŋ 	‘met you pl.’
+	# bal-l-a	‘you must want!’	ŋaf-l-a	‘you must meet!’
+		
+	# ba	‘not’	pa	‘again’	bɨ-pa	‘no more’
+[]))
+
+sevenProblems.append(Problem('''7: Keley-i
+	Account for the alternations in the following verbs. The different forms relate to whether the action is in the past or future, and which element in the sentence is emphasised (subject, object, instrument). Roots underlyingly have the shape CVC(C)VC, and certain forms such as the subject focus future require changes in the stem that result in a CVCCVC shape. This may be accomplished by reduplicating the initial CV- for stems whose first vowel is [e] (ʔum-bebhat – behat) or doubling the middle consonant (ʔum-buŋŋet – buŋet). The contrastive identification imperfective form conditions lengthening of the consonant in the middle of the stem, when the first vowel is not [e] (memayyuʔ – bayuʔ). These changes are part of the morphology, so do not attempt to write phonological rules to double consonants or reduplicate syllables. Be sure to explicitly state the underlying form of each root and affix. Understanding the status of [s] and [h] in this language is important in solving this problem. It is also important to consider exactly what underlying nasal consonant is present in these various prefixes and infixes – there is evidence in the data which shows that the underlying nature of the nasal explains certain observed differences in phonological behavior.
+''',
+#	subject focus	direct object	instrumental focus
+#	future	focus past	past
+[
+	(u"ʔumduntuk",	u"dinuntuk",	u"ʔinduntuk", u"ʔinduntuk",	u"menuntuk",	u"nenuntuk"),#	punch
+	(u"ʔumbayyuʔ",	u"binayuʔ",	u"ʔimbayuʔ", u"ʔimbayuʔ",	u"memayyuʔ",	u"nemayuʔ"),#	pound rice
+	(u"ʔumdillag",	u"dinilag",	u"ʔindilag", u"ʔindilag",	u"menillag",	u"nenilag"),#	light lamp
+	(u"ʔumgubbat",	u"ginubat",	u"ʔiŋgubat", u"ʔiŋgubat",	u"meŋubbat",	u"neŋubat"),#	fight
+	(u"ʔumhullat",	u"hinulat",	u"ʔinhulat", u"ʔinhulat",	u"menullat",	u"nenulat"),#	cover
+	(u"ʔumbuŋŋet",	u"binuŋet",	u"ʔimbuŋet", None,None,None),#	scold
+	(u"ʔumgalgal",	u"ginalgal",	u"ʔiŋgalgal", None,None,None),#	chew
+	(u"ʔumʔagtuʔ",	u"ʔinagtuʔ",	u"ʔinʔagtuʔ", u"ʔinʔagtuʔ",	u"meŋagtuʔ",	u"neŋagtuʔ"),#	carry on head
+	(u"ʔumʔehneŋ",	u"ʔinehneŋ",	u"ʔinʔehneŋ", None,None,None),#	stand
+	(u"ʔumbebhat",	u"binhat",	u"ʔimbehat", None,None,None),#	cut rattan
+	(u"ʔumdedʔek",	u"dinʔek",	u"ʔindeʔek", u"ʔindeʔek",	u"menʔek",	u"nenʔek"),#	accuse
+	(u"ʔumtuggun",	u"sinugun",	u"ʔintugun", None,None,None),#	advise
+	(u"ʔumtetpen",	u"simpen",	u"ʔintepen", u"ʔintepen",	u"mempen",	u"nempen"),#	measure
+	(u"ʔumpeptut",	u"pintut",	u"ʔimpetut",None,None,None),#	dam
+	(u"ʔumhehpuŋ",	u"himpuŋ",	u"ʔinhepuŋ",None,None,None),#	break a stick
+	(u"ʔumtetkuk",	u"siŋkuk",	u"ʔintekuk",u"ʔintekuk",	u"meŋkuk",	u"neŋkuk"),#	shout
+	(u"ʔumkekbet",	u"kimbet",	u"ʔiŋkebet",u"ʔiŋkebet",	u"meŋbet",	u"neŋbet"),#	scratch
+	(u"ʔumbebdad",	u"bindad",	u"ʔimbedad",u"ʔimbedad",	u"memdad",	u"nemdad"),#	untie
+	(u"ʔumdedgeh",	u"diŋgeh",	u"ʔindegeh",u"ʔindegeh",	u"meŋgeh",	u"neŋgeh"),#	sick
+	
+#	instrumental	contrastive	contrastive
+#	past focus	id. imperfective	id. perfective
+#	(u"ʔinduntuk",	u"menuntuk",	u"nenuntuk"),#	punch
+#	(u"ʔimbayuʔ",	u"memayyuʔ",	u"nemayuʔ"),#	pound rice
+#	(u"ʔindilag",	u"menillag",	u"nenilag"),#	light lamp
+#	(u"ʔiŋgubat",	u"meŋubbat",	u"neŋubat"),#	fight
+#	(u"ʔinhulat",	u"menullat",	u"nenulat"),#	cover
+	(None,None,None,u"ʔintanem",	u"menannem",	u"nenanem"),#	plant
+	(None,None,None,u"ʔimpedug",	u"memdug",	u"nemdug"),#	chase
+#	(u"ʔimbedad",	u"memdad",	u"nemdad"),#	untie
+#	(u"ʔiŋkebet",	u"meŋbet",	u"neŋbet"),#	scratch
+	(None,None,None,u"ʔimbekaʔ",	u"memkaʔ",	u"nemkaʔ"),#	dig
+#	(u"ʔintepen",	u"mempen",	u"nempen"),#	measure
+	(None,None,None,u"ʔintebaʔ",	u"membaʔ",	u"nembaʔ"),#	kill a pig
+#	(u"ʔintekuk",	u"meŋkuk",	u"neŋkuk"),#	shout
+#	(u"ʔindegeh",	u"meŋgeh",	u"neŋgeh"),#	sick
+	(None,None,None,u"ʔinhepaw",	u"mempaw",	u"nempaw"),#	possess
+	(None,None,None,u"ʔinteled",	u"menled",	u"nenled"),#	sting
+#	(u"ʔindeʔek",	u"menʔek",	u"nenʔek"),#	accuse
+	(None,None,None,u"ʔinʔebaʔ",	u"meŋbaʔ",	u"neŋbaʔ"),#	carry on back
+	(None,None,None,u"ʔinʔinum",	u"meŋinnum",	u"neŋinum"),#	drink
+#	(u"ʔinʔagtuʔ",	u"meŋagtuʔ",	u"neŋagtuʔ"),#	carry on head
+	(None,None,None,u"ʔinʔalaʔ",	u"meŋallaʔ",	u"neŋalaʔ"),#	get
+	(None,None,None,u"ʔinʔawit",	u"meŋawwit",	u"neŋawit"),#	get
+
+# The following past subject clausal focus forms involve a different prefix, using some of the roots found above. A number of roots require reduplication of the first root syllable. 
+
+# 	nandunduntuk	‘punch’	nampepedug	‘chase’
+# 	naŋkekebet	‘scratch’	nambebekaʔ	‘dig’
+# 	nantetekuk	‘shout’	nandedeʔek	‘accuse
+# 	nanʔeʔebaʔ	‘carry on back’	nanʔiʔinum	‘drink’
+# 	nantanem	‘plant’
+	]))
+
+sevenProblems.append('''8: Kikuria
+	In some (but not all) of the examples below, morphemes boundaries have been been introduced to assist in the analysis. Every noun is assigned to a grammatical class conventionally given a number (1-20), which is indicated by a particular prefix on the nouns (e.g. omo- for cl. 1); there are also pronoun prefixes on verbs marking subject and object for each class. Tones may be disregarded (however, it is predictable in the infinitive). It is important to pay attention to interaction between processes in this problem.
+
+	ogo-táángá	‘to begin’	oko-gɛ́sa	‘to harvest’
+	oko-rɔ́ga	‘to witch’	oko-réma	‘to plow’
+	oko-hóórá	‘to thresh’	ugu-sííká	‘to close a door’
+	ugu-súraangá	‘to sing praise’	uku-gííngá	‘to shave’
+	ugu-túúhá	‘to be blunt’
+
+	ogo-kó-bárǎ	‘to count you (sg)’	uku-gú-súraánga	‘to praise you (sg)’
+	oko-mó-bárǎ	‘to count him’	uku-mú-súraánga	‘to praise him’
+	ogo-tó-bárǎ	‘to count us’	ugu-tú-súraánga	‘to praise us’
+	oko-gé-bárǎ	‘to count them (4)’	uku-gí-súraánga	‘to praise it (4)’
+	oko-ré-bárǎ	‘to count it (5)’	uku-rí-súraánga	‘to praise it (5)’
+	uku-bí-bárǎ	‘to count it (8)’	uku-bí-súraánga	‘to praise it (8)’
+	uku-chí-bárǎ	‘to count it (10)’	ugu-chí-súraánga	‘to praise it (10)’
+
+	oko-mó-gó-gɛsɛ́ra	‘to harvest it (3) for him’
+	uku-mú-gú-siíkya	‘to make him close it (3)’
+	uku-mú-gú-siíndya	‘to make him win it (3)’
+	oko-bá-súraánga	‘to praise them’
+	oko-mó-bá-suráángéra	‘to praise them for him’
+	oko-bá-mú-suráángéra	‘to praise him for them’
+
+	to V	to make to V	to V for	to make V for
+	okoréma	ukurímyá	okorémérǎ	ukurímíryá	‘weed’
+	okoróma	ukurúmyá	okorómérǎ	ukurúmíryá	‘bite’
+	okohóórá	ukuhúúryá	okohóórérá	ukuhúúríryá	‘thresh’
+	okohéétóká	ukuhíítúkyá	okohéétókerá	ukuhíítúkiryá	‘remember’
+	okogéémbá	ukugíímbyá	okogéémbérá	ukugíímbíryá	‘make rain’
+	ogosóóká	ugusúúkyá	ogosóókérá	ugusúúkíryá	‘respect’
+	ogotégétǎ	ugutígítyǎ	ogotégéterá	ugutígítiryá	‘be late’
+	okorɔ́ga	okorógyá	okorɔ́gɛ́rǎ	okorógéryá	‘bewitch’
+	okogɔ́ɔ́gá	okogóógyá	okogɔ́ɔ́gɛ́rá	okogóógéryá	‘slaughter’
+	okogɔ́ɔ́tá	okogóótyá	okogɔ́ɔ́tɛ́rá	okogóótéryá	‘hold’
+	ogosɔ́ka	ogosókyá	ogosɔ́kɛ́rǎ	ogosókéryá	‘poke’
+	ogotɛ́rɛ́kǎ	ogotérékyá	ogotɛ́rɛ́kɛrá	ogotérékeryá	‘brew’
+	okogɛ́sa	okogésyá	okogɛ́sɛ́rǎ	okogéséryá	‘harvest’
+	ogosɛ́ɛ́nsá	ogoséénsyá	ogosɛ́ɛ́nsɛ́rá	ogoséénséryá	‘winnow’
+
+	to V	to make to V	to V for	to make V for
+	ugusííká	ugusííkyá	ogoséékérá	ugusííkíryá	‘to close’
+	ukurúga	ukurúgyá	okorógérǎ	ukurúgíryá	‘to cook’
+	ugusúka	ugusúkyá	ogosókérǎ	ugusúkíryá	‘to plait’
+	ukurííngá	ukurííngyá	okorééngérá	ukurííngíryá	‘to fold’
+	ugusííndá	ugusííndyá	ogosééndérá	ugusííndíryá	‘to win’
+
+	imperative	infinitive	they will V	then will V for
+	remǎ	okoréma	mbareréma	mbareréméra	‘cultivate’
+	barǎ	okobára	mbarebára	mbarebáréra	‘count’
+	atǎ	ogɔɔ́ta	mbarɛɛ́ta	mbarɛɛ́tɛ́ra	‘be split’
+	ahǎ	okɔɔ́ha	mbarɛɛ́ha	mbarɛɛ́hɛ́ra	‘pick greens’
+	agǎ	okɔɔ́ga	mbarɛɛ́ga	mbarɛɛ́gɛ́ra	‘weed’
+	aangá	okɔɔ́nga	mbarɛɛ́nga	mbarɛɛ́ngɛ́ra	‘refuse’
+	andeká	okɔɔ́ndɛ́kǎ	mbarɛɛ́ndɛ́ka	mbarɛɛ́ndɛ́kɛra	‘write’
+
+	imperative	3s subjunctive	3s subjunctive for
+	remǎ	aremɛ̌	aremerɛ́	‘cultivate’
+	tɛrɛká	atɛrɛkɛ́	atɛrɛkɛ́rɛ	‘brew’
+	ebǎ	ɛɛbɛ̌	ɛɛbɛrɛ́	‘forget’
+	egǎ	ɛɛgɛ̌	ɛɛgɛrɛ́	‘learn’
+	ogǎ	ɔɔgɛ̌	ɔɔgɛrɛ́	‘be sharp’
+	ɛyǎ	ɛɛyɛ̌	ɛɛyɛrɛ́	‘sweep’
+	ɔrɔká	ɔɔrɔkɛ́	ɔɔrɔkɛ́rɛ	‘come out’
+''')
+
+sevenProblems.append(Problem('''
+9: Lardil
+	Account for the phonological alternations seen in the data below.
+''',
+#	Bare N	Accusative	Nonfuture	Future	Gloss
+[                             
+	(u"kentapal",	u"kentapalin",	u"kentapalŋar",	u"kentapaluṛ"),#	dugong
+	(u"ket̪ar",	u"ket̪arin",	u"ket̪arŋar",	u"ket̪aruṛ"),#	river
+	(u"miyaṛ",	u"miyaṛin",	u"miyaṛŋar",	u"miyaṛuṛ"),#	spear
+	(u"yupur",	u"yupurin",	u"yupurŋar",	u"yupuruṛ"),#	red rock cod
+	(u"taŋur",	u"taŋurin",	u"taŋurŋar",	u"taŋuruṛ"),#	crab sp.
+	(u"yaraman",	u"yaramanin",	u"yaramanar",	u"yaramankuṛ"),#	horse
+	(u"maaṇ",	u"maaṇin",	u"maaṇar",	u"maaṇkuṛ"),#	spear
+	(u"pirŋen",	u"pirŋenin",	u"pirŋenar",	u"pirŋenkuṛ"),#	woman
+	(u"mela",	u"melan",	u"melaŋar",	u"melaṛ"),#	sea
+	(u"t̪awa",	u"t̪awan",	u"t̪awaŋar", u"t̪awaṛ"),#	rat
+	(u"wanka",	u"wankan",	u"wankaŋar",	u"wankaṛ"),#	arm
+	(u"kuŋka",	u"kuŋkan",	u"kuŋkaŋar",	u"kuŋkaṛ"),#	groin
+	(u"tarŋka",	u"tarŋkan", u"tarŋkaŋar", u"tarŋkaṛ"),#	barracuda
+	(u"ŋuka",	u"ŋukun",	u"ŋukuŋar",	u"ŋukuṛ"),#	water
+	(u"ŋuṛa",	u"ŋuṛun",	u"ŋuṛuŋar",	u"ŋuṛuṛ"),#	forehead
+	(u"kaṭa",	u"kaṭun",	u"kaṭuŋar",	u"kaṭuṛ"),#	child
+	(u"muṇa", u"muṇun", u"muṇuŋar", u"muṇuṛ"),#	elbow
+	(u"ŋawa",	u"ŋawun",	u"ŋawuŋar",	u"ŋawuṛ"),#	wife
+	(u"keṇṭe",	u"keṇṭin",	u"keṇṭiŋar",	u"keṇṭiwuṛ"),#	wife
+	(u"tyimpe", u"tyimpin", u"tyimpiŋar", u"tyimpiwuṛ"),#	tail
+	(u"ŋiṇe",	u"ŋiṇin",	u"ŋiṇiŋar",	u"ŋiṇiwuṛ"),#	skin
+	(u"pape",	u"papin",	u"papiŋar",	u"papiwuṛ"),#	father’s mother
+	(u"tyempe",	u"tyempen",	u"tyempeŋar",	u"tyempeṛ"),#	mother’s father
+	(u"wiṭe",	u"wiṭen",	u"wiṭeŋar",	u"wiṭeṛ"),#	interior
+	(u"waŋal",	u"waŋalkin",	u"waŋalkar",	u"waŋalkuṛ"),#	boomerang
+	(u"menyel",	u"menyelkin",	u"menyelkar",	u"menyelkuṛ"),#	dogfish sp.
+	(u"makar",	u"makarkin",	u"makarkar",	u"makarkuṛ"),#	anthill
+	(u"yalul",	u"yalulun",	u"yaluluŋar",	u"yaluluṛ"),#	flame
+	(u"mayar",	u"mayaran",	u"mayaraŋar",	u"mayaraṛ"),#	rainbow
+	(u"t̪alkur",	u"t̪alkuran",	u"t̪alkuraŋar",	u"t̪alkuraṛ"),#	kookaburra
+	(u"wiwal",	u"wiwalan",	u"wiwalaŋar",	u"wiwalaṛ"),#	bush mango
+	(u"karikar",	u"karikarin",	u"karikariŋar",	u"karikariwuṛ"),#	butter-fish
+	(u"yiliyil",	u"yiliyilin",	u"yiliyiliŋar",	u"yiliyiliwuṛ"),#	oyster sp
+	(u"yukar",	u"yukarpan",	u"yukarpaŋar",	u"yukarpaṛ"),#	husband
+	(u"pulŋar",	u"pulŋarpan",	u"pulŋarpaŋar", u"pulŋarpaṛ"),#	huge
+	(u"wulun",	u"wulunkan",	u"wulunkaŋar",	u"wulunkaṛ"),#	fruit sp.
+	(u"wuṭal",	u"wuṭaltyin",	u"wuṭaltyiŋar",	u"wuṭaltyiwur"),#	meat
+	(u"kantukan",	u"kantukantun",	u"kantukantuŋar",	u"kantukantuṛ"),#	red
+	(u"karwakar",	u"karwakarwan",	u"karwakarwaŋar",	u"karwakarwaṛ"),#	wattle sp.
+	(u"t̪urara",	u"t̪uraraŋin",	u"t̪uraraŋar",	u"t̪uraraŋkuṛ"),#	shark
+	(u"ŋalu",	u"ŋalukin",	u"ŋalukar",	u"ŋalukuṛ"),#	story
+	(u"kurka",	u"kurkaŋin",	u"kurkaŋar",	u"kurkaŋkuṛ"),#	pandja
+	(u"taŋku",	u"taŋkuŋin",	u"taŋkuŋar",	u"taŋkuŋkuṛ"),#	oyster sp.
+	(u"kurpuṛu",	u"kurpuṛuŋin",	u"kurpuṛuŋar",	u"kurpuṛuŋkuṛ"),#	lancewood
+	(u"putu",	u"putukan",	u"putukaŋar",	u"putukaṛ"),#	short
+	(u"maali", u"maaliyan", u"maaliyaŋar",	u"maaliyaṛ"),#	swamp turtle
+	(u"tyiṇtirpu", u"tyiṇtirpuwan",	u"tyiṇtirpuwaŋar",	u"tyiṇtirpuwaṛ"),#	willie wagtail
+	(u"pukatyi", u"pukatyiyan",	u"pukatyiyaŋar",	u"pukatyiyaṛ"),#	hawk sp.
+	(u"murkuni",	u"murkuniman",	u"murkunimaŋar",	u"murkunimaṛ"),#	nullah
+	(u"ŋawuŋa",	u"ŋawuŋawun",	u"ŋawuŋawuŋar",	u"ŋawuŋawuṛ"),#	termite
+	(u"tipiti",	u"tipitipin",	u"tipitipiŋar",	u"tipitipiwuṛ"),#	rock-cod sp.
+	(u"t̪apu",	u"t̪aputyin",	u"t̪aputyiŋar",	u"t̪aputyiwuṛ"),#	older brother
+	(u"muŋkumu",	u"muŋkumuŋkun",	u"muŋkumuŋkuŋar",	u"muŋkumuŋkuṛ"),#	wooden axe
+	(u"tyumputyu",	u"tyumputyumpun",	u"tyumputyumpuŋar",	u"tyumputyumpuṛ")#	dragonfly
+    ]))
+	
+sevenProblems.append(Problem('''10: Sakha (Yakut)
+	Give a phonological analysis to the following case-marking paradigms of nouns in Sakha.
+''',
+#	noun	plural	associative	gloss
+[
+	(u"aɣa",	u"aɣalar",	u"aɣalɨɨn"),#	father
+	(u"paarta",	u"paartalar",	u"paartalɨɨn"),#	school desk
+	(u"tɨa",	u"tɨalar",	u"tɨalɨɨn"),#	forest
+	(u"kinige",	u"kinigeler",	u"kinigeliin"),#	book
+	(u"šie",	u"šieler",	u"šieliin"),#	house
+	(u"iye",	u"iyeler",	u"iyeliin"),#	mother
+	(u"kini",	u"kiniler",	u"kiniliin"),#	3rd person
+	(u"bie",	u"bieler",	u"bieliin"),#	mare
+	(u"oɣo",	u"oɣolor",	u"oɣoluun"),#	child
+	(u"Xopto",	u"Xoptolor",	u"Xoptoluun"),#	gull
+	(u"börö",	u"börölör",	u"börölüün"),#	wolf
+	(u"tɨal",	u"tɨallar",	u"tɨallɨɨn"),#	wind
+	(u"ɨal",	u"ɨallar",	u"ɨallɨɨn"),#	neighbor 
+	(u"kuul",	u"kuullar",	u"kuulluun"),#	sack
+	(u"at",	u"attar",	u"attɨɨn"),#	horse
+	(u"balɨk",	u"balɨktar",	u"balɨktɨɨn"),#	fish
+	(u"ɨskaap",	u"ɨskaaptar",	u"ɨskaaptɨɨn"),#	cabinet
+	(u"oɣus",	u"oɣustar",	u"oɣustuun"),#	bull
+	(u"kus",	u"kustar",	u"kustuun"),#	duck
+	(u"tünnük",	u"tünnükter",	u"tünnüktüün"),#	window
+	(u"sep",	u"septer",	u"septiin"),#	tool
+	(u"et",	u"etter",	u"ettiin"),#	meat
+	(u"örüs",	u"örüster",	u"örüstüün"),#	river
+	(u"tiis",	u"tiister",	u"tiistiin"),#	tooth
+	(u"soroX",	u"soroXtor",	u"soroXtuun"),#	some person
+	(u"oX",	u"oXtor",	u"oXtuun"),#	arrow
+	(u"oloppos",	u"oloppostor",	u"oloppostuun"),#	chair
+	(u"ötöX",	u"ötöXtör",	u"ötöXtüün"),#	abandoned farm
+	(u"ubay",	u"ubaydar",	u"ubaydɨɨn"),#	elder brother
+	(u"saray",	u"saraydar",	u"saraydɨɨn"),#	barn
+	(u"tɨy",	u"tɨydar",	u"tɨydɨɨn"),#	foal
+	(u"atɨɨr",	u"atɨɨrdar",	u"atɨɨrdɨɨn"),#	stallion
+	(u"oyuur",	u"oyuurdar",	u"oyuurduun"),#	forest
+	(u"üčügey",	u"üčügeyder",	u"üčügeydiin"),#	good person
+	(u"ešiiy",	u"ešiiyder",	u"ešiiydiin"),#	elder sister
+	(u"tomtor",	u"tomtordor",	u"tomtorduun"),#	knob
+	(u"moɣotoy",	u"moɣotoydor",	u"moɣotoyduun"),#	chipmunk
+	(u"kötör",	u"kötördör",	u"kötördüün"),#	bird
+	(u"bölköy",	u"bölköydör",	u"bölköydüün"),#	islet
+	(u"Xatɨŋ",	u"Xatɨŋnar",	u"Xatɨŋnɨɨn"),#	birch
+	(u"aan",	u"aannar",	u"aannɨɨn"),#	door
+	(u"tiiŋ",	u"tiiŋner",	u"tiiŋniin"),#	squirrel
+	(u"sordoŋ",	u"sordoŋnor",	u"sordoŋnuun"),#	pike
+	(u"olom",	u"olomnor",	u"olomnuun"),#	ford
+	(u"oron",	u"oronnor",	u"oronnuun"),#	bed
+	(u"bödöŋ",	u"bödöŋnör",	u"bödöŋnüün"),#	strong one
+]))	
+	# noun	partitive	comparative	ablative	gloss
+	# aɣa	aɣata	aɣataaɣar	aɣattan	father
+	# paarta	paartata	paartataaɣar	paartattan	school desk
+	# tɨa	tɨata	tɨataaɣar	tɨattan	forest
+	# kinige	kinigete	kinigeteeɣer	kinigetten	book
+	# š̌ie	š̌iete	š̌ieteeɣer	š̌ietten	house
+	# iye	iyete	iyeteeɣer	iyetten	mother
+	# kini	kinite	kiniteeɣer	kinitten	3rd person
+	# bie	biete	bieteeɣer	bietten	mare
+	# oɣo	oɣoto	oɣotooɣor	oɣotton	child
+	# Xopto	Xoptoto	Xoptotooɣor	Xoptotton	gull
+	# börö	börötö	börötööɣör	böröttön	wolf
+	# tɨal	tɨalla	tɨallaaɣar	tɨaltan	wind
+	# ɨal	ɨalla	ɨallaaɣar	ɨaltan	neighbor
+	# kuul	kuulla	kuullaaɣar	kuultan	sack
+	# moXsoɣol	moXsoɣollo	moXsoɣollooɣor	moXsoɣolton	falcon
+	# at	atta	attaaɣar	attan	horse
+	# balɨk	balɨkta	balɨktaaɣar	balɨktan	fish
+	# ɨskaap	ɨskaapta	ɨskaaptaaɣar	ɨskaaptan	cabinet
+	# oɣus	oɣusta	oɣustaaɣar	oɣustan	bull
+	# kus	kusta	kustaaɣar	kustan	duck
+	# tünnük	tünnükte	tünnükteeɣer	tünnükten	window
+	# sep	septe	septeeɣer	septen	tool
+	# et	ette	etteeɣer	etten	meat
+	# örüs	örüste	örüsteeɣer	örüsten	river
+	# tiis	tiiste	tiisteeɣer	tiisten	tooth
+	# soroX	soroXto	soroXtooɣor	soroXton	some person
+	# ötöX	ötöXtö	ötöXtööɣör	ötöXtön	abandoned farm
+	# ubay	ubayda	ubaydaaɣar	ubaytan	elder brother
+	# saray	sarayda	saraydaaɣar	saraytan	barn
+	# tɨy	tɨyda	tɨydaaɣar	tɨytan	foal
+	# atɨɨr	atɨɨrda	atɨɨrdaaɣar	atɨɨrtan	stallion
+	# Xirur	Xirurda	Xirurdaaɣar	Xirurtan	surgeon
+	# üčügey	üčügeyde	üčügeydeeɣer	üčügeyten	good person
+	# tomtor	tomtordo	tomtordooɣor	tomtorton	knob
+	# moɣotoy	moɣotoydo	moɣotoydooɣor	moɣotoyton	chipmunk
+	# kötör	kötördö	kötördööɣör	kötörtön	bird
+	# suorɣan	suorɣanna	suorɣannaaɣar	suorɣantan	blanket
+	# Xatɨŋ	Xatɨŋna	Xatɨŋnaaɣar	Xatɨŋtan	birch
+	# aan	aanna	aannaaɣar	aantan	door
+	# tiiŋ	tiiŋne	tiiŋneeɣer	tiiŋten	squirrel
+	# sordoŋ	sordoŋno	sordoŋnooɣor	sordoŋton	pike
+	# olom	olomno	olomnooɣor	olomton	ford
+	# bödöŋ	bödöŋnö	bödöŋnööɣör	bödöŋtön	strong one
+	
+	# noun	dative	accusative	gloss
+	# aɣa	aɣaɣa	aɣanɨ	father
+	# š̌ie	š̌ieɣe	š̌ieni	house
+	# iye	iyeɣe	iyeni	mother
+	# oɣo	oɣoɣo	oɣonu	child
+	# börö	böröɣö	börönü	wolf
+	# tɨal	tɨalga	tɨalɨ	wind
+	# kuul	kuulga	kuulu	sack
+	# at	akka	atɨ	horse
+	# balɨk	balɨkka	balɨgɨ	fish
+	# ɨskaap	ɨskaapka	ɨskaabɨ	cabinet
+	# oɣus	oɣuska	oɣuhu	bull
+	# kus	kuska	kuhu	duck
+	# sep	sepke	sebi	tool
+	# et	ekke	eti	meat
+	# tiis	tiiske	tiihi	tooth
+	# ot	okko	otu	grass
+	# soroX	soroXXo	soroɣu	some person
+	# ötöX	ötöXXö	ötöɣü	abandoned farm
+	# oX	oXXo	oɣu	arrow
+	# saray	sarayga	sarayɨ	barn
+	# tɨy	tɨyga	tɨyɨ	foal
+	# kötör	kötörgö	kötörü	bird
+
+	# oyuun	oyuuŋŋa	oyuunu	shaman
+	# Xatɨŋ	Xatɨŋŋa	Xatɨŋɨ	birch
+	# aan	aaŋŋa	aanɨ	door
+	# olom	olomŋo	olomu	ford
+	
+	# noun	ourN	gloss	noun	our N	gloss
+	# aɣa	aɣabɨt	father	iye	iyebit	mother
+	# uol	uolbut	son	kötör	kötörbüt	bird
+	# kɨlaas	kɨlaaspɨt	classroom	ɨskaap	ɨskaappɨt	cabinet
+	# kuorat	kuorappɨt	town	tiis	tiispit	tooth
+	# ohoX	ohoXput	stove	tünnük	tünnükpüt	window
+	# aan	aammɨt	door	kapitan	kapitammɨt	capitain
+	# tiiŋ	tiiŋmit	squirrel	oron	orommut	bed
+	# kün	kümmüt	day
+sevenProblems.append(Problem('''	
+11: Sadžava Ukrainian
+	Give a phonological analysis of the following data. Assume that all surface occurrences of ky and gy in this language are derived by rule. Also assume that stress is located on the proper vowel in the underlying representation: the rules for shifting stress are too complex to be considered here. Nouns in declension II depalatalizes a consonant before the locative suffix, and nouns in declension III depalatalize in the genitive. The variation in the genitive and locative sg. suffix in declension I (-i or -a versus -u) is lexically governed: do not write rules which select between these suffixes. Concentrate on extablishing the correct underlying representations for the noun stem.
+''',[
+#	Declension I
+#	Nom. sg.	Gen. sg.	Loc. sg.	Gloss
+    (u"plást",	u"plastá",	u"plasykyí",None,None,None,None,None),#	layer
+	(u"skorúx",	u"skoruxá",	u"skorusyí",None,None,None,None,None),#	mountain ash
+	(u"ɣyryíx",	u"ɣyryixá",	u"ɣyryisyí",None,None,None,None,None),#	sin
+	(u"pastúx",	u"pastuxá",	u"pastusyí",None,None,None,None,None),#	herdsman
+	(u"mynyúx",	u"mynyúxa",	u"mynyúsyi",None,None,None,None,None),#	fish sp.
+	(u"plúɣ",	u"plúɣa",	u"plúzyi",None,None,None,None,None),#	plow
+	(u"sytyíɣ",	u"stóɣa",	u"stózyi",None,None,None,None,None),#	stack
+	(u"sák",	u"sáka",	u"sátsyi",None,None,None,None,None),#	fishnet
+	(u"bék",	u"bəká",	u"bətsyí",None,None,None,None,None),#	bull
+	(u"lést",	u"ləstá",	u"ləsykyí",None,None,None,None,None),#	letter
+	(u"lést",	u"lésta",	u"lésykyi",None,None,None,None,None),#	leaf
+	(u"pylyít",	u"plóta",	u"plókyi",None,None,None,None,None),#	wicker fence
+	(u"symyryíd",	u"smróda",	u"smrógyi",None,None,None,None,None),#	stench
+	(u"fyíst",	u"fostá",	u"fosykyí",None,None,None,None,None),#	tail
+	(u"myíst",	u"mósta",	u"mósykyi",None,None,None,None,None),#	bridge
+	(u"lyíd",	u"lǽdu",	u"lədú",None,None,None,None,None),#	ice
+	(u"dyryít",	u"dróta",	u"drókyi",None,None,None,None,None),#	thick wire
+	(u"myíd",	u"mǽdu",	u"mədú",None,None,None,None,None),#	honey
+	(u"vyíl",	u"volá",	u"volyí",None,None,None,None,None),#	ox
+	(u"vyíz",	u"vóza",	u"vózyi",None,None,None,None,None),#	cart
+	(u"sér",	u"séra",	u"séryi",None,None,None,None,None),#	cottage cheese
+	(u"synyíp",	u"snopá",	u"snopyí",None,None,None,None,None),#	sheaf
+	(u"ɣréb",	u"ɣrəbá",	u"ɣrəbyí",None,None,None,None,None),#	mushroom
+	(u"lǽbyid",	u"lǽbəda",	u"lǽbəgyi",None,None,None,None,None),#	swan
+	(u"bǽryiɣ",	u"bǽrəɣa",	u"bǽrəzyi",None,None,None,None,None),#	shore
+	(u"pəryíɣ",	u"pəróɣa",	u"pərózyi",None,None,None,None,None),#	dumpling
+	(u"poryíɣ",	u"poróɣa",	u"porózyi",None,None,None,None,None),#	threshhold
+	(u"bolyék",	u"bolyəká",	u"bolyətsyí",None,None,None,None,None),#	abcess
+	(u"vóryiɣ",	u"vóroɣa",	u"vórozyi",None,None,None,None,None),#	enemy
+	(u"kónək",	u"kónəka",	u"kónətsyi",None,None,None,None,None),#	grasshopper
+	(u"pótyik",	u"potóka",	u"potótsyi",None,None,None,None,None),#	stream
+	(u"tyík",	u"tóka",	u"tótsyi",None,None,None,None,None),#	current
+	(u"kyíl",	u"kolá",	u"kolyí",None,None,None,None,None),#	stake
+
+#	Declension II
+#	Nom. sg.	Gen. sg.	Loc. sg.	Gloss
+	(None,None,None,u"kovály",	u"kovalyé",	u"kovalé",None,None),#	blacksmith
+	(None,None,None,u"ǰmyíly",	u"ǰmyilyé",	u"ǰmyilé",None,None),#	bumblebee
+	(None,None,None,u"kyryíly",	u"kyryilyé",	u"kyryilé",None,None),#	rabbit
+	(None,None,None,u"učétəly",	u"učétəlyə",	u"učétələ",None,None),#	teacher
+	(None,None,None,u"grǽbyiny",	u"grǽbənyə",	u"grǽbənə",None,None),#	comb
+	(None,None,None,u"óləny", u"ólənyə", u"ólənə",None,None),#	deer
+	(None,None,None,u"yačymyíny",	u"yačmǽnyə",	u"yačmǽnə",None,None),#	barley
+	(None,None,None,u"yásyiny",	u"yásənyə",	u"yásənə",None,None),#	ash tree
+	(None,None,None,u"zyéky",	u"zyékyə",	u"zyétə",None,None),#	son-in-law
+
+#	Declension III
+#	Nom. sg.	Gen. sg.	Gloss
+	(None,None,None,None,None,None,u"másyky",	u"mástə"),#	u"fat"),#
+	(None,None,None,None,None,None,u"symyíryky",	u"smǽrtə"),#,	u"death"),#
+	(None,None,None,None,None,None,u"vyísyky",	u"vyístə"),#,	u"news"),#
+	(None,None,None,None,None,None,u"rágyisyky",	u"rádostə"),#,	u"joy"),#
+	(None,None,None,None,None,None,u"syíly",	u"sólə"),#,	u"salt"),#
+	(None,None,None,None,None,None,u"póšyisyky",	u"póšəstə"),#,	u"epidemic"),#
+	(None,None,None,None,None,None,u"zámyiky",	u"zámətə"),#,	u"snowstorm"),#
+	(None,None,None,None,None,None,u"skátəryky",	u"skátərtə"),#,	u"tablecloth"),#
+	(None,None,None,None,None,None,u"kyísyky",	u"kóstə"),#,	u"bone"),#
+]))
+if False:
+    sevenProblems.append(Problem('''
+12:	Koromfe
+	Koromfe has two kinds of vowels, [-ATR] ɩʊɛɔa and [+ATR] iueoʌ. Provide an analysis of the alternations in the following data, which involve singular and plural forms of nouns and different tense-inflections for verbs.
+''',[
+#	Singular	Plural		gloss
+	(u"gɩbrɛ",	u"gɩba",None,None,None),#		hatchet
+	(u"hubre",	u"hubʌ",None,None,None),#		ditch
+	(u"nɛbrɛ",	u"nɛba",None,None,None),#		pea
+	(u"dĩŋgre",	u"dĩŋgʌ",None,None,None),#		bush type
+	(u"zoŋgre",	u"zoŋgʌ",None,None,None),#		wing
+	(u"lɔ̃ŋgrɛ",	u"lɔ̃ŋga",None,None,None),#		shoe
+	(u"hullre",	u"hullʌ",None,None,None),#		gutter
+	(u"sɛkrɛ",	u"sɛka",None,None,None),#		half
+	(u"tɛfrɛ",	u"tɛfa",None,None,None),#		cotton fiber
+	(u"dabɛɛrɛ",	u"dabɛɛya",None,None,None),#		camp
+	(u"dɔɔrɛ",	u"dɔɔya",None,None,None),#		long
+	(u"gɩgaarɛ",	u"gɩgaaya",None,None,None),#		vulture
+	(u"pʊpaarɛ",	u"pʊpaaya",None,None,None),#		grass type
+	(u"koire",	u"koyʌ",None,None,None),#		bracelet
+	(u"dʊmdɛ",	u"dʊma",None,None,None),#		lion
+	(u"hulomde",	u"hulomʌ",None,None,None),#		marrow
+	(u"tɛmdɛ",	u"tɛma",None,None,None),#		beard
+	(u"logomde",	u"logomʌ",None,None,None),#		camel
+	(u"bɩndɛ",	u"bɩna",None,None,None),#		heart
+	(u"hɔ̃ndɛ",	u"hɔ̃na",None,None,None),#		hoe
+	(u"honde",	u"honʌ",None,None,None),#		bean
+	(u"geŋde",	u"geŋʌ",None,None,None),#		pebble
+	(u"zɛŋdɛ",	u"zɛŋa",None,None,None),#		upper arm
+	(u"bɛllɛ",	u"bɛla",None,None,None),#		back
+	(u"yɩllɛ",	u"yɩla",None,None,None),#		horn
+	(u"selle",	u"selʌ",None,None,None),#		space
+	(u"pallɛ",	u"pala",None,None,None),#		stretcher
+	(u"deŋgele",	u"deŋgelʌ",None,None,None),#		open area
+	(u"sembele",	u"sembelʌ",None,None,None),#		piece
+	(u"dãɩ̃nɛ",	u"dãỹã",None,None,None),#		wood
+	(u"hʊ̃ɩ̃nɛ",	u"hʊ̃ỹã",None,None,None),#		caterpillar
+	(u"kɔ̃ɩ̃nɛ",	u"kɔ̃ỹã",None,None,None),#		squirrel
+	(u"kɔ̃ɔ̃nɛ",	u"kɔ̃ɔ̃ỹã",None,None,None),#		old
+	(u"sɔ̃ɔ̃nɛ",	u"sɔ̃ɔ̃ỹã",None,None,None),#		period
+	(u"bɛtɛ",	u"bɛra",None,None,None),#		male animal
+	(u"datɛ",	u"dara",None,None,None),#		chest
+	(u"gete",	u"gerʌ",None,None,None),#		forked stick
+	(u"gote",	u"gorʌ",None,None,None),#		stream
+	(u"bɩtɛ",	u"bɩra",None,None,None),#		frog
+	(u"dɔtɛ",	u"dɔra",None,None,None),#		cloud
+	
+#	neutral	past	progressive	gloss
+	(None,None,u"ta",	u"taɛ",	u"taraa"),#	shoot
+	(None,None,u"gɔ",	u"gɔɛ",	u"gɔraa"),#	go back
+	(None,None,u"kʊ",	u"kɔɛ",	u"kʊraa"),#	kill
+	(None,None,u"tu",	u"toe",	u"turʌʌ"),#	coat
+	(None,None,u"li",	u"lee",	u"lirʌʌ"),#	forget
+	(None,None,u"dɩ",	u"dɛ",	u"dɩraa"),#	eat
+	(None,None,u"tã",	u"tãɛ̃",	u"tãnaa"),#	contradict
+	(None,None,u"nɛ̃",	u"nɛ̃",	u"nɛ̃naa"),#	defecate
+	(None,None,u"saɩ",	u"sayɛ",	u"saɩraa"),#	separate
+	(None,None,u"yɛɩ",	u"yɛyɛ",	u"yɛɩraa"),#	waste
+	(None,None,u"sɔɩ",	u"sɔyɛ",	u"sɔɩraa"),#	split
+	(None,None,u"ỹɛ̃ɩ̃",	u"ỹɛ̃ỹɛ̃",	u"ỹɛ̃ɩ̃naa"),#	catch
+	(None,None,u"dɔ̃ɩ̃",	u"dɔ̃ỹɛ̃",	u"dɔ̃ɩ̃naa"),#	dream
+	(None,None,u"kɛndɩ",	u"kɛndɛ",	u"kɛndraa"),#	finish
+	(None,None,u"kɛ̃sɩ",	u"kɛ̃sɛ",	u"kɛ̃sraa"),#	surpass
+	(None,None,u"kɛtɩ",	u"kɛtɛ",	u"kɛtraa"),#	open
+	(None,None,u"tɛŋgɩ",	u"tɛŋgɛ",	u"tɛŋgraa"),#	accompany
+	(None,None,u"yisi",	u"yise",	u"yisrʌʌ"),#	suffice
+	(None,None,u"yɩsɩ",	u"yɩsɛ",	u"yɩsraa"),#	draw water
+	(None,None,u"birgi",	u"birge",	u"birgrʌʌ"),#	blacken
+	(None,None,u"pasgɩ",	u"pasgɛ",	u"pasgraa"),#	split
+	(None,None,u"mɛntɩ",	u"mɛntɛ",	u"mɛntraa"),#	assemble
+	(None,None,u"gondu",	u"gonde",	u"gondrʌʌ"),#	depart
+	(None,None,u"hɔ̃ŋgʊ",	u"hɔ̃ŋgɛ",	u"hɔ̃ŋgraa"),#	point
+	(None,None,u"sʊrgʊ",	u"sʊrgɛ",	u"sʊrgraa"),#	drop
+	(None,None,u"hɔ̃kʊ",	u"hɔ̃kɛ",	u"hɔ̃kraa"),#	scratch
+	(None,None,u"zullu",	u"zulle",	u"zullrʌʌ"),#	bow
+	(None,None,u"sɩbʊ",	u"sɩbɛ",	u"sɩbraa"),#	die
+	(None,None,u"zambʊ",	u"zambɛ",	u"zambraa"),#	deceive
+	(None,None,u"wufu",	u"wufe",	u"wufrʌʌ"),#	borrow
+	(None,None,u"zɩgamsʊ",	u"zɩgamsɛ",	u"zɩgamsraa"),#	be dirty
+	(None,None,u"hɛ̃msʊ",	u"hɛ̃msɛ",	u"hɛ̃msraa"),#	meet
+	(None,None,u"leli",	u"lele",	u"lellʌʌ"),#	sing
+	(None,None,u"pɩlɩ",	u"pɩlɛ",	u"pɩllaa"),#	trample flat
+	(None,None,u"tarɩ",	u"tarɛ",	u"tataa"),#	plaster
+	(None,None,u"fɛrɩ",	u"fɛrɛ",	u"fɛtaa"),#	cultivate
+	(None,None,u"tʊrʊ",	u"tʊrɛ",	u"tʊtaa"),#	introduce
+]))
+
+
+nineProblems = [
+# Problem('''
+# 1.	Slovak
+# 	The focus of this problem is the underlying representation of diphthongs. Discuss the underlying status of diphthongs in Slovak, based on these data. Nouns in Slovak come in three genders, which determines what suffix if any is used in the nominative singular: masculines have no suffix, feminines have -a, and neuters have -o.
+
+# A.	There is a process of lengthening which takes place in certain morphological contexts, including the genitive plural and the diminutive.
+# ''',
+# #	nom. sg	gen. pl.
+        
+# 	lipa	li:p	‘linden tree’
+# 	muxa	mu:x	‘fly’
+# 	lopata	lopa:t	‘shovel’
+# 	sr̩na	sr̩:n	‘deer’
+# 	žena	žien	‘woman’
+# 	kazeta	kaziet	‘box’
+# 	hora	huor	‘forest’
+# 	sirota	siruot	‘orphan’
+# 	pæta	piat	‘heel’
+# 	mæta	miat	‘mint’
+# 	kopito	kopi:t	‘hoof’
+# 	bruxo	bru:x	‘belly’
+# 	blato	bla:t	‘mud’
+# 	salto	sa:lt	‘somersault’
+# 	embargo	emba:rg	‘embargo’
+# 	yabl̩ko	yabl̩:k	‘apple’
+# 	koleso	kolies	‘wheel’
+# 	lono	luon	‘lap’
+# 	hovædo	hoviad	‘beast’
+# 	vla:da	vla:d	‘government’
+# 	blu:za	blu:z	‘blouse’
+# 	dla:to	dla:t	‘chisel’
+# 	vi:no	vi:n	‘vine’
+# 	čiara	čiar	‘line’
+# 	hniezdo	hniezd	‘nest’
+
+# 	noun	diminutive
+# 	hrad	hra:dok	‘castle’
+# 	list	li:stok	‘leaf’
+# 	xl̩p	xl̩:pok	hair’
+# 	kvet	kvietok	flower’
+# 	hovædo	hoviadok	‘beast’
+
+# B.	There is also a shortening rule that applies in certain morphological contexts, including the imperfective of verbs and the comparative of adjectives.
+
+# 	perfective	imperfective
+# 	odli:sity	odlisovaty	‘to distinguish’
+# 	ku:pity	kupovaty	‘to buy’
+# 	ohla:sity	ohlasovaty	‘to announce’
+# 	predl̩:žity	predl̩zovaty	‘to extend’
+# 	oblietaty	obletovaty	‘to fly around’
+# 	uviazaty	uvæzovaty	‘to bind’
+
+# 	adjective	comparative
+# 	bli:ski	blišši:	‘near’
+# 	u:ski	ušši:	‘narrow’
+# 	kra:tki	kratši:	‘short’
+# 	bieli	belši:	‘white’
+# 	rietki	retši:	‘rare’
+
+# C.	There is an alternation in the form of case suffixes which is governed by properties of the stem which precedes
+
+# 	nom. sg.	gen. sg.	nom. pl.	dat. pl.	loc. pl.
+# 	mesto	mesta	mesta:	mesta:m	mesta:x	‘town’
+# 	blato	blata	blata:	blata:m	blata:x	‘mud’
+# 	hovædo	hovæda	hovæda:	hovæda:m	hovæda:x	‘town’
+# 	pi:smeno	pi:smena	pi:smena:	pi:smena:m	pi:smena:x	‘letter’
+# 	za:meno	za:mena	za:mena:	za:mena:m	za:mena:x	‘pronoun’
+# 	dla:to	dla:ta	dla:ta	dla:tam	dla:tax	‘town’
+# 	vi:no	vi:na	vi:na	vi:nam	vi:nax	‘wine’
+# 	hniezdo	hniezda	hniezda	hniezdam	hniezdax	‘nest’
+
+# D.	The rule that explains the alternations in C also explains why a rule motivated by the data in A seems not to have applied.
+
+# 	nom. sg.	gen. pl.
+# 	za:hrada	za:hrad	‘garden’
+# 	ni:žina	ni:žin	‘hollow’
+# 	za:toka	za:tok	‘inlet’
+# 	pi:smeno	pi:smen	‘letter’
+# 	za:meno	za:men	‘pronoun’
+# 	liečivo	liečiv	‘drug’
+
+# E.	Some stems underlyingly end with consonant clusters, and undergo a process of vowel epenthesis that eliminates certain kinds of consonant clusters.
+
+# 	nom. sg	gen. pl.
+# 	ikra	ikier	‘roe’	(cf. also ikernati: ‘abounding in roe’)
+# 	ihla	ihiel	‘needle’
+# 	dogma	dogiem	‘dogma’
+# 	sosna	sosien	‘pine tree’
+# 	bedro	bedier	‘hip’
+# 	radlo	radiel	‘plow’
+# 	hradba	hradieb	‘rampart’
+# 	doska	dosiek	‘board’
+# 	kri:dlo	kri:del	‘wing’
+# 	či:slo	či:sel	‘number’
+# 	pa:smo	pa:sem	‘zone’
+# 	vla:kno	vla:ken	‘fiber’
+# 	pla:tno	pla:ten	‘linen’
+# ''')]
+]

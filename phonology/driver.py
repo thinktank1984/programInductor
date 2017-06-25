@@ -1,4 +1,4 @@
-from problems import underlyingProblems,interactingProblems
+from problems import underlyingProblems,interactingProblems,sevenProblems,nineProblems
 from countingProblems import CountingProblem
 from utilities import *
 
@@ -94,8 +94,15 @@ def inflectionAccuracy(solution, inflections, bank):
 def handleProblem(parameters):
     problemIndex = parameters['problemIndex']
     random.seed(parameters['seed'] + problemIndex)
-        
-    p = underlyingProblems[problemIndex - 1] if problemIndex < 50 else interactingProblems[problemIndex - 1 - 50]
+
+    if problemIndex < 50:
+        p = underlyingProblems[problemIndex - 1]
+    elif str(problemIndex)[0] == '5':
+        p = interactingProblems[int(str(problemIndex)[1:]) - 1]
+    elif str(problemIndex)[0] == '7':
+        p = sevenProblems[int(str(problemIndex)[1:]) - 1]
+    elif str(problemIndex)[0] == '9':
+        p = nineProblems[int(str(problemIndex)[1:]) - 1]
 
     if parameters['redirect']:
         redirectName = "multicore_output/%d"%problemIndex
