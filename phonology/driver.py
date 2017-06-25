@@ -112,10 +112,9 @@ def handleProblem(parameters):
         sys.stdout = handle
         #        sys.stderr = handle
     
-    print u"t"
     print p.description
     if problemIndex != 7:
-        print latexMatrix(p.data)
+        print u"\n".join([ u"\t".join(inflections) for inflections in p.data ])
     else:
         print CountingProblem(p.data, p.parameters).latex()
 
