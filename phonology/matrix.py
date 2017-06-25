@@ -157,14 +157,20 @@ class UnderlyingProblem():
                         suffixes = solution.suffixes,
                         underlyingForms = us)
 
-    def fastTopRules(self, solution, k):
+    def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
+        if maximumNumberOfSolutions != None:
+            # enforce k^d < maximumNumberOfSolutions
+            # k < maximumNumberOfSolutions**(1/d)
+            k = int(min(k,maximumNumberSolutions**(1.0/k)))
+        
         inputs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
                    for j in range(len(self.data))
                    for i in range(self.numberOfInflections) ]
 
         def f(xs, rs):
             if rs == []: return [[]]
-            ys = [ Morph.fromMatrix(rs[0].apply(x)) for x in xs ]            
+            ys = [ self.applyRule(rs[0],x) #Morph.fromMatrix(rs[0].apply(x))
+                   for x in xs ]            
             alternatives = solveTopSupervisedRules(zip(xs,ys), k, rs[0])
             suffixes = f(ys, rs[1:])
             return [ [a] + s
@@ -534,7 +540,7 @@ class UnderlyingProblem():
                 if beam > 1:
                     worker = UnderlyingProblem(trainingData, 0, self.bank)
                     solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                                      for s in worker.solveTopRules(solution, beam) ]
+                                      for s in (worker.solveTopRules(solution, beam) if solution.depth < 3 else worker.fastTopRules(solution, beam, maximumNumberOfSolutions = 1000) ]
                     print "Alternative solutions and their scores:"
                     for c,s in solutionScores:
                         print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
