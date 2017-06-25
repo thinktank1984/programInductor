@@ -161,7 +161,7 @@ class UnderlyingProblem():
         if maximumNumberOfSolutions != None:
             # enforce k^d < maximumNumberOfSolutions
             # k < maximumNumberOfSolutions**(1/d)
-            k = int(min(k,maximumNumberSolutions**(1.0/k)))
+            k = int(min(k,maximumNumberOfSolutions**(1.0/k)))
         
         inputs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
                    for j in range(len(self.data))
@@ -701,3 +701,23 @@ class UnderlyingProblem():
             setVerbosity(0)
             print "MDL:",mdl+population[0].modelCost()
 
+
+    def randomSampleSolver(self, N = 10, lower = 2, upper = 8):
+        # construct random subsets
+        subsets = []
+        for _ in range(N):
+            startingPoint = choice(range(len(self.data) - lower))
+            size = choice(range(upper - lower)) + 1
+            endingPoint = startingPoint + size
+            subsets.append(self.data[startingPoint:endingPoint])
+
+        for subset in subsets:
+            worker = UnderlyingProblem(subset, 1)
+            ss = worker.counterexampleSolution(10)
+
+            print " [+] Random sample solver: Training data:"
+            print u"\n".join([u"\t".join(xs) for xs in subset ])
+            print " Solutions:"
+            for s in ss: print s
+            print 
+            

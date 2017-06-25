@@ -363,7 +363,7 @@ generator Rule unknown_rule() {
 		  structural_change = {| null | unknown_specification() |},
 		  left_trigger = unknown_guard(),
 		  right_trigger = unknown_guard(),
-		  copyOffset = {| 0 | 1 | -1 | -2 | +2 |});
+		  copyOffset = {| 0 | 1 | -1 | -2 | 2 |});
 }
 
 int alternation_cost(Rule r) {
@@ -453,6 +453,19 @@ Word apply_rule(Rule r, Word u) {
     }
     right_okay[j] = _r;
   }
+  bit right_final_okay = 0; // think of this as right_okay[-1]
+  if (right_trigger.starred) {
+    right_final_okay = rightAccepting;
+  } else if (!right_trigger.endOfString) {
+    if (right_trigger.spec == null) right_final_okay = 1;
+    else {
+      right_final_okay =
+	 matches_specification(u.s[0], right_trigger.spec);
+      right_final_okay = right_final_okay &&
+	(right_trigger.spec2 == null ||
+	  matches_specification(u.s[1], right_trigger.spec2));
+    }
+  }
   
   // State machine for starred: either in accepting or rejecting state
   bit leftAccepting = 0;
@@ -494,6 +507,18 @@ Word apply_rule(Rule r, Word u) {
     }
     left_okay[j] = _left_okay;
   }
+  bit left_final_okay = 0; // think of this as left_okay[u.l]
+  if (left_trigger.starred) {
+    left_final_okay = leftAccepting;
+  } else if(!left_trigger.endOfString) {
+    if (left_trigger.spec == null) left_final_okay = 1;
+    else {
+      left_final_okay = matches_specification(u.s[u.l - 1], left_trigger.spec);
+      left_final_okay = left_final_okay && (left_trigger.spec2 == null ||
+					     matches_specification(u.s[u.l - 2], left_trigger.spec2));
+    }
+  }
+
 
   bit[u.l] middle_okay;
   for (int j = 0; j < u.l; j++) {
@@ -534,7 +559,7 @@ Word apply_rule(Rule r, Word u) {
     // special case: / L_#
     if (right_trigger.endOfString && right_trigger.spec == null) {
       output[0::u.l] = u.s;
-      output_length = u.l + left_okay[u.l - 1];
+      output_length = u.l + left_final_okay;
       output[u.l] =
 	r.copyOffset == 0 ?
 	extract_constant_sound(structural_change) :
@@ -543,9 +568,9 @@ Word apply_rule(Rule r, Word u) {
 	    u.l + r.copyOffset];
     } else if (left_trigger.endOfString && left_trigger.spec == null) {
       // special case: / #_R
-      output_length = u.l + right_okay[0];
-      output[right_okay[0]::u.l]= u.s;
-      if (right_okay[0]) {
+      output_length = u.l + right_final_okay;
+      output[right_final_okay::u.l]= u.s;
+      if (right_final_okay) {
 	output[0] = r.copyOffset == 0 ?
 	  extract_constant_sound(structural_change) :
 	  u.s[right_trigger.endOfString ?
@@ -556,7 +581,7 @@ Word apply_rule(Rule r, Word u) {
       int inserted = 0;
       for (int j = 0; j < u.l; j++) {
 	if (j > 0 && left_okay[j] && right_okay[j-1]) {
-	    assert inserted == 0;
+	  assert inserted == 0;
 	  inserted = 1;
 	  output[j] = extract_constant_sound(structural_change);
 	}

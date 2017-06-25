@@ -129,6 +129,8 @@ def handleProblem(parameters):
         if parameters['testing'] == 0.0:
             if parameters['stochastic']:
                 UnderlyingProblem(p.data, 1).stochasticSearch(20, parameters['beam'])
+            elif parameters['randomSample']:
+                UnderlyingProblem(p.data, 1).randomSampleSolver()
             else:
                 ss = UnderlyingProblem(p.data, 1).incrementallySolve(stubborn = parameters['stubborn'],
                                                                      beam = parameters['beam'])
@@ -177,6 +179,7 @@ if __name__ == '__main__':
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
     parser.add_argument('--stubborn', default = False, action = 'store_true')
+    parser.add_argument('--randomSample', default = False, action = 'store_true')
     parser.add_argument('--stochastic', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
@@ -207,6 +210,7 @@ if __name__ == '__main__':
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,
                    'testing': testing,
+                   'randomSample': arguments.randomSample,
                    'universalGrammar': arguments.universal.split(','),
                    'top': arguments.top,
                    'threshold': arguments.threshold,
