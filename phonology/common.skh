@@ -394,6 +394,8 @@ Word apply_rule(Rule r, Word u) {
   if (right_trigger.spec == null) assert right_trigger.spec2 == null;
   if (focus != null) assert r.copyOffset == 0; // not inserting so don't copy
   if (r.copyOffset != 0) assert empty_specification(structural_change);
+  // K > [features] is always equivalent to K > K at a cost which is no greater
+  if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;
 #ifdef SYLLABLEBOUNDARYFEATURE
   // Syllables are encoded only as the special syllable phoneme
   assert !has_syllable_feature(left_trigger.spec);
