@@ -11,7 +11,7 @@ from supervised import solveTopSupervisedRules
 from latex import latexMatrix
 from UG import str2ug #FlatUG, ChomskyUG, FeatureUG, SkeletonUG, SkeletonFeatureUG
 
-
+from pathos.multiprocessing import ProcessingPool as Pool
 import random
 import sys
 import pickle
@@ -410,7 +410,9 @@ class UnderlyingProblem():
         output = self.solveSketch()
         if output == None:
             print "\t(no modification possible)"
-            raise SynthesisFailure("No satisfying modification possible.")
+            # Because these are executed in parallel, do not throw an exception
+            return None
+            #raise SynthesisFailure("No satisfying modification possible.")
 
         loss = parseMinimalCostValue(output)
         print "\t(modification successful; loss = %d)"%loss
@@ -456,18 +458,10 @@ class UnderlyingProblem():
         ruleVectors += [ [None] + [ (r if k else None) for k,r in zip(v,solution.rules) ]
                          for v in everyBinaryVector(nr,nr - radius + 1) ]
 
-        allSolutions = []
-        for v in ruleVectors:
-            try:
-                s = self.sketchChangeToSolution(solution, v,
-                                                costUpperBound = None if bestSolution == None else bestSolution.adjustedCost)
-                allSolutions.append(s)
-                if bestSolution == None or s.cost() < bestSolution.cost():
-                    bestSolution = s
-            except SynthesisFailure: pass
-        if bestSolution:
-            return sorted(allSolutions,key = lambda s: s.cost())
-        raise SynthesisFailure('incremental change')
+        allSolutions = Pool(10).map(lambda v: self.sketchChangeToSolution(solution,v), ruleVectors)
+        allSolutions = [ s for s in allSolutions if s != None ]
+        if allSolutions == []: raise SynthesisFailure('incremental change')
+        return sorted(allSolutions,key = lambda s: s.cost())
         
         
     def incrementallySolve(self, stubborn = False, beam = 1):
@@ -499,7 +493,7 @@ class UnderlyingProblem():
                 slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
                 try:
                     solutions = slave.sketchIncrementalChange(solution, radius)
-                    if len(solutions) == 1: solution = solutions
+                    if len(solutions) == 1: solution = solutions[0]
                     else: # see which of the solutions is best overall
                         assert solutions != []
                         solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
