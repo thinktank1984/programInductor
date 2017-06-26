@@ -461,7 +461,7 @@ class UnderlyingProblem():
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
         solution.clearTransducers()
-        allSolutions = Pool(10).map(lambda v: self.sketchChangeToSolution(solution,v), ruleVectors)
+        allSolutions = Pool(30).map(lambda v: self.sketchChangeToSolution(solution,v), ruleVectors)
         allSolutions = [ s for s in allSolutions if s != None ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
