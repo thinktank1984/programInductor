@@ -469,7 +469,7 @@ class UnderlyingProblem():
         
     def incrementallySolve(self, stubborn = False, beam = 1):
         # start out with just the first example
-        print "Starting out with explaining just the first two examples:"
+        print "Starting out with explaining just the first 2 examples:"
         trainingData = self.data[:2]
         slave = UnderlyingProblem(trainingData, 1, self.bank)
         solution = slave.sketchJointSolution(canAddNewRules = True)
@@ -496,15 +496,20 @@ class UnderlyingProblem():
                 slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
                 try:
                     solutions = slave.sketchIncrementalChange(solution, radius)
-                    if len(solutions) == 1: solution = solutions[0]
-                    else: # see which of the solutions is best overall
-                        assert solutions != []
-                        solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                                          for s in solutions ]
-                        solution = min(solutionScores)[1]
-                    print solution
-                    newExample = ce
-                    break
+                    assert solutions != []
+                    # see which of the solutions is best overall
+                    solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                                      for s in solutions ]
+                    newJointScore, newSolution = min(solutionScores)
+                    print " Best new solution:"
+                    print newSolution
+                    if newJointScore < solution.modelCost() + self.solutionDescriptionLength(solution):
+                        newExample = ce
+                        solution = newSolution
+                        break
+                    else:
+                        print "But, this does not yield better compression on the whole data set."
+                        if stubborn: break
                 except SynthesisFailure:
                     print "But, cannot incrementally change rules right now to accommodate that example."
                     # stubborn: insist on explaining earlier examples before explaining later examples
