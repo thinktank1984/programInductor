@@ -106,6 +106,8 @@ class Solution():
             self.savedInflectionTransducers = [ m.compose(phonology) for m in self.morphologyTransducers(bank) ]
         return self.savedInflectionTransducers
 
+    def clearTransducers(self): del self.savedInflectionTransducers
+
     def transduceUnderlyingForm(self, bank, surfaces):
         try:
             transducers = self.inflectionTransducers(bank)

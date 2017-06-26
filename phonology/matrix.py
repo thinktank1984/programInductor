@@ -458,6 +458,9 @@ class UnderlyingProblem():
         ruleVectors += [ [None] + [ (r if k else None) for k,r in zip(v,solution.rules) ]
                          for v in everyBinaryVector(nr,nr - radius + 1) ]
 
+        # parallel computation involves pushing the solution through a pickle
+        # so make sure you do not pickle any transducers
+        solution.clearTransducers()
         allSolutions = Pool(10).map(lambda v: self.sketchChangeToSolution(solution,v), ruleVectors)
         allSolutions = [ s for s in allSolutions if s != None ]
         if allSolutions == []: raise SynthesisFailure('incremental change')

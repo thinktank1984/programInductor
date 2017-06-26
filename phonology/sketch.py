@@ -98,7 +98,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     startTime = time()
     flushEverything()
     os.system(command)
-    print "Ran the solver in %f"%(time() - startTime)
+    print "Ran the solver in %02f sec"%(time() - startTime)
     flushEverything()
     
     output = open(outputFile,'r').read()
