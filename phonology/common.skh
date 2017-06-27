@@ -379,7 +379,7 @@ int guard_cost(Guard g) {
 }
 
 // apply_guard(u, g)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
-bit[l+1] apply_guard([int l], Sound[l] u, Guard g){
+bit[l+1] apply_guard([int l], Sound[l] u, Guard g) {
   // guard sanity checks
   if (g.spec == null) assert g.spec2 == null;
   if (g.starred) { // * applies to the second specification
@@ -517,57 +517,8 @@ Word apply_rule(Rule r, Word u) {
     }
   }
   
-  // State machine for starred: either in accepting or rejecting state
-  bit leftAccepting = 0;
-  bit[u.l] left_okay;
-
-  for (int j = 0; j < u.l; j++) {
-    // Check to see if the left matches
-    bit _left_okay = 1;
-    if (left_trigger.starred) {
-      if (j == 0) {
-	_left_okay = 0;
-	leftAccepting = matches_specification(u.s[0], left_trigger.spec2);
-      } else {
-	_left_okay = leftAccepting;
-	leftAccepting =
-	  (!left_trigger.endOfString && matches_specification(u.s[j], left_trigger.spec2))
-	  || (leftAccepting && matches_specification(u.s[j], left_trigger.spec));
-      }
-    } else if (left_trigger.endOfString && left_trigger.spec == null) { // #_
-      _left_okay = j == 0;
-    } else if (left_trigger.spec != null) {
-      _left_okay = j > 0;
-      _left_okay = _left_okay && (
-#ifdef SYLLABLEBOUNDARYFEATURE
-				  is_syllable_specification(left_trigger.spec)?
-				  syllable_starting_at(u,j - 1) != -1 :
-#endif
-				  matches_specification(u.s[j - 1], left_trigger.spec));
-      if (left_trigger.spec2 != null) // (#?)gg_
-	_left_okay = _left_okay && j > 1 && matches_specification(u.s[j - 2], left_trigger.spec2);
-
-      if (left_trigger.endOfString) {
-	if (left_trigger.spec2 == null) {
-	  _left_okay = _left_okay && (j == 1);
-	} else {
-	  _left_okay = _left_okay && (j == 2);
-	}
-      }
-    }
-    left_okay[j] = _left_okay;
-  }
-  bit left_final_okay = 0; // think of this as left_okay[u.l]
-  if (left_trigger.starred) {
-    left_final_okay = leftAccepting;
-  } else if(!left_trigger.endOfString) {
-    if (left_trigger.spec == null) left_final_okay = 1;
-    else {
-      left_final_okay = matches_specification(u.s[u.l - 1], left_trigger.spec);
-      left_final_okay = left_final_okay && (left_trigger.spec2 == null ||
-					     matches_specification(u.s[u.l - 2], left_trigger.spec2));
-    }
-  }
+  bit[u.l + 1] left_okay = apply_guard(u.s,left_trigger);
+  bit left_final_okay = left_okay[u.l];
 
 
   bit[u.l] middle_okay;
@@ -575,7 +526,9 @@ Word apply_rule(Rule r, Word u) {
     middle_okay[j] = focus == null || matches_specification(u.s[j], focus);
   }
 
-  bit[u.l] triggered = middle_okay&right_okay&left_okay;
+  bit[u.l] triggered;
+  for (int j = 0; j < u.l; j++)
+    triggered[j] = middle_okay[j] && right_okay[j] && left_okay[j];
 
   int output_length; // how long is the output
   // Deletion rule

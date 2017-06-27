@@ -42,7 +42,7 @@ class UnderlyingProblem():
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
     def solveSketch(self, minimizeBound = 31):
-        return solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
+        return solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
     def applyRule(self, r, u):
         t = r.fst(self.bank)
@@ -298,7 +298,7 @@ class UnderlyingProblem():
 
             self.conditionOnData(rules, stems, prefixes, suffixes)
 
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength, showSource = False)
+            output = self.solveSketch()
             if not output:
                 raise SynthesisFailure("Failed at morphological analysis.")
 

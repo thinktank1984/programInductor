@@ -131,9 +131,11 @@ def handleProblem(parameters):
                 UnderlyingProblem(p.data, 1).stochasticSearch(20, parameters['beam'])
             elif parameters['randomSample']:
                 UnderlyingProblem(p.data, 1).randomSampleSolver()
-            else:
+            elif parameters['incremental']:
                 ss = UnderlyingProblem(p.data, 1).incrementallySolve(stubborn = parameters['stubborn'],
                                                                      beam = parameters['beam'])
+            else:
+                ss = UnderlyingProblem(p.data, 1).counterexampleSolution()
             print "ss = "
             print ss
             ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
@@ -181,6 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--stubborn', default = False, action = 'store_true')
     parser.add_argument('--randomSample', default = False, action = 'store_true')
     parser.add_argument('--stochastic', default = False, action = 'store_true')
+    parser.add_argument('--incremental', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
@@ -217,6 +220,7 @@ if __name__ == '__main__':
                    'redirect': False,
                    'stubborn': arguments.stubborn,
                    'beam': arguments.beam,
+                   'incremental': arguments.incremental,
                    'stochastic': arguments.stochastic,
                    }
                   for problemIndex in problems
