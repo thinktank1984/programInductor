@@ -378,6 +378,54 @@ int guard_cost(Guard g) {
 		      g.starred);
 }
 
+// apply_guard(u, g)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
+bit[l+1] apply_guard([int l], Sound[l] u, Guard g){
+  // guard sanity checks
+  if (g.spec == null) assert g.spec2 == null;
+  if (g.starred) { // * applies to the second specification
+    assert g.spec != null && g.spec2 != null;
+    // do not put a star on constant
+    assert !constant_specification(g.spec);
+  }
+
+  bit[l + 1] okay;
+  // the only way that the empty string can be matched by .*g is if g is either empty or #
+  // # by itself entails that both of the specifications are null
+  okay[0] = (g.spec == null && g.spec2 == null);
+
+  // State machine for starred: either in accepting or rejecting state
+  bit accepting = 0;
+  for (int j = 1; j <= l; j++) {
+    Sound this_sound = u[j - 1];
+    bit this_is_okay = 1;
+    if (g.starred) { // (#?)gg*
+      bit stay_in_accepting_state = accepting && matches_specification(this_sound, g.spec);
+      if (!g.endOfString) { // gg*_
+	accepting = matches_specification(this_sound, g.spec2) || stay_in_accepting_state;
+      } else { // #gg*_
+	accepting = matches_specification(u[0], g.spec2) &&
+	  (j == 1 || stay_in_accepting_state);
+      }
+      this_is_okay = accepting;
+    } else if (g.endOfString && g.spec == null) { // #_
+      this_is_okay = 0;
+    } else { // #?g?g?
+      this_is_okay = this_is_okay && (g.spec == null || matches_specification(this_sound, g.spec));
+      this_is_okay = this_is_okay && (g.spec2 == null || (j > 1 && matches_specification(u[j - 2], g.spec2)));
+      if (g.endOfString) {
+	// #g _
+	if (g.spec2 == null) this_is_okay = this_is_okay && j == 1;
+	// #gg _
+	else                 this_is_okay = this_is_okay && j == 2;
+      }
+    }
+
+    okay[j] = this_is_okay;
+  }
+
+  return okay;
+}
+
 int rule_cost(Rule r) {
   return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
 		      specification_cost(r.focus) + specification_cost(r.structural_change));
