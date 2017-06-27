@@ -421,11 +421,13 @@ class UnderlyingProblem():
             print makeSketch(self.bank)
             assert False
 
+        compositeRules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
+                           for r,rp in zip(rules,originalRules) ]
         return Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                         suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
                         underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                        rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
-                                  for r,rp in zip(rules,originalRules) ],
+                        rules = [ r for r in compositeRules
+                                  if len(compositeRules) == 1 or (not r.doesNothing()) ],
                         adjustedCost = loss)
 
     def sketchIncrementalChange(self, solution, radius = 1):
@@ -465,9 +467,11 @@ class UnderlyingProblem():
         allSolutions = [ s for s in allSolutions if s != None ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
-        
-        
+
     def incrementallySolve(self, stubborn = False, beam = 1):
+        return null
+        
+    def _incrementallySolve(self, stubborn = False, beam = 1):
         # start out with just the first example
         print "Starting out with explaining just the first 2 examples:"
         trainingData = self.data[:2]
