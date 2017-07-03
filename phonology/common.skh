@@ -178,30 +178,44 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
 
 #ifdef SYLLABLEBOUNDARYFEATURE
 int syllable_starting_at(Word u, int e) {
-  // returns -1 if there is no syllable starting at e
+  if (e < 0 || e >= u.l) return -1;
+  // returns a negative number if there is no syllable starting at e
   // returns the index of the end of the syllable otherwise
-  if (e == 0 || u[e] == SYLLABLEBOUNDARYPHONEME) {
+  if (e == 0 || u[e - 1] == SYLLABLEBOUNDARYPHONEME) { // before the beginning of the syllable should be the end of another syllable
     for (int d = 1; d < 4; d++) {
       int test_index = e + d;
-      if (test_index == u.l) return u.l - 1;
+      if (test_index == u.l) return -1;
       if (u[test_index] == SYLLABLEBOUNDARYPHONEME)
-	return test_index - 1;
+	return test_index;
     }
   }
   return -1;
 }
+bit is_syllable_starting_at(Word u,int e){ return syllable_starting_at(u,e) != -1; }
+bit are_two_syllables_starting_at(Word u,int e){
+  e = syllable_starting_at(u,e);
+  if (e == -1) return 0;
+  return syllable_starting_at(u,e + 1) != -1;
+}
 int syllable_ending_at(Word u, int e) {
-  // returns -1 if there is no syllable ending at e
+  if (e < 0 || e >= u.l) return -1;
+  // returns a negative number if there is no syllable ending at e
   // returns the index of the start of the syllable otherwise
-  if (e == u.l || u[e] == SYLLABLEBOUNDARYPHONEME) {
+  if (u[e] == SYLLABLEBOUNDARYPHONEME) {
     for (int d = 1; d < 4; d++) {
       int test_index = e - d;
-      if (test_index == 0) return 0;
-      if (u[test_index] == SYLLABLEBOUNDARYPHONEME)
+      if (test_index == 0) return 0; // butting up against the start of the word
+      if (u[test_index] == SYLLABLEBOUNDARYPHONEME) // butting up against the previous syllable
 	return test_index + 1;
     }
   }
   return -1;
+}
+bit is_syllable_ending_at(Word u,int e) { return syllable_ending_at(u,e) == -1; }
+bit are_two_syllables_ending_at(Word u,int e){
+  e = syllable_ending_at(u,e);
+  if (e != -1) return 0;
+  return syllable_ending_at(u,e - 1) != -1;
 }
 int is_syllable_specification(Specification s) {
   if (s == null) { return 0; }
@@ -378,7 +392,16 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R){
     assert g.spec != null && g.spec2 != null;
     // do not put a star on constant
     assert !constant_specification(g.spec);
+#ifdef SYLLABLEBOUNDARYFEATURE
+    // todo: allow star on and with syllable
+    assert !is_syllable_specification(g.spec);
+    assert !is_syllable_specification(g.spec2);
+#endif
   }
+#ifdef SYLLABLEBOUNDARYFEATURE
+  if (is_syllable_specification(g.spec2))
+    assert is_syllable_specification(g.spec);
+#endif
 
 
   // The index counts how many sounds we have consumed from the input
@@ -418,16 +441,41 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R){
     } else if (g.endOfString && g.spec == null) { // #_
       this_is_okay = 0;
     } else { // #?g?g?
-      this_is_okay = this_is_okay && (g.spec == null || matches_specification(this_sound, g.spec));
+      this_is_okay = this_is_okay && (g.spec == null || (
+#ifdef SYLLABLEBOUNDARYFEATURE
+				      is_syllable_specification(g.spec)?
+				      (R? is_syllable_starting_at(u,index2sound(j)) : is_syllable_ending_at(u,index2sound(j))) :
+#endif
+				      matches_specification(this_sound, g.spec)));
+
       // This is the index of whatever we were looking at in the previous loop iteration
       int secondary_index = index2sound(j - 1); //R? (l + 1 - j):(j - 2);
-      this_is_okay = this_is_okay && (g.spec2 == null ||
-				      (j > 1 && matches_specification(u[secondary_index], g.spec2)));
+      this_is_okay = this_is_okay && (g.spec2 == null || (
+#ifdef SYLLABLEBOUNDARYFEATURE
+				      is_syllable_specification(g.spec2)?
+				      (R? are_two_syllables_starting_at(u,index2sound(j))
+				       : are_two_syllables_ending_at(u,index2sound(j))) :
+#endif
+				      (j > 1 && matches_specification(u[secondary_index], g.spec2))));
+
       if (g.endOfString) { // is this off by one???
 	// #g _
-	if (g.spec2 == null) this_is_okay = this_is_okay && j == 1;
+	if (g.spec2 == null) this_is_okay = this_is_okay && (
+#ifdef SYLLABLEBOUNDARYFEATURE
+			       is_syllable_specification(g.spec)?
+			       (R? syllable_starting_at(u,index2sound(j)) == u.l - 1
+				: syllable_ending_at(u,index2sound(j)) == 0) :
+#endif
+			       j == 1);
+
 	// #gg _
-	else                 this_is_okay = this_is_okay && j == 2;
+	else                 this_is_okay = this_is_okay && (
+#ifdef SYLLABLEBOUNDARYFEATURE
+			       is_syllable_specification(g.spec2)?
+			       (R? syllable_starting_at(u,syllable_starting_at(u,index2sound(j))+1) == u.l - 1
+				: syllable_ending_at(u,syllable_ending_at(u,index2sound(j))-1) == 0) :
+#endif
+			       j == 2);
       }
     }
 

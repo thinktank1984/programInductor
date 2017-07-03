@@ -25,7 +25,7 @@ def sampleConsonant():
 def sampleSyllable():
     v = sampleVowel()
     k = sampleConsonant()
-    return k + v
+    return k + v + u"-"
 def sampleAB():
     while True:
         s = sampleSyllable()
@@ -46,82 +46,18 @@ def sampleABB(n):
     return l
 def sampleABX(n):
     l = []
-    x = sampleConsonant()
+    x = sampleSyllable()
     for _ in range(n):
         s,d = sampleAB()
         l.append(s + d + x)
     return l
 def sampleAAX(n):
     l = []
-    x = sampleConsonant()
+    x = sampleSyllable()
     for _ in range(n):
         a = sampleSyllable()
         l.append(a + a + x)
     return l
-
-def paretoFront(depth, observations, k = 1):
-    if depth == 0: k = 0 # top k doesn't apply here
-    
-    bank = FeatureBank([ w for w in observations ])
-    maximumObservationLength = max([ len(tokenize(w)) for w in observations ]) + 1
-
-    def conditionOnExample(r, x):
-        print x
-        u = Morph.sample()
-        x = makeConstantWord(bank, x)
-        condition(wordEqual(x, applyRules(r, u)))
-        return u
-
-    Model.Global()
-    rules = [ Rule.sample() for _ in range(depth) ]
-    def applyRules(r,x):
-        if len(r) == 0: return x
-        return applyRules(r[1:], applyRule(r[0], x))
-
-    underlyingForms = [ conditionOnExample(rules,x) for x in observations ]
-    cost = sum([ wordLength(u) for u in underlyingForms ])
-    costVariable = unknownInteger()
-    condition(costVariable == cost)
-    minimize(cost)
-    ruleCostExpression = sum([ ruleCost(r) for r in rules ])
-    ruleCostVariable = unknownInteger()
-    condition(ruleCostVariable == ruleCostExpression)
-    if len(rules) > 0:
-        minimize(ruleCostExpression)
-
-    solutions = []
-    solutionCosts = []
-    for _ in range(k):
-        # Excludes solutions we have already found
-        for rc,uc in solutionCosts:
-            condition(And([ruleCostExpression == rc,cost == uc]) == 0)
-        
-        output = solveSketch(bank, maximumObservationLength)
-
-        print "Underlying forms:"
-        us = [ Morph.parse(bank, output, u) for u in underlyingForms ]
-        print "\n".join(map(str,us))
-        rs = [ Rule.parse(bank, output, r) for r in rules ]
-        rc = sum([r.cost() for r in rs ])
-        uc = sum([len(u) for u in us ])
-        print "Rules:"
-        print "\n".join(map(str,rs))
-        solutions.append((rs,us))
-        print "Costs:",(rc,uc)
-        actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, costVariable))
-        assert actualCosts == (rc,uc)
-        (rc,uc) = actualCosts
-        solutionCosts.append((rc,uc))
-
-    if len(solutions) > 0:
-        optimalCost, optimalSolution = min([(uc + float(rc)/TEMPERATURE, s)
-                                            for ((rc,uc),s) in zip(solutionCosts, solutions) ])
-        print "Optimal solution:"
-        print "\n".join(map(str,optimalSolution[0]))
-        print "Optimal cost:",optimalCost
-    
-    
-    return solutions, solutionCosts
 
 def removePointsNotOnFront(points):
     points = list(set(points))
@@ -133,75 +69,6 @@ def removePointsNotOnFront(points):
                 toRemove.append(p)
     return [ p for p in points if not p in toRemove ]
 
-
-def topSolutions(depth, observations, k = 1):
-    if depth == 0: k = 0 # top k doesn't apply here
-    
-    bank = FeatureBank([ w for w in observations ])
-    maximumObservationLength = max([ len(tokenize(w)) for w in observations ]) + 1
-
-    def conditionOnExample(r, x):
-        print x
-        u = Morph.sample()
-        x = makeConstantWord(bank, x)
-        condition(wordEqual(x, applyRules(r, u)))
-        return u
-
-    Model.Global()
-    rules = [ Rule.sample() for _ in range(depth) ]
-    def applyRules(r,x):
-        if len(r) == 0: return x
-        return applyRules(r[1:], applyRule(r[0], x))
-
-    underlyingForms = [ conditionOnExample(rules,x) for x in observations ]
-    cost = sum([ wordLength(u) for u in underlyingForms ])
-    minimize(cost)
-
-    output = solveSketch(bank, maximumObservationLength)
-    optimalCost = sum([ len(Morph.parse(bank, output, u)) for u in underlyingForms ])
-    print "Minimized the cost of the underlying forms: %d"%optimalCost
-    removeSoftConstraints()
-
-    condition(cost == optimalCost)
-    ruleCostExpression = sum([ ruleCost(r) for r in rules ])
-    if len(rules) > 0:
-        minimize(ruleCostExpression)
-
-    solutions = []
-    solutionCosts = []
-    for _ in range(k):
-        # Excludes solutions we have already found
-        for other,_ in solutions:
-            condition(And([ ruleEqual(r,o.makeConstant(bank)) for r,o in zip(rules,other) ]) == 0)
-        #because we want a nice front, force it to have a worst set of rules
-        # this constraint actually supersedes the previous one
-        if len(solutionCosts) > 0:
-            condition(ruleCostExpression > min([ rc for rc,uc in solutionCosts ]))
-        
-
-        output = solveSketch(bank, maximumObservationLength)
-
-        print "Underlying forms:"
-        us = [ Morph.parse(bank, output, u) for u in underlyingForms ]
-        print "\n".join(map(str,us))
-        rs = [ Rule.parse(bank, output, r) for r in rules ]
-        rc = sum([r.cost() for r in rs ])
-        uc = sum([len(u) for u in us ])
-        print "Rules:"
-        print "\n".join(map(str,rs))
-        solutions.append((rs,us))
-        print "Costs:",(rc,uc)
-        solutionCosts.append((rc,uc))
-
-    if len(solutions) > 0:
-        optimalCost, optimalSolution = min([(uc + float(rc)/TEMPERATURE, s)
-                                            for ((rc,uc),s) in zip(solutionCosts, solutions) ])
-        print "Optimal solution:"
-        print "\n".join(map(str,optimalSolution[0]))
-        print "Optimal cost:",optimalCost
-    
-    
-    return solutions, solutionCosts
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Generate and analyze synthetic rule learning problems ala Gary Marcus ABA/ABB patterns')
