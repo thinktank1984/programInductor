@@ -242,24 +242,24 @@ class UnderlyingProblem():
 
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
         
-        Model.Global()
+        # Model.Global()
 
-        stem = Morph.sample()
+        # stem = Morph.sample()
 
-        # Make the morphology/phonology be a global definition
-        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
-        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
-        rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
+        # # Make the morphology/phonology be a global definition
+        # prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
+        # suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
+        # rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
 
-        for r in rules: condition(fixStructuralChange(r))
+        # for r in rules: condition(fixStructuralChange(r))
 
-        self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
+        # self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        if output == None:
-            return False
-        else:
-            return Morph.parse(self.bank, output, stem)
+        # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+        # if output == None:
+        #     return False
+        # else:
+        #     return Morph.parse(self.bank, output, stem)
 
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None):
         affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
@@ -468,9 +468,77 @@ class UnderlyingProblem():
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
 
-    def incrementallySolve(self, stubborn = False, beam = 1):
-        return null
+    def incrementallySolve(self, beam = 1,stubborn = None):
+        print "I got stubborn =",stubborn,"but I'm going to ignore that and be stubborn anyways"
         
+        initialTrainingSize = 2
+        print "Starting out with explaining just the first %d examples:"%initialTrainingSize
+        trainingData = self.data[:initialTrainingSize]
+        worker = UnderlyingProblem(trainingData, 1, self.bank)
+        solution = worker.sketchJointSolution(canAddNewRules = True)
+
+        # Maintain the invariant: the first j examples have been explained
+        for j in range(initialTrainingSize, len(self.data)):
+            # Can we explain the jth example?
+            if self.verify(solution, self.data[j]): continue
+
+            radius = 1
+            while True:
+                try:
+                    worker = UnderlyingProblem(trainingData + [self.data[j]], 0, self.bank)
+                    solutions = worker.sketchIncrementalChange(solution, radius)
+                    assert solutions != []
+                    # see which of the solutions is best overall
+                    solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                                      for s in solutions ]
+                    newJointScore, newSolution = min(solutionScores)
+                    print " Best new solution:"
+                    print newSolution
+
+                    # Make sure that all of the previously explained data points are still explained
+                    # These "regressions" triggered the regressed test case being added to the training data
+                    haveRegression = False
+                    for alreadyExplained in self.data[:j]:
+                        if not self.verify(newSolution, alreadyExplained):
+                            haveRegression = True
+                            print "But that solution cannot explain an earlier data point, namely:"
+                            print u'\t~\t'.join(alreadyExplained)
+                            if alreadyExplained in trainingData:
+                                print " [-] FATAL: Already in training data!"
+                                assert False
+                            else:
+                                trainingData.append(alreadyExplained)
+                    if haveRegression:
+                        radius = 1
+                        continue
+                except SynthesisFailure:
+                    print "No incremental modification within radius of size %d"%radius
+                    radius += 1
+                    print "Increasing search radius to %d"%radius
+                    if radius > 2:
+                        print "I refuse to use a radius this big."
+                        return None
+
+                # Update both the training data and solution
+                trainingData.append(self.data[j])
+                solution = newSolution
+                
+                # Enumerate alternative hypotheses and pick the one that gives the best joint score
+                worker = UnderlyingProblem(trainingData, 0, self.bank)
+                solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                                  for s in (worker.solveTopRules(solution, beam) if solution.depth < 3 else worker.fastTopRules(solution, beam, maximumNumberOfSolutions = 1000)) ]
+                print "Alternative solutions and their scores:"
+                for c,s in solutionScores:
+                    print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
+
+                solution = min(solutionScores)[1]
+                print " [+] New solution:"
+                print solution
+                break # break out the loop over different radius sizes
+            
+
+        return solution
+    
     def _incrementallySolve(self, stubborn = False, beam = 1):
         # start out with just the first example
         print "Starting out with explaining just the first 2 examples:"

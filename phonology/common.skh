@@ -57,15 +57,6 @@ Word concatenate(Word a1,Word a2) {
   return a;
 }
 
-Word remove_sound(Word w,int j) {
-  Word x = new Word(l = w.l - 1);
-  for (int k = 0; k < j; k++)
-    x.s[k] = w.s[k];
-  for (int k = j + 1; k < w.l; k++)
-    x.s[k-1] = w.s[k];
-  return x;
-}
-
 Word make_word([int l],Sound[l] s) {
   Word w = new Word(l = l);
   for (int j = 0; j < l; j++) {

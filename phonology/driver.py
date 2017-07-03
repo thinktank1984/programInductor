@@ -138,13 +138,14 @@ def handleProblem(parameters):
                 ss = UnderlyingProblem(p.data, 1).counterexampleSolution()
             print "ss = "
             print ss
-            ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
+            #ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
         else:
             ss, accuracy, compression = heldOutSolution(p.data,
                                                         parameters['top'],
                                                         parameters['threshold'],
                                                         testing = parameters['testing'],
                                                         inductiveBiases = parameters['universalGrammar'])
+        if not isinstance(ss,list): ss = [ss]
         ss = [s.rules for s in ss ] # just save the rules
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
