@@ -70,7 +70,37 @@ def everyPermutation(l,r):
                 returnValue[e] = p
             yield returnValue
 
+def everyEditSequence(sequence, radii):
+    def _everySequenceEdit(r):
+        # radius zero
+        if r < 1: return [list(range(len(sequence)))]
 
+        edits = []
+        for s in _everySequenceEdit(r - 1):
+            # Should we consider adding a new thing to the sequence?
+            if len(s) == len(sequence):
+                edits += [ s[:j] + [None] + s[j:] for j in range(len(s) + 1) ]
+            # Consider doing over any one element of the sequence
+            edits += [ s[:j] + [None] + s[j+1:] for j in range(len(s)) ]
+            # Consider swapping elements
+            edits += [ [ (s[i] if k == j else (s[j] if k == i else s[k])) for k in range(len(s)) ]
+                       for j in range(len(s) - 1)
+                       for i in range(j,len(s)) ]
+        return edits
+
+    # remove duplicates
+    candidates = set([ tuple(s)
+                       for radius in radii
+                       for s in _everySequenceEdit(radius) ] )
+    # remove things that came from an earlier radius
+    for smallerRadius in range(min(radii)):
+        candidates -= set([ tuple(s) for s in _everySequenceEdit(smallerRadius) ])
+    # todo: some of the edit sequences might subsume other ones, eg [None,1,None] subsumes [0,1,None]
+    # maybe we want to not include things that are subsumed by other things?
+    
+    # reindex into the input sequence
+    return [ [ (None if j == None else sequence[j]) for j in s ]
+             for s in candidates  ]
 
 def dumpPickle(o,f):
     with open(f,'wb') as handle:

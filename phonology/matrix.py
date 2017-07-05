@@ -52,7 +52,7 @@ class UnderlyingProblem():
         else:
             Model.Global()
             result = Morph.sample()
-            _r = r.makeDefinition(self.bank) #define("Rule", r.makeConstant(self.bank))
+            _r = r.makeDefinition(self.bank)
             fixStructuralChange(_r)
             condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank))))
             # IMPORTANT!
@@ -431,34 +431,7 @@ class UnderlyingProblem():
                         adjustedCost = loss)
 
     def sketchIncrementalChange(self, solution, radius = 1):
-        bestSolution = None
-
-        # can we solve the problem without changing any existing rules but just by reordering them?
-        for perm in everyPermutation(len(solution.rules), radius + 1):
-            print "permutation =",perm
-            permutedRules = [ solution.rules[j] for j in perm ]
-            newSolution = self.sketchJointSolution(fixedRules = permutedRules)
-            if newSolution == None:
-                print "\t(that permutation does not give a solution)"
-                continue
-            print "\t(got a solution from the permutation)"
-            if bestSolution == None or newSolution.cost() < bestSolution.cost():
-                bestSolution = newSolution
-
-        # did we solve it just by reordering the rules?
-        if bestSolution != None: return [bestSolution]
-        
-        # construct change vectors. These are None for new rule and a rule object otherwise.
-        nr = len(solution.rules)
-        # do not add a new rule
-        ruleVectors = [ [ (r if k else None) for k,r in zip(v,solution.rules) ]
-                        for v in everyBinaryVector(nr,nr - radius) ] 
-        # add a new rule to the end
-        ruleVectors += [ [ (r if k else None) for k,r in zip(v,solution.rules) ] + [None]
-                         for v in everyBinaryVector(nr,nr - radius + 1) ] 
-        # add a new rule to the beginning
-        ruleVectors += [ [None] + [ (r if k else None) for k,r in zip(v,solution.rules) ]
-                         for v in everyBinaryVector(nr,nr - radius + 1) ]
+        ruleVectors = everyEditSequence(solution.rules, [radius])
 
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
