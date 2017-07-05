@@ -30,7 +30,7 @@ def sampleAB():
     while True:
         s = sampleSyllable()
         d = sampleSyllable()
-        if len(set(tokenize(s))&set(tokenize(d))) == 0:
+        if len(set(tokenize(s))&set(tokenize(d))) == 1: # they should have exactly one thing in common: syllable boundary
             return s,d
 def sampleABA(n):
     l = []
@@ -92,6 +92,7 @@ if __name__ == '__main__':
     for experiment in range(arguments.experiments):
         print "Experiment %d:"%(1+experiment)
         trainingData = sampling[arguments.problem](arguments.number)
+        print u"\n".join(trainingData)
         surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
 
         points = []

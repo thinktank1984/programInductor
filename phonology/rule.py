@@ -67,7 +67,10 @@ class Specification():
         
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
-    def __unicode__(self): return self.p
+    def __unicode__(self):
+        if self.p == '-': return u"syl"
+        else:
+            return self.p
     def __str__(self): return unicode(self).encode('utf-8')
     def doesNothing(self): return False
     def cost(self): return 2

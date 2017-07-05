@@ -177,28 +177,28 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
 }
 
 #ifdef SYLLABLEBOUNDARYFEATURE
-int syllable_starting_at(Word u, int e) {
-  if (e < 0 || e >= u.l) return -1;
+int syllable_starting_at([int l],Sound[l] u, int e) {
+  if (e < 0 || e >= l) return -1;
   // returns a negative number if there is no syllable starting at e
   // returns the index of the end of the syllable otherwise
   if (e == 0 || u[e - 1] == SYLLABLEBOUNDARYPHONEME) { // before the beginning of the syllable should be the end of another syllable
     for (int d = 1; d < 4; d++) {
       int test_index = e + d;
-      if (test_index == u.l) return -1;
+      if (test_index == l) return -1;
       if (u[test_index] == SYLLABLEBOUNDARYPHONEME)
 	return test_index;
     }
   }
   return -1;
 }
-bit is_syllable_starting_at(Word u,int e){ return syllable_starting_at(u,e) != -1; }
-bit are_two_syllables_starting_at(Word u,int e){
+bit is_syllable_starting_at([int l],Sound[l] u,int e){ return syllable_starting_at(u,e) != -1; }
+bit are_two_syllables_starting_at([int l],Sound[l] u,int e){
   e = syllable_starting_at(u,e);
   if (e == -1) return 0;
   return syllable_starting_at(u,e + 1) != -1;
 }
-int syllable_ending_at(Word u, int e) {
-  if (e < 0 || e >= u.l) return -1;
+int syllable_ending_at([int l],Sound[l] u, int e) {
+  if (e < 0 || e >= l) return -1;
   // returns a negative number if there is no syllable ending at e
   // returns the index of the start of the syllable otherwise
   if (u[e] == SYLLABLEBOUNDARYPHONEME) {
@@ -211,20 +211,20 @@ int syllable_ending_at(Word u, int e) {
   }
   return -1;
 }
-bit is_syllable_ending_at(Word u,int e) { return syllable_ending_at(u,e) == -1; }
-bit are_two_syllables_ending_at(Word u,int e){
+bit is_syllable_ending_at([int l],Sound[l] u,int e) { return syllable_ending_at(u,e) == -1; }
+bit are_two_syllables_ending_at([int l],Sound[l] u,int e){
   e = syllable_ending_at(u,e);
   if (e != -1) return 0;
   return syllable_ending_at(u,e - 1) != -1;
 }
-int is_syllable_specification(Specification s) {
+bit is_syllable_specification(Specification s) {
   if (s == null) { return 0; }
   switch(s){
   case Vector:{ return 0; }
   case ConstantPhoneme:{ return s.phoneme == SYLLABLEBOUNDARYPHONEME;}
   }
 }
-int has_syllable_feature(Specification s) {
+bit has_syllable_feature(Specification s) {
   if (s == null) { return 0; }
   switch(s){
   case Vector:{
@@ -463,7 +463,7 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R){
 	if (g.spec2 == null) this_is_okay = this_is_okay && (
 #ifdef SYLLABLEBOUNDARYFEATURE
 			       is_syllable_specification(g.spec)?
-			       (R? syllable_starting_at(u,index2sound(j)) == u.l - 1
+			       (R? syllable_starting_at(u,index2sound(j)) == l - 1
 				: syllable_ending_at(u,index2sound(j)) == 0) :
 #endif
 			       j == 1);
@@ -472,7 +472,7 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R){
 	else                 this_is_okay = this_is_okay && (
 #ifdef SYLLABLEBOUNDARYFEATURE
 			       is_syllable_specification(g.spec2)?
-			       (R? syllable_starting_at(u,syllable_starting_at(u,index2sound(j))+1) == u.l - 1
+			       (R? syllable_starting_at(u,syllable_starting_at(u,index2sound(j))+1) == l - 1
 				: syllable_ending_at(u,syllable_ending_at(u,index2sound(j))-1) == 0) :
 #endif
 			       j == 2);
@@ -566,18 +566,57 @@ Word apply_rule(Rule r, Word u) {
     else // copying
       assert empty_specification(structural_change);
 
+#ifdef SYLLABLEBOUNDARYFEATURE
+    bit inserting_syllable = (r.copyOffset == 1 && is_syllable_specification(right_trigger.spec)) ||
+      (r.copyOffset == 2 && is_syllable_specification(right_trigger.spec2)) ||
+      (r.copyOffset == -1 && is_syllable_specification(left_trigger.spec)) ||
+      (r.copyOffset == -2 && is_syllable_specification(left_trigger.spec2));
+    int inserted = 0;
+#else    
     bit inserted = 0;
+#endif
+    
     // Should we insert before u[j]?
     for (int j = 0; j <= u.l; j++) {
       if (left_okay[j] && right_okay[j]) {
-	assert !inserted;
-	inserted = 1;
-	output[j] = extract_constant_sound(structural_change);
+	assert inserted == 0;
+#ifdef SYLLABLEBOUNDARYFEATURE
+	if (inserting_syllable) {
+	  int starting, ending; // we will copy the syllable which begins at index starting and ends at index ending. Includes the content at ending.
+	  if (r.copyOffset > 0) { // grab a syllable to the right
+	    starting = j;
+	    ending = syllable_starting_at(u.s,j);
+	    if (r.copyOffset == 2) {
+	      starting = ending + 1;
+	      ending = syllable_starting_at(u.s,starting);
+	    }
+	  } else { // grab a syllable to the left
+	    starting = syllable_ending_at(u.s,j - 1);
+	    ending = j - 1;
+	    if (r.copyOffset == -2) {
+	      ending = starting - 1;
+	      starting = syllable_ending_at(u.s,ending);
+	    }
+	  }
+	  // copy the syllable from starting to ending
+	  for (int k = starting; k <= ending; k++) {
+	    output[j + inserted] = u.s[k];
+	    inserted++;
+	  }
+	} else { // not inserting a syllable so just use the old logic
+#else
+	inserted = 1; 
+	output[j] = r.copyOffset == 0?
+	  extract_constant_sound(structural_change) : (u.s[j + r.copyOffset - (r.copyOffset > 0 ? 1 : 0)]);
+#endif
+#ifdef SYLLABLEBOUNDARYFEATURE
+	}
+#endif
       }
       if (j < u.l) 
 	output[j + inserted] = u.s[j];
     }
-    if (!inserted) return u;
+    if (inserted == 0) return u;
     output_length = u.l + inserted;
   } else { // Modification rule
     for (int j = 0; j < u.l; j++) {
