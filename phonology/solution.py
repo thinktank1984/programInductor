@@ -114,6 +114,10 @@ class Solution():
             transducers = self.inflectionTransducers(bank)
         except InvalidRule: return None
 
+        applicableTransducersAndSurfaces = [(t,s) for (t,s) in zip(transducers, surfaces) if s != None ]
+        transducers = [t for t,_ in applicableTransducersAndSurfaces ]
+        surfaces = [s for _,s in applicableTransducersAndSurfaces ]
+
         ur = invertParallelTransducers(transducers,
                                        [ ''.join([ bank.phoneme2fst(p) for p in tokenize(s) ]) for s in surfaces])
         candidates = []

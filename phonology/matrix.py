@@ -33,12 +33,13 @@ class UnderlyingProblem():
     def __init__(self, data, depth, bank = None):
         self.depth = depth
         self.data = data
-        self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l  ])
+        self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l if w != None ])
 
         self.numberOfInflections = len(data[0])
-        self.inflectionMatrix = [ [ self.bank.wordToMatrix(i) for i in Lex ] for Lex in data ]
+        self.inflectionMatrix = [ [ (self.bank.wordToMatrix(i) if i != None else None)
+                                    for i in Lex] for Lex in data ]
 
-        self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l ])
+        self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l if w != None ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
     def solveSketch(self, minimizeBound = 31):
@@ -76,13 +77,16 @@ class UnderlyingProblem():
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
-        dataTaggedWithLength = [ (sum(map(compose(len,tokenize),self.data[j])), j, self.data[j])
+        dataTaggedWithLength = [ (sum([ len(tokenize(w)) if w != None else 0 for w in self.data[j]]),
+                                  j,
+                                  self.data[j])
                                  for j in range(len(self.data)) ]
         self.data = [ d[2] for d in sorted(dataTaggedWithLength) ]
 
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
-        """surfaces : list of elements, each of which is either a sketch expression or a APA string"""
+        """surfaces : list of numberOfInflections elements, each of which is either a sketch expression or a APA string"""
+        assert self.numberOfInflections == len(surfaces)
         
         def buildUnderlyingForm(prefix, suffix):
             if isinstance(stem, Morph): # underlying form is fixed
@@ -94,6 +98,7 @@ class UnderlyingProblem():
                      for i in range(len(surfaces)) ]
         for i in range(len(surfaces)):
             surface = surfaces[i]
+            if surface == None: continue
             if not isinstance(surface,Expression):
                 surface = makeConstantWord(self.bank, surface)
             condition(wordEqual(surface, prediction[i]))
@@ -258,15 +263,27 @@ class UnderlyingProblem():
         #     return Morph.parse(self.bank, output, stem)
 
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None):
-        affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) -
-                          (len(self.inflectionMatrix[0][j]) - min(map(len, self.inflectionMatrix[0])) if self.numberOfInflections > 5 else 0)
+        # guess the size of each stem to be its corresponding smallest observation length
+        approximateStemSize = [ min([ len(w) for w in i if w != None ])
+                                for i in self.inflectionMatrix ]
+        affixAdjustment = []
+        for j in range(self.numberOfInflections):
+            if self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
+                for Lex,stemSize in zip(self.inflectionMatrix,approximateStemSize):
+                    if Lex[j] != None:  # this lexeme was annotated for this inflection; use it as a guess
+                        adjustment = len(Lex[j]) - stemSize
+                        break
+            else: adjustment = 0
+            affixAdjustment.append(adjustment)
+                
+        affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) - affixAdjustment[j]
                           for j in range(self.numberOfInflections) ])
 
         # We subtract a constant from the stems size in order to offset the cost
         # Should have no effect upon the final solution that we find,
         # but it lets sketch get away with having to deal with smaller numbers
         stemSize = sum([ wordLength(m)-
-                         (min(map(len,self.inflectionMatrix[j])) if self.numberOfInflections > 1
+                         (approximateStemSize[j] if self.numberOfInflections > 1
                           else len(self.inflectionMatrix[j][0]) - 4)
                          for j,m in enumerate(stems) ])
 
@@ -376,9 +393,13 @@ class UnderlyingProblem():
 
 
     def sketchChangeToSolution(self,solution, rules, k = 1):
+        # if we are not changing any of the rules just enumerate one solution
+        if not any([ r == None for r in rules ]): k = 1
+        
         Model.Global()
 
         originalRules = list(rules) # save it for later
+        solutionsSoFar = [] # how many of the K requested solutions have we found
         
         rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
                   for rule in rules ]
@@ -389,8 +410,10 @@ class UnderlyingProblem():
         # Should we hold the morphology fixed?
         if len(solution.underlyingForms) > 2:
             for j in range(self.numberOfInflections):
-                condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
-                condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
+                # Do we have at least two examples for this particular inflection?
+                if len([ None for l in self.data if l[j] != None ]):
+                    condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
+                    condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
 
             # this piece of code will also hold the underlying forms fixed
             if False and len(solution.underlyingForms) > 3:
@@ -400,32 +423,38 @@ class UnderlyingProblem():
         self.minimizeJointCost(rules, stems, prefixes, suffixes)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
-        output = self.solveSketch()
-        if output == None:
-            print "\t(no modification possible)"
-            # Because these are executed in parallel, do not throw an exception
-            return None
+        for _ in range(k):
+            # Condition on it being a different solution
+            for other in solutionsSoFar:
+                condition(And([ ruleEqual(r,o.makeConstant(self.bank))
+                                for r,o,v in zip(rules, other.rules, originalRules)
+                                if v == None ]) == 0)
+            output = self.solveSketch()
+            if output == None:
+                print "\t(no modification possible: got %d solutions)"%(len(solutionsSoFar))
+                # Because these are executed in parallel, do not throw an exception
+                break
+            loss = parseMinimalCostValue(output)
+            print "\t(modification successful; loss = %d)"%loss
 
-        loss = parseMinimalCostValue(output)
-        print "\t(modification successful; loss = %d)"%loss
-
-        compositeRules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
+            compositeRules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                            for r,rp in zip(rules,originalRules) ]
-        return Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
-                        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
-                        underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                        rules = [ r for r in compositeRules
-                                  if len(compositeRules) == 1 or (not r.doesNothing()) ],
-                        adjustedCost = loss)
+            solutionsSoFar.append(Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
+                                           suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
+                                           underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
+                                           rules = [ r for r in compositeRules
+                                                     if len(compositeRules) == 1 or (not r.doesNothing()) ],
+                                           adjustedCost = loss))
+        return solutionsSoFar
 
-    def sketchIncrementalChange(self, solution, radius = 1):
+    def sketchIncrementalChange(self, solution, radius = 1, k = 1):
         ruleVectors = everyEditSequence(solution.rules, [radius])
 
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
         solution.clearTransducers()
-        allSolutions = Pool(30).map(lambda v: self.sketchChangeToSolution(solution,v), ruleVectors)
-        allSolutions = [ s for s in allSolutions if s != None ]
+        allSolutions = Pool(30).map(lambda v: self.sketchChangeToSolution(solution,v,k), ruleVectors)
+        allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
 
@@ -448,7 +477,7 @@ class UnderlyingProblem():
             while True:
                 try:
                     worker = UnderlyingProblem(trainingData + [self.data[j]], 0, self.bank)
-                    solutions = worker.sketchIncrementalChange(solution, radius)
+                    solutions = worker.sketchIncrementalChange(solution, radius, k = beam)
                     assert solutions != []
                     # see which of the solutions is best overall
                     solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
