@@ -44,35 +44,35 @@ class UnderlyingProblem():
     def solveSketch(self, minimizeBound = 31):
         return solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
+    def applyRuleUsingSketch(self,r,u):
+        Model.Global()
+        result = Morph.sample()
+        _r = r.makeDefinition(self.bank)
+        condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank))))
+        # IMPORTANT!
+        # if the result is a more than we need to make sure that morphs can be big
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
+        if output != None:
+            return Morph.parse(self.bank, output, result)
+        else:
+            print "WARNING: Gets rejected in applyRule. Falling back on Python implementation."
+            print u
+            print r
+            printSketchFailure()
+            # Weaker test
+            Model.Global()
+            condition(wordLength(applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))) > 0)
+            if solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength) == None:
+                print "WARNING: weaker test also fails"
+            else:
+                print "WARNING: weaker test succeeds"
+            return Morph.fromMatrix(r.apply(u))
+
     def applyRule(self, r, u):
         t = r.fst(self.bank)
         return runTransducer(self.bank,t,u)
         if USEPYTHONRULES:# use the Python implementation of rules
             return Morph.fromMatrix(r.apply(u))
-        else:
-            Model.Global()
-            result = Morph.sample()
-            _r = r.makeDefinition(self.bank)
-            fixStructuralChange(_r)
-            condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank))))
-            # IMPORTANT!
-            # if the result is a more than we need to make sure that morphs can be big
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
-            if output != None:
-                return Morph.parse(self.bank, output, result)
-            else:
-                print "WARNING: Gets rejected in applyRule. Falling back on Python implementation."
-                print u
-                print r
-                printSketchFailure()
-                # Weaker test
-                Model.Global()
-                condition(wordLength(applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))) > 0)
-                if solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength) == None:
-                    print "WARNING: weaker test also fails"
-                else:
-                    print "WARNING: weaker test succeeds"
-                return Morph.fromMatrix(r.apply(u))
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
@@ -99,9 +99,7 @@ class UnderlyingProblem():
             condition(wordEqual(surface, prediction[i]))
     
     def conditionOnData(self, rules, stems, prefixes, suffixes):
-        '''Conditions on inflection matrix. This also modifies the rules in place! Always call this after calculating the cost of the rules.'''
-        for r in rules:
-            condition(fixStructuralChange(r))
+        '''Conditions on inflection matrix.'''
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
     
@@ -251,8 +249,6 @@ class UnderlyingProblem():
         # suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
         # rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
 
-        # for r in rules: condition(fixStructuralChange(r))
-
         # self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
 
         # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
@@ -379,8 +375,7 @@ class UnderlyingProblem():
             return solutions
 
 
-    def sketchChangeToSolution(self,solution, rules, costUpperBound = None):
-        # costUpperBound: an upper bound on the cost; includes fancy index manipulations
+    def sketchChangeToSolution(self,solution, rules, k = 1):
         Model.Global()
 
         originalRules = list(rules) # save it for later
@@ -402,9 +397,7 @@ class UnderlyingProblem():
                 for stemVariable,oldValue in zip(stems,solution.underlyingForms):
                     condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
 
-        costUpperBound = None # I don't believe in that any of that upper bound nonsense
-        if getVerbosity() > 1: print "upper bound = ",costUpperBound
-        self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
+        self.minimizeJointCost(rules, stems, prefixes, suffixes)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         output = self.solveSketch()
@@ -412,14 +405,9 @@ class UnderlyingProblem():
             print "\t(no modification possible)"
             # Because these are executed in parallel, do not throw an exception
             return None
-            #raise SynthesisFailure("No satisfying modification possible.")
 
         loss = parseMinimalCostValue(output)
         print "\t(modification successful; loss = %d)"%loss
-        if costUpperBound != None and False:
-            print output
-            print makeSketch(self.bank)
-            assert False
 
         compositeRules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                            for r,rp in zip(rules,originalRules) ]
@@ -443,6 +431,7 @@ class UnderlyingProblem():
 
     def incrementallySolve(self, beam = 1,stubborn = None):
         print "I got stubborn =",stubborn,"but I'm going to ignore that and be stubborn anyways"
+        print "Using beam width of",beam
         
         initialTrainingSize = 2
         print "Starting out with explaining just the first %d examples:"%initialTrainingSize
@@ -478,6 +467,23 @@ class UnderlyingProblem():
                             print u'\t~\t'.join(alreadyExplained)
                             if alreadyExplained in trainingData:
                                 print " [-] FATAL: Already in training data!"
+                                # Illustrate the derivation
+                                ur = newSolution.underlyingForms[trainingData.index(alreadyExplained)]
+                                print "UR =",ur
+                                for i in range(self.numberOfInflections):
+                                    print "Inflection",i
+                                    surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
+                                    print "Using sketch rules:"
+                                    for r in newSolution.rules:
+                                        newSurface = self.applyRuleUsingSketch(r,surface)
+                                        print "%s > %s"%(surface,newSurface)
+                                        surface = newSurface
+                                    print "Using transducer rules:"
+                                    surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
+                                    for r in newSolution.rules:
+                                        newSurface = self.applyRule(r,surface)
+                                        print "%s > %s"%(surface,newSurface)
+                                        surface = newSurface
                                 assert False
                             else:
                                 trainingData.append(alreadyExplained)
@@ -491,6 +497,9 @@ class UnderlyingProblem():
                     if radius > 2:
                         print "I refuse to use a radius this big."
                         return None
+                    continue # retreat back to the loop over different radii
+
+                # Successfully explained a new data item
 
                 # Update both the training data and solution
                 trainingData.append(self.data[j])
@@ -622,8 +631,6 @@ class UnderlyingProblem():
         prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
         suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
         rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
-
-        for r in rules: condition(fixStructuralChange(r))
 
         predictions = [ applyRules(rules, concatenate3(prefixes[j],stem,suffixes[j]))
                         for j in range(self.numberOfInflections) ]

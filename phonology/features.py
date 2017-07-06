@@ -198,13 +198,13 @@ def tokenize(word):
     return tokens
 
 class FeatureBank():
-    SPECIALFEATURES = ["vowel","high","middle","low","front","central","back"]
     
     """Builds a bank of features and sounds that are specialized to a particular data set.
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
+   
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in tokenize(w) ]))
-        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ] + FeatureBank.SPECIALFEATURES))
+        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
         self.featureMap = dict([
             (p, list(set(featureMap[p]) & set(self.features)))
             for p in self.phonemes ])
@@ -233,6 +233,33 @@ class FeatureBank():
         d += "assert 0;}\n"
         return d
 
+    def defineZeroFeatures(self):
+        z = "#define ZEROFEATURES(m) ({"
+        m = "#define MUTUALLYEXCLUDE(s) "
+        mutuallyExclusiveClasses = [["high","middle","low"],
+                                    ["front","central","back"]]
+        for f in self.features:
+            excluded = False
+            for k in mutuallyExclusiveClasses:
+                if f in k:
+                    assert not excluded
+                    # only retain other members of the class which are actually used in the data
+                    kp = set(k) & set(self.features)
+
+                    # mutual exclusion logic
+                    m += "if (s.mask[%d]) assert s.preference[%d] "%(self.feature2index[f], self.feature2index[f])
+                    m += " && ".join([''] + [ "!s.mask[%d]"%(self.feature2index[e]) for e in kp if e != f ])
+                    m += '; '
+                    
+                    if len(kp) > 1:
+                        z += "||".join([ "m[%d]"%(self.feature2index[e]) for e in kp if e != f ])
+                        excluded = True
+            if not excluded: z += "0"
+            z += ", "
+
+        # replace the final, with a }
+        return z[:-2] + '})\n' + m
+
     def __unicode__(self):
         return u'FeatureBank({' + u','.join(self.phonemes) + u'})'
     def __str__(self): return unicode(self).encode('utf-8')
@@ -260,13 +287,15 @@ class FeatureBank():
         if self.hasSyllables:
             h += "#define SYLLABLEBOUNDARYPHONEME phoneme_%d\n"%(self.phoneme2index[u"-"])
             h += "#define SYLLABLEBOUNDARYFEATURE %d\n"%(self.feature2index[syllableBoundary])
-        
+
         for j in range(len(self.phonemes)):
             features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))
             h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
-        for featureName in FeatureBank.SPECIALFEATURES:
+        # This is more for debugging than anything else - common shouldn't use it
+        for featureName in self.features:
             h += "\n#define %sFEATURE %d\n" % (featureName.upper(), self.feature2index[featureName])
+        h += self.defineZeroFeatures()
         h += "\n"
         h += self.defineFeaturesToSound()
         return h

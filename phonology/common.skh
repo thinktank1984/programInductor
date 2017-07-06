@@ -152,14 +152,15 @@ bit matches_specification(Sound sound, Specification specification) {
   }
 }
 
+
 Sound apply_specification(Specification specification, Sound sound) {
   switch (specification) {
   case Vector:{
     return features2sound(
-		     // New positives induced by the specification
-		     (specification.mask & specification.preference) |
-		     // Old features minus the ones that were removed by the specification
-		     ((~specification.mask) & sound.f));
+			  // New positives induced by the specification
+			  (specification.mask & specification.preference) |
+			  // Old features minus the ones that were removed by the specification
+			  ((~specification.mask) & sound.f & (~ZEROFEATURES(specification.mask))));
   }
   case ConstantPhoneme:{
     return specification.phoneme;
@@ -305,33 +306,88 @@ struct Rule {
 for example : [+hi  +low] or [-middle] 
 this forces them into a canonical form. */
 
-#define MUTUALLYEXCLUDE_(f1,f2,f3)\
-      assert s.preference[f1];\
-      assert !s.mask[f2];\
-      assert !s.mask[f3];\
-      s.mask[f2] = 1;\
-      s.mask[f3] = 1;\
-      s.preference[f2] = 0;\
-      s.preference[f3] = 0;
-
-#define MUTUALLYEXCLUDE(f1,f2,f3)\
-  if (s.mask[f1]) {\
-MUTUALLYEXCLUDE_(f1,f2,f3)\
-  }else if(s.mask[f2]){	  \
-    MUTUALLYEXCLUDE_(f2,f1,f3)\
-      }else if(s.mask[f3]){\
-    MUTUALLYEXCLUDE_(f3,f1,f2)\
-      }
-
-bit fix_structural_change(Rule r) {
-  Specification s = r.structural_change;
+bit is_valid_structural_change(Specification s) {
   if (s == null) return 1;
   switch (s){
   case ConstantPhoneme:{}
   case Vector:{
-    MUTUALLYEXCLUDE(HIGHFEATURE,MIDDLEFEATURE,LOWFEATURE)
-      ;
-    MUTUALLYEXCLUDE(FRONTFEATURE,CENTRALFEATURE,BACKFEATURE)
+    // mutually exclude high middle and low
+/* #ifdef HIGHFEATURE */
+/*     if (s.mask[HIGHFEATURE]) */
+/*       assert s.preference[HIGHFEATURE] */
+/* #ifdef MIDDLEFEATURE */
+/* 	 && !s.mask[MIDDLEFEATURE] */
+/* #endif */
+/* #ifdef LOWFEATURE */
+/* 	 && !s.mask[LOWFEATURE] */
+/* 	; */
+/* #endif */
+/* #endif */
+    
+/* #ifdef MIDDLEFEATURE */
+/*     if (s.mask[MIDDLEFEATURE]) */
+/*       assert s.preference[MIDDLEFEATURE] */
+/* #ifdef HIGHFEATURE */
+/* 	&& !s.mask[HIGHFEATURE] */
+/* #endif */
+/* #ifdef LOWFEATURE */
+/* 	&& !s.mask[LOWFEATURE] */
+/* #endif */
+/* 	; */
+/* #endif */
+
+    
+/* #ifdef LOWFEATURE */
+/*     if (s.mask[LOWFEATURE]) */
+/*       assert s.preference[LOWFEATURE] */
+/* #ifdef MIDDLEFEATURE */
+/* 	&& !s.mask[MIDDLEFEATURE] */
+/* #endif */
+/* #ifdef HIGHFEATURE */
+/* 	&& !s.mask[HIGHFEATURE] */
+/* #endif */
+/* 	; */
+/* #endif */
+
+/*     // mutually exclude front central back */
+/* #ifdef FRONTFEATURE */
+/*     if (s.mask[FRONTFEATURE]) */
+/*       assert s.preference[FRONTFEATURE] */
+/* #ifdef CENTRALFEATURE */
+/* 	 && !s.mask[CENTRALFEATURE] */
+/* #endif */
+/* #ifdef BACKFEATURE */
+/* 	 && !s.mask[BACKFEATURE] */
+/* 	; */
+/* #endif */
+/* #endif */
+    
+/* #ifdef CENTRALFEATURE */
+/*     if (s.mask[CENTRALFEATURE]) */
+/*       assert s.preference[CENTRALFEATURE] */
+/* #ifdef FRONTFEATURE */
+/* 	&& !s.mask[FRONTFEATURE] */
+/* #endif */
+/* #ifdef BACKFEATURE */
+/* 	&& !s.mask[BACKFEATURE] */
+/* #endif */
+/* 	; */
+/* #endif */
+
+    
+/* #ifdef BACKFEATURE */
+/*     if (s.mask[BACKFEATURE]) */
+/*       assert s.preference[BACKFEATURE] */
+/* #ifdef CENTRALFEATURE */
+/* 	&& !s.mask[CENTRALFEATURE] */
+/* #endif */
+/* #ifdef FRONTFEATURE */
+/* 	&& !s.mask[FRONTFEATURE] */
+/* #endif */
+/* 	; */
+/* #endif */
+
+    MUTUALLYEXCLUDE(s)
       ;
       }
   }
@@ -501,6 +557,7 @@ Word apply_rule(Rule r, Word u) {
   if (r.copyOffset != 0) assert empty_specification(structural_change);
   // K > [features] is always equivalent to K > K at a cost which is no greater
   if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;
+  assert is_valid_structural_change(structural_change);
 #ifdef SYLLABLEBOUNDARYFEATURE
   // Syllables are encoded only as the special syllable phoneme
   assert !has_syllable_feature(left_trigger.spec);

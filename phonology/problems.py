@@ -1224,8 +1224,8 @@ in between sonants voiced fricatives become stops
 	(u"gris",	u"grizə"),#	‘grey’
 	(u"kəzat̪",	u"kəzaðə"),#	‘married̪’
 	(u"bwit̪",	u"bwiðə"),#	‘empt̪y’
-	(u"rɔč|",	u"rɔžə"),#	‘red̪’
-	(u"boč|",	u"božə"),#	‘crazy’
+	(u"rɔč",	u"rɔžə"),#	‘red̪’
+	(u"boč",	u"božə"),#	‘crazy’
 	(u"orp",	u"orβə"),#	‘blind̪’
 	(u"lyark",	u"lyarɣə"),#	‘long’
 	(u"sek",	u"seɣə"),#	‘blind̪’
@@ -1240,7 +1240,7 @@ in between sonants voiced fricatives become stops
 	(u"kla",	u"klarə"),#	‘clear’
 	(u"nu",	u"nuə"),#	‘nud̪e’
 	(u"kru",	u"kruə"),#	‘raw’
-	(u"flɔñǰ|u",	u"flɔñǰ|ə"),#	‘soft̪’
+	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft̪’
 	(u"d̪ropu",	u"d̪ropə"),#	‘lazy’
 	(u"əgzakt̪ə",	u"əgzakt̪ə"),#	‘exact̪’
 	(u"əlβi",	u"əlβinə"),#	‘albino’
