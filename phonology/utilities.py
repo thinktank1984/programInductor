@@ -126,3 +126,8 @@ def setVerbosity(v):
 def sampleGeometric(p):
     if random.random() < p: return 0
     return 1 + sampleGeometric(p)
+
+
+def numberOfCPUs():
+    import multiprocessing
+    return multiprocessing.cpu_count()

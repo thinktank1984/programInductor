@@ -408,10 +408,12 @@ class UnderlyingProblem():
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
         # Should we hold the morphology fixed?
-        if len(solution.underlyingForms) > 2:
+        fixedMorphologyThreshold = 4
+        if len(solution.underlyingForms) >= fixedMorphologyThreshold:
             for j in range(self.numberOfInflections):
                 # Do we have at least two examples for this particular inflection?
-                if len([ None for l in self.data if l[j] != None ]):
+                if len([ None for l in self.data if l[j] != None ]) >= fixedMorphologyThreshold:
+                    print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
                     condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
                     condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
 
@@ -453,7 +455,7 @@ class UnderlyingProblem():
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
         solution.clearTransducers()
-        allSolutions = Pool(30).map(lambda v: self.sketchChangeToSolution(solution,v,k), ruleVectors)
+        allSolutions = Pool(min(30,numberOfCPUs())).map(lambda v: self.sketchChangeToSolution(solution,v,k), ruleVectors)
         allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
@@ -472,6 +474,9 @@ class UnderlyingProblem():
         for j in range(initialTrainingSize, len(self.data)):
             # Can we explain the jth example?
             if self.verify(solution, self.data[j]): continue
+
+            print "Next data point to explain: "
+            print u'\t~\t'.join(self.data[j])
 
             radius = 1
             while True:
@@ -517,7 +522,6 @@ class UnderlyingProblem():
                             else:
                                 trainingData.append(alreadyExplained)
                     if haveRegression:
-                        radius = 1
                         continue
                 except SynthesisFailure:
                     print "No incremental modification within radius of size %d"%radius
