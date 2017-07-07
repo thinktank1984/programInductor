@@ -99,7 +99,7 @@ featureMap = {
     u"z": [alveolar,fricative,voice,coronal, sibilant],
     u"ǰ": [alveopalatal,affricate,voice,coronal],
     u"ǰ|": [alveopalatal,stop,voice,coronal],
-    u"ž": [alveopalatal,fricative,voice,coronal],
+    u"ž": [alveopalatal,fricative,voice,coronal, sibilant],
     u"s": [alveolar,fricative,coronal, sibilant],
     u"n": [alveolar,nasal,voice,coronal,sonorant],
     u"ṇ": [retroflex,nasal,voice,sonorant],
