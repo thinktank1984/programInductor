@@ -1406,39 +1406,39 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
 #	Masculine nouns
 #	Nom. sg.	Dat. pl. 	 Dat. sg.	Loc. sg.	Gloss
 [
-	(u"zub",	u"zubam",	u"zubovyi",	u"zubyi"),#	tooth
-	(u"svyit",	u"svyitam",	u"svyitovyi",	u"svyityi"),#	light
-	(u"zyaty",	u"zyatyam",	u"zyatevyi",	u"zyatevyi"),#	son-in-law
-	(u"košyily",	u"košelyam",	u"košelevyi",	u"košelyi"),#	basket
-	(u"zlodyiy",	u"zlodyiyam",	u"zlodyiyevyi",	u"zlodyiyevyi"),# 	thief
-	(u"myisyatsy",	u"myisyatsyam",	u"myisyatsevyi",	u"myisyatsyi"),#	month
-	(u"korovay",	u"korovayam",	u"korovayevyi",	u"korovayi"),#	round loaf
-	(u"kamyiny",	u"kamenyam",	u"kamenevyi",	u"kamenyi"),#	stone
-	(u"myidy",	u"myidyam",	u"myidevyi",	u"myidyi"),#	copper
-	(u"xlyiw",	u"xlyivam",	u"xlyivovyi",	u"xlyivyi"),#	stable
-	(u"holub",	u"holubam",	u"holubovyi",	u"holubyi"),#	dove
-	(u"syin",	u"syinam",	u"syinovyi",	u"syinyi"),#	son
-	(u"lebyidy",	u"lebedyam",	u"lebedevyi",	u"lebedyi"),#	swan
-	(u"susyid", 	u"susyidam", 	u"susyidovyi", 	u"susyidovyi"),#	neighbor
-	(u"čolovyik", 	u"čolovyikam", 	u"čolovyikovyi", 	u"čolovyikovyi"),#	man
-	(u"lyid",	u"ledam",	u"ledovyi",	u"ledyi"),#	ice
-	(u"bily",	u"bolyam",	u"bolevyi",	u"bolyi"),#	ache
-	(u"riw",	u"rovam",	u"rovovyi",	u"rovyi"),#	ditch
-	(u"stiw",	u"stolam",	u"stolovyi",	u"stolyi"),#	table
-	(u"dyid",	u"dyidam",	u"dyidovyi",	u"dyidovyi"),#	grandfather
-	(u"lyit",	u"lyotam",	u"lyotovyi",	u"lyotyi"),#	flight
-	(u"mist",	u"mostam",	u"mostovyi",	u"mostyi"),#	bridge
-	(u"večir",	u"večoram",	u"večorovyi",	u"večoryi"),#	evening
+	(u"zub",	u"zubam",	u"zubov^yi",	u"zub^yi"),#	tooth
+	(u"sv^yit",	u"sv^yitam",	u"sv^yitov^yi",	u"sv^yit^yi"),#	light
+	(u"z^yat^y",	u"z^yat^yam",	u"z^yatev^yi",	u"z^yatev^yi"),#	son-in-law
+	(u"koš^yil^y",	u"košel^yam",	u"košelev^yi",	u"košel^yi"),#	basket
+	(u"zlod^yiy",	u"zlod^yiyam",	u"zlod^yiyev^yi",	u"zlod^yiyev^yi"),# 	thief
+	(u"m^yis^yat^s^y",	u"m^yis^yat^s^yam",	u"m^yis^yat^sev^yi",	u"m^yis^yat^s^yi"),#	month
+	(u"korovay",	u"korovayam",	u"korovayev^yi",	u"korovayi"),#	round loaf
+	(u"kam^yin^y",	u"kamen^yam",	u"kamenev^yi",	u"kamen^yi"),#	stone
+	(u"m^yid^y",	u"m^yid^yam",	u"m^yidev^yi",	u"m^yid^yi"),#	copper
+	(u"xl^yiw",	u"xl^yivam",	u"xl^yivov^yi",	u"xl^yiv^yi"),#	stable
+	(u"holub",	u"holubam",	u"holubov^yi",	u"holub^yi"),#	dove
+	(u"s^yin",	u"s^yinam",	u"s^yinov^yi",	u"s^yin^yi"),#	son
+	(u"leb^yid^y",	u"lebed^yam",	u"lebedev^yi",	u"lebed^yi"),#	swan
+	(u"sus^yid", 	u"sus^yidam", 	u"sus^yidov^yi", 	u"sus^yidov^yi"),#	neighbor
+	(u"čolov^yik", 	u"čolov^yikam", 	u"čolov^yikov^yi", 	u"čolov^yikov^yi"),#	man
+	(u"l^yid",	u"ledam",	u"ledov^yi",	u"led^yi"),#	ice
+	(u"bil^y",	u"bol^yam",	u"bolev^yi",	u"bol^yi"),#	ache
+	(u"riw",	u"rovam",	u"rovov^yi",	u"rov^yi"),#	ditch
+	(u"stiw",	u"stolam",	u"stolov^yi",	u"stol^yi"),#	table
+	(u"d^yid",	u"d^yidam",	u"d^yidov^yi",	u"d^yidov^yi"),#	grandfather
+	(u"l^yit",	u"l^yotam",	u"l^yotov^yi",	u"l^yot^yi"),#	flight
+	(u"mist",	u"mostam",	u"mostov^yi",	u"most^yi"),#	bridge
+	(u"večir",	u"večoram",	u"večorov^yi",	u"večor^yi"),#	evening
 	
 	# Neuter nouns
 	# Nom. sg.	Gen. sg.	Dat. sg.	Loc. sg.	Gen. pl.	Gloss
-	# tyilo	tyila	tyilu	tyilyi	tyiw	body
-	# koleso	kolesa	kolesu	kolesyi	kolyis	wheel
-	# ozero	ozera	ozeru	ozeryi	ozyir	lake
-	# selo	sela	selu	selyi	syiw	village
-	# pole	polya	polyu	polyi	pily	field
-	# slovo	slova	slovu	slovyi	sliw	word
-	# more	morya	moryu	moryi	miry	sea
+	# t^yilo	t^yila	t^yilu	t^yil^yi	t^yiw	body
+	# koleso	kolesa	kolesu	koles^yi	kol^yis	wheel
+	# ozero	ozera	ozeru	ozer^yi	oz^yir	lake
+	# selo	sela	selu	sel^yi	s^yiw	village
+	# pole	pol^ya	pol^yu	pol^yi	pil^y	field
+	# slovo	slova	slovu	slov^yi	sliw	word
+	# more	mor^ya	mor^yu	mor^yi	mir^y	sea
 ]))
 
 sevenProblems.append(Problem('''3: Somali

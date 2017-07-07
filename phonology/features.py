@@ -2,6 +2,7 @@
 
 from foma import *
 
+palletized = "palletized"
 sibilant = "sibilant"
 sonorant = "sonorant"
 coronal = "coronal"
@@ -167,6 +168,10 @@ for v in vs:
     featureMap[v + u":"] = featureMap[v] + [longVowel]
     featureMap[v + u"̌"] =  featureMap[v] + [risingTone]
     featureMap[v + u"̃"] = featureMap[v] + [nasal]
+
+# palletization
+for p in [u'v',u'b',u't',u'z',u'š',u'l',u'd',u'm',u's',u't^s',u'n',u'r']:
+    featureMap[p + u'^y'] = featureMap[p] + [palletized]
 
 def tokenize(word):
     # š can be realized in two different ways
