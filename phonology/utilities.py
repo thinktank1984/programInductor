@@ -97,10 +97,21 @@ def everyEditSequence(sequence, radii):
         candidates -= set([ tuple(s) for s in _everySequenceEdit(smallerRadius) ])
     # todo: some of the edit sequences might subsume other ones, eg [None,1,None] subsumes [0,1,None]
     # maybe we want to not include things that are subsumed by other things?
+
+    def subsumes(moreGeneral, moreSpecific):
+        if not len(moreGeneral) == len(moreSpecific): return False
+        for g,s in zip(moreGeneral,moreSpecific):
+            if g != None and s != g: return False
+        #print "%s is strictly more general than %s"%(moreGeneral,moreSpecific)
+        return True
+
+    removedSubsumption = [ s
+                           for s in candidates
+                           if not any([ subsumes(t,s) for t in candidates if t != s ]) ]
     
     # reindex into the input sequence
     return [ [ (None if j == None else sequence[j]) for j in s ]
-             for s in candidates  ]
+             for s in removedSubsumption ]
 
 def dumpPickle(o,f):
     with open(f,'wb') as handle:

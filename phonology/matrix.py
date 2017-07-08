@@ -527,7 +527,7 @@ class UnderlyingProblem():
                     print "No incremental modification within radius of size %d"%radius
                     radius += 1
                     print "Increasing search radius to %d"%radius
-                    if radius > 2:
+                    if radius > 3:
                         print "I refuse to use a radius this big."
                         return None
                     continue # retreat back to the loop over different radii
