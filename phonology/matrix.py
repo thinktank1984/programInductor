@@ -443,15 +443,13 @@ class UnderlyingProblem():
                 assert False
             print "\t(modification successful; loss = %s)"%loss
 
-            compositeRules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
-                           for r,rp in zip(rules,originalRules) ]
             solutionsSoFar.append(Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                                            suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
                                            underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                                           rules = [ r for r in compositeRules
-                                                     if len(compositeRules) == 1 or (not r.doesNothing()) ],
+                                           rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
+                                                     for r,rp in zip(rules,originalRules) ],
                                            adjustedCost = loss))
-        return solutionsSoFar
+        return [ s.withoutUselessRules() for s in solutionsSoFar ]
 
     def sketchIncrementalChange(self, solution, radius = 1, k = 1):
         ruleVectors = everyEditSequence(solution.rules, [radius])

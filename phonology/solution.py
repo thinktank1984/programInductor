@@ -80,6 +80,14 @@ class Solution():
     def phonologyTransducer(self,bank):
         return composedTransducer(bank, self.rules)
 
+    def withoutUselessRules(self):
+        return Solution(prefixes = self.prefixes,
+                        suffixes = self.suffixes,
+                        underlyingForms = self.underlyingForms,
+                        rules = [ r for r in self.rules
+                                  if len(self.rules) == 1 or (not r.doesNothing()) ],
+                        adjustedCost = self.adjustedCost)
+
     def morphologyTransducers(self, bank):
         def makeTransducer(prefix, suffix):
             if len(prefix) > 0:
