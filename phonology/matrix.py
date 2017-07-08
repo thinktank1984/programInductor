@@ -5,7 +5,7 @@ from solution import *
 from features import FeatureBank, tokenize
 from rule import * # Rule,Guard,FeatureMatrix,EMPTYRULE
 from morph import Morph
-from sketchSyntax import Expression
+from sketchSyntax import Expression,makeSketchSkeleton
 from sketch import *
 from supervised import solveTopSupervisedRules
 from latex import latexMatrix
@@ -440,6 +440,7 @@ class UnderlyingProblem():
             if loss == None:
                 print "WARNING: None loss"
                 print output
+                print makeSketchSkeleton()
                 assert False
             print "\t(modification successful; loss = %s)"%loss
 
