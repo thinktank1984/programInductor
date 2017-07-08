@@ -437,7 +437,7 @@ class UnderlyingProblem():
                 # Because these are executed in parallel, do not throw an exception
                 break
             loss = parseMinimalCostValue(output)
-            print "\t(modification successful; loss = %d)"%loss
+            print "\t(modification successful; loss = %s)"%loss
 
             compositeRules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                            for r,rp in zip(rules,originalRules) ]
