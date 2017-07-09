@@ -450,10 +450,14 @@ class UnderlyingProblem():
                                            rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                                                      for r,rp in zip(rules,originalRules) ],
                                            adjustedCost = loss))
+        flushEverything()
         return [ s.withoutUselessRules() for s in solutionsSoFar ]
 
     def sketchIncrementalChange(self, solution, radius = 1, k = 1):
         ruleVectors = everyEditSequence(solution.rules, [radius])
+
+        # Ensure output is nicely ordered
+        flushEverything()
 
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
