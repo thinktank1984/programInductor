@@ -120,7 +120,10 @@ class Solution():
     def transduceUnderlyingForm(self, bank, surfaces):
         try:
             transducers = self.inflectionTransducers(bank)
-        except InvalidRule: return None
+        except InvalidRule as ex:
+            print "INVALIDRULE???"
+            print ex
+            return None
 
         applicableTransducersAndSurfaces = [(t,s) for (t,s) in zip(transducers, surfaces) if s != None ]
         transducers = [t for t,_ in applicableTransducersAndSurfaces ]

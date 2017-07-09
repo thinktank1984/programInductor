@@ -504,6 +504,12 @@ class UnderlyingProblem():
                             print u'\t~\t'.join(alreadyExplained)
                             if alreadyExplained in trainingData:
                                 print " [-] FATAL: Already in training data!"
+                                # Try transducing the underlying form using each inflection individually
+                                for i in range(self.numberOfInflections):
+                                    print "Transducing just the %d inflection:"%(i+1)
+                                    justThisInflection = [None]*i + [alreadyExplained[i]] + [None]*(self.numberOfInflections - i - 1)
+                                    print newSolution.transduceUnderlyingForm(self.bank, justThisInflection)
+                                
                                 # Illustrate the derivation
                                 ur = newSolution.underlyingForms[trainingData.index(alreadyExplained)]
                                 print "UR =",ur
