@@ -483,7 +483,7 @@ class UnderlyingProblem():
             if self.verify(solution, self.data[j]): continue
 
             print "Next data point to explain: "
-            print u'\t~\t'.join(self.data[j])
+            print u'\t~\t'.join(map(unicode,self.data[j]))
 
             radius = 1
             while True:
@@ -512,7 +512,7 @@ class UnderlyingProblem():
                         if not self.verify(newSolution, alreadyExplained):
                             haveRegression = True
                             print "But that solution cannot explain an earlier data point, namely:"
-                            print u'\t~\t'.join(alreadyExplained)
+                            print u'\t~\t'.join(map(unicode,alreadyExplained))
                             if alreadyExplained in trainingData:
                                 self.illustrateFatalIncrementalError(newSolution,alreadyExplained,trainingData)
                                 assert False
@@ -576,7 +576,7 @@ class UnderlyingProblem():
 
         ur = solution.transduceUnderlyingForm(self.bank, inflections)
         if getVerbosity() > 3:
-            print "Transducing UR of:",u"\t".join(inflections)
+            print "Transducing UR of:",u"\t".join(map(unicode,inflections))
             print "\tUR = ",ur
         if ur != None:
             return len(ur)
@@ -611,7 +611,7 @@ class UnderlyingProblem():
         if output == None:
             print "Fatal error: "
             print "Could not compute description length of:"
-            print u"\t".join(inflections)
+            print u"\t".join(map(unicode,inflections))
             print "For model:"
             print solution
             print "Bank:"
@@ -729,7 +729,7 @@ class UnderlyingProblem():
             ss = worker.counterexampleSolution(10)
 
             print " [+] Random sample solver: Training data:"
-            print u"\n".join([u"\t".join(xs) for xs in subset ])
+            print u"\n".join([u"\t".join(map(unicode,xs)) for xs in subset ])
             print " Solutions:"
             for s in ss: print s
             print 
