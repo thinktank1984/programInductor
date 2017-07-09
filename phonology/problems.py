@@ -1497,69 +1497,94 @@ sevenProblems.append(Problem('''3: Somali
 
 sevenProblems.append(Problem('''4: Latin
 	Provide a complete account of the following phonological alternations in Latin, including underlying forms for nouns stems.
+My analysis:
+Nominative: stem + /s/
+Genitive 1: stem + /is/
+Genitive 2: stem + /i/
+Phonological rules:
+[+voice] > [-voice] / _ i
+(these two have to be in this order)
+s > 0 / {r,l,n} _
+{d,t} > 0 / _ s 
+e > i / _ [^ir]* i
+0 > e / {t,g}_r#
+
+(not sure about this)
+C_i > 0 / _ C_i #, s > 0/s_
+
 ''',
 [
 #	Nominative		Genitive  		Gloss
-	(u"arks",			u"arkis"),#			fortress
-	(u"duks",			u"dukis"),#			leader
-	(u"daps",			u"dapis"),#			feast
-	(u"re:ks",			u"re:gis"),#			king
-	(u"falanks",		u"falangis"),#		phalanx
-	(u"filiks",			u"filikis"),#			fern
-	(u"lapis",			u"lapidis"),#   		stone
-	(u"li:s",			u"li:tis"),#			strife
-	(u"fraws",			u"frawdis"),#   		deceit
-	(u"noks",			u"noktis"),#    		night
-	(u"frons",			u"frontis"),#   		brow
-	(u"frons",			u"frondis"),#   		leaf
-	(u"inku:s",			u"inku:dis"),#  		anvil
-	(u"sors",			u"sortis"),#			lot
-	(u"fu:r",			u"fu:ris"),#			thief
-	(u"murmur",    		u"murmuris"),#  		murmur
-	(u"augur",     		u"auguris"),#   		augur
-	(u"arbor",			u"arboris"),#   		tree
-	(u"pugil",			u"pugilis"),#   		boxer
-	(u"sal",			u"salis"),#			salt
-	(u"adeps",			u"adipis"),#			fat
-	(u"apeks",			u"apikis"),#			top
-	(u"pri:nkeps", 		u"pri:nkipis"),#		chief
-	(u"ekwes",			u"ekwitis"),#   		horseman
-	(u"miles",			u"militis"),#   		soldier
-	(u"no:men",    		u"no:minis"),#  		name
-	(u"karmen",    		u"karminis"),# 		song
-	(u"lu:men",    		u"lu:minis"),#  		light
-	(u"wenter",    		u"wentris"),#   		belly
-	(u"pater",			u"patris"),#			father
-	(u"kada:wer",  		u"kada:weris"),#		corpse
-	(u"tu:ber",			u"tu:beris"),#  		swelling
-	(u"piper",			u"piperis"),#   		pepper
-	(u"karker",    		u"karkeris"),#  		prison
+    # illustrate the morphology
+	(u"arks",			u"arkis",None),#			fortress
+	(u"duks",			u"dukis",None),#			leader
+	(u"daps",			u"dapis",None),#			feast
+    # illustrate devoicing
+	(u"re:ks",			u"re:gis",None),#			king
+	(u"falanks",		u"falangis",None),#		phalanx
+	(u"filiks",			u"filikis",None),#			fern
+    # illustrate t/d deletion
+	(u"lapis",			u"lapidis",None),#   		stone
+	(u"li:s",			u"li:tis",None),#			strife
+	(u"fraws",			u"frawdis",None),#   		deceit
+	(u"noks",			u"noktis",None),#    		night
+	(u"frons",			u"frontis",None),#   		brow
+	(u"frons",			u"frondis",None),#   		leaf
+	(u"inku:s",			u"inku:dis",None),#  		anvil
+	(u"sors",			u"sortis",None),#			lot
+    # illustrate s deletion
+	(u"fu:r",			u"fu:ris",None),#			thief
+	(u"murmur",    		u"murmuris",None),#  		murmur
+	(u"augur",     		u"auguris",None),#   		augur
+	(u"arbor",			u"arboris",None),#   		tree
+	(u"pugil",			u"pugilis",None),#   		boxer
+	(u"sal",			u"salis",None),#			salt
+    # illustrate vowel harmony
+	(u"adeps",			u"adipis",None),#			fat
+	(u"apeks",			u"apikis",None),#			top
+	(u"pri:nkeps", 		u"pri:nkipis",None),#		chief
+	(u"ekwes",			u"ekwitis",None),#   		horseman
+	(u"miles",			u"militis",None),#   		soldier
+	(u"no:men",    		u"no:minis",None),#  		name
+	(u"karmen",    		u"karminis",None),# 		song
+	(u"lu:men",    		u"lu:minis",None),#  		light
+    # illustrate /e/ insertion & blocking of the vowel harmony
+	(u"wenter",    		u"wentris",None),#   		belly
+	(u"pater",			u"patris",None),#			father
+	(u"kada:wer",  		u"kada:weris",None),#		corpse
+	(u"tu:ber",			u"tu:beris",None),#  		swelling
+	(u"piper",			u"piperis",None),#   		pepper
+	(u"karker",    		u"karkeris",None),#  		prison
 	
 # 	The following 6 nouns and adjectives select a different genitive suffix, -i: as opposed to is. You cannot predict on phonological grounds what nouns take this suffix, but otherwise these words follow the rules motivated in the language.
 	
-# 	die:s	die:i:	day
-# 	li:ber	li:beri:  	free
-# 	miser	miseri:   	wretched
-# 	ager	agri:	field
-# 	sinister  	sinistri: 	left
-# 	liber	libri:	book
+ 	(u"die:s",	None,u"die:i:"),#	day
+ 	(u"li:ber",	None,u"li:beri:"),#	free
+ 	(u"miser",	None,u"miseri:"),#   	wretched
+    # illustrates another condition for /e/ insertion
+ 	(u"ager",	None,u"agri:"),#	field
+ 	(u"sinister",  	None,u"sinistri:"),# 	left
+ 	(u"liber",	None,u"libri:"),#	book
 
 # What other phonological rule or rules are needed to account for the following data?
-	
-# 	as			assis			whole
-# 	os			ossis			bone
-# 	far			farris			spell
-# 	mel			mellis			honey
-# 	o:s			o:ris			mouth
-# 	flo:s			flo:ris			flower
-# 	mu:s			mu:ris    		mouse
-# 	cru:s			cru:ris   		leg
-# 	kinis			kineris   		ash
-# 	pulvis    		pulveris  		dust
+    # some kind of doubling of consonant or deletion of adjacent identical consonant
+	# (u"as",			u"assis",None),#			whole
+	# (u"os",			u"ossis",None),#			bone
+	# (u"far",			u"farris",None),#			spell
+	# (u"mel",			u"mellis",None),#			honey
+    # # /r/ deletion? this is tricky
+     #    (u"o:s",			u"o:ris",None),#			mouth
+     #    (u"flo:s",			u"flo:ris",None),#			flower
+     #    (u"mu:s",			u"mu:ris",None),#		mouse
+     #    (u"cru:s",			u"cru:ris",None),#		leg
+     #    (u"kinis",			u"kineris",None),#		ash
+     #    (u"pulvis",		u"pulveris",None),#		dust
     ]))
 	
 sevenProblems.append(Problem('''5: Turkish
 	Provide a phonological analysis of the following data from Turkish.
+My analysis:
+Morphology: 
 ''',[
     
 #	nom	poss	dat	abl	nom. pl

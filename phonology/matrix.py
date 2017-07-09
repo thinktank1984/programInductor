@@ -494,8 +494,15 @@ class UnderlyingProblem():
                     # see which of the solutions is best overall
                     solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
                                       for s in solutions ]
+                    print "Alternative solutions and their scores:"
+                    for c,s in solutionScores:
+                        print "COST = %d + %d = %d, SOLUTION = \n%s\n"%(s.modelCost(),
+                                                                        c - s.modelCost(),
+                                                                        c,
+                                                                        s)
                     newJointScore, newSolution = min(solutionScores)
-                    print " Best new solution:"
+                    
+                    print " [+] Best new solution (cost = %d):"%(newJointScore)
                     print newSolution
 
                     # Make sure that all of the previously explained data points are still explained
@@ -507,30 +514,7 @@ class UnderlyingProblem():
                             print "But that solution cannot explain an earlier data point, namely:"
                             print u'\t~\t'.join(alreadyExplained)
                             if alreadyExplained in trainingData:
-                                print " [-] FATAL: Already in training data!"
-                                # Try transducing the underlying form using each inflection individually
-                                for i in range(self.numberOfInflections):
-                                    print "Transducing just the %d inflection:"%(i+1)
-                                    justThisInflection = [None]*i + [alreadyExplained[i]] + [None]*(self.numberOfInflections - i - 1)
-                                    print newSolution.transduceUnderlyingForm(self.bank, justThisInflection)
-                                
-                                # Illustrate the derivation
-                                ur = newSolution.underlyingForms[trainingData.index(alreadyExplained)]
-                                print "UR =",ur
-                                for i in range(self.numberOfInflections):
-                                    print "Inflection",i
-                                    surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
-                                    print "Using sketch rules:"
-                                    for r in newSolution.rules:
-                                        newSurface = self.applyRuleUsingSketch(r,surface)
-                                        print "%s > %s"%(surface,newSurface)
-                                        surface = newSurface
-                                    print "Using transducer rules:"
-                                    surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
-                                    for r in newSolution.rules:
-                                        newSurface = self.applyRule(r,surface)
-                                        print "%s > %s"%(surface,newSurface)
-                                        surface = newSurface
+                                self.illustrateFatalIncrementalError(newSolution,alreadyExplained,trainingData)
                                 assert False
                             else:
                                 trainingData.append(alreadyExplained)
@@ -551,108 +535,37 @@ class UnderlyingProblem():
                 trainingData.append(self.data[j])
                 solution = newSolution
                 
-                # Enumerate alternative hypotheses and pick the one that gives the best joint score
-                worker = UnderlyingProblem(trainingData, 0, self.bank)
-                solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                                  for s in (worker.solveTopRules(solution, beam) if solution.depth < 3 else worker.fastTopRules(solution, beam, maximumNumberOfSolutions = 1000)) ]
-                print "Alternative solutions and their scores:"
-                for c,s in solutionScores:
-                    print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
-
-                solution = min(solutionScores)[1]
-                print " [+] New solution:"
-                print solution
                 break # break out the loop over different radius sizes
             
 
         return solution
+
+    def illustrateFatalIncrementalError(self,newSolution,alreadyExplained,trainingData):
+        print " [-] FATAL: Already in training data!"
+        # Try transducing the underlying form using each inflection individually
+        for i in range(self.numberOfInflections):
+            print "Transducing just the %d inflection:"%(i+1)
+            justThisInflection = [None]*i + [alreadyExplained[i]] + [None]*(self.numberOfInflections - i - 1)
+            print newSolution.transduceUnderlyingForm(self.bank, justThisInflection)
+
+        # Illustrate the derivation
+        ur = newSolution.underlyingForms[trainingData.index(alreadyExplained)]
+        print "UR =",ur
+        for i in range(self.numberOfInflections):
+            print "Inflection",i
+            surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
+            print "Using sketch rules:"
+            for r in newSolution.rules:
+                newSurface = self.applyRuleUsingSketch(r,surface)
+                print "%s > %s"%(surface,newSurface)
+                surface = newSurface
+            print "Using transducer rules:"
+            surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
+            for r in newSolution.rules:
+                newSurface = self.applyRule(r,surface)
+                print "%s > %s"%(surface,newSurface)
+                surface = newSurface
     
-    def _incrementallySolve(self, stubborn = False, beam = 1):
-        # start out with just the first example
-        print "Starting out with explaining just the first 2 examples:"
-        trainingData = self.data[:2]
-        slave = UnderlyingProblem(trainingData, 1, self.bank)
-        solution = slave.sketchJointSolution(canAddNewRules = True)
-        # Should we enumerate alternative hypotheses?
-        if beam > 1:
-            worker = UnderlyingProblem(trainingData, 0, self.bank)
-            solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                              for s in worker.solveTopRules(solution, beam) ]
-            print "Alternative solutions and their scores:"
-            for c,s in solutionScores:
-                print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
-
-            solution = min(solutionScores)[1]
-            print " [+] New solution:"
-            print solution
-
-        radius = 1
-
-        while True:
-            haveCounterexample = False
-            newExample = None
-            for ce in self.findCounterexamples(solution, trainingData):
-                haveCounterexample = True
-                slave = UnderlyingProblem(trainingData + [ce], 0, self.bank)
-                try:
-                    solutions = slave.sketchIncrementalChange(solution, radius)
-                    assert solutions != []
-                    # see which of the solutions is best overall
-                    solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                                      for s in solutions ]
-                    newJointScore, newSolution = min(solutionScores)
-                    print " Best new solution:"
-                    print newSolution
-                    if newJointScore < solution.modelCost() + self.solutionDescriptionLength(solution):
-                        newExample = ce
-                        solution = newSolution
-                        break
-                    else:
-                        print "But, this does not yield better compression on the whole data set."
-                        if stubborn: break
-                except SynthesisFailure:
-                    print "But, cannot incrementally change rules right now to accommodate that example."
-                    # stubborn: insist on explaining earlier examples before explaining later examples
-                    # so we want to break out of the loop over counterexamples
-                    if stubborn: break
-            if not haveCounterexample:
-                print "No more counterexamples; done."
-                return self.solveUnderlyingForms(solution)
-
-            if newExample == None:
-                print "I can't make any local changes to my rules to accommodate a counterexample."
-                radius += 1
-                print "Increasing search radius to %d"%radius
-                if radius > 2:
-                    print "I refuse to use a radius this big."
-                    return None                    
-            else:
-                trainingData += [ce]
-                print "Added the counterexample to the training data."
-                print "Training data:"
-                for t in trainingData:
-                    print u"\t".join(t)
-                print
-                if radius > 1:
-                    print "(radius set back to 1)"
-                    radius = 1
-                    print
-
-                # Should we enumerate alternative hypotheses?
-                if beam > 1:
-                    worker = UnderlyingProblem(trainingData, 0, self.bank)
-                    solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
-                                      for s in (worker.solveTopRules(solution, beam) if solution.depth < 3 else worker.fastTopRules(solution, beam, maximumNumberOfSolutions = 1000)) ]
-                    print "Alternative solutions and their scores:"
-                    for c,s in solutionScores:
-                        print "COST = %d, SOLUTION = \n%s\n"%(c,str(s))
-
-                    solution = min(solutionScores)[1]
-                    print " [+] New solution:"
-                    print solution
-                    
-                    
-                    
     def solutionDescriptionLength(self,solution,inflections = None):
         if inflections == None:
             if getVerbosity() > 3:
