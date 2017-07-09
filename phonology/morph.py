@@ -42,7 +42,7 @@ class Morph():
     def parse(bank, output, variable):
         pattern = 'Word.* %s.* = new Word\(l=([0-9]+)\);'%variable
         m = re.search(pattern, output)
-        if not m: raise Exception('Could not find word %s'%variable)
+        if not m: raise Exception('Could not find word %s in:\n%s'%(variable,output))
 
         l = int(m.group(1))
         phones = []
