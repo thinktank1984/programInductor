@@ -1442,18 +1442,30 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
 ]))
 
 sevenProblems.append(Problem('''3: Somali
-	In the following Somali data, [ḍ] is a voiced retroflex stop and [ṛ] is a voiced retroflex spirant. Account for all phonological alternations in these data. In your discussion of these forms, be sure to make it clear what you assume the underlying representations of relevant morphemes are. Your discussion should also make it clear what motivates your underlying representations and rules. For instance if you could analyse some alternation by assuming underlying X and rule Y, say why (or whether) that choice is preferable to the alternative of assuming underlying P and rule Q.''',
+	In the following Somali data, [ḍ] is a voiced retroflex stop and [ṛ] is a voiced retroflex spirant. Account for all phonological alternations in these data. In your discussion of these forms, be sure to make it clear what you assume the underlying representations of relevant morphemes are. Your discussion should also make it clear what motivates your underlying representations and rules. For instance if you could analyse some alternation by assuming underlying X and rule Y, say why (or whether) that choice is preferable to the alternative of assuming underlying P and rule Q.
+Kevin analysis:
+Morphology:
+stem
+stem + /ta/
+stem + /o/
+(these are wrong...)
+{g,b,d} > {ɣ,β,ð} / _o#
+ḍ > ṛ / _o#
+''',
 [
 #	Singular	Sing. Definite	Plural	Gloss
+    # illustrates morphology
 	(u"daar",	u"daarta",	u"daaro"),#	house
 	(u"gees",	u"geesta",	u"geeso"),#	side
 	(u"laf",	u"lafta",	u"lafo"),#	bone
+    # illustrate stop/fricative alternations
 	(u"lug",	u"lugta",  	u"luɣo"),#	leg
 	(u"naag",	u"naagta",	u"naaɣo"),#	woman
 	(u"tib",	u"tibta",    	u"tiβo"),#	pestle
 	(u"sab",	u"sabta",    	u"saβo"),#	outcast
 	(u"bad",	u"bada",	u"baðo"),#	sea
 	(u"šid",	u"šida",	u"šiðo"),#	person
+    # 
 	(u"feeḍ",	u"feeḍa",  	u"feeṛo"),#	rib
 	(u"ʕiir",	u"ʕiirta",	u"ʕiiro"),#	buttermilk
 	(u"ʔul",	u"ʔuša",	u"ʔulo"),#	stick

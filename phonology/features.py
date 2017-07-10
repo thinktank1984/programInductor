@@ -203,10 +203,13 @@ def tokenize(word):
     return tokens
 
 class FeatureBank():
-    
+   
     """Builds a bank of features and sounds that are specialized to a particular data set.
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
-   
+    mutuallyExclusiveClasses = [["high","middle","low"],
+                                ["front","central","back"],
+                                ["stop","fricative"]]
+    
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in tokenize(w) ]))
         self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
@@ -241,11 +244,9 @@ class FeatureBank():
     def defineZeroFeatures(self):
         z = "#define ZEROFEATURES(m) ({"
         m = "#define MUTUALLYEXCLUDE(s) "
-        mutuallyExclusiveClasses = [["high","middle","low"],
-                                    ["front","central","back"]]
         for f in self.features:
             excluded = False
-            for k in mutuallyExclusiveClasses:
+            for k in FeatureBank.mutuallyExclusiveClasses:
                 if f in k:
                     assert not excluded
                     # only retain other members of the class which are actually used in the data

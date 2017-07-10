@@ -223,19 +223,6 @@ class FeatureMatrix():
         preference = " ,".join(map(str, preference))
         return "new Vector(mask = {%s}, preference = {%s})" % (mask, preference)
 
-    def implicitMatrix(self):
-        def exclude(fs, m):
-            for f in fs:
-                if (True,f) in m:
-                    # weird Python thing: if you use "m += ..." then m will be modified in place
-                    # and as a result featuresAndPolarities will be mutated!
-                    # Not the intended behavior.
-                    m = m + [(False,o) for o in fs if f != o ]
-            return list(set(m))
-        implicit = exclude(['front','central','back'],
-                           exclude(['high','middle','low'], self.featuresAndPolarities))
-        return implicit
-
     def matches(self, test):
         for p,f in self.featuresAndPolarities:
             if p:
@@ -244,9 +231,14 @@ class FeatureMatrix():
                 if f in test: return False
         return True
     def apply(self, test):
-        for p,f in self.implicitMatrix():
+        for p,f in self.featuresAndPolarities:
             if p:
                 test = test + [f]
+                # mutually exclusive features
+                for k in FeatureBank.mutuallyExclusiveClasses:
+                    if f in k:
+                        test = [_f for _f in test if ((not _f in k) or _f == f) ]
+                    break            
             else:
                 test = [_f for _f in test if not _f == f ]
         return list(set(test))
