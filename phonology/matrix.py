@@ -431,7 +431,7 @@ class UnderlyingProblem():
                 condition(And([ ruleEqual(r,o.makeConstant(self.bank))
                                 for r,o,v in zip(rules, other.rules, originalRules)
                                 if v == None ]) == 0)
-            output = self.solveSketch()
+            output = self.solveSketch(minimizeBound = 50)
             if output == None:
                 print "\t(no modification possible: got %d solutions)"%(len(solutionsSoFar))
                 # Because these are executed in parallel, do not throw an exception
