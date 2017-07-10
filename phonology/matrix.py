@@ -581,7 +581,7 @@ class UnderlyingProblem():
         if ur != None:
             return len(ur)
         else:
-            return sum([ len(tokenize(s)) for s in inflections ])
+            return sum([ len(tokenize(s)) for s in inflections if s != None ])
 
         Model.Global()
         stem = Morph.sample()
