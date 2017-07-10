@@ -565,6 +565,12 @@ class UnderlyingProblem():
                 newSurface = self.applyRule(r,surface)
                 print "%s > %s"%(surface,newSurface)
                 surface = newSurface
+
+        # saved to disk for further dissection
+        temporaryName = makeTemporaryFile('.p')
+        newSolution.clearTransducers()
+        dumpPickle((newSolution,alreadyExplained), temporaryName)
+        print " [-] Saved (solution, inflections) to %s"%temporaryName
     
     def solutionDescriptionLength(self,solution,inflections = None):
         if inflections == None:

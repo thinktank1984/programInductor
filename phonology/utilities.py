@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import tempfile
 import sys
 import pickle
 import math
@@ -123,6 +124,11 @@ def loadPickle(f):
 def flushEverything():
     sys.stdout.flush()
     sys.stderr.flush()
+def makeTemporaryFile(suffix, d = '.'):
+    fd = tempfile.NamedTemporaryFile(mode = 'w',suffix = suffix,delete = False,dir = d)
+    fd.write('')
+    fd.close()
+    return fd.name
 
 
 
