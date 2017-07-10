@@ -114,7 +114,7 @@ def handleProblem(parameters):
     
     print p.description
     if problemIndex != 7:
-        print u"\n".join([ u"\t".join(unicode(inflections)) for inflections in p.data ])
+        print u"\n".join([ u"\t".join(map(unicode,inflections)) for inflections in p.data ])
     else:
         print CountingProblem(p.data, p.parameters).latex()
 
