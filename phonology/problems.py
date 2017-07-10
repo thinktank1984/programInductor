@@ -1406,29 +1406,29 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
 #	Masculine nouns
 #	Nom. sg.	Dat. pl. 	 Dat. sg.	Loc. sg.	Gloss
 [
-	(u"zub",	u"zubam",	u"zubov^yi",	u"zub^yi"),#	tooth
-	(u"sv^yit",	u"sv^yitam",	u"sv^yitov^yi",	u"sv^yit^yi"),#	light
-	(u"z^yat^y",	u"z^yat^yam",	u"z^yatev^yi",	u"z^yatev^yi"),#	son-in-law
-	(u"koš^yil^y",	u"košel^yam",	u"košelev^yi",	u"košel^yi"),#	basket
-	(u"zlod^yiy",	u"zlod^yiyam",	u"zlod^yiyev^yi",	u"zlod^yiyev^yi"),# 	thief
-	(u"m^yis^yat^s^y",	u"m^yis^yat^s^yam",	u"m^yis^yat^sev^yi",	u"m^yis^yat^s^yi"),#	month
-	(u"korovay",	u"korovayam",	u"korovayev^yi",	u"korovayi"),#	round loaf
-	(u"kam^yin^y",	u"kamen^yam",	u"kamenev^yi",	u"kamen^yi"),#	stone
-	(u"m^yid^y",	u"m^yid^yam",	u"m^yidev^yi",	u"m^yid^yi"),#	copper
-	(u"xl^yiw",	u"xl^yivam",	u"xl^yivov^yi",	u"xl^yiv^yi"),#	stable
-	(u"holub",	u"holubam",	u"holubov^yi",	u"holub^yi"),#	dove
-	(u"s^yin",	u"s^yinam",	u"s^yinov^yi",	u"s^yin^yi"),#	son
-	(u"leb^yid^y",	u"lebed^yam",	u"lebedev^yi",	u"lebed^yi"),#	swan
-	(u"sus^yid", 	u"sus^yidam", 	u"sus^yidov^yi", 	u"sus^yidov^yi"),#	neighbor
-	(u"čolov^yik", 	u"čolov^yikam", 	u"čolov^yikov^yi", 	u"čolov^yikov^yi"),#	man
-	(u"l^yid",	u"ledam",	u"ledov^yi",	u"led^yi"),#	ice
-	(u"bil^y",	u"bol^yam",	u"bolev^yi",	u"bol^yi"),#	ache
-	(u"riw",	u"rovam",	u"rovov^yi",	u"rov^yi"),#	ditch
-	(u"stiw",	u"stolam",	u"stolov^yi",	u"stol^yi"),#	table
-	(u"d^yid",	u"d^yidam",	u"d^yidov^yi",	u"d^yidov^yi"),#	grandfather
-	(u"l^yit",	u"l^yotam",	u"l^yotov^yi",	u"l^yot^yi"),#	flight
-	(u"mist",	u"mostam",	u"mostov^yi",	u"most^yi"),#	bridge
-	(u"večir",	u"večoram",	u"večorov^yi",	u"večor^yi"),#	evening
+	(u"zub",	u"zubam",	u"zubov^yi",	u"zub^yi",None),#	tooth
+	(u"sv^yit",	u"sv^yitam",	u"sv^yitov^yi",	u"sv^yit^yi",None),#	light
+	(u"z^yat^y",	u"z^yat^yam",	u"z^yatev^yi",	None,u"z^yatev^yi"),#	son-in-law
+	(u"koš^yil^y",	u"košel^yam",	u"košelev^yi",	u"košel^yi",None),#	basket
+	(u"zlod^yiy",	u"zlod^yiyam",	u"zlod^yiyev^yi",	None,u"zlod^yiyev^yi"),# 	thief
+	(u"m^yis^yat^s^y",	u"m^yis^yat^s^yam",	u"m^yis^yat^sev^yi",	u"m^yis^yat^s^yi",None),#	month
+	(u"korovay",	u"korovayam",	u"korovayev^yi",	u"korovayi",None),#	round loaf
+	(u"kam^yin^y",	u"kamen^yam",	u"kamenev^yi",	u"kamen^yi",None),#	stone
+	(u"m^yid^y",	u"m^yid^yam",	u"m^yidev^yi",	u"m^yid^yi",None),#	copper
+	(u"xl^yiw",	u"xl^yivam",	u"xl^yivov^yi",	u"xl^yiv^yi",None),#	stable
+	(u"holub",	u"holubam",	u"holubov^yi",	u"holub^yi",None),#	dove
+	(u"s^yin",	u"s^yinam",	u"s^yinov^yi",	u"s^yin^yi",None),#	son
+	(u"leb^yid^y",	u"lebed^yam",	u"lebedev^yi",	u"lebed^yi",None),#	swan
+	(u"sus^yid", 	u"sus^yidam", 	u"sus^yidov^yi", 	None,u"sus^yidov^yi"),#	neighbor
+	(u"čolov^yik", 	u"čolov^yikam", 	u"čolov^yikov^yi", 	None,u"čolov^yikov^yi"),#	man
+	(u"l^yid",	u"ledam",	u"ledov^yi",	u"led^yi",None),#	ice
+	(u"bil^y",	u"bol^yam",	u"bolev^yi",	u"bol^yi",None),#	ache
+	(u"riw",	u"rovam",	u"rovov^yi",	u"rov^yi",None),#	ditch
+	(u"stiw",	u"stolam",	u"stolov^yi",	u"stol^yi",None),#	table
+	(u"d^yid",	u"d^yidam",	u"d^yidov^yi",	None,u"d^yidov^yi"),#	grandfather
+	(u"l^yit",	u"l^yotam",	u"l^yotov^yi",	u"l^yot^yi",None),#	flight
+	(u"mist",	u"mostam",	u"mostov^yi",	u"most^yi",None),#	bridge
+	(u"večir",	u"večoram",	u"večorov^yi",	u"večor^yi",None),#	evening
 	
 	# Neuter nouns
 	# Nom. sg.	Gen. sg.	Dat. sg.	Loc. sg.	Gen. pl.	Gloss
