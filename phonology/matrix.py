@@ -334,7 +334,7 @@ class UnderlyingProblem():
 
     def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2):
         # Start out with the shortest examples
-        self.sortDataByLength()
+        #self.sortDataByLength()
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]
@@ -470,6 +470,10 @@ class UnderlyingProblem():
     def incrementallySolve(self, beam = 1,stubborn = None):
         print "I got stubborn =",stubborn,"but I'm going to ignore that and be stubborn anyways"
         print "Using beam width of",beam
+
+        # Exploit the curriculum nature of the examples:
+        # Look at the next windowSize counterexamples
+        windowSize = 2
         
         initialTrainingSize = 2
         print "Starting out with explaining just the first %d examples:"%initialTrainingSize
@@ -478,17 +482,21 @@ class UnderlyingProblem():
         solution = worker.sketchJointSolution(canAddNewRules = True)
 
         # Maintain the invariant: the first j examples have been explained
-        for j in range(initialTrainingSize, len(self.data)):
+        j = initialTrainingSize
+        while j < len(self.data):
             # Can we explain the jth example?
-            if self.verify(solution, self.data[j]): continue
+            if self.verify(solution, self.data[j]):
+                j += 1
+                continue
 
-            print "Next data point to explain: "
-            print u'\t~\t'.join(map(unicode,self.data[j]))
+            print "Next data points to explain: "
+            window = self.data[j:j + windowSize]
+            print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ]) 
 
             radius = 1
             while True:
                 try:
-                    worker = UnderlyingProblem(trainingData + [self.data[j]], 0, self.bank)
+                    worker = UnderlyingProblem(trainingData + window, 0, self.bank)
                     solutions = worker.sketchIncrementalChange(solution, radius, k = beam)
                     assert solutions != []
                     # see which of the solutions is best overall
@@ -508,7 +516,7 @@ class UnderlyingProblem():
                     # Make sure that all of the previously explained data points are still explained
                     # These "regressions" triggered the regressed test case being added to the training data
                     haveRegression = False
-                    for alreadyExplained in self.data[:j]:
+                    for alreadyExplained in self.data[:j+(windowSize-1)]:
                         if not self.verify(newSolution, alreadyExplained):
                             haveRegression = True
                             print "But that solution cannot explain an earlier data point, namely:"
@@ -517,6 +525,7 @@ class UnderlyingProblem():
                                 self.illustrateFatalIncrementalError(newSolution,alreadyExplained,trainingData)
                                 assert False
                             else:
+                                # Incorporate the regression into the training data
                                 trainingData.append(alreadyExplained)
                     if haveRegression:
                         continue
@@ -532,8 +541,9 @@ class UnderlyingProblem():
                 # Successfully explained a new data item
 
                 # Update both the training data and solution
-                trainingData.append(self.data[j])
+                trainingData += window
                 solution = newSolution
+                j += windowSize
                 
                 break # break out the loop over different radius sizes
             
