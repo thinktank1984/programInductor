@@ -80,19 +80,16 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         minimizeBound = 5
 
     # Temporary file for writing the sketch
-    fd = tempfile.NamedTemporaryFile(mode = 'w',suffix = '.sk',delete = False,dir = '.')
-    fd.write(source)
-    fd.close()
+    temporarySketchFile = makeTemporaryFile('.sk')
+    with open(temporarySketchFile,'w') as handle:
+        handle.write(source)
 
     if showSource: print source
 
     # Temporary file for collecting the sketch output
-    od = tempfile.NamedTemporaryFile(mode = 'w',delete = False,dir = './solver_output')
-    od.write('') # just create the file that were going to overwrite
-    od.close()
-    outputFile = od.name
+    outputFile = makeTemporaryFile('',d = './solver_output')
     
-    command = "sketch --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (minimizeBound, unroll, fd.name, outputFile, outputFile)
+    command = "sketch --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (minimizeBound, unroll, temporarySketchFile, outputFile, outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
@@ -102,7 +99,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     
     output = open(outputFile,'r').read()
     if not leavitt:
-        os.remove(fd.name)
+        os.remove(temporarySketchFile)
         os.remove(outputFile)
     
     if "not be resolved." in output or "Rejected" in output:
