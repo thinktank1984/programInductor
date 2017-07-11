@@ -654,6 +654,12 @@ def invertParallelTransducers(transducers, surfaces):
     
 
 if __name__ == '__main__':
+    # inverting a deletion rule
+    m = FST('a -> 0 || _ .#.')
+    for w in m.upper():
+        print w
+    assert False
+    
     m1 = FST('[..] -> FAILURE ||  _ .#.')
     m2 = FST('FAILURE -> 0 || _ ')
     if False:

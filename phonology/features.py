@@ -224,6 +224,10 @@ class FeatureBank():
         self.matrix2phoneme = dict([ (frozenset(featureMap[p]),p) for p in self.phonemes ])
 
         self.hasSyllables = syllableBoundary in self.features
+
+    @staticmethod
+    def fromData(d):
+        return FeatureBank([ w for i in d for w in i if w != None ])
         
     def wordToMatrix(self, w):
         return [ self.featureVectorMap[p] for p in tokenize(w) ]
