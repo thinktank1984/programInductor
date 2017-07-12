@@ -38,6 +38,9 @@ class Morph():
     def makeConstant(self, bank):
         return makeConstantWord(bank, "".join(self.phonemes))
 
+    def fst(self,bank):
+        return ''.join([bank.phoneme2fst(p) for p in self.phonemes ])
+
     @staticmethod
     def parse(bank, output, variable):
         pattern = 'Word.* %s.* = new Word\(l=([0-9]+)\);'%variable

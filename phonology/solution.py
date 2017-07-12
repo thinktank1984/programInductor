@@ -3,7 +3,7 @@ from rule import *
 from features import *
 
 
-from foma import *
+from Panini import *
 
 class Solution():
     def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
@@ -78,7 +78,7 @@ class Solution():
         return Solution(newRules,self.prefixes,self.suffixes)
         
     def phonologyTransducer(self,bank):
-        return composedTransducer(bank, self.rules)
+        return reduce(lambda p,q: p*q, [r.fst(bank) for r in self.rules])
 
     def withoutUselessRules(self):
         return Solution(prefixes = self.prefixes,
@@ -90,28 +90,16 @@ class Solution():
 
     def morphologyTransducers(self, bank):
         def makeTransducer(prefix, suffix):
-            if len(prefix) > 0:
-                t1 = '[..] -> %s || .#. _'%(' '.join([ bank.phoneme2fst(p) for p in prefix.phonemes ]))
-                if getVerbosity() >= 5:
-                    print "prefix regular expression", t1
-                t1 = FST(t1)
-            else:
-                t1 = getIdentityFST()
-            if len(suffix) > 0:
-                t2 = '[..] -> %s ||  _ .#.'%(' '.join([ bank.phoneme2fst(p) for p in suffix.phonemes ]))
-                if getVerbosity() >= 5:
-                    print "suffix regular expression",t2
-                t2 = FST(t2)
-            else:
-                t2 = getIdentityFST()
-            return t1.compose(t2)
+            return\
+                transducerOfRule({'': suffix.fst(bank)}, '', '[EOS]', bank.transducerAlphabet())*\
+                transducerOfRule({'': prefix.fst(bank)}, '[BOS]', '', bank.transducerAlphabet())
 
         return [ makeTransducer(prefix, suffix) for prefix, suffix in zip(self.prefixes, self.suffixes) ]
 
     def inflectionTransducers(self, bank):
         if not hasattr(self,'savedInflectionTransducers'):
             phonology = self.phonologyTransducer(bank)
-            self.savedInflectionTransducers = [ m.compose(phonology) for m in self.morphologyTransducers(bank) ]
+            self.savedInflectionTransducers = [ m*phonology for m in self.morphologyTransducers(bank) ]
         return self.savedInflectionTransducers
 
     def clearTransducers(self):
@@ -125,17 +113,9 @@ class Solution():
             print ex
             return None
 
-        applicableTransducersAndSurfaces = [(t,s) for (t,s) in zip(transducers, surfaces) if s != None ]
-        transducers = [t for t,_ in applicableTransducersAndSurfaces ]
-        surfaces = [s for _,s in applicableTransducersAndSurfaces ]
+        applicableTransducersAndSurfaces = [ (bank.surface2fst(s),t)
+                                             for (t,s) in zip(transducers, surfaces) if s != None ]
 
-        ur = invertParallelTransducers(transducers,
-                                       [ ''.join([ bank.phoneme2fst(p) for p in tokenize(s) ]) for s in surfaces])
-        candidates = []
-        for u in ur:
-            candidates.append(u)
-            if len(candidates) > 10: break
-            
-        if candidates == []: return None
-        bestCandidate = min(candidates, key = lambda c: len(c))
-        return Morph([ bank.fst2phoneme(p) for p in bestCandidate ])
+        ur = parallelInversion(applicableTransducersAndSurfaces)
+        if ur == None: return None
+        return Morph([ bank.fst2phoneme(p) for p in ur ])

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from foma import *
 
 palletized = "palletized"
 sibilant = "sibilant"
@@ -281,8 +280,8 @@ class FeatureBank():
         return ''.join([ self.phoneme2fst(p) for p in tokenize(s) ])
     def fst2phoneme(self,s):
         return self.phonemes[FeatureBank.FSTSYMBOLS.index(s)]
-    def identityFST(self):
-        return FST('[%s]*'%('|'.join([ '[%s:%s]'%(s,s) for s in FeatureBank.FSTSYMBOLS[:len(self.phonemes)] ])))
+    def transducerAlphabet(self):
+        return FeatureBank.FSTSYMBOLS[:len(self.phonemes)]
 
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""

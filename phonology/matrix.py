@@ -518,15 +518,16 @@ class UnderlyingProblem():
                     haveRegression = False
                     for alreadyExplained in self.data[:j+(windowSize-1)]:
                         if not self.verify(newSolution, alreadyExplained):
-                            haveRegression = True
                             print "But that solution cannot explain an earlier data point, namely:"
                             print u'\t~\t'.join(map(unicode,alreadyExplained))
                             if alreadyExplained in trainingData:
                                 self.illustrateFatalIncrementalError(newSolution,alreadyExplained,trainingData)
                                 assert False
                             else:
-                                # Incorporate the regression into the training data
-                                trainingData.append(alreadyExplained)
+                                # Incorporate at most one regression into the training data
+                                if not haveRegression:
+                                    trainingData.append(alreadyExplained)
+                            haveRegression = True
                     if haveRegression:
                         continue
                 except SynthesisFailure:

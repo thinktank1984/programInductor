@@ -7,7 +7,8 @@ from latex import latexWord
 from morph import Morph
 from utilities import *
 
-from foma import *
+from Panini import *
+
 import re
 from random import choice,random
 import numpy as np
@@ -77,7 +78,7 @@ class ConstantPhoneme(Specification):
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
     def fst(self,bank):
-        return bank.phoneme2fst(self.p)
+        return [bank.phoneme2fst(self.p)]
     def mutate(self,bank): return ConstantPhoneme(choice(bank.phonemes))
 
     def share(self, table):
@@ -179,8 +180,7 @@ class FeatureMatrix():
                           for p in bank.phonemes
                           if self.matches(featureMap[p]) ]
         if len(setOfPhonemes) == 0: raise InvalidRule('FeatureMatrix: %s'%str(self))
-        if len(setOfPhonemes) == 1: return setOfPhonemes[0]
-        return '[%s]'%('|'.join(setOfPhonemes))
+        return setOfPhonemes
 
     def latex(self):
         if self.featuresAndPolarities == []: return '\\verb|[ ]|'
@@ -311,11 +311,17 @@ class Guard():
         return " ".join(parts)
 
     def fst(self,bank):
-        parts = [ s.fst(bank) for s in self.specifications ]
-        if self.starred: parts[-2] += '*'
-        if self.endOfString: parts += ['.#.']
+        parts = [ unionTransducer(s.fst(bank)) for s in self.specifications ]
+        if self.starred: parts[-2] = parts[-2].closure()
+        if self.endOfString: parts += ['[EOS]' if self.side == 'R' else '[BOS]']
         if self.side == 'L': parts.reverse()
-        return ' '.join(parts)
+        if parts == []: return ""
+        t = parts[0]
+        parts = parts[1:]
+        while parts != []:
+            t = t + parts[0]
+            parts = parts[1:]
+        return t
 
     def share(self, table):
         k = ('GUARD',self.side,unicode(self))
@@ -453,11 +459,11 @@ class Rule():
             # insertion rule
             assert isinstance(self.structuralChange,ConstantPhoneme)
             insertion = True
-            inputs = ['[..]']
+            inputs = ['']
         else: assert False
 
         if deletion:
-            outputs = [ '0' for _ in inputs ]
+            outputs = [ '' for _ in inputs ]
         else:
             if not insertion:
                 outputs = [ frozenset(self.structuralChange.apply(featureMap[i])) for i in inputs ]
@@ -476,22 +482,19 @@ class Rule():
 
         if len(mapping) == 0: raise InvalidRule('mapping has length zero')
 
-        havePotentialFailures = any([ o == None for i,o in mapping ])
-
-        mapping = ", ".join([ "%s -> %s"%(i if insertion else bank.phoneme2fst(i),
-                                          o if deletion  else ('FAILURE' if o == None else bank.phoneme2fst(o)))
-                              for i,o in mapping ])
-        regex = "%s || %s _ %s"%(mapping, self.leftTriggers.fst(bank), self.rightTriggers.fst(bank))
+        mapping = dict([ (i if insertion else bank.phoneme2fst(i),
+                          # '.' is magical error signal
+                          o if deletion  else ('.' if o == None else bank.phoneme2fst(o)))
+                         for i,o in mapping ])
         if getVerbosity() >= 5:
-            print "regular expression"
-            print regex
+            print "mapping:"
+            print mapping
             print
+        regex = transducerOfRule(mapping,
+                                 self.leftTriggers.fst(bank),
+                                 self.rightTriggers.fst(bank),
+                                 bank.transducerAlphabet())
         
-        regex = FST(regex)
-        if havePotentialFailures:
-            if getVerbosity() >= 5: print "Composing with the identity FST so that the failures will be removed"
-            regex = regex.compose(bank.identityFST())
-
         Rule.SAVEDTRANSDUCERS[unicode(self)] = regex
         return regex        
 
@@ -611,89 +614,3 @@ EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  copyOffset = 0)
 assert EMPTYRULE.doesNothing()
 
-def runTransducer(bank,t,x):
-    if isinstance(x,Morph):
-        x = x.phonemes
-    elif isinstance(x,basestring):
-        x = tokenize(x)
-    elif isinstance(x,list):
-        assert isinstance(x[0],basestring)
-    else: assert False
-
-    x = ''.join([ bank.phoneme2fst(p) for p in x ])
-    y = t[x]
-    assert len(y) == 1
-    return Morph([ bank.fst2phoneme(f) for f in y[0] ])
-def composedTransducer(bank,rs):
-    ts = [r.fst(bank) for r in rs ]
-    t = ts[0]
-    ts = ts[1:]
-    while len(ts) > 0:
-        t = t.compose(ts[0])
-        ts = ts[1:]
-    return t
-def constantTransducer(x):
-    t = FST('[?*] .x. [%s]'%(' '.join(x)))
-    if getVerbosity() >= 5:
-        print "constant transducer for",x,"has the regular expression",t.regex
-    return t
-
-def conditionalProjection(t,x):
-    return (t & constantTransducer(x)).upper()
-
-
-def invertParallelTransducers(transducers, surfaces):
-    assert len(transducers) == len(surfaces)
-
-    projections = [ conditionalProjection(t,s) for t,s in zip(transducers, surfaces) ]
-
-    intersections = projections[0]
-    for p in projections[1:]: intersections = intersections&p
-
-    return intersections.words()
-    
-
-if __name__ == '__main__':
-    # inverting a deletion rule
-    m = FST('a -> 0 || _ .#.')
-    for w in m.upper():
-        print w
-    assert False
-    
-    m1 = FST('[..] -> FAILURE ||  _ .#.')
-    m2 = FST('FAILURE -> 0 || _ ')
-    if False:
-        print invertParallelTransducers([m1,m2],
-                                  ['mangots',
-                                   'mangoys'])
-    else:
-        print m1.compose(m2)['Apple']
-        assert False
-
-        
-    print FST('[[a:a]|[b:b]]*')['abac']
-    assert False
-    generator = g.lowerwords()
-    for _ in range(10):
-        print generator.next()
-
-        
-
-    b = FeatureBank(flatten(interactingProblems[4].data))
-    for _ in range(100):
-        print EMPTYRULE.mutate(b)
-    assert False
-    r = Rule(focus = FeatureMatrix([(False,'sonorant')]),
-             structuralChange = FeatureMatrix([(False,'voice')]),
-             leftTriggers = Guard('L',False,False,[]),
-             rightTriggers = Guard('R',True,False,[]),
-             copyOffset = 0)
-    print b
-    print r
-    setVerbosity(9)
-    t = r.fst(b)
-    print t
-    print t[b.surface2fst(u'')]
-    assert False
-
-    
