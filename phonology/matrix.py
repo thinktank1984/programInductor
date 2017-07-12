@@ -454,7 +454,13 @@ class UnderlyingProblem():
         return [ s.withoutUselessRules() for s in solutionsSoFar ]
 
     def sketchIncrementalChange(self, solution, radius = 1, k = 1):
-        ruleVectors = everyEditSequence(solution.rules, [radius])
+        # This is the actual sequence of radii that we go through
+        # We start out with a radius of at least 2 so that we can add a rule and revise an old rule
+        def radiiSequence(sequenceIndex):
+            assert sequenceIndex > 0
+            if sequenceIndex == 1: return [1,2]
+            else: return [sequenceIndex + 1]
+        ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius))
 
         # Ensure output is nicely ordered
         flushEverything()

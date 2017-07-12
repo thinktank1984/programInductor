@@ -96,8 +96,8 @@ def everyEditSequence(sequence, radii):
     # remove things that came from an earlier radius
     for smallerRadius in range(min(radii)):
         candidates -= set([ tuple(s) for s in _everySequenceEdit(smallerRadius) ])
-    # todo: some of the edit sequences might subsume other ones, eg [None,1,None] subsumes [0,1,None]
-    # maybe we want to not include things that are subsumed by other things?
+    # some of the edit sequences might subsume other ones, eg [None,1,None] subsumes [0,1,None]
+    # we want to not include things that are subsumed by other things
 
     def subsumes(moreGeneral, moreSpecific):
         if not len(moreGeneral) == len(moreSpecific): return False
@@ -109,6 +109,9 @@ def everyEditSequence(sequence, radii):
     removedSubsumption = [ s
                            for s in candidates
                            if not any([ subsumes(t,s) for t in candidates if t != s ]) ]
+    print "Edit sequences: %s"%radii
+    for s in removedSubsumption: print s
+    
     
     # reindex into the input sequence
     return [ [ (None if j == None else sequence[j]) for j in s ]
