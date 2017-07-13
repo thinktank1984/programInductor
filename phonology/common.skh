@@ -366,7 +366,7 @@ int guard_cost(Guard g) {
 
 // apply_guard(u, g, 0)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
 // apply_guard(u, g, 1)[j] = g.* matches u[j],u[j+1],...,u[l-1], eg, from j onward
-bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R){
+bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
   // guard sanity checks
   if (g.spec == null) assert g.spec2 == null;
   if (g.starred) { // * applies to the second specification
@@ -407,6 +407,8 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R){
   // State machine for starred: either in accepting or rejecting state
   bit accepting = 0;
   for (int j = 1; j <= l; j++) {
+    assert j <= unrollBound;
+    
     // j counts how many sounds we have consumed from the input
     Sound this_sound = u[index2sound(j)]; // R sounds: (l-1), (l-2), ..., 0
     bit this_is_okay = 1;
@@ -471,7 +473,7 @@ int rule_cost(Rule r) {
 		      specification_cost(r.focus) + specification_cost(r.structural_change));
 }
 
-Word apply_rule(Rule r, Word u) {
+Word apply_rule(Rule r, Word u, int unrollBound) {
   Specification focus = r.focus;
   Specification structural_change = r.structural_change;
   Guard left_trigger = r.left_trigger;
@@ -503,21 +505,24 @@ Word apply_rule(Rule r, Word u) {
   
   Sound[u.l + MAXIMALINCREASE] output;
 
-  bit[u.l + 1] right_okay = apply_guard(u.s,right_trigger,1);
+  bit[u.l + 1] right_okay = apply_guard(u.s,right_trigger,1, unrollBound);
   bit right_final_okay = right_okay[0];
   
-  bit[u.l + 1] left_okay = apply_guard(u.s,left_trigger,0);
+  bit[u.l + 1] left_okay = apply_guard(u.s,left_trigger,0, unrollBound);
   bit left_final_okay = left_okay[u.l];
 
 
   bit[u.l] middle_okay;
   for (int j = 0; j < u.l; j++) {
     middle_okay[j] = focus == null || matches_specification(u.s[j], focus);
+    assert j < unrollBound;
   }
 
   bit[u.l] triggered;
-  for (int j = 0; j < u.l; j++)
+  for (int j = 0; j < u.l; j++) {
     triggered[j] = middle_okay[j] && right_okay[j + 1] && left_okay[j];
+    assert j < unrollBound;
+  }
 
   int output_length; // how long is the output
   // Deletion rule
@@ -527,6 +532,7 @@ Word apply_rule(Rule r, Word u) {
     // special case: rule doesn't apply
     bit ruleApplies = 0;
     for (int j = 0; j < u.l; j++){
+      assert j < unrollBound;
       if (triggered[j]) {
 	assert !ruleApplies;
 	ruleApplies = 1;
@@ -536,6 +542,7 @@ Word apply_rule(Rule r, Word u) {
     
     int outputIndex = 0;
     for (int j = 0; j < u.l; j++) {
+      assert j < unrollBound;
       if (!triggered[j]) {
 	output[outputIndex] = u.s[j];
 	outputIndex++;
@@ -560,6 +567,7 @@ Word apply_rule(Rule r, Word u) {
     
     // Should we insert before u[j]?
     for (int j = 0; j <= u.l; j++) {
+      assert j < unrollBound;
       if (left_okay[j] && right_okay[j]) {
 	assert inserted == 0;
 #ifdef SYLLABLEBOUNDARYFEATURE
@@ -602,6 +610,7 @@ Word apply_rule(Rule r, Word u) {
     output_length = u.l + inserted;
   } else { // Modification rule
     for (int j = 0; j < u.l; j++) {
+      assert j < unrollBound;
       output[j] = triggered[j] ?
 	apply_specification(structural_change, u.s[j]) :
 	u.s[j];

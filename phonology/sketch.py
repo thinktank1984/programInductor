@@ -13,11 +13,11 @@ import re
 
 @sketchImplementation("alternation_cost")
 def alternationCost(r): pass
-@sketchImplementation("applyRule")
-def applyRule(rule,i):
-    pass
-def applyRules(rules,d):
-    for r in rules: d = applyRule(r,d)
+
+def applyRule(rule,i,unrollBound):
+    return FunctionCall("apply_rule", [rule,i,Constant(unrollBound)])
+def applyRules(rules,d,b):
+    for r in rules: d = applyRule(r,d,b)
     return d
 @sketchImplementation("make_word")
 def makeWord(features): return features
@@ -26,8 +26,6 @@ def wordEqual(w1,w2):
     pass
 @sketchImplementation("phonological_rule")
 def phonologicalRule(i): pass
-@sketchImplementation("apply_rule")
-def applyRule(r,w): pass
 @sketchImplementation("concatenate")
 def concatenate(x,y): pass
 @sketchImplementation("concatenate3")

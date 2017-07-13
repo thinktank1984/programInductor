@@ -68,13 +68,13 @@ class CountingProblem():
             k = self.count[j]
             if k <= 10:
                 condition(wordEqual(makeConstantWord(self.bank, o),
-                                    applyRule(r,morphs[k])))
+                                    applyRule(r,morphs[k],self.maximumObservationLength)))
             elif k%10 == 0:
                 condition(wordEqual(makeConstantWord(self.bank, o),
-                                    applyRule(r,concatenate(morphs[k/10], morphs[10]))))
+                                    applyRule(r,concatenate(morphs[k/10], morphs[10]),self.maximumObservationLength)))
             elif k < 20:
                 condition(wordEqual(makeConstantWord(self.bank, o),
-                                    applyRule(r,concatenate(morphs[10], morphs[k - 10]))))
+                                    applyRule(r,concatenate(morphs[10], morphs[k - 10]),self.maximumObservationLength)))
             else:
                 assert False
 

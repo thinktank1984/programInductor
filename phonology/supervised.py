@@ -30,7 +30,7 @@ def solveTopSupervisedRules(examples, k, existingRule = None):
         condition(fixStructuralChange(rule))
 
         for x,y in examples:
-            condition(wordEqual(applyRule(rule, x.makeConstant(bank)),
+            condition(wordEqual(applyRule(rule, x.makeConstant(bank), max(len(x),len(y)) + 1),
                                 y.makeConstant(bank)))
         output = solveSketch(bank, maximumObservationLength, maximumMorphLength)
         if not output: break

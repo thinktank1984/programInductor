@@ -49,7 +49,7 @@ class UnderlyingProblem():
         Model.Global()
         result = Morph.sample()
         _r = r.makeDefinition(self.bank)
-        condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank))))
+        condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank), self.maximumObservationLength + 1)))
         # IMPORTANT!
         # if the result is a more than we need to make sure that morphs can be big
         output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
@@ -62,7 +62,7 @@ class UnderlyingProblem():
             printSketchFailure()
             # Weaker test
             Model.Global()
-            condition(wordLength(applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank))) > 0)
+            condition(wordLength(applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank),self.maximumObservationLength)) > 0)
             if solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength) == None:
                 print "WARNING: weaker test also fails"
             else:
@@ -72,8 +72,6 @@ class UnderlyingProblem():
     def applyRule(self, r, u):
         t = r.fst(self.bank)
         return runTransducer(self.bank,t,u)
-        if USEPYTHONRULES:# use the Python implementation of rules
-            return Morph.fromMatrix(r.apply(u))
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
@@ -85,16 +83,19 @@ class UnderlyingProblem():
 
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
-        """surfaces : list of numberOfInflections elements, each of which is either a sketch expression or a APA string"""
+        """surfaces : list of numberOfInflections elements, each of which is a APA string"""
         assert self.numberOfInflections == len(surfaces)
         
         def buildUnderlyingForm(prefix, suffix):
             if isinstance(stem, Morph): # underlying form is fixed
+                assert False # deprecated
                 return (prefix + stem + suffix).makeConstant(self.bank)
             else: # underlying form is unknown
                 return concatenate3(prefix, stem, suffix)
-            
-        prediction = [ applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]))
+        
+        surfaceLengths = [ len(tokenize(s))
+                           for s in surfaces ]
+        prediction = [ applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), surfaceLengths[i] + 1)
                      for i in range(len(surfaces)) ]
         for i in range(len(surfaces)):
             surface = surfaces[i]
@@ -119,46 +120,46 @@ class UnderlyingProblem():
                         underlyingForms = [ solution.transduceUnderlyingForm(self.bank, inflections)
                                             for inflections in self.data ])
             
-        Model.Global()
-        rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
-        prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
-        suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
-        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
-        self.conditionOnData(rules_, stems, prefixes_, suffixes_)
+        # Model.Global()
+        # rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
+        # prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
+        # suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
+        # stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        # self.conditionOnData(rules_, stems, prefixes_, suffixes_)
 
-        for stem in stems:
-            minimize(wordLength(stem))
+        # for stem in stems:
+        #     minimize(wordLength(stem))
         
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        if not output:
-            print "FATAL: Failed underlying form analysis"
-            for observation in self.data:
-                stem = self.verify(prefixes, suffixes, rules, observation)
-                print "Verification of",observation
-                print "\tstem =",stem
-                if stem == False: print "\t(FAILURE)"
-            raise SynthesisFailure("Failed at underlying form analysis.")
+        # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+        # if not output:
+        #     print "FATAL: Failed underlying form analysis"
+        #     for observation in self.data:
+        #         stem = self.verify(prefixes, suffixes, rules, observation)
+        #         print "Verification of",observation
+        #         print "\tstem =",stem
+        #         if stem == False: print "\t(FAILURE)"
+        #     raise SynthesisFailure("Failed at underlying form analysis.")
 
-        us = [ Morph.parse(self.bank, output, s) for s in stems ]
+        # us = [ Morph.parse(self.bank, output, s) for s in stems ]
 
-        # The only purpose of this nested loop is to verify that there are no bugs
-        for j in range(len(self.inflectionMatrix)):
-            for i in range(self.numberOfInflections):
-                u = solution.prefixes[i] + us[j] + solution.suffixes[i]
-                for r in solution.rules:
-                    #print "Applying",r,"to",u,"gives",r.apply(u),"aka",Morph.fromMatrix(r.apply(u))
-                    u = self.applyRule(r,u)
-                # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
-                if Morph(tokenize(self.data[j][i])) != u:
-                    print "underlying:",solution.prefixes[i] + us[j] + solution.suffixes[i]
-                    print Morph(tokenize(self.data[j][i])), "versus", u
-                    print Morph(tokenize(self.data[j][i])).phonemes, "versus", u.phonemes
-                    assert False
+        # # The only purpose of this nested loop is to verify that there are no bugs
+        # for j in range(len(self.inflectionMatrix)):
+        #     for i in range(self.numberOfInflections):
+        #         u = solution.prefixes[i] + us[j] + solution.suffixes[i]
+        #         for r in solution.rules:
+        #             #print "Applying",r,"to",u,"gives",r.apply(u),"aka",Morph.fromMatrix(r.apply(u))
+        #             u = self.applyRule(r,u)
+        #         # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
+        #         if Morph(tokenize(self.data[j][i])) != u:
+        #             print "underlying:",solution.prefixes[i] + us[j] + solution.suffixes[i]
+        #             print Morph(tokenize(self.data[j][i])), "versus", u
+        #             print Morph(tokenize(self.data[j][i])).phonemes, "versus", u.phonemes
+        #             assert False
 
-        return Solution(rules = solution.rules,
-                        prefixes = solution.prefixes,
-                        suffixes = solution.suffixes,
-                        underlyingForms = us)
+        # return Solution(rules = solution.rules,
+        #                 prefixes = solution.prefixes,
+        #                 suffixes = solution.suffixes,
+        #                 underlyingForms = us)
 
     def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
         if maximumNumberOfSolutions != None:
@@ -606,49 +607,49 @@ class UnderlyingProblem():
         else:
             return sum([ len(tokenize(s)) for s in inflections if s != None ])
 
-        Model.Global()
-        stem = Morph.sample()
+        # Model.Global()
+        # stem = Morph.sample()
 
-        # Make the morphology/phonology be a global definition
-        prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
-        suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
-        rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
+        # # Make the morphology/phonology be a global definition
+        # prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
+        # suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
+        # rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
 
-        predictions = [ applyRules(rules, concatenate3(prefixes[j],stem,suffixes[j]))
-                        for j in range(self.numberOfInflections) ]
-        predictionFlags = [flip() for _ in range(self.numberOfInflections) ]
+        # predictions = [ applyRules(rules, concatenate3(prefixes[j],stem,suffixes[j]))
+        #                 for j in range(self.numberOfInflections) ]
+        # predictionFlags = [flip() for _ in range(self.numberOfInflections) ]
 
-        # the flag indicates that the model explains that inflection
-        cost = wordLength(stem)
-        for j in range(self.numberOfInflections):
-            m = Morph(inflections[j])
-            condition(Or([Not(predictionFlags[j]), wordEqual(predictions[j], m.makeConstant(self.bank))]))
-            cost = cost + Conditional(predictionFlags[j],
-                                      Constant(0),
-                                      Constant(len(m)))
+        # # the flag indicates that the model explains that inflection
+        # cost = wordLength(stem)
+        # for j in range(self.numberOfInflections):
+        #     m = Morph(inflections[j])
+        #     condition(Or([Not(predictionFlags[j]), wordEqual(predictions[j], m.makeConstant(self.bank))]))
+        #     cost = cost + Conditional(predictionFlags[j],
+        #                               Constant(0),
+        #                               Constant(len(m)))
 
-        minimize(cost)
+        # minimize(cost)
 
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength,
-                             minimizeBound = sum([len(tokenize(i)) for i in inflections ]) + 1)
-        if output == None:
-            print "Fatal error: "
-            print "Could not compute description length of:"
-            print u"\t".join(map(unicode,inflections))
-            print "For model:"
-            print solution
-            print "Bank:"
-            print self.bank
-            print "Solver output:"
-            printSketchFailure()
-            assert False
+        # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength,
+        #                      minimizeBound = sum([len(tokenize(i)) for i in inflections ]) + 1)
+        # if output == None:
+        #     print "Fatal error: "
+        #     print "Could not compute description length of:"
+        #     print u"\t".join(map(unicode,inflections))
+        #     print "For model:"
+        #     print solution
+        #     print "Bank:"
+        #     print self.bank
+        #     print "Solver output:"
+        #     printSketchFailure()
+        #     assert False
 
-        predictionFlags = [ parseFlip(output,f) for f in predictionFlags ]
-        stem = Morph.parse(self.bank, output, stem)
-        cost = len(stem) + sum([ int(not predictionFlags[j])*len(Morph(inflections[j]))
-                                 for j in range(self.numberOfInflections) ])
-        assert cost == parseMinimalCostValue(output)
-        return cost
+        # predictionFlags = [ parseFlip(output,f) for f in predictionFlags ]
+        # stem = Morph.parse(self.bank, output, stem)
+        # cost = len(stem) + sum([ int(not predictionFlags[j])*len(Morph(inflections[j]))
+        #                          for j in range(self.numberOfInflections) ])
+        # assert cost == parseMinimalCostValue(output)
+        # return cost
 
     def paretoFront(self, k, temperature, useMorphology = False):
         assert self.numberOfInflections == 1

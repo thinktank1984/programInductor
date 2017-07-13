@@ -58,7 +58,7 @@ maximumObservationLength = max([ len(tokenize(w)) for l in pigLatinExamples for 
 def conditionOnExample(r, x, y):
     y = makeConstantWord(bank, y)
     x = makeConstantWord(bank, x)
-    condition(wordEqual(y, applyRules(r, x)))
+    condition(wordEqual(y, applyRules(r, x, 10)))
 
 Model.Global()
 rules = [ Rule.sample() for _ in range(depth) ]
