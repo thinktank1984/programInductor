@@ -93,7 +93,7 @@ class UnderlyingProblem():
             else: # underlying form is unknown
                 return concatenate3(prefix, stem, suffix)
         
-        surfaceLengths = [ len(tokenize(s))
+        surfaceLengths = [ 0 if s == None else len(tokenize(s))
                            for s in surfaces ]
         prediction = [ applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), surfaceLengths[i] + 1)
                      for i in range(len(surfaces)) ]
