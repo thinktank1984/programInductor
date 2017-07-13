@@ -479,7 +479,7 @@ class UnderlyingProblem():
 
         # Exploit the curriculum nature of the examples:
         # Look at the next windowSize counterexamples
-        windowSize = 2
+        windowSize = 3
         
         initialTrainingSize = 2
         print "Starting out with explaining just the first %d examples:"%initialTrainingSize
