@@ -423,7 +423,8 @@ class UnderlyingProblem():
                 for stemVariable,oldValue in zip(stems,solution.underlyingForms):
                     condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
 
-        self.minimizeJointCost(rules, stems, prefixes, suffixes)
+        # Only add in the cost of the new rules that we are synthesizing
+        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None], stems, prefixes, suffixes)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         for _ in range(k):
@@ -432,7 +433,7 @@ class UnderlyingProblem():
                 condition(And([ ruleEqual(r,o.makeConstant(self.bank))
                                 for r,o,v in zip(rules, other.rules, originalRules)
                                 if v == None ]) == 0)
-            output = self.solveSketch(minimizeBound = 50)
+            output = self.solveSketch()#minimizeBound = 50)
             if output == None:
                 print "\t(no modification possible: got %d solutions)"%(len(solutionsSoFar))
                 # Because these are executed in parallel, do not throw an exception
@@ -539,7 +540,9 @@ class UnderlyingProblem():
                             print "But that solution cannot explain an earlier data point, namely:"
                             print u'\t~\t'.join(map(unicode,alreadyExplained))
                             if alreadyExplained in trainingData or alreadyExplained in window:
-                                self.illustrateFatalIncrementalError(newSolution,alreadyExplained,trainingData)
+                                self.illustrateFatalIncrementalError(newSolution,
+                                                                     alreadyExplained,
+                                                                     newSolution.underlyingForms[(trainingData+window).index(alreadyExplained)])
                                 assert False
                             else:
                                 # Incorporate at most one regression into the training data
@@ -569,7 +572,7 @@ class UnderlyingProblem():
 
         return solution
 
-    def illustrateFatalIncrementalError(self,newSolution,alreadyExplained,trainingData):
+    def illustrateFatalIncrementalError(self,newSolution,alreadyExplained,ur):
         print " [-] FATAL: Already in training data!"
         # Try transducing the underlying form using each inflection individually
         for i in range(self.numberOfInflections):
@@ -578,7 +581,6 @@ class UnderlyingProblem():
             print newSolution.transduceUnderlyingForm(self.bank, justThisInflection)
 
         # Illustrate the derivation
-        ur = newSolution.underlyingForms[trainingData.index(alreadyExplained)]
         print "UR =",ur
         for i in range(self.numberOfInflections):
             print "Inflection",i
