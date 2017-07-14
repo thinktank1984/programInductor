@@ -70,8 +70,10 @@ class UnderlyingProblem():
             return Morph.fromMatrix(r.apply(u))
 
     def applyRule(self, r, u):
-        return Morph.fromFST(self.bank,
-                             runForward(r.fst(self.bank),u.fst(self.bank)))
+        ruleOutput = runForward(r.fst(self.bank),u.fst(self.bank))
+        if ruleOutput == None: return None
+        return Morph.fromFST(self.bank, ruleOutput)
+                             
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
@@ -552,7 +554,7 @@ class UnderlyingProblem():
             print "Using transducer rules:"
             surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
             for r in newSolution.rules:
-                newSurface = self.applyRule(r,surface)
+                newSurface = self.applyRule(r,surface) if surface != None else None
                 print "%s > %s"%(surface,newSurface)
                 surface = newSurface
 
