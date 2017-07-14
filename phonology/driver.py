@@ -132,8 +132,9 @@ def handleProblem(parameters):
             elif parameters['randomSample']:
                 UnderlyingProblem(p.data, 1).randomSampleSolver()
             elif parameters['incremental']:
-                ss = UnderlyingProblem(p.data, 1).incrementallySolve(stubborn = parameters['stubborn'],
-                                                                     beam = parameters['beam'])
+                ss = UnderlyingProblem(p.data, 1).incrementallySolve(windowSize = parameters['window'],
+                                                                     beam = parameters['beam'],
+                                                                     eager = parameters['eager'])
             else:
                 ss = UnderlyingProblem(p.data, 1).counterexampleSolution()
             print "ss = "
@@ -181,7 +182,8 @@ if __name__ == '__main__':
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
-    parser.add_argument('--stubborn', default = False, action = 'store_true')
+    parser.add_argument('--window', default = 2, type = int)
+    parser.add_argument('--eager', default = False, action = 'store_true')
     parser.add_argument('--randomSample', default = False, action = 'store_true')
     parser.add_argument('--stochastic', default = False, action = 'store_true')
     parser.add_argument('--incremental', default = False, action = 'store_true')
@@ -219,9 +221,10 @@ if __name__ == '__main__':
                    'top': arguments.top,
                    'threshold': arguments.threshold,
                    'redirect': False,
-                   'stubborn': arguments.stubborn,
-                   'beam': arguments.beam,
                    'incremental': arguments.incremental,
+                   'window': arguments.window,
+                   'eager': arguments.eager,
+                   'beam': arguments.beam,
                    'stochastic': arguments.stochastic,
                    }
                   for problemIndex in problems

@@ -29,6 +29,17 @@ def parallelInversion(transducersAndOutputs):
         a = [ compose(y,invert(t)).project(True) for y,t in transducersAndOutputs ]
         return shortestpath(reduce(intersect,a)).stringify()
     except:
+        # print "Got an exception in parallel inversion..."
+        # for y,t in transducersAndOutputs:
+        #     print "inverting:"
+        #     t = invert(t)
+        #     print t
+        #     print "composing:"
+        #     t = compose(y,t)
+        #     print t
+        #     print "projecting:"
+        #     t = project(True)
+        #     print t
         return None
 
 if __name__ == '__main__':

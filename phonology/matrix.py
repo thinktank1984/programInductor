@@ -474,15 +474,11 @@ class UnderlyingProblem():
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
 
-    def incrementallySolve(self, beam = 1,stubborn = None):
-        print "I got stubborn =",stubborn,"but I'm going to ignore that and be stubborn anyways"
+    def incrementallySolve(self, beam = 1,windowSize = 2,eager = False):
         print "Using beam width of",beam
-
-        # Exploit the curriculum nature of the examples:
-        # Look at the next windowSize counterexamples
-        windowSize = 3
+        print "Using window size of ",windowSize
         
-        initialTrainingSize = 2
+        initialTrainingSize = windowSize
         print "Starting out with explaining just the first %d examples:"%initialTrainingSize
         trainingData = self.data[:initialTrainingSize]
         worker = UnderlyingProblem(trainingData, 1, self.bank)
@@ -507,14 +503,29 @@ class UnderlyingProblem():
                     solutions = worker.sketchIncrementalChange(solution, radius, k = beam)
                     assert solutions != []
                     # see which of the solutions is best overall
-                    solutionScores = [(s.modelCost() + self.solutionDescriptionLength(s), s)
+                    # different metrics of "best overall",
+                    # depending upon which set of examples you compute the description length
+                    
+                    solutionScores = [(s.modelCost(),
+                                       self.solutionDescriptionLength(s),
+                                       self.solutionDescriptionLength(s,self.data[:j + windowSize]),
+                                       self.solutionDescriptionLength(s,trainingData + window),
+                                       s)
                                       for s in solutions ]
                     print "Alternative solutions and their scores:"
-                    for c,s in solutionScores:
-                        print "COST = %d + %d = %d, SOLUTION = \n%s\n"%(s.modelCost(),
-                                                                        c - s.modelCost(),
-                                                                        c,
-                                                                        s)
+                    for c1,c2,c3,c4,s in solutionScores:
+                        print "COST = %d + (%d everything, %d invariant, %d training) = (%d, %d, %d). SOLUTION = \n%s\n"%(c1,
+                                                                                                                          c2,
+                                                                                                                          c3,
+                                                                                                                          c4,
+                                                                                                                          c1 + c2,
+                                                                                                                          c1 + c3,
+                                                                                                                          c1 + c4,
+                                                                                                                          s)
+                    if eager: costIndex = 1
+                    else:     costIndex = 2
+                    solutionScores = [(scores[0] + scores[costIndex],scores[-1])
+                                      for scores in solutionScores ]
                     newJointScore, newSolution = min(solutionScores)
                     
                     print " [+] Best new solution (cost = %d):"%(newJointScore)
@@ -523,11 +534,11 @@ class UnderlyingProblem():
                     # Make sure that all of the previously explained data points are still explained
                     # These "regressions" triggered the regressed test case being added to the training data
                     haveRegression = False
-                    for alreadyExplained in self.data[:j+(windowSize-1)]:
+                    for alreadyExplained in self.data[:j+windowSize]:
                         if not self.verify(newSolution, alreadyExplained):
                             print "But that solution cannot explain an earlier data point, namely:"
                             print u'\t~\t'.join(map(unicode,alreadyExplained))
-                            if alreadyExplained in trainingData:
+                            if alreadyExplained in trainingData or alreadyExplained in window:
                                 self.illustrateFatalIncrementalError(newSolution,alreadyExplained,trainingData)
                                 assert False
                             else:
@@ -590,14 +601,15 @@ class UnderlyingProblem():
         dumpPickle((newSolution,alreadyExplained), temporaryName)
         print " [-] Saved (solution, inflections) to %s"%temporaryName
     
-    def solutionDescriptionLength(self,solution,inflections = None):
-        if inflections == None:
-            if getVerbosity() > 3:
-                print "Calculating description length of:"
-                print solution
-            return sum([self.solutionDescriptionLength(solution,i)
-                        for i in self.data ])
-
+    def solutionDescriptionLength(self,solution,data = None):
+        if data == None: data = self.data
+        if getVerbosity() > 3:
+            print "Calculating description length of:"
+            print solution
+        return sum([self.inflectionsDescriptionLength(solution,i)
+                    for i in data ])
+        
+    def inflectionsDescriptionLength(self, solution, inflections):
         ur = solution.transduceUnderlyingForm(self.bank, inflections)
         if getVerbosity() > 3:
             print "Transducing UR of:",u"\t".join(map(unicode,inflections))
@@ -606,50 +618,6 @@ class UnderlyingProblem():
             return len(ur)
         else:
             return sum([ len(tokenize(s)) for s in inflections if s != None ])
-
-        # Model.Global()
-        # stem = Morph.sample()
-
-        # # Make the morphology/phonology be a global definition
-        # prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
-        # suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
-        # rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
-
-        # predictions = [ applyRules(rules, concatenate3(prefixes[j],stem,suffixes[j]))
-        #                 for j in range(self.numberOfInflections) ]
-        # predictionFlags = [flip() for _ in range(self.numberOfInflections) ]
-
-        # # the flag indicates that the model explains that inflection
-        # cost = wordLength(stem)
-        # for j in range(self.numberOfInflections):
-        #     m = Morph(inflections[j])
-        #     condition(Or([Not(predictionFlags[j]), wordEqual(predictions[j], m.makeConstant(self.bank))]))
-        #     cost = cost + Conditional(predictionFlags[j],
-        #                               Constant(0),
-        #                               Constant(len(m)))
-
-        # minimize(cost)
-
-        # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength,
-        #                      minimizeBound = sum([len(tokenize(i)) for i in inflections ]) + 1)
-        # if output == None:
-        #     print "Fatal error: "
-        #     print "Could not compute description length of:"
-        #     print u"\t".join(map(unicode,inflections))
-        #     print "For model:"
-        #     print solution
-        #     print "Bank:"
-        #     print self.bank
-        #     print "Solver output:"
-        #     printSketchFailure()
-        #     assert False
-
-        # predictionFlags = [ parseFlip(output,f) for f in predictionFlags ]
-        # stem = Morph.parse(self.bank, output, stem)
-        # cost = len(stem) + sum([ int(not predictionFlags[j])*len(Morph(inflections[j]))
-        #                          for j in range(self.numberOfInflections) ])
-        # assert cost == parseMinimalCostValue(output)
-        # return cost
 
     def paretoFront(self, k, temperature, useMorphology = False):
         assert self.numberOfInflections == 1
