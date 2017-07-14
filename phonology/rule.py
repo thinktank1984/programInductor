@@ -238,7 +238,8 @@ class FeatureMatrix():
                 for k in FeatureBank.mutuallyExclusiveClasses:
                     if f in k:
                         test = [_f for _f in test if ((not _f in k) or _f == f) ]
-                    break            
+                        # Assumption: exclusive classes are themselves mutually exclusive
+                        break            
             else:
                 test = [_f for _f in test if not _f == f ]
         return list(set(test))
