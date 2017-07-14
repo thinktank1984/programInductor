@@ -70,8 +70,8 @@ class UnderlyingProblem():
             return Morph.fromMatrix(r.apply(u))
 
     def applyRule(self, r, u):
-        t = r.fst(self.bank)
-        return runTransducer(self.bank,t,u)
+        return Morph.fromFST(self.bank,
+                             runForward(r.fst(self.bank),u.fst(self.bank)))
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
@@ -119,47 +119,6 @@ class UnderlyingProblem():
                         suffixes = solution.suffixes,
                         underlyingForms = [ solution.transduceUnderlyingForm(self.bank, inflections)
                                             for inflections in self.data ])
-            
-        # Model.Global()
-        # rules_ = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
-        # prefixes_ = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
-        # suffixes_ = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
-        # stems = [ Morph.sample() for _ in self.inflectionMatrix ]
-        # self.conditionOnData(rules_, stems, prefixes_, suffixes_)
-
-        # for stem in stems:
-        #     minimize(wordLength(stem))
-        
-        # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        # if not output:
-        #     print "FATAL: Failed underlying form analysis"
-        #     for observation in self.data:
-        #         stem = self.verify(prefixes, suffixes, rules, observation)
-        #         print "Verification of",observation
-        #         print "\tstem =",stem
-        #         if stem == False: print "\t(FAILURE)"
-        #     raise SynthesisFailure("Failed at underlying form analysis.")
-
-        # us = [ Morph.parse(self.bank, output, s) for s in stems ]
-
-        # # The only purpose of this nested loop is to verify that there are no bugs
-        # for j in range(len(self.inflectionMatrix)):
-        #     for i in range(self.numberOfInflections):
-        #         u = solution.prefixes[i] + us[j] + solution.suffixes[i]
-        #         for r in solution.rules:
-        #             #print "Applying",r,"to",u,"gives",r.apply(u),"aka",Morph.fromMatrix(r.apply(u))
-        #             u = self.applyRule(r,u)
-        #         # print Morph.fromMatrix(u),"\n",Morph(tokenize(self.data[j][i]))
-        #         if Morph(tokenize(self.data[j][i])) != u:
-        #             print "underlying:",solution.prefixes[i] + us[j] + solution.suffixes[i]
-        #             print Morph(tokenize(self.data[j][i])), "versus", u
-        #             print Morph(tokenize(self.data[j][i])).phonemes, "versus", u.phonemes
-        #             assert False
-
-        # return Solution(rules = solution.rules,
-        #                 prefixes = solution.prefixes,
-        #                 suffixes = solution.suffixes,
-        #                 underlyingForms = us)
 
     def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
         if maximumNumberOfSolutions != None:

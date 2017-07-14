@@ -42,6 +42,10 @@ class Morph():
         return ''.join([bank.phoneme2fst(p) for p in self.phonemes ])
 
     @staticmethod
+    def fromFST(bank,transducerOutput):
+        return Morph([ bank.fst2phoneme(o) for o in transducerOutput ])
+
+    @staticmethod
     def parse(bank, output, variable):
         pattern = 'Word.* %s.* = new Word\(l=([0-9]+)\);'%variable
         m = re.search(pattern, output)
