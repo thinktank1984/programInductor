@@ -66,7 +66,7 @@ for v in featureMap:
 
 
 def latexWord(w):
-    return "\\textipa{" + "".join([ latexMap.get(p,p) for p in tokenize(w) ]) + "}"
+    return "\\textipa{" + "".join([ latexMap.get(p,p) for p in w.phonemes ]) + "}"
 
 def latexMatrix(m):
     r = "\\begin{tabular}{%s}\n"%("c"*len(m[0]))

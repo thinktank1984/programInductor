@@ -106,6 +106,7 @@ class Solution():
         if hasattr(self,'savedInflectionTransducers'): del self.savedInflectionTransducers
 
     def transduceUnderlyingForm(self, bank, surfaces):
+        '''surfaces: list of morphs'''
         try:
             transducers = self.inflectionTransducers(bank)
         except InvalidRule as ex:
@@ -113,7 +114,7 @@ class Solution():
             print ex
             return None
 
-        applicableTransducersAndSurfaces = [ (bank.surface2fst(s),t)
+        applicableTransducersAndSurfaces = [ (s.fst(bank),t)
                                              for (t,s) in zip(transducers, surfaces) if s != None ]
 
         ur = parallelInversion(applicableTransducersAndSurfaces)

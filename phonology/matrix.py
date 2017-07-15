@@ -18,8 +18,6 @@ import pickle
 import math
 from time import time
 
-USEPYTHONRULES = False
-
 class SynthesisFailure(Exception):
     pass
 
@@ -32,20 +30,21 @@ def sampleMorphWithLength(l):
 class UnderlyingProblem():
     def __init__(self, data, depth, bank = None):
         self.depth = depth
-        self.data = data
         self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l if w != None ])
 
         self.numberOfInflections = len(data[0])
-        self.inflectionMatrix = [ [ (self.bank.wordToMatrix(i) if i != None else None)
-                                    for i in Lex] for Lex in data ]
+        # wrap the data in Morph objects if it isn't already
+        self.data = [ [ None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
+                        for i in Lex] for Lex in data ]
 
-        self.maximumObservationLength = max([ len(tokenize(w)) for l in data for w in l if w != None ])
+        self.maximumObservationLength = max([ len(w) for l in self.data for w in l if w != None ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
     def solveSketch(self, minimizeBound = 31):
         return solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
     def applyRuleUsingSketch(self,r,u):
+        '''u: morph; r: rule'''
         Model.Global()
         result = Morph.sample()
         _r = r.makeDefinition(self.bank)
@@ -77,7 +76,7 @@ class UnderlyingProblem():
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
-        dataTaggedWithLength = [ (sum([ len(tokenize(w)) if w != None else 0 for w in self.data[j]]),
+        dataTaggedWithLength = [ (sum([ len(w) if w != None else 0 for w in self.data[j]]),
                                   j,
                                   self.data[j])
                                  for j in range(len(self.data)) ]
@@ -85,7 +84,7 @@ class UnderlyingProblem():
 
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
-        """surfaces : list of numberOfInflections elements, each of which is a APA string"""
+        """surfaces : list of numberOfInflections elements, each of which is a morph object"""
         assert self.numberOfInflections == len(surfaces)
         
         def buildUnderlyingForm(prefix, suffix):
@@ -95,7 +94,7 @@ class UnderlyingProblem():
             else: # underlying form is unknown
                 return concatenate3(prefix, stem, suffix)
         
-        surfaceLengths = [ 0 if s == None else len(tokenize(s))
+        surfaceLengths = [ 0 if s == None else len(s)
                            for s in surfaces ]
         prediction = [ applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), surfaceLengths[i] + 1)
                      for i in range(len(surfaces)) ]
@@ -103,7 +102,7 @@ class UnderlyingProblem():
             surface = surfaces[i]
             if surface == None: continue
             if not isinstance(surface,Expression):
-                surface = makeConstantWord(self.bank, surface)
+                surface = surface.makeConstant(self.bank)
             condition(wordEqual(surface, prediction[i]))
     
     def conditionOnData(self, rules, stems, prefixes, suffixes):
@@ -206,32 +205,15 @@ class UnderlyingProblem():
         '''
 
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
-        
-        # Model.Global()
-
-        # stem = Morph.sample()
-
-        # # Make the morphology/phonology be a global definition
-        # prefixes = [ define("Word", p.makeConstant(self.bank)) for p in solution.prefixes ]
-        # suffixes = [ define("Word", s.makeConstant(self.bank)) for s in solution.suffixes ]
-        # rules = [ define("Rule", r.makeConstant(self.bank)) for r in solution.rules ]
-
-        # self.conditionOnStem(rules, stem, prefixes, suffixes, inflections)
-
-        # output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        # if output == None:
-        #     return False
-        # else:
-        #     return Morph.parse(self.bank, output, stem)
 
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None):
         # guess the size of each stem to be its corresponding smallest observation length
         approximateStemSize = [ min([ len(w) for w in i if w != None ])
-                                for i in self.inflectionMatrix ]
+                                for i in self.data ]
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             if self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
-                for Lex,stemSize in zip(self.inflectionMatrix,approximateStemSize):
+                for Lex,stemSize in zip(self.data,approximateStemSize):
                     if Lex[j] != None:  # this lexeme was annotated for this inflection; use it as a guess
                         adjustment = len(Lex[j]) - stemSize
                         break
@@ -246,7 +228,7 @@ class UnderlyingProblem():
         # but it lets sketch get away with having to deal with smaller numbers
         stemSize = sum([ wordLength(m)-
                          (approximateStemSize[j] if self.numberOfInflections > 1
-                          else len(self.inflectionMatrix[j][0]) - 4)
+                          else len(self.data[j][0]) - 4)
                          for j,m in enumerate(stems) ])
 
         ruleSize = sum([ruleCost(r) for r in rules ])
@@ -265,7 +247,7 @@ class UnderlyingProblem():
                 rules = [ Rule.sample() for _ in range(self.depth) ]
             else:
                 rules = [ r.makeDefinition(self.bank) for r in fixedRules ]
-            stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+            stems = [ Morph.sample() for _ in self.data ]
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
@@ -365,7 +347,7 @@ class UnderlyingProblem():
         
         rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
                   for rule in rules ]
-        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        stems = [ Morph.sample() for _ in self.data ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
@@ -580,7 +562,7 @@ class UnderlyingProblem():
         if ur != None:
             return len(ur)
         else:
-            return sum([ len(tokenize(s)) for s in inflections if s != None ])
+            return sum([ len(s) for s in inflections if s != None ])
 
     def paretoFront(self, k, temperature, useMorphology = False):
         assert self.numberOfInflections == 1
@@ -596,7 +578,7 @@ class UnderlyingProblem():
         Model.Global()
         rules = [ Rule.sample() for _ in range(self.depth) ]
 
-        stems = [ Morph.sample() for _ in self.inflectionMatrix ]
+        stems = [ Morph.sample() for _ in self.data ]
         prefixes = [ affix() for _ in range(self.numberOfInflections) ]
         suffixes = [ affix() for _ in range(self.numberOfInflections) ]
 
@@ -623,7 +605,6 @@ class UnderlyingProblem():
             output = self.solveSketch(minimizeBound = 64)
 
             if output == None: break
-                        
 
             s = Solution(suffixes = [ parseAffix(output, m) for m in suffixes ],
                          prefixes = [ parseAffix(output, m) for m in prefixes ],
