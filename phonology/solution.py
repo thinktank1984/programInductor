@@ -104,6 +104,7 @@ class Solution():
 
     def clearTransducers(self):
         if hasattr(self,'savedInflectionTransducers'): del self.savedInflectionTransducers
+        return self
 
     def transduceUnderlyingForm(self, bank, surfaces):
         '''surfaces: list of morphs'''

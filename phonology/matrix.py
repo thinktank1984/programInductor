@@ -418,18 +418,23 @@ class UnderlyingProblem():
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
 
-    def incrementallySolve(self, beam = 1,windowSize = 2,eager = False):
+    def incrementallySolve(self, beam = 1,windowSize = 2,eager = False,saveProgressTo = None,loadProgressFrom = None):
         print "Using beam width of",beam
         print "Using window size of ",windowSize
-        
-        initialTrainingSize = windowSize
-        print "Starting out with explaining just the first %d examples:"%initialTrainingSize
-        trainingData = self.data[:initialTrainingSize]
-        worker = UnderlyingProblem(trainingData, 1, self.bank)
-        solution = worker.sketchJointSolution(canAddNewRules = True)
 
+        if loadProgressFrom == None:        
+            initialTrainingSize = windowSize
+            print "Starting out with explaining just the first %d examples:"%initialTrainingSize
+            trainingData = self.data[:initialTrainingSize]
+            worker = UnderlyingProblem(trainingData, 1, self.bank)
+            solution = worker.sketchJointSolution(canAddNewRules = True)
+            j = initialTrainingSize
+        else:
+            (j,trainingData,solution) = loadPickle(loadProgressFrom)
+            print " [+] Loaded progress from %s"%loadProgressFrom
+            print "Solution =\n%s"%solution
+        
         # Maintain the invariant: the first j examples have been explained
-        j = initialTrainingSize
         while j < len(self.data):
             # Can we explain the jth example?
             if self.verify(solution, self.data[j]):
@@ -511,6 +516,10 @@ class UnderlyingProblem():
                 j += windowSize
                 
                 break # break out the loop over different radius sizes
+
+            if saveProgressTo != None:
+                print " [+] Saving progress to %s"%saveProgressTo
+                dumpPickle((j,trainingData,solution.clearTransducers()),saveProgressTo)
             
 
         return solution

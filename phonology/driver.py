@@ -134,7 +134,9 @@ def handleProblem(parameters):
             elif parameters['incremental']:
                 ss = UnderlyingProblem(p.data, 1).incrementallySolve(windowSize = parameters['window'],
                                                                      beam = parameters['beam'],
-                                                                     eager = parameters['eager'])
+                                                                     eager = parameters['eager'],
+                                                                     saveProgressTo = parameters['save'],
+                                                                     loadProgressFrom = parameters['restore'])
             else:
                 ss = UnderlyingProblem(p.data, 1).counterexampleSolution()
             print "ss = "
@@ -183,6 +185,8 @@ if __name__ == '__main__':
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
     parser.add_argument('--window', default = 2, type = int)
+    parser.add_argument('--save', default = None, type = str)
+    parser.add_argument('--restore', default = None, type = str)
     parser.add_argument('--eager', default = False, action = 'store_true')
     parser.add_argument('--randomSample', default = False, action = 'store_true')
     parser.add_argument('--stochastic', default = False, action = 'store_true')
@@ -223,6 +227,8 @@ if __name__ == '__main__':
                    'redirect': False,
                    'incremental': arguments.incremental,
                    'window': arguments.window,
+                   'save': arguments.save,
+                   'restore': arguments.restore,
                    'eager': arguments.eager,
                    'beam': arguments.beam,
                    'stochastic': arguments.stochastic,
