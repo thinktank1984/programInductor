@@ -482,6 +482,9 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   // sanity check
   if (focus != null) assert r.copyOffset == 0; // not inserting so don't copy
   if (r.copyOffset != 0) assert empty_specification(structural_change);
+  // HEURISTIC: long-distance dependencies tend to only occur on one side
+  if (left_trigger.starred) assert !right_trigger.starred;
+  if (right_trigger.starred) assert !left_trigger.starred;
   // K > [features] is always equivalent to K > K at a cost which is no greater
   if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;
   assert is_valid_structural_change(structural_change);
