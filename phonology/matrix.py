@@ -455,27 +455,30 @@ class UnderlyingProblem():
                     # different metrics of "best overall",
                     # depending upon which set of examples you compute the description length
                     
-                    solutionScores = [(s.modelCost(),
-                                       self.solutionDescriptionLength(s),
-                                       self.solutionDescriptionLength(s,self.data[:j + windowSize]),
-                                       self.solutionDescriptionLength(s,trainingData + window),
-                                       s)
+                    solutionScores = [{'modelCost': s.modelCost(),
+                                       'everythingCost': self.solutionDescriptionLength(s),
+                                       'invariantCost': self.solutionDescriptionLength(s,self.data[:j + windowSize]),
+                                       'trainingCost': self.solutionDescriptionLength(s,trainingData + window),
+                                       'solution': s}
                                       for s in solutions ]
                     print "Alternative solutions and their scores:"
-                    for c1,c2,c3,c4,s in solutionScores:
-                        print "COST = %d + (%d everything, %d invariant, %d training) = (%d, %d, %d). SOLUTION = \n%s\n"%(c1,
-                                                                                                                          c2,
-                                                                                                                          c3,
-                                                                                                                          c4,
-                                                                                                                          c1 + c2,
-                                                                                                                          c1 + c3,
-                                                                                                                          c1 + c4,
-                                                                                                                          s)
-                    if eager: costIndex = 1
-                    else:     costIndex = 2
-                    solutionScores = [(scores[0] + scores[costIndex],scores[-1])
+                    for scoreDictionary in solutionScores:
+                        print "COST = %d + (%d everything, %d invariant, %d training) = (%d, %d, %d). SOLUTION = \n%s\n"%(scoreDictionary['modelCost'],
+                                                                                                                          scoreDictionary['everythingCost'],
+                                                                                                                          scoreDictionary['invariantCost'],
+                                                                                                                          scoreDictionary['trainingCost'],
+                                                                                                                          scoreDictionary['modelCost'] + scoreDictionary['everythingCost'],
+                                                                                                                          scoreDictionary['modelCost'] + scoreDictionary['invariantCost'],
+                                                                                                                          scoreDictionary['modelCost'] + scoreDictionary['trainingCost'],
+                                                                                                                          scoreDictionary['solution'])
+                    if eager: costRanking = ['everythingCost','invariantCost','trainingCost']
+                    else:     costRanking = ['invariantCost','everythingCost','trainingCost']
+                    print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)
+                    solutionScores = [ tuple([ scores[k] + scores['modelCost'] for k in costRanking ] + [scores['solution']])
                                       for scores in solutionScores ]
-                    newJointScore, newSolution = min(solutionScores)
+                    solutionScores = min(solutionScores)
+                    newSolution = solutionScores[-1]
+                    newJointScore = solutionScores[0]
                     
                     print " [+] Best new solution (cost = %d):"%(newJointScore)
                     print newSolution
