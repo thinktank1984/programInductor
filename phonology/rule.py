@@ -12,6 +12,7 @@ from Panini import *
 import re
 from random import choice,random
 import numpy as np
+import itertools
 
 class InvalidRule(Exception):
     pass
@@ -65,6 +66,10 @@ class Specification():
                 return EmptySpecification.parse(bank, output, variable)
             except:
                 return ConstantPhoneme.parse(bank, output, variable)
+
+    @staticmethod
+    def enumeration(b,cost):
+        return ConstantPhoneme.enumeration(b,cost) + FeatureMatrix.enumeration(b,cost)
         
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
@@ -104,6 +109,11 @@ class ConstantPhoneme(Specification):
         return set(featureMap[self.p]) == set(test)
     def apply(self, test):
         return featureMap[self.p]
+
+    @staticmethod
+    def enumeration(b,cost):
+        if cost > 1: return [ConstantPhoneme(p) for p in b.phonemes ]
+        return []
 
 class EmptySpecification():
     def __init__(self): pass
@@ -244,6 +254,18 @@ class FeatureMatrix():
                 test = [_f for _f in test if not _f == f ]
         return list(set(test))
 
+    @staticmethod
+    def enumeration(b,cost):
+        if cost < 1: return []
+        cost -= 1
+        results = []
+        for k in range(cost + 1):
+            for features in itertools.combinations(b.features,k):
+                for polarities in itertools.product(*([(True,False)]*k)):
+                    results.append(FeatureMatrix(zip(polarities, features)))
+        return results
+            
+
 class Guard():
     def __init__(self, side, endOfString, starred, specifications):
         self.side = side
@@ -368,6 +390,24 @@ class Guard():
                                                                                      spec1,
                                                                                      spec2)
 
+    @staticmethod
+    def enumeration(side,b,cost):
+        results = []
+        for ending in [False,True]:
+            for numberOfSpecifications in range(3):
+                for starred in ([False] if numberOfSpecifications < 2 else [True,False]):
+                    if numberOfSpecifications == 0:
+                        if int(starred) + int(ending) <= cost: results.append(Guard(side,ending,starred,[]))
+                    elif numberOfSpecifications == 1:
+                        for s in Specification.enumeration(b,cost - int(starred) - int(ending)):
+                            results.append(Guard(side,ending,starred,[s]))
+                    elif numberOfSpecifications == 2:
+                        for s1 in Specification.enumeration(b,cost - int(starred) - int(ending)):
+                                for s2 in Specification.enumeration(b,cost - int(starred) - int(ending) - s1.cost()):
+                                    results.append(Guard(side,ending,starred,[s1,s2]))
+                    else: assert False
+        return results
+    
 class Rule():
     SAVEDTRANSDUCERS = {}
     
@@ -607,6 +647,30 @@ class Rule():
         else:
             return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]
 
+    @staticmethod
+    def enumeration(b,cost):
+        def enumerateFocus():
+            focuses = Specification.enumeration(b,cost)
+            if cost > 1: focuses += [EmptySpecification()]
+            return focuses
+        def enumerateChange(focus):
+            fc = focus.cost()
+            isInsertion = isinstance(focus,EmptySpecification)
+            if not isInsertion:
+                changes = Specification.enumeration(b,cost - fc)
+                if cost - fc > 1: changes += [EmptySpecification()]
+            else:
+                changes = ConstantPhoneme.enumeration(b,cost - fc)
+            return changes
+        results = []
+        for focus in enumerateFocus():
+            for change in enumerateChange(focus):
+                c1 = cost - focus.cost() - change.cost()
+                for gl in Guard.enumeration('L',b,c1):
+                    for gr in Guard.enumeration('R',b,c1 - gl.cost()):
+                        results.append(Rule(focus,change,gl,gr,0))
+        return results
+
 
 EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  structuralChange = FeatureMatrix([]),
@@ -614,4 +678,11 @@ EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  rightTriggers = Guard('R',False,False,[]),
                  copyOffset = 0)
 assert EMPTYRULE.doesNothing()
+
+if __name__ == '__main__':
+    from problems import *
+    b = FeatureBank([w
+                     for l in interactingProblems[4].data for w in l ])
+    for c in range(9):
+        print "# rules of cost less than",c,"is",len(Rule.enumeration(b,c))
 
