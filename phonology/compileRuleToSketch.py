@@ -34,11 +34,11 @@ for (int j = 0; j < u.l; j++) {
         o[j] = (%s && %s ? %s : u.s[j]);
 }
 return new Word(s = o,l = u.l);
-'''%(leftGuard('j'),rightGuard('j - 1'),ruleApplication(Constant('u.s[j]')).sketch())
+'''%(leftGuard('j'),rightGuard('j + 1'),ruleApplication(Constant('u.s[j]')).sketch())
     
         
     if deletion:
-        body = 'if (%s && %s) {\n'%(leftGuard('j'),rightGuard('j - 1'))
+        body = 'if (%s && %s) {\n'%(leftGuard('j'),rightGuard('j + 1'))
         for x,y in mapping.iteritems(): assert y == ''
         condition = " || ".join([ 'u.s[j] == phoneme_%d'%(bank.phoneme2index[x]) for x in mapping ])            
         l = ' if (%s) { '%(condition)
