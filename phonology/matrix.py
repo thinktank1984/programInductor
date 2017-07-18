@@ -402,6 +402,7 @@ class UnderlyingProblem():
                                            rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                                                      for r,rp in zip(rules,originalRules) ],
                                            adjustedCost = loss))
+            solutionsSoFar[-1].verifyRuleCompilation(self.bank,self.data)
         flushEverything()
         return [ s.withoutUselessRules() for s in solutionsSoFar ]
 

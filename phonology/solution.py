@@ -1,7 +1,9 @@
+from sketchSyntax import *
+from sketch import *
 from utilities import *
 from rule import *
 from features import *
-
+from compileRuleToSketch import compileRuleToSketch
 
 from Panini import *
 
@@ -121,3 +123,18 @@ class Solution():
         ur = parallelInversion(applicableTransducersAndSurfaces)
         if ur == None: return None
         return Morph([ bank.fst2phoneme(p) for p in ur ])
+
+    def verifyRuleCompilation(self, b, data):
+        Model.Global()
+
+        rules = [ compileRuleToSketch(b,r) for r in self.rules ]
+
+        for i in range(len(self.prefixes)):
+            for j in range(len(data)):
+                condition(wordEqual(data[j][i].makeConstant(b),
+                                    applyRules(rules, self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i], None)))
+        if solveSketch(b,unroll = 15,maximumMorphLength = 15) == None:
+            print "Could not verify rule compilation:"
+            print self
+            assert False
+            
