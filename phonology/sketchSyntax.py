@@ -156,6 +156,7 @@ class Model():
         self.flipCounter = 0
         self.integerCounter = 0
         self.definitionCounter = 0
+        self.definedFunctions = []
         self.statements = []
         self.quantifiedConditions = 0
     def flip(self, p = 0.5):
@@ -164,6 +165,13 @@ class Model():
     def unknownInteger(self):
         self.integerCounter += 1
         return Variable("__INTEGER__%d"%self.integerCounter)
+    def defineFunction(self,returnValue, arguments, body):
+        k = len(self.definedFunctions)
+        self.definedFunctions.append("%s specialDefinedFunction_%d(%s){\n%s\n}"%(returnValue,
+                                                                                 k,
+                                                                                 arguments,
+                                                                                 body))
+        return lambda *a: FunctionCall("specialDefinedFunction_%d"%k,a) 
     def define(self, ty, value):
         name = "__DEFINITION__%d"%self.definitionCounter
         self.definitionCounter += 1
@@ -189,6 +197,8 @@ class Model():
             h += "bit __FLIP__%d = ??;\n" % (f + 1)
         for f in range(self.integerCounter):
             h += "int __INTEGER__%d = ??;\n" % (f + 1)
+
+        h += "\n".join(self.definedFunctions)
 
         h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
         for a in self.statements:
@@ -229,6 +239,8 @@ def ite(condition,yes,no):
 
 def define(ty, value):
     return currentModel.define(ty, value)
+def defineFunction(returnType,arguments,body):
+    return currentModel.defineFunction(returnType,arguments,body)
 
 def condition(predicate):
     currentModel.condition(predicate)

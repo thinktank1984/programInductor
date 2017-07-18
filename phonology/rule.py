@@ -115,6 +115,8 @@ class ConstantPhoneme(Specification):
         if cost > 1: return [ConstantPhoneme(p) for p in b.phonemes ]
         return []
 
+    def extension(self,b): return [self.p]
+
 class EmptySpecification():
     def __init__(self): pass
     def __unicode__(self): return u"Ø"
@@ -240,6 +242,8 @@ class FeatureMatrix():
             else:
                 if f in test: return False
         return True
+    def extension(self,bank):
+        return [p for p in bank.phonemes if self.matches(featureMap[p]) ]
     def apply(self, test):
         for p,f in self.featuresAndPolarities:
             if p:
@@ -467,6 +471,7 @@ class Rule():
                                                        self.leftTriggers.latex(),
                                                        self.rightTriggers.latex())
 
+    
     def mutate(self,bank):
         f = self.focus
         s = self.structuralChange
@@ -483,9 +488,7 @@ class Rule():
             r = r.mutate(bank) if random() < 0.8 else Guard.sample(bank,'R')
         return Rule(f,s,l,r,0)
 
-    def fst(self,bank):
-        if unicode(self) in Rule.SAVEDTRANSDUCERS: return Rule.SAVEDTRANSDUCERS[unicode(self)]
-        
+    def calculateMapping(self,bank):
         insertion = False
         deletion = isinstance(self.structuralChange,EmptySpecification)
         
@@ -513,12 +516,19 @@ class Rule():
             if getVerbosity() >= 5: print "outputs = ",outputs
             outputs = [ bank.matrix2phoneme.get(o,None) for o in outputs ]
 
+        return dict([ (i,o) for (i,o) in zip(inputs, outputs) ])
 
-        mapping = [ (i,o) for (i,o) in zip(inputs, outputs) ]
+    def fst(self,bank):
+        if unicode(self) in Rule.SAVEDTRANSDUCERS: return Rule.SAVEDTRANSDUCERS[unicode(self)]
+
+        insertion = False
+        deletion = isinstance(self.structuralChange,EmptySpecification)
+        
+        mapping = self.calculateMapping(bank)
         if getVerbosity() >= 5:
             print "MAPPING"
             print self
-            print "\n".join([ u'\t%s > %s\n'%(x,y) for (x,y) in  mapping])
+            print "\n".join([ u'\t%s > %s\n'%(x,y) for (x,y) in mapping.iteritems() ])
             print
 
         if len(mapping) == 0: raise InvalidRule('mapping has length zero')
@@ -526,7 +536,7 @@ class Rule():
         mapping = dict([ (i if insertion else bank.phoneme2fst(i),
                           # '.' is magical error signal
                           o if deletion  else ('.' if o == None else bank.phoneme2fst(o)))
-                         for i,o in mapping ])
+                         for i,o in mapping.iteritems() ])
         if getVerbosity() >= 5:
             print "mapping:"
             print mapping
@@ -646,6 +656,7 @@ class Rule():
             return output
         else:
             return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]
+
 
     @staticmethod
     def enumeration(b,cost):

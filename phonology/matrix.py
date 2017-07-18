@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from compileRuleToSketch import compileRuleToSketch
 from utilities import *
 from solution import *
 from features import FeatureBank, tokenize
@@ -344,9 +345,15 @@ class UnderlyingProblem():
 
         originalRules = list(rules) # save it for later
         solutionsSoFar = [] # how many of the K requested solutions have we found
-        
-        rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
-                  for rule in rules ]
+
+        if False:
+            # Use the general-purpose sketch forward model implementation
+            rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
+                      for rule in rules ]
+        else:
+            # Compile each rule into its own special function
+            rules = [ (compileRuleToSketch(self.bank,rule) if rule != None else Rule.sample())
+                      for rule in rules ]
         stems = [ Morph.sample() for _ in self.data ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]

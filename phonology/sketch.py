@@ -15,6 +15,7 @@ import re
 def alternationCost(r): pass
 
 def applyRule(rule,i,unrollBound):
+    if callable(rule): return rule(i)
     return FunctionCall("apply_rule", [rule,i,Constant(unrollBound)])
 def applyRules(rules,d,b):
     for r in rules: d = applyRule(r,d,b)
@@ -51,7 +52,7 @@ def makeConstantWord(bank, w):
     w = bank.variablesOfWord(w)
     w = Array([ Variable(v) for v in w ])
     return makeWord(w)
-
+    
 
 def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h = ""
