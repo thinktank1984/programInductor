@@ -14,7 +14,7 @@ def compileRuleToSketch_(bank, rule):
 
 
     leftPrefix,leftGuard = compileLeftGuardToSketch(bank, rule.leftTriggers)
-    rightPrefix,rightGuard = compileRightGuardToSketch(bank, rule.leftTriggers)
+    rightPrefix,rightGuard = compileRightGuardToSketch(bank, rule.rightTriggers)
 
     if not insertion and not deletion:
         # introduce a function for applying the specification
@@ -199,13 +199,14 @@ if __name__ == '__main__':
     b = FeatureBank([u"p",u"v",u"a",u"b"])
     print b.phonemes
     
-    r = Guard('R', True, True, [ConstantPhoneme(u"v"),ConstantPhoneme(u"p")])
-    l = Guard('L', True, True, [ConstantPhoneme(u"v"),ConstantPhoneme(u"p")])
-
+    r = Guard('R', True, False, [FeatureMatrix([])])
+    l = Guard('L', False, False, [])
+    ru = Rule(FeatureMatrix([]),
+              ConstantPhoneme(u'b'),
+              l,r,0)
+    print ru
     compiledRule = compileRuleToSketch(b,
-                                       Rule(EmptySpecification(),#ConstantPhoneme(u'p'),
-                                            ConstantPhoneme(u'b'),
-                                            l,r,0))
+                                       ru)
     print makeSketchSkeleton()
     print compiledRule(Constant('DUMMY'))
 
