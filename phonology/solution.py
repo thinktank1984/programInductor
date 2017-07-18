@@ -140,6 +140,6 @@ class Solution():
             print self
             printSketchFailure()
             for o,u in zip(data,self.underlyingForms):
-                print o,'is underlyingly ',u
+                print o[0],'is underlyingly ',u
             assert False
             
