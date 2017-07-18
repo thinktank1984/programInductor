@@ -139,6 +139,7 @@ class Solution():
             print "Could not verify rule compilation:"
             print self
             printSketchFailure()
-            
+            for o,u in zip(data,self.underlyingForms):
+                print o,'is underlyingly ',u
             assert False
             
