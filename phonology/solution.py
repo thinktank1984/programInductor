@@ -131,8 +131,10 @@ class Solution():
 
         for i in range(len(self.prefixes)):
             for j in range(len(data)):
+                ur = self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i]
+                ur = ur.makeConstant(b)
                 condition(wordEqual(data[j][i].makeConstant(b),
-                                    applyRules(rules, self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i], None)))
+                                    applyRules(rules, ur, None)))
         if solveSketch(b,unroll = 15,maximumMorphLength = 15) == None:
             print "Could not verify rule compilation:"
             print self
