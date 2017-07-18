@@ -138,5 +138,7 @@ class Solution():
         if solveSketch(b,unroll = 15,maximumMorphLength = 15) == None:
             print "Could not verify rule compilation:"
             print self
+            printSketchFailure()
+            
             assert False
             
