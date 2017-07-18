@@ -141,5 +141,7 @@ class Solution():
             printSketchFailure()
             for o,u in zip(data,self.underlyingForms):
                 print o[0],'is underlyingly ',u
+
+            print makeSketch(b)
             assert False
             
