@@ -132,10 +132,12 @@ class Solution():
         for i in range(len(self.prefixes)):
             for j in range(len(data)):
                 ur = self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i]
+                bound = len(ur) + 1
                 ur = ur.makeConstant(b)
                 condition(wordEqual(data[j][i].makeConstant(b),
-                                    applyRules(rules, ur, None)))
-        if solveSketch(b,unroll = 15,maximumMorphLength = 15) == None:
+                                    applyRules(rules, ur, bound)))
+        solverOutput = solveSketch(b,unroll = 15,maximumMorphLength = 15)
+        if solverOutput == None:
             print "Could not verify rule compilation:"
             print self
             printSketchFailure()
@@ -144,4 +146,7 @@ class Solution():
 
             print makeSketch(b)
             assert False
+        else:
+            print "\t(successfully verified solution)"
+
             

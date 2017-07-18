@@ -521,7 +521,7 @@ class Rule():
     def fst(self,bank):
         if unicode(self) in Rule.SAVEDTRANSDUCERS: return Rule.SAVEDTRANSDUCERS[unicode(self)]
 
-        insertion = False
+        insertion = isinstance(self.focus,EmptySpecification)
         deletion = isinstance(self.structuralChange,EmptySpecification)
         
         mapping = self.calculateMapping(bank)

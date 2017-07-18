@@ -5,7 +5,7 @@ from rule import *
 
 def compileRuleToSketch(b,r):
     source = compileRuleToSketch_(b,r)
-    return defineFunction('Word','Word u',source)
+    return defineFunction('Word','Word u, int unrollBound',source)
 
 def compileRuleToSketch_(bank, rule):
     insertion = isinstance(rule.focus,EmptySpecification)
@@ -31,6 +31,7 @@ def compileRuleToSketch_(bank, rule):
         return leftPrefix + rightPrefix + '''
 Sound[u.l] o;
 for (int j = 0; j < u.l; j++) {
+        assert j < unrollBound;
         o[j] = (%s && %s ? %s : u.s[j]);
 }
 return new Word(s = o,l = u.l);
@@ -38,18 +39,17 @@ return new Word(s = o,l = u.l);
     
         
     if deletion:
-        body = 'if (%s && %s) {\n'%(leftGuard('j'),rightGuard('j + 1'))
         for x,y in mapping.iteritems(): assert y == ''
-        condition = " || ".join([ 'u.s[j] == phoneme_%d'%(bank.phoneme2index[x]) for x in mapping ])            
-        l = ' if (%s) { '%(condition)
-        l += 'assert triggered == 0; triggered = 1; }'
-        l += '\nelse {o[j - triggered] = u.s[j];}\n}\n'
-        body += l
+        condition = " || ".join([ 'u.s[j] == phoneme_%d'%(bank.phoneme2index[x]) for x in mapping ])
+        body = 'if (%s && %s && (%s)) {\n'%(leftGuard('j'),rightGuard('j + 1'),condition)
+        body += 'assert triggered == 0; triggered = 1;\n}'
+        body += '\nelse {o[j - triggered] = u.s[j];}\n}\n'
 
         return leftPrefix + rightPrefix + '''
 Sound[u.l] o;
 int triggered = 0;
 for (int j = 0; j < u.l; j++) {
+        assert j < unrollBound;
         %s
 }
 return new Word(s = o[0::(u.l - triggered)],l = (u.l - triggered));
@@ -63,6 +63,7 @@ return new Word(s = o[0::(u.l - triggered)],l = (u.l - triggered));
 Sound[u.l + 1] o;
 int inserted = 0;
 for (int j = 0; j <= u.l; j++) {
+        assert j < unrollBound + 1;
         if (%s && %s) {
            assert inserted == 0;
            inserted = 1;
@@ -113,6 +114,7 @@ bit[u.l + 1] left_okay;
 left_okay[0] = 0;
 bit left_accepting = 0;
 for (int j = 1; j <= u.l; j++) {
+    assert j < unrollBound + 1;
     Sound this_sound = u.s[j - 1]; 
     bit this_is_okay = 1;
     bit stay_in_accepting_state = left_accepting && %s;
@@ -171,6 +173,7 @@ bit[u.l + 1] right_okay;
 right_okay[u.l] = 0;
 bit right_accepting = 0;
 for (int j = 1; j <= u.l; j++) {
+    assert j < unrollBound + 1;
     Sound this_sound = u.s[u.l - 1 - (j - 1)];
     bit this_is_okay = 1;
     bit stay_in_accepting_state = right_accepting && %s;
@@ -208,7 +211,7 @@ if __name__ == '__main__':
     compiledRule = compileRuleToSketch(b,
                                        ru)
     print makeSketchSkeleton()
-    print compiledRule(Constant('DUMMY'))
+    print compiledRule(Constant('DUMMY'),Constant('DUMMY2'))
 
     
     # Prelude,predicate = compileGuardToSketch(b,r)

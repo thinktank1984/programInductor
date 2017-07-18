@@ -15,8 +15,8 @@ import re
 def alternationCost(r): pass
 
 def applyRule(rule,i,unrollBound):
-    if callable(rule): return rule(i)
-    return FunctionCall("apply_rule", [rule,i,Constant(unrollBound)])
+    if callable(rule): return rule(i,Constant(unrollBound))
+    else: return FunctionCall("apply_rule", [rule,i,Constant(unrollBound)])
 def applyRules(rules,d,b):
     for r in rules: d = applyRule(r,d,b)
     return d
