@@ -150,5 +150,5 @@ class Solution():
             assert False
         else:
             print "\t(successfully verified solution using compiled rules)"
-
+            
             

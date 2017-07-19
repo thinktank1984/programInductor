@@ -364,7 +364,7 @@ class UnderlyingProblem():
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
         # Should we hold the morphology fixed?
-        fixedMorphologyThreshold = 4
+        fixedMorphologyThreshold = 6
         morphologicalCosts = []
         for j in range(self.numberOfInflections):
             # Do we have at least two examples for this particular inflection?
@@ -433,6 +433,9 @@ class UnderlyingProblem():
             if sequenceIndex == 1: return [1,2]
             else: return [sequenceIndex + 1]
         ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius))
+
+        # A cap the maximum number of rules that we are willing to consider
+        ruleVectors = [ ruleVector for ruleVector in ruleVectors if len(ruleVector) <= 6 ]
 
         # Ensure output is nicely ordered
         flushEverything()

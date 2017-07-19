@@ -1516,7 +1516,7 @@ Genitive 2: stem + /i/
 Phonological rules:
 [+voice] > [-voice] / _ i
 (these two have to be in this order)
-s > 0 / {r,l,n} _
+s > 0 / [+cor] _     (comes from: s > 0 / {r,l,n} _)
 {d,t} > 0 / _ s 
 e > i / _ [^ir]* i
 0 > e / {t,g}_r#

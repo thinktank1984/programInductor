@@ -414,6 +414,9 @@ class Guard():
     
 class Rule():
     SAVEDTRANSDUCERS = {}
+
+    @staticmethod
+    def clearSavedTransducers(): Rule.SAVEDTRANSDUCERS = {}
     
     def __init__(self, focus, structuralChange, leftTriggers, rightTriggers, copyOffset):
         self.focus = focus
