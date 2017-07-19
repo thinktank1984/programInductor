@@ -147,6 +147,6 @@ class Solution():
             print makeSketch(b)
             assert False
         else:
-            print "\t(successfully verified solution)"
+            print "\t(successfully verified solution using compiled rules)"
 
             
