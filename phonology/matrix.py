@@ -421,7 +421,12 @@ class UnderlyingProblem():
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
         solution.clearTransducers()
-        allSolutions = Pool(min(30,numberOfCPUs())).map(lambda v: self.sketchChangeToSolution(solution,v,k), ruleVectors)
+        # Figure out how many CPUs we want to use.
+        # if the solution we are modifying has lots of rules use fewer
+        # This is because more rules means that each sketch invocation uses more memory;
+        if len(solution.rules) > 4: desiredNumberOfCPUs = 20
+        else: desiredNumberOfCPUs = 35
+        allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchChangeToSolution(solution,v,k), ruleVectors)
         allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
