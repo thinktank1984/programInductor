@@ -443,6 +443,8 @@ class UnderlyingProblem():
         # parallel computation involves pushing the solution through a pickle
         # so make sure you do not pickle any transducers
         solution.clearTransducers()
+        Rule.clearSavedTransducers()
+        
         # Figure out how many CPUs we want to use.
         # if the solution we are modifying has lots of rules use fewer
         # This is because more rules means that each sketch invocation uses more memory;
