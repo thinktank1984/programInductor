@@ -409,14 +409,18 @@ class UnderlyingProblem():
                 print output
                 print makeSketchSkeleton()
                 assert False
-            print "\t(modification successful; loss = %s)"%loss
 
-            solutionsSoFar.append(Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
-                                           suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
-                                           underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                                           rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
+            newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
+                                   suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
+                                   underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
+                                   rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
                                                      for r,rp in zip(rules,originalRules) ],
-                                           adjustedCost = loss))
+                                   adjustedCost = loss)
+            print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
+                                                                               indent("\n".join(map(str,newSolution.rules))))
+                                                                             
+
+            solutionsSoFar.append(newSolution)
             solutionsSoFar[-1].verifyRuleCompilation(self.bank,self.data)
         flushEverything()
         return [ s.withoutUselessRules() for s in solutionsSoFar ]

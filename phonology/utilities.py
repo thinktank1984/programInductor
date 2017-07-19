@@ -151,3 +151,7 @@ def sampleGeometric(p):
 def numberOfCPUs():
     import multiprocessing
     return multiprocessing.cpu_count()
+
+def indent(s):
+    return '\t' + s.replace('\n','\n\t')
+
