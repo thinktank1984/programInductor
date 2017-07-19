@@ -387,7 +387,9 @@ class UnderlyingProblem():
                 condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
 
         # Only add in the cost of the new rules that we are synthesizing
-        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None], stems, prefixes, suffixes, morphologicalCosts)
+        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None],
+                               stems, prefixes, suffixes,
+                               morphologicalCosts = morphologicalCosts)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         for _ in range(k):
