@@ -131,6 +131,8 @@ class Solution():
 
         for i in range(len(self.prefixes)):
             for j in range(len(data)):
+                if data[j][i] == None: continue
+                
                 ur = self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i]
                 bound = len(ur) + 1
                 ur = ur.makeConstant(b)
