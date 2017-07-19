@@ -437,6 +437,8 @@ class UnderlyingProblem():
         # A cap the maximum number of rules that we are willing to consider
         ruleVectors = [ ruleVector for ruleVector in ruleVectors if len(ruleVector) <= 6 ]
 
+        print "# parallel sketch jobs:",len(ruleVectors)
+
         # Ensure output is nicely ordered
         flushEverything()
 

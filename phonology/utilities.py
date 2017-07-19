@@ -109,9 +109,6 @@ def everyEditSequence(sequence, radii):
     removedSubsumption = [ s
                            for s in candidates
                            if not any([ subsumes(t,s) for t in candidates if t != s ]) ]
-    print "Edit sequences: %s"%radii
-    for s in removedSubsumption: print s
-    
     
     # reindex into the input sequence
     return [ [ (None if j == None else sequence[j]) for j in s ]
