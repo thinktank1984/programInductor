@@ -207,10 +207,15 @@ class UnderlyingProblem():
 
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
 
-    def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None):
+    def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
         # guess the size of each stem to be its corresponding smallest observation length
-        approximateStemSize = [ min([ len(w) for w in i if w != None ])
-                                for i in self.data ]
+        if morphologicalCosts == None:
+            approximateStemSize = [ min([ len(w) for w in i if w != None ])
+                                    for i in self.data ]
+        else:
+            approximateStemSize = [ min([ len(w) - (0 if morphologicalCosts[j] == None else morphologicalCosts[j])
+                                          for j,w in enumerate(i) if w != None ])
+                                    for i in self.data ]
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             if self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
@@ -360,21 +365,29 @@ class UnderlyingProblem():
 
         # Should we hold the morphology fixed?
         fixedMorphologyThreshold = 4
-        if len(solution.underlyingForms) >= fixedMorphologyThreshold:
-            for j in range(self.numberOfInflections):
-                # Do we have at least two examples for this particular inflection?
-                if len([ None for l in self.data if l[j] != None ]) >= fixedMorphologyThreshold:
-                    print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
-                    condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
-                    condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
+        morphologicalCosts = []
+        for j in range(self.numberOfInflections):
+            # Do we have at least two examples for this particular inflection?
+            inflectionExamples = len([ None for l in self.data if l[j] != None ])
+            if inflectionExamples >= fixedMorphologyThreshold:
+                print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
+                condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
+                condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
+                morphologicalCosts.append(len(solution.prefixes[j]) + len(solution.suffixes[j]))
+            else: morphologicalCosts.append(None)
+            if inflectionExamples == 0:
+                # Never seen this inflection: give it the empty morphology
+                print "Clamping the morphology of inflection %d to be empty"%j
+                condition(wordLength(prefixes[j]) == 0)
+                condition(wordLength(suffixes[j]) == 0)
 
-            # this piece of code will also hold the underlying forms fixed
-            if False and len(solution.underlyingForms) > 3:
-                for stemVariable,oldValue in zip(stems,solution.underlyingForms):
-                    condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
+        # this piece of code will also hold the underlying forms fixed
+        if False and len(solution.underlyingForms) > 3:
+            for stemVariable,oldValue in zip(stems,solution.underlyingForms):
+                condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
 
         # Only add in the cost of the new rules that we are synthesizing
-        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None], stems, prefixes, suffixes)
+        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None], stems, prefixes, suffixes, morphologicalCosts)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
         for _ in range(k):
