@@ -41,9 +41,12 @@ return new Word(s = o,l = u.l);
     if deletion:
         for x,y in mapping.iteritems(): assert y == ''
         condition = " || ".join([ 'u.s[j] == phoneme_%d'%(bank.phoneme2index[x]) for x in mapping ])
-        body = 'if (%s && %s && (%s)) {\n'%(leftGuard('j'),rightGuard('j + 1'),condition)
-        body += 'assert triggered == 0; triggered = 1;\n}'
-        body += '\nelse {o[j - triggered] = u.s[j];}\n}\n'
+        body = '''if (%s && %s && (%s)) {
+assert triggered == 0; triggered = 1;
+} else {
+o[j - triggered] = u.s[j];
+}
+'''%(leftGuard('j'),rightGuard('j + 1'),condition)
 
         return leftPrefix + rightPrefix + '''
 Sound[u.l] o;
