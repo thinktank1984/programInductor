@@ -569,7 +569,7 @@ class UnderlyingProblem():
         descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
         everythingCost = sum(descriptionLengths)
         invariantCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in invariant ])
-        trainingCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in trainingCost ])
+        trainingCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in training ])
         return {'solution': solution,
                 'modelCost': solution.modelCost(),
                 'everythingCost': everythingCost,
