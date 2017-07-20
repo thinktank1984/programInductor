@@ -34,6 +34,8 @@ class UnderlyingProblem():
         self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l if w != None ])
 
         self.numberOfInflections = len(data[0])
+        for d in data: assert len(d) == self.numberOfInflections
+        
         # wrap the data in Morph objects if it isn't already
         self.data = [ [ None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
                         for i in Lex] for Lex in data ]
@@ -307,8 +309,8 @@ class UnderlyingProblem():
                 continue
             
             # we found a solution that had no counterexamples
-            print "Final set of counterexamples:"
-            print latexMatrix(trainingData)
+            #print "Final set of counterexamples:"
+            #print latexMatrix(trainingData)
 
             # When we expect it to be tractable, we should try doing a little bit deeper
             if self.depth < 3 and self.numberOfInflections < 3:
@@ -710,19 +712,21 @@ class UnderlyingProblem():
             print "MDL:",mdl+population[0].modelCost()
 
 
-    def randomSampleSolver(self, N = 10, lower = 2, upper = 8):
+    def randomSampleSolver(self, N = 20, lower = 2, upper = 8):
         # construct random subsets
         subsets = []
+        print "%d random subsets of the training data:"%N
         for _ in range(N):
             startingPoint = choice(range(len(self.data) - lower))
             size = choice(range(upper - lower)) + 1
             endingPoint = startingPoint + size
             subsets.append(self.data[startingPoint:endingPoint])
+            print "SUBSET:"
+            print u"\n".join([ u'~'.join(map(unicode,x)) for x in subsets[-1] ])
 
-        for subset in subsets:
-            worker = UnderlyingProblem(subset, 1)
-            ss = worker.counterexampleSolution(10)
-
+        nc = min(N,numberOfCPUs())
+        solutions = Pool(nc).map(lambda subset: UnderlyingProblem(subset, 1, self.bank).counterexampleSolution(10),subsets)
+        for ss,subset in zip(solutions, subsets):
             print " [+] Random sample solver: Training data:"
             print u"\n".join([u"\t".join(map(unicode,xs)) for xs in subset ])
             print " Solutions:"

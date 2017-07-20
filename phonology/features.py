@@ -210,7 +210,7 @@ class FeatureBank():
                                 ["stop","fricative"]]
     
     def __init__(self, words):
-        self.phonemes = list(set([ p for w in words for p in tokenize(w) ]))
+        self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))
         self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
         self.featureMap = dict([
             (p, list(set(featureMap[p]) & set(self.features)))
