@@ -494,11 +494,7 @@ class UnderlyingProblem():
                     # different metrics of "best overall",
                     # depending upon which set of examples you compute the description length
                     
-                    solutionScores = [{'modelCost': s.modelCost(),
-                                       'everythingCost': self.solutionDescriptionLength(s),
-                                       'invariantCost': self.solutionDescriptionLength(s,self.data[:j + windowSize]),
-                                       'trainingCost': self.solutionDescriptionLength(s,trainingData + window),
-                                       'solution': s}
+                    solutionScores = [self.computeSolutionScores(s,self.data[:j + windowSize],trainingData + window)
                                       for s in solutions ]
                     print "Alternative solutions and their scores:"
                     for scoreDictionary in solutionScores:
@@ -565,6 +561,18 @@ class UnderlyingProblem():
             
 
         return solution
+
+    def computeSolutionScores(self,solution,invariant,training):
+        # Compute the description length of everything
+        descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
+        everythingCost = sum(descriptionLengths)
+        invariantCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in invariant ])
+        trainingCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in trainingCost ])
+        return {'solution': solution,
+                'modelCost': solution.modelCost(),
+                'everythingCost': everythingCost,
+                'invariantCost': invariantCost,
+                'trainingCost': trainingCost}
 
     def illustrateFatalIncrementalError(self,newSolution,alreadyExplained,ur):
         print " [-] FATAL: Already in training data!"

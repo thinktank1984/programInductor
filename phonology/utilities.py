@@ -106,9 +106,10 @@ def everyEditSequence(sequence, radii):
         #print "%s is strictly more general than %s"%(moreGeneral,moreSpecific)
         return True
 
+    # disabling subsumption removal
     removedSubsumption = [ s
-                           for s in candidates
-                           if not any([ subsumes(t,s) for t in candidates if t != s ]) ]
+                           for s in candidates ]
+                           # if not any([ subsumes(t,s) for t in candidates if t != s ]) ]
     
     # reindex into the input sequence
     return [ [ (None if j == None else sequence[j]) for j in s ]
