@@ -743,3 +743,14 @@ class UnderlyingProblem():
             for s in ss: print s
             print 
             
+        # Coalesce all of the rules found by the random samples
+        coalescedRules = []
+        for ss in solutions:
+            for s in ss:
+                for r in s.rules:
+                    if not any([ unicode(r) == unicode(rp) for rp in coalescedRules ]):
+                        coalescedRules.append(r)
+
+        print "Here are all of the %d unique rules that were were discovered from the random samples:"%len(coalescedRules)
+        for r in coalescedRules:
+            print r
