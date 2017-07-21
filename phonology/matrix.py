@@ -168,10 +168,10 @@ class UnderlyingProblem():
             # Keep morphology variable! Just ensure it has the same cost
             prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
             suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
-            stems = [ Morph.sample() for p in solution.underlyingForms ]
+            stems = [ sampleMorphWithLength(len(p)) for p in solution.underlyingForms ]
             self.conditionOnData(rules, stems, prefixes, suffixes)
             
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            output = self.solveSketch()
             if not output:
                 if getVerbosity() > 0:
                     print "Found %d/%d solutions."%(len(solutions),k)
@@ -262,9 +262,7 @@ class UnderlyingProblem():
             if fixedMorphology != None:
                 for p,k in zip(prefixes,fixedMorphology.prefixes):
                     condition(wordEqual(p,k.makeConstant(self.bank)))
-                    print "Fixing a prefix to",k
                 for s,k in zip(suffixes,fixedMorphology.suffixes):
-                    print "Fixing a suffix to",k
                     condition(wordEqual(s,k.makeConstant(self.bank)))
 
             self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
@@ -723,7 +721,6 @@ class UnderlyingProblem():
     def randomSampleSolver(self, N = 30, lower = 2, upper = 8):
         # Figure out the morphology from the first few examples
         preliminarySolution = UnderlyingProblem(self.data[:4], 1, self.bank).sketchJointSolution(canAddNewRules = True)
-        print preliminarySolution.suffixes[1]
         print "Sticking with that morphology from here on out..."
         
         # construct random subsets
