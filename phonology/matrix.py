@@ -248,7 +248,7 @@ class UnderlyingProblem():
 
         return totalCost
 
-    def sketchJointSolution(self, canAddNewRules = False, costUpperBound = None, fixedRules = None):
+    def sketchJointSolution(self, canAddNewRules = False, costUpperBound = None, fixedRules = None, fixedMorphology = None):
         try:
             Model.Global()
             if fixedRules == None:
@@ -258,6 +258,12 @@ class UnderlyingProblem():
             stems = [ Morph.sample() for _ in self.data ]
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+
+            if fixedMorphology != None:
+                for p,k in zip(prefixes,fixedMorphology.prefixes):
+                    condition(wordEqual(p,k.makeConstant(self.bank)))
+                for s,k in zip(suffixes,fixedMorphology.prefixes):
+                    condition(wordEqual(s,k.makeConstant(self.bank)))
 
             self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
 
@@ -284,7 +290,7 @@ class UnderlyingProblem():
                 return None
 
 
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2):
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, fixedMorphology = None):
         # Start out with the shortest examples
         #self.sortDataByLength()
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
@@ -299,7 +305,7 @@ class UnderlyingProblem():
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
-            solution = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True)
+            solution = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True, fixedMorphology = fixedMorphology)
             self.depth = solution.depth() # update depth because it might have grown
             solverTime = time() - solverTime
 
@@ -713,6 +719,10 @@ class UnderlyingProblem():
 
 
     def randomSampleSolver(self, N = 20, lower = 2, upper = 8):
+        # Figure out the morphology from the first few examples
+        preliminarySolution = UnderlyingProblem(self.data[:4], 1, self.bank).sketchJointSolution(canAddNewRules = True)
+        print "Sticking with that morphology from here on out..."
+        
         # construct random subsets
         subsets = []
         print "%d random subsets of the training data:"%N
@@ -725,7 +735,7 @@ class UnderlyingProblem():
             print u"\n".join([ u'~'.join(map(unicode,x)) for x in subsets[-1] ])
 
         nc = min(N,numberOfCPUs())
-        solutions = Pool(nc).map(lambda subset: UnderlyingProblem(subset, 1, self.bank).counterexampleSolution(10),subsets)
+        solutions = Pool(nc).map(lambda subset: UnderlyingProblem(subset, 1, self.bank).counterexampleSolution(k = 10, fixedMorphology = preliminarySolution),subsets)
         for ss,subset in zip(solutions, subsets):
             print " [+] Random sample solver: Training data:"
             print u"\n".join([u"\t".join(map(unicode,xs)) for xs in subset ])
