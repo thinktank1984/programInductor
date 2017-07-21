@@ -262,7 +262,9 @@ class UnderlyingProblem():
             if fixedMorphology != None:
                 for p,k in zip(prefixes,fixedMorphology.prefixes):
                     condition(wordEqual(p,k.makeConstant(self.bank)))
-                for s,k in zip(suffixes,fixedMorphology.prefixes):
+                    print "Fixing a prefix to",k
+                for s,k in zip(suffixes,fixedMorphology.suffixes):
+                    print "Fixing a suffix to",k
                     condition(wordEqual(s,k.makeConstant(self.bank)))
 
             self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
@@ -321,7 +323,7 @@ class UnderlyingProblem():
             # When we expect it to be tractable, we should try doing a little bit deeper
             if self.depth < 3 and self.numberOfInflections < 3:
                 slave = UnderlyingProblem(trainingData, self.depth + 1, self.bank)
-                expandedSolution = slave.sketchJointSolution(costUpperBound = solution.adjustedCost)
+                expandedSolution = slave.sketchJointSolution(fixedMorphology = fixedMorphology)
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
@@ -718,9 +720,10 @@ class UnderlyingProblem():
             print "MDL:",mdl+population[0].modelCost()
 
 
-    def randomSampleSolver(self, N = 20, lower = 2, upper = 8):
+    def randomSampleSolver(self, N = 30, lower = 2, upper = 8):
         # Figure out the morphology from the first few examples
         preliminarySolution = UnderlyingProblem(self.data[:4], 1, self.bank).sketchJointSolution(canAddNewRules = True)
+        print preliminarySolution.suffixes[1]
         print "Sticking with that morphology from here on out..."
         
         # construct random subsets
