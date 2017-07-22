@@ -364,6 +364,10 @@ int guard_cost(Guard g) {
 		      g.starred);
 }
 
+bit guard_does_nothing(Guard g){
+  return !g.endOfString && g.spec == null;
+}
+
 // apply_guard(u, g, 0)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
 // apply_guard(u, g, 1)[j] = g.* matches u[j],u[j+1],...,u[l-1], eg, from j onward
 bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
@@ -487,6 +491,10 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   if (right_trigger.starred) assert !left_trigger.starred;
   // K > [features] is always equivalent to K > K at a cost which is no greater
   if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;
+  // K > K / _ is always over fitting
+  if (constant_specification(focus) && constant_specification(structural_change))
+    assert !guard_does_nothing(left_trigger) || !guard_does_nothing(right_trigger);
+  
   assert is_valid_structural_change(structural_change);
 #ifdef SYLLABLEBOUNDARYFEATURE
   // Syllables are encoded only as the special syllable phoneme
