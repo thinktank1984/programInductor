@@ -629,7 +629,15 @@ class UnderlyingProblem():
         if ur != None:
             return len(ur)
         else:
-            return sum([ len(s) for s in inflections if s != None ])
+            # Dumb noise model
+            if False:
+                return sum([ len(s) for s in inflections if s != None ])
+            else:
+                # Smart noise model
+                # todo: we could also incorporate the morphology here if we wanted to
+                subsequenceLength = multiLCS([ s.phonemes for s in inflections if s != None ])
+                return sum([ len(s) - subsequenceLength for s in inflections if s != None ])
+    
 
     def paretoFront(self, k, temperature, useMorphology = False):
         assert self.numberOfInflections == 1

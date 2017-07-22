@@ -153,3 +153,12 @@ def numberOfCPUs():
 def indent(s):
     return '\t' + s.replace('\n','\n\t')
 
+def multiLCS(xs):
+    fragments = [ set([ tuple(x[starting:ending])
+                        for starting in range(len(x))
+                        for ending in range(starting + 1,len(x) + 1) ])
+                  for x in xs ]
+    fragmentsInCommon = fragments[0]
+    for f in fragments[1:]: fragmentsInCommon = fragmentsInCommon&f
+    return max(map(len,list(fragmentsInCommon)))
+
