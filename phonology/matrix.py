@@ -726,7 +726,11 @@ class UnderlyingProblem():
             print "MDL:",mdl+population[0].modelCost()
 
 
-    def randomSampleSolver(self, N = 30, lower = 2, upper = 8):
+    def randomSampleSolver(self, N = 30, lower = 5, upper = 8):
+        '''N: number of random samples.
+        lower: lower bound on the size of the random samples.
+        upper: upper bound on the size of the random samples.'''
+        
         # Figure out the morphology from the first few examples
         preliminarySolution = UnderlyingProblem(self.data[:4], 1, self.bank).sketchJointSolution(canAddNewRules = True)
         print "Sticking with that morphology from here on out..."
@@ -735,8 +739,8 @@ class UnderlyingProblem():
         subsets = []
         print "%d random subsets of the training data:"%N
         for _ in range(N):
-            startingPoint = choice(range(len(self.data) - lower))
-            size = choice(range(upper - lower)) + 1
+            size = choice(range(lower, upper + 1))
+            startingPoint = choice(range(len(self.data) - size))        
             endingPoint = startingPoint + size
             subsets.append(self.data[startingPoint:endingPoint])
             print "SUBSET:"
