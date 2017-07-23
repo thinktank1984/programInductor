@@ -349,7 +349,25 @@ class UnderlyingProblem():
 
             return solutions
 
+    def sketchCEGISChange(self,solution, rules, k = 1):
+        assert k == 1
+        # if we are not changing any of the rules just act as a verifier
+        if not any([ r == None for r in rules ]): trainingData = self.data
+        else: trainingData = unique(self.data[:2] + self.data[-2:])
 
+        while True:
+            worker = UnderlyingProblem(trainingData, 1, self.bank)
+            ss = worker.sketchChangeToSolution(solution, rules)
+            if ss == []: return []
+            print "CEGIS: About to find a counterexample to",ss[0]
+            ce = self.findCounterexample(ss[0], trainingData)
+            print "Counterexample:",ce
+            if ce == None:
+                print "No counterexample so I am just returning best solution"
+                return ss
+            trainingData = trainingData + [ce]
+        assert False
+            
     def sketchChangeToSolution(self,solution, rules, k = 1):
         # if we are not changing any of the rules just enumerate one solution
         if not any([ r == None for r in rules ]): k = 1
@@ -460,7 +478,8 @@ class UnderlyingProblem():
         # This is because more rules means that each sketch invocation uses more memory;
         if len(solution.rules) > 4: desiredNumberOfCPUs = 20
         else: desiredNumberOfCPUs = 35
-        allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchChangeToSolution(solution,v,k), ruleVectors)
+        allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchCEGISChange(solution,v,k), ruleVectors)
+        print "allSolutions",allSolutions
         allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
@@ -488,6 +507,8 @@ class UnderlyingProblem():
                 j += 1
                 continue
 
+            trainingData = self.data[:j]
+
             print "Next data points to explain: "
             window = self.data[j:j + windowSize]
             print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ]) 
@@ -497,6 +518,7 @@ class UnderlyingProblem():
                 try:
                     worker = UnderlyingProblem(trainingData + window, 0, self.bank)
                     solutions = worker.sketchIncrementalChange(solution, radius, k = beam)
+                    print "solutions = ",solutions
                     assert solutions != []
                     # see which of the solutions is best overall
                     # different metrics of "best overall",
@@ -533,6 +555,8 @@ class UnderlyingProblem():
                         if not self.verify(newSolution, alreadyExplained):
                             print "But that solution cannot explain an earlier data point, namely:"
                             print u'\t~\t'.join(map(unicode,alreadyExplained))
+                            print "This should be impossible with the new incremental CEGIS"
+                            assert False
                             if alreadyExplained in trainingData or alreadyExplained in window:
                                 self.illustrateFatalIncrementalError(newSolution,
                                                                      alreadyExplained,
@@ -571,8 +595,12 @@ class UnderlyingProblem():
         return solution
 
     def computeSolutionScores(self,solution,invariant,training):
+        print "Computing the solution score of",solution
+        print "invariant",invariant
+        print "training",training
         # Compute the description length of everything
         descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
+        print "descriptionLengths",descriptionLengths
         everythingCost = sum(descriptionLengths)
         invariantCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in invariant ])
         trainingCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in training ])
@@ -622,10 +650,9 @@ class UnderlyingProblem():
                     for i in data ])
         
     def inflectionsDescriptionLength(self, solution, inflections):
+        if getVerbosity() > 3: print "Transducing UR of:",u"\t".join(map(unicode,inflections))
         ur = solution.transduceUnderlyingForm(self.bank, inflections)
-        if getVerbosity() > 3:
-            print "Transducing UR of:",u"\t".join(map(unicode,inflections))
-            print "\tUR = ",ur
+        if getVerbosity() > 3: print "\tUR = ",ur
         if ur != None:
             return len(ur)
         else:

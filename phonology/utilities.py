@@ -162,3 +162,11 @@ def multiLCS(xs):
     for f in fragments[1:]: fragmentsInCommon = fragmentsInCommon&f
     return max(map(len,list(fragmentsInCommon)))
 
+
+
+def unique(xs):
+    u = [xs[0]]
+    for x in xs[1:]:
+        if x in u: continue
+        u.append(x)
+    return u
