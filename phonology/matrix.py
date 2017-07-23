@@ -364,7 +364,7 @@ class UnderlyingProblem():
             print "Counterexample:",ce
             if ce == None:
                 print "No counterexample so I am just returning best solution"
-                return ss
+                return [ s.clearTransducers() for s in ss ]
             trainingData = trainingData + [ce]
         assert False
             
@@ -518,7 +518,6 @@ class UnderlyingProblem():
                 try:
                     worker = UnderlyingProblem(trainingData + window, 0, self.bank)
                     solutions = worker.sketchIncrementalChange(solution, radius, k = beam)
-                    print "solutions = ",solutions
                     assert solutions != []
                     # see which of the solutions is best overall
                     # different metrics of "best overall",
@@ -595,12 +594,8 @@ class UnderlyingProblem():
         return solution
 
     def computeSolutionScores(self,solution,invariant,training):
-        print "Computing the solution score of",solution
-        print "invariant",invariant
-        print "training",training
         # Compute the description length of everything
         descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
-        print "descriptionLengths",descriptionLengths
         everythingCost = sum(descriptionLengths)
         invariantCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in invariant ])
         trainingCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in training ])

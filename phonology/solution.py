@@ -100,19 +100,8 @@ class Solution():
 
     def inflectionTransducers(self, bank):
         if not hasattr(self,'savedInflectionTransducers'):
-            print "Building and flexion transducers for solution",self
             phonology = self.phonologyTransducer(bank)
-            print "Successfully built phonology and now I am going to compose it with the morphology"
             self.savedInflectionTransducers = [ m*phonology for m in self.morphologyTransducers(bank) ]
-        else:
-            print "Already found inflection transducers!"
-            flushEverything()
-            ph = self.phonologyTransducer(bank)
-            print "phonological transducer",ph
-            print "morphological transducers",self.morphologyTransducers(bank)
-            print "composed together",[m*ph for m in self.morphologyTransducers(bank) ]
-            print "they are:"
-            print self.savedInflectionTransducers
         return self.savedInflectionTransducers
 
     def clearTransducers(self):
@@ -128,14 +117,8 @@ class Solution():
             print ex
             return None
 
-        print "TRANSDUCERS = ",transducers
-        flushEverything()
-
         applicableTransducersAndSurfaces = [ (s.fst(bank),t)
                                              for (t,s) in zip(transducers, surfaces) if s != None ]
-        print "applicable transducers/surfaces",applicableTransducersAndSurfaces
-
-        flushEverything()
 
         ur = parallelInversion(applicableTransducersAndSurfaces)
         if ur == None: return None
