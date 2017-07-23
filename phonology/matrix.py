@@ -29,8 +29,7 @@ def sampleMorphWithLength(l):
         
 
 class UnderlyingProblem():
-    def __init__(self, data, depth, bank = None):
-        self.depth = depth
+    def __init__(self, data, bank = None):
         self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l if w != None ])
 
         self.numberOfInflections = len(data[0])
@@ -248,11 +247,11 @@ class UnderlyingProblem():
 
         return totalCost
 
-    def sketchJointSolution(self, canAddNewRules = False, costUpperBound = None, fixedRules = None, fixedMorphology = None):
+    def sketchJointSolution(self, depth, canAddNewRules = False, costUpperBound = None, fixedRules = None, fixedMorphology = None):
         try:
             Model.Global()
             if fixedRules == None:
-                rules = [ Rule.sample() for _ in range(self.depth) ]
+                rules = [ Rule.sample() for _ in range(depth) ]
             else:
                 rules = [ r.makeDefinition(self.bank) for r in fixedRules ]
             stems = [ Morph.sample() for _ in self.data ]
@@ -283,9 +282,9 @@ class UnderlyingProblem():
         
         except SynthesisFailure:
             if canAddNewRules:
-                self.depth += 1
-                print "Expanding rule depth to %d"%self.depth
-                return self.sketchJointSolution(canAddNewRules = canAddNewRules)
+                depth += 1
+                print "Expanding rule depth to %d"%depth
+                return self.sketchJointSolution(depth, canAddNewRules = canAddNewRules)
             else:
                 return None
 
@@ -297,6 +296,8 @@ class UnderlyingProblem():
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]
 
+        depth = 1
+
         while True:
             print "CEGIS: Training data:"
             for r in trainingData:
@@ -305,8 +306,8 @@ class UnderlyingProblem():
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
-            solution = UnderlyingProblem(trainingData, self.depth, self.bank).sketchJointSolution(canAddNewRules = True, fixedMorphology = fixedMorphology)
-            self.depth = solution.depth() # update depth because it might have grown
+            solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology)
+            depth = solution.depth() # update depth because it might have grown
             solverTime = time() - solverTime
 
             counterexample = self.findCounterexample(solution, trainingData)
@@ -319,13 +320,13 @@ class UnderlyingProblem():
             #print latexMatrix(trainingData)
 
             # When we expect it to be tractable, we should try doing a little bit deeper
-            if self.depth < 3 and self.numberOfInflections < 3:
-                slave = UnderlyingProblem(trainingData, self.depth + 1, self.bank)
-                expandedSolution = slave.sketchJointSolution(fixedMorphology = fixedMorphology)
+            if depth < 3 and self.numberOfInflections < 3:
+                slave = UnderlyingProblem(trainingData, self.bank)
+                expandedSolution = slave.sketchJointSolution(depth + 1, fixedMorphology = fixedMorphology)
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
-                    print "Better compression achieved by expanding to %d rules"%(self.depth + 1)
-                    self.depth += 1
+                    print "Better compression achieved by expanding to %d rules"%(depth + 1)
+                    depth += 1
                     counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
                     if counterexample != None:
                         trainingData.append(counterexample)
@@ -334,7 +335,7 @@ class UnderlyingProblem():
                     else:
                         print "Also, expanded rules have no counter examples."
                 else:
-                    print "Sticking with depth of %d"%(self.depth)
+                    print "Sticking with depth of %d"%(depth)
                     
             print "Final solutions:"
             print solution
@@ -356,7 +357,7 @@ class UnderlyingProblem():
         else: trainingData = unique(self.data[:2] + self.data[-2:])
 
         while True:
-            worker = UnderlyingProblem(trainingData, 1, self.bank)
+            worker = UnderlyingProblem(trainingData, self.bank)
             ss = worker.sketchChangeToSolution(solution, rules)
             if ss == []: return []
             print "CEGIS: About to find a counterexample to",ss[0]
@@ -479,7 +480,6 @@ class UnderlyingProblem():
         if len(solution.rules) > 4: desiredNumberOfCPUs = 20
         else: desiredNumberOfCPUs = 35
         allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchCEGISChange(solution,v,k), ruleVectors)
-        print "allSolutions",allSolutions
         allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
@@ -492,7 +492,7 @@ class UnderlyingProblem():
             initialTrainingSize = windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
-            worker = UnderlyingProblem(trainingData, 1, self.bank)
+            worker = UnderlyingProblem(trainingData, self.bank)
             solution = worker.sketchJointSolution(canAddNewRules = True)
             j = initialTrainingSize
         else:
@@ -516,7 +516,7 @@ class UnderlyingProblem():
             radius = 1
             while True:
                 try:
-                    worker = UnderlyingProblem(trainingData + window, 0, self.bank)
+                    worker = UnderlyingProblem(trainingData + window, self.bank)
                     solutions = worker.sketchIncrementalChange(solution, radius, k = beam)
                     assert solutions != []
                     # see which of the solutions is best overall
@@ -661,7 +661,7 @@ class UnderlyingProblem():
                 return sum([ len(s) - subsequenceLength for s in inflections if s != None ])
     
 
-    def paretoFront(self, k, temperature, useMorphology = False):
+    def paretoFront(self, depth, k, temperature, useMorphology = False):
         assert self.numberOfInflections == 1
         self.maximumObservationLength += 1
 
@@ -673,7 +673,7 @@ class UnderlyingProblem():
             else: return Morph([])
             
         Model.Global()
-        rules = [ Rule.sample() for _ in range(self.depth) ]
+        rules = [ Rule.sample() for _ in range(depth) ]
 
         stems = [ Morph.sample() for _ in self.data ]
         prefixes = [ affix() for _ in range(self.numberOfInflections) ]
@@ -754,7 +754,7 @@ class UnderlyingProblem():
         upper: upper bound on the size of the random samples.'''
         
         # Figure out the morphology from the first few examples
-        preliminarySolution = UnderlyingProblem(self.data[:4], 1, self.bank).sketchJointSolution(canAddNewRules = True)
+        preliminarySolution = UnderlyingProblem(self.data[:4], self.bank).sketchJointSolution(canAddNewRules = True)
         print "Sticking with that morphology from here on out..."
         
         # construct random subsets
@@ -769,7 +769,7 @@ class UnderlyingProblem():
             print u"\n".join([ u'~'.join(map(unicode,x)) for x in subsets[-1] ])
 
         nc = min(N,numberOfCPUs())
-        solutions = Pool(nc).map(lambda subset: UnderlyingProblem(subset, 1, self.bank).counterexampleSolution(k = 10, fixedMorphology = preliminarySolution),subsets)
+        solutions = Pool(nc).map(lambda subset: UnderlyingProblem(subset, self.bank).counterexampleSolution(k = 10, fixedMorphology = preliminarySolution),subsets)
         for ss,subset in zip(solutions, subsets):
             print " [+] Random sample solver: Training data:"
             print u"\n".join([u"\t".join(map(unicode,xs)) for xs in subset ])

@@ -97,8 +97,8 @@ if __name__ == '__main__':
 
         points = []
         for d in range(0,arguments.depth + 1):
-            worker = UnderlyingProblem([(w,) for w in trainingData ],d)
-            solutions, costs = worker.paretoFront(arguments.top, TEMPERATURE)
+            worker = UnderlyingProblem([(w,) for w in trainingData ])
+            solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE)
             points += costs
         pointsFromEachExperiment.append(removePointsNotOnFront(points))
         
