@@ -493,7 +493,7 @@ class UnderlyingProblem():
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
             worker = UnderlyingProblem(trainingData, self.bank)
-            solution = worker.sketchJointSolution(canAddNewRules = True)
+            solution = worker.sketchJointSolution(1,canAddNewRules = True)
             j = initialTrainingSize
         else:
             (j,trainingData,solution) = loadPickle(loadProgressFrom)

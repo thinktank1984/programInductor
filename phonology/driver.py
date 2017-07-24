@@ -12,10 +12,10 @@ import io
 def heldOutSolution(data, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0, inductiveBiases = []):
     numberOfInflections = len(data[0])
     if numberOfInflections > 7: initialTrainingSize = 3
-    bank = UnderlyingProblem(data,1).bank
+    bank = UnderlyingProblem(data).bank
 
     trainingData,testingData = randomTestSplit(data, testing)
-    slave = UnderlyingProblem(trainingData, 1, bank = bank)
+    slave = UnderlyingProblem(trainingData, bank = bank)
     
     solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize)
 
@@ -68,7 +68,7 @@ def inflectionAccuracy(solution, inflections, bank):
         prediction = Morph.sample()
         surfaces = [ (s if j in trainingIndexes else prediction) for j,s in enumerate(inflections) ]
 
-        worker = UnderlyingProblem([inflections], 0, bank)
+        worker = UnderlyingProblem([inflections], bank)
         worker.conditionOnStem(rules, stem, prefixes, suffixes, surfaces)
 
         # IMPORTANT!
@@ -128,20 +128,19 @@ def handleProblem(parameters):
     else:
         if parameters['testing'] == 0.0:
             if parameters['stochastic']:
-                UnderlyingProblem(p.data, 1).stochasticSearch(20, parameters['beam'])
+                UnderlyingProblem(p.data).stochasticSearch(20, parameters['beam'])
             elif parameters['randomSample']:
-                UnderlyingProblem(p.data, 1).randomSampleSolver()
+                UnderlyingProblem(p.data).randomSampleSolver()
             elif parameters['incremental']:
-                ss = UnderlyingProblem(p.data, 1).incrementallySolve(windowSize = parameters['window'],
-                                                                     beam = parameters['beam'],
-                                                                     eager = parameters['eager'],
-                                                                     saveProgressTo = parameters['save'],
-                                                                     loadProgressFrom = parameters['restore'])
+                ss = UnderlyingProblem(p.data).incrementallySolve(windowSize = parameters['window'],
+                                                                  beam = parameters['beam'],
+                                                                  eager = parameters['eager'],
+                                                                  saveProgressTo = parameters['save'],
+                                                                  loadProgressFrom = parameters['restore'])
             else:
-                ss = UnderlyingProblem(p.data, 1).counterexampleSolution()
+                ss = UnderlyingProblem(p.data).counterexampleSolution()
             print "ss = "
             print ss
-            #ss = UnderlyingProblem(p.data, 1).fastTopRules(ss, parameters['top'])
         else:
             ss, accuracy, compression = heldOutSolution(p.data,
                                                         parameters['top'],
