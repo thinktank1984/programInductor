@@ -754,7 +754,7 @@ class UnderlyingProblem():
         upper: upper bound on the size of the random samples.'''
         
         # Figure out the morphology from the first few examples
-        preliminarySolution = UnderlyingProblem(self.data[:4], self.bank).sketchJointSolution(canAddNewRules = True)
+        preliminarySolution = UnderlyingProblem(self.data[:4], self.bank).sketchJointSolution(1, canAddNewRules = True)
         print "Sticking with that morphology from here on out..."
         
         # construct random subsets
@@ -788,3 +788,49 @@ class UnderlyingProblem():
         print "Here are all of the %d unique rules that were were discovered from the random samples:"%len(coalescedRules)
         for r in coalescedRules:
             print r
+
+        print "Starting local search using these unique rules..."
+
+        def mutate(s):
+            kindOfMutation = choice(range(3))
+            rs = None
+            while rs == None:
+                if kindOfMutation == 0 and s.rules != []: # random deletion
+                    rs = randomlyRemoveOne(s.rules)
+                elif kindOfMutation == 1 and len(s.rules) > 1: # random swap
+                    i = None
+                    j = None
+                    while i == j:
+                        i = random.choice(range(len(s.rules)))
+                        j = random.choice(range(len(s.rules)))
+                    rs = list(s.rules)
+                    rs[i] = s.rules[j]
+                    rs[j] = s.rules[i]
+                elif kindOfMutation == 2: # random insertion of a rule that is not already there
+                    j = random.choice(range(len(s.rules)) + 1)
+                    r = random.choice([ r for r in coalescedRules if not r in s.rules ])
+                    rs = s.rules[:j] + [r] + s.rules[j:]
+            return Solution(rules = rs,prefixes = s.prefixes,suffixes = s.suffixes)
+                    
+        bestSolution = preliminarySolution
+        bestScore = self.solutionDescriptionLength(preliminarySolution) + preliminarySolution.modelCost()
+        
+        while True:
+            children = [ mutate(bestSolution) for _ in range(100) ]
+            children += [ mutate(mutate(bestSolution)) for _ in range(100) ]
+            # remove duplicate children
+            uniqueChildren = {}
+            for c in children: uniqueChildren[str(c)] = c
+            children = uniqueChildren.values()
+            if len(children) == 0: continue
+            
+            print "Got %d children"%len(children)
+
+            scoredChildren = Pool(nc).map(lambda c: (self.solutionDescriptionLength(c) + c.modelCost(), c))
+            (bestNewScore,bestNewSolution) = min(scoredChildren)
+            if bestNewScore <= bestScore:
+                bestScore = bestNewScore
+                bestSolution = bestNewSolution
+                print " [+] Got a new best solution (loss = %d):"%bestScore
+                print bestSolution
+            else: print "Solution was not any better..."

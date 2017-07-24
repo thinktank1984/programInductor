@@ -170,3 +170,7 @@ def unique(xs):
         if x in u: continue
         u.append(x)
     return u
+
+def randomlyRemoveOne(xs):
+    j = random.choice(range(len(xs)))
+    return xs[:j] + xs[j + 1:]
