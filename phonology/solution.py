@@ -134,8 +134,8 @@ class Solution():
                 if data[j][i] == None: continue
                 
                 ur = self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i]
-                bound = len(data[j][i]) + 1
                 ur = ur.makeConstant(b)
+                bound = len(data[j][i]) + 1
                 condition(wordEqual(data[j][i].makeConstant(b),
                                     applyRules(rules, ur, bound)))
         solverOutput = solveSketch(b,unroll = 15,maximumMorphLength = 15)
