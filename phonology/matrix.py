@@ -523,20 +523,19 @@ class UnderlyingProblem():
                     # different metrics of "best overall",
                     # depending upon which set of examples you compute the description length
                     
-                    solutionScores = [self.computeSolutionScores(s,self.data[:j + windowSize],trainingData + window)
+                    solutionScores = [self.computeSolutionScores(s, trainingData + window)
                                       for s in solutions ]
                     print "Alternative solutions and their scores:"
                     for scoreDictionary in solutionScores:
-                        print "COST = %d + (%d everything, %d invariant, %d training) = (%d, %d, %d). SOLUTION = \n%s\n"%(scoreDictionary['modelCost'],
-                                                                                                                          scoreDictionary['everythingCost'],
-                                                                                                                          scoreDictionary['invariantCost'],
-                                                                                                                          scoreDictionary['trainingCost'],
-                                                                                                                          scoreDictionary['modelCost'] + scoreDictionary['everythingCost'],
-                                                                                                                          scoreDictionary['modelCost'] + scoreDictionary['invariantCost'],
-                                                                                                                          scoreDictionary['modelCost'] + scoreDictionary['trainingCost'],
-                                                                                                                          scoreDictionary['solution'])
-                    if eager: costRanking = ['everythingCost','invariantCost','trainingCost']
-                    else:     costRanking = ['invariantCost','everythingCost','trainingCost']
+                        print "COST = %d + (%d everything, %d invariant) = (%d, %d). SOLUTION = \n%s\n"%(
+                            scoreDictionary['modelCost'],
+                            scoreDictionary['everythingCost'],
+                            scoreDictionary['invariantCost'],
+                            scoreDictionary['modelCost'] + scoreDictionary['everythingCost'],
+                            scoreDictionary['modelCost'] + scoreDictionary['invariantCost'],
+                            scoreDictionary['solution'])
+                    if eager: costRanking = ['everythingCost','invariantCost']
+                    else:     costRanking = ['invariantCost','everythingCost']
                     print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)
                     solutionScores = [ tuple([ scores[k] + scores['modelCost'] for k in costRanking ] + [scores['solution']])
                                       for scores in solutionScores ]
@@ -548,26 +547,12 @@ class UnderlyingProblem():
                     print newSolution
 
                     # Make sure that all of the previously explained data points are still explained
-                    # These "regressions" triggered the regressed test case being added to the training data
-                    haveRegression = False
                     for alreadyExplained in self.data[:j+windowSize]:
                         if not self.verify(newSolution, alreadyExplained):
                             print "But that solution cannot explain an earlier data point, namely:"
                             print u'\t~\t'.join(map(unicode,alreadyExplained))
                             print "This should be impossible with the new incremental CEGIS"
                             assert False
-                            if alreadyExplained in trainingData or alreadyExplained in window:
-                                self.illustrateFatalIncrementalError(newSolution,
-                                                                     alreadyExplained,
-                                                                     newSolution.underlyingForms[(trainingData+window).index(alreadyExplained)])
-                                assert False
-                            else:
-                                # Incorporate at most one regression into the training data
-                                if not haveRegression:
-                                    trainingData.append(alreadyExplained)
-                            haveRegression = True
-                    if haveRegression:
-                        continue
                 except SynthesisFailure:
                     print "No incremental modification within radius of size %d"%radius
                     radius += 1
@@ -580,7 +565,6 @@ class UnderlyingProblem():
                 # Successfully explained a new data item
 
                 # Update both the training data and solution
-                trainingData += window
                 solution = newSolution
                 j += windowSize
                 
@@ -588,54 +572,20 @@ class UnderlyingProblem():
 
             if saveProgressTo != None:
                 print " [+] Saving progress to %s"%saveProgressTo
-                dumpPickle((j,trainingData,solution.clearTransducers()),saveProgressTo)
-            
+                dumpPickle((j,None,solution.clearTransducers()),saveProgressTo)            
 
         return solution
 
-    def computeSolutionScores(self,solution,invariant,training):
+    def computeSolutionScores(self,solution,invariant):
         # Compute the description length of everything
         descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
         everythingCost = sum(descriptionLengths)
         invariantCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in invariant ])
-        trainingCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in training ])
         return {'solution': solution,
                 'modelCost': solution.modelCost(),
                 'everythingCost': everythingCost,
-                'invariantCost': invariantCost,
-                'trainingCost': trainingCost}
+                'invariantCost': invariantCost}
 
-    def illustrateFatalIncrementalError(self,newSolution,alreadyExplained,ur):
-        print " [-] FATAL: Already in training data!"
-        # Try transducing the underlying form using each inflection individually
-        for i in range(self.numberOfInflections):
-            print "Transducing just the %d inflection:"%(i+1)
-            justThisInflection = [None]*i + [alreadyExplained[i]] + [None]*(self.numberOfInflections - i - 1)
-            print newSolution.transduceUnderlyingForm(self.bank, justThisInflection)
-
-        # Illustrate the derivation
-        print "UR =",ur
-        for i in range(self.numberOfInflections):
-            print "Inflection",i
-            surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
-            print "Using sketch rules:"
-            for r in newSolution.rules:
-                newSurface = self.applyRuleUsingSketch(r,surface)
-                print "%s > %s"%(surface,newSurface)
-                surface = newSurface
-            print "Using transducer rules:"
-            surface = newSolution.prefixes[i] + ur + newSolution.suffixes[i]
-            for r in newSolution.rules:
-                newSurface = self.applyRule(r,surface) if surface != None else None
-                print "%s > %s"%(surface,newSurface)
-                surface = newSurface
-
-        # saved to disk for further dissection
-        temporaryName = makeTemporaryFile('.p')
-        newSolution.clearTransducers()
-        dumpPickle((newSolution,alreadyExplained), temporaryName)
-        print " [-] Saved (solution, inflections) to %s"%temporaryName
-    
     def solutionDescriptionLength(self,solution,data = None):
         if data == None: data = self.data
         if getVerbosity() > 3:
@@ -652,7 +602,7 @@ class UnderlyingProblem():
             return len(ur)
         else:
             # Dumb noise model
-            if False:
+            if True:
                 return sum([ len(s) for s in inflections if s != None ])
             else:
                 # Smart noise model
