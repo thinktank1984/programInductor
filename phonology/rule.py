@@ -697,6 +697,9 @@ class Rule():
                 c1 = cost - focus.cost() - change.cost()
                 for gl in Guard.enumeration('L',b,c1):
                     for gr in Guard.enumeration('R',b,c1 - gl.cost()):
+                        if isinstance(focus,EmptySpecification) and gl.doesNothing() and gr.doesNothing():
+                            continue
+                        
                         results.append(Rule(focus,change,gl,gr,0))
         return results
 
@@ -710,11 +713,18 @@ assert EMPTYRULE.doesNothing()
 
 if __name__ == '__main__':
     from problems import *
+    from time import time
     b = FeatureBank([w
                      for l in underlyingProblems[1].data[:1] for w in l ])
     for c in range(9):
+        startTime = time()
         candidates = Rule.enumeration(b,c)
         print "# rules of cost less than",c,"is",len(candidates)
+        print "enumerated in %f sec"%(time() - startTime)
+        print "compiling rules into transducers..."
+        startTime = time()
+        for r in candidates: r.fst(b)
+        print "compiled in %f seconds"%(time() - startTime)
         for r in candidates[:10]:
             print "\t",r
 
