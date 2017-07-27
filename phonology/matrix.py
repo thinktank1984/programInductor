@@ -700,6 +700,10 @@ class UnderlyingProblem():
             setVerbosity(0)
             print "MDL:",mdl+population[0].modelCost()
 
+    def enumerateSolver(self, B):
+        candidates = Rule.enumeration(self.bank,B)
+        print "# candidates = ",len(candidates)
+
 
     def randomSampleSolver(self, N = 30, lower = 5, upper = 8):
         '''N: number of random samples.

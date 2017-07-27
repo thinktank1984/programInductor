@@ -260,15 +260,28 @@ class FeatureMatrix():
 
     @staticmethod
     def enumeration(b,cost):
-        if cost < 1: return []
-        cost -= 1
-        results = []
-        for k in range(cost + 1):
-            for features in itertools.combinations(b.features,k):
-                for polarities in itertools.product(*([(True,False)]*k)):
-                    results.append(FeatureMatrix(zip(polarities, features)))
-        return results
-            
+        if False:
+            if cost < 1: return []
+            cost -= 1
+            results = []
+            for k in range(cost + 1):
+                for features in itertools.combinations(b.features,k):
+                    for polarities in itertools.product(*([(True,False)]*k)):
+                        results.append(FeatureMatrix(zip(polarities, features)))
+            return results
+        else:
+            if cost < 1: return []
+            cost -= 1
+            results = {}
+            for k in range(cost + 1):
+                for features in itertools.combinations(b.features,k):
+                    for polarities in itertools.product(*([(True,False)]*k)):
+                        matrix = FeatureMatrix(zip(polarities, features))
+                        extension = frozenset(matrix.extension(b))
+                        if not (extension in results):
+                            results[extension] = matrix
+            return results.values()
+                        
 
 class Guard():
     def __init__(self, side, endOfString, starred, specifications):
@@ -671,7 +684,9 @@ class Rule():
             fc = focus.cost()
             isInsertion = isinstance(focus,EmptySpecification)
             if not isInsertion:
-                changes = Specification.enumeration(b,cost - fc)
+                changes = [ c for c in Specification.enumeration(b,cost - fc)
+                            if not (isinstance(c,FeatureMatrix) and c.featuresAndPolarities == []) and
+                            not (isinstance(c,ConstantPhoneme) and isinstance(focus,ConstantPhoneme) and c.p == focus.p)]
                 if cost - fc > 1: changes += [EmptySpecification()]
             else:
                 changes = ConstantPhoneme.enumeration(b,cost - fc)
@@ -696,7 +711,10 @@ assert EMPTYRULE.doesNothing()
 if __name__ == '__main__':
     from problems import *
     b = FeatureBank([w
-                     for l in interactingProblems[4].data for w in l ])
+                     for l in underlyingProblems[1].data[:1] for w in l ])
     for c in range(9):
-        print "# rules of cost less than",c,"is",len(Rule.enumeration(b,c))
+        candidates = Rule.enumeration(b,c)
+        print "# rules of cost less than",c,"is",len(candidates)
+        for r in candidates[:10]:
+            print "\t",r
 
