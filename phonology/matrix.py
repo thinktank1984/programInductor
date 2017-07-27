@@ -354,7 +354,12 @@ class UnderlyingProblem():
         assert k == 1
         # if we are not changing any of the rules just act as a verifier
         if not any([ r == None for r in rules ]): trainingData = self.data
-        else: trainingData = unique(self.data[:2] + self.data[-2:])
+        else:
+            n = len(self.data)/5
+            if n < 4: n = 4
+            if n > 10: n = 10
+            if n > len(self.data) - 2: n = len(self.data) - 2
+            trainingData = random.sample(self.data[:-2], n) + self.data[-2:]
 
         while True:
             worker = UnderlyingProblem(trainingData, self.bank)
@@ -699,11 +704,6 @@ class UnderlyingProblem():
             mdl = self.solutionDescriptionLength(population[0])
             setVerbosity(0)
             print "MDL:",mdl+population[0].modelCost()
-
-    def enumerateSolver(self, B):
-        candidates = Rule.enumeration(self.bank,B)
-        print "# candidates = ",len(candidates)
-
 
     def randomSampleSolver(self, N = 30, lower = 5, upper = 8):
         '''N: number of random samples.
