@@ -365,7 +365,10 @@ class UnderlyingProblem():
             print "Counterexample:",ce
             if ce == None:
                 print "No counterexample so I am just returning best solution"
-                return [ s.clearTransducers() for s in ss ]
+                for s in ss:
+                    s.clearTransducers()
+                    s.underlyingForms = None
+                return [ self.solveUnderlyingForms(s) for s in ss ]
             trainingData = trainingData + [ce]
         assert False
             
@@ -580,7 +583,7 @@ class UnderlyingProblem():
         # Compute the description length of everything
         descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
         everythingCost = sum(descriptionLengths)
-        invariantCost = sum([ descriptionLengths[j] for j,x in enumerate(self.data) if x in invariant ])
+        invariantCost = sum([ len(u) for u in solution.underlyingForms ]) 
         return {'solution': solution,
                 'modelCost': solution.modelCost(),
                 'everythingCost': everythingCost,
