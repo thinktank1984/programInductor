@@ -67,8 +67,9 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     return h
 
 lastFailureOutput = None
+lastSketchOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None):
-    global lastFailureOutput
+    global lastFailureOutput,lastSketchOutput
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
@@ -100,6 +101,8 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     if not leavitt:
         os.remove(temporarySketchFile)
         os.remove(outputFile)
+
+    lastSketchOutput = output
     
     if "not be resolved." in output or "Rejected" in output:
         lastFailureOutput = source+"\n"+output
@@ -111,3 +114,6 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
 def printSketchFailure():
     global lastFailureOutput
     print lastFailureOutput
+def printLastSketchOutput():
+    global lastSketchOutput
+    print lastSketchOutput

@@ -442,6 +442,7 @@ class UnderlyingProblem():
             if loss == None:
                 print "WARNING: None loss"
                 print output
+                printLastSketchOutput()
                 print makeSketchSkeleton()
                 assert False
 
