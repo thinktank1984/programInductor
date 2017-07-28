@@ -524,6 +524,9 @@ class UnderlyingProblem():
 
             radius = 1
             while True:
+                # Prevent the accumulation of a large number of temporary files
+                # These can easily grow into the gigabytes and I have disk quotas
+                deleteTemporarySketchFiles()
                 try:
                     worker = UnderlyingProblem(trainingData + window, self.bank)
                     solutions = worker.sketchIncrementalChange(solution, radius, k = beam)

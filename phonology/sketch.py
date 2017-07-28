@@ -117,3 +117,8 @@ def printSketchFailure():
 def printLastSketchOutput():
     global lastSketchOutput
     print lastSketchOutput
+
+
+def deleteTemporarySketchFiles():
+    os.system("rm tmp*sk")
+    os.system("rm -r ~/.sketch/tmp/tmp*")
