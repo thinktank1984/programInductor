@@ -365,7 +365,7 @@ class UnderlyingProblem():
             worker = UnderlyingProblem(trainingData, self.bank)
             ss = worker.sketchChangeToSolution(solution, rules)
             if ss == []: return []
-            print "CEGIS: About to find a counterexample to",ss[0]
+            print "CEGIS: About to find a counterexample to:\n",ss[0]
             ce = self.findCounterexample(ss[0], trainingData)
             print "Counterexample:",ce
             if ce == None:
@@ -373,7 +373,9 @@ class UnderlyingProblem():
                 for s in ss:
                     s.clearTransducers()
                     s.underlyingForms = None
-                return [ self.solveUnderlyingForms(s) for s in ss ]
+                ss = [ self.solveUnderlyingForms(s) for s in ss ]
+                print "Final CEGIS solution:\n%s"%(ss[0])
+                return ss
             trainingData = trainingData + [ce]
         assert False
             

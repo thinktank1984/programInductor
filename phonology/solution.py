@@ -120,7 +120,8 @@ class Solution():
         applicableTransducersAndSurfaces = [ (s.fst(bank),t)
                                              for (t,s) in zip(transducers, surfaces) if s != None ]
 
-        ur = parallelInversion(applicableTransducersAndSurfaces)
+        ur = parallelInversion(applicableTransducersAndSurfaces,
+                               alphabet = bank.transducerAlphabet())
         if ur == None: return None
         return Morph([ bank.fst2phoneme(p) for p in ur ])
 

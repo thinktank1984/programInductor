@@ -24,10 +24,14 @@ def inputAcceptor(t):
 def makeConstantTransducer(k):
     return transducer(language,k)
 
-def parallelInversion(transducersAndOutputs):
+def parallelInversion(transducersAndOutputs, alphabet = None):
     try:
         a = [ compose(y,invert(t)).project(True) for y,t in transducersAndOutputs ]
-        return shortestpath(reduce(intersect,a)).stringify()
+        a = reduce(intersect,a)
+        if alphabet != None:
+            lm = union(*alphabet).closure()
+            a = a*lm
+        return shortestpath(a).stringify()
     except:
         # print "Got an exception in parallel inversion..."
         # for y,t in transducersAndOutputs:
@@ -44,6 +48,14 @@ def parallelInversion(transducersAndOutputs):
 
 if __name__ == '__main__':
     alphabet = ['a','b','c','z']
+    if False:
+        language = union(*(['.'] + alphabet)).closure()
+
+        deletionRule = cdrewrite(string_map({'a': ''}),'b','',language,direction = "sim")
+        print runForward(deletionRule, 'bacbaa')
+        print shortestpath(compose('bbc',deletionRule),nshortest = 2).stringify()
+
+    
 
     r1 = transducerOfRule({'': 'aaa'}, '[BOS]', '', alphabet)*\
          transducerOfRule({'a': 'a'},
