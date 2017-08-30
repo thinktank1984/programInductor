@@ -401,7 +401,7 @@ class UnderlyingProblem():
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
         # Should we hold the morphology fixed?
-        fixedMorphologyThreshold = 6
+        fixedMorphologyThreshold = 8
         morphologicalCosts = []
         for j in range(self.numberOfInflections):
             # Do we have at least two examples for this particular inflection?
