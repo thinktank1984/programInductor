@@ -73,6 +73,8 @@ def everyPermutation(l,r):
 
 def everyEditSequence(sequence, radii):
     def _everySequenceEdit(r):
+        # radius larger than sequence
+        if r > len(sequence): return [[None]*r]
         # radius zero
         if r < 1: return [list(range(len(sequence)))]
 
