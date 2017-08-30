@@ -74,7 +74,7 @@ class Specification():
 class ConstantPhoneme(Specification):
     def __init__(self, p): self.p = p
     def __unicode__(self):
-        if self.p == '-': return u"syl"
+        if self.p == '-': return u"σ"
         else:
             return self.p
     def __str__(self): return unicode(self).encode('utf-8')
@@ -334,6 +334,16 @@ class Guard():
             if self.side == 'L': parts.reverse()
             self.representation = u" ".join(parts)
         return self.representation
+    def pretty(self, copyOffset):
+        parts = []
+        parts += map(unicode,self.specifications)
+        if self.starred: parts[-2] += u'*'
+        if copyOffset != 0:
+            if copyOffset < 0 and self.side == 'L': parts[-copyOffset - 1] += u'ᵢ'
+            if copyOffset > 0 and self.side == 'R': parts[copyOffset - 1] += u'ᵢ'
+        if self.endOfString: parts += [u'#']
+        if self.side == 'L': parts.reverse()
+        return u" ".join(parts)
     
     def skeleton(self):
         parts = []
@@ -486,6 +496,21 @@ class Rule():
                                                        self.structuralChange.latex() if self.copyOffset == 0 else self.copyOffset,
                                                        self.leftTriggers.latex(),
                                                        self.rightTriggers.latex())
+
+    def pretty(self):
+        p = unicode(self.focus)
+        p += u'⟶'
+        if self.copyOffset == 0: p += unicode(self.structuralChange)
+        else:
+            if self.copyOffset > 0: p += unicode(self.rightTriggers.specifications[self.copyOffset - 1])
+            else: p += unicode(self.leftTriggers.specifications[-self.copyOffset - 1])
+            p += u'ᵢ'
+        p += u' / '
+        p += self.rightTriggers.pretty(self.copyOffset)
+        p += u' _ '
+        p += self.leftTriggers.pretty(self.copyOffset)
+        return p
+        
 
     
     def mutate(self,bank):

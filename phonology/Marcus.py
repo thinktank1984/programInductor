@@ -105,6 +105,8 @@ if __name__ == '__main__':
     print pointsFromEachExperiment
     colors = cm.rainbow(np.linspace(0, 1, len(pointsFromEachExperiment)))
     if not arguments.quiet:
+        #plot.rc('text', usetex=True)
+        #plot.rc('font', family='serif')
         for points,color in zip(pointsFromEachExperiment,colors):
             plot.scatter([ -p[0] for p in points],
                          [ float(surfaceLength)/p[1] for p in points],
@@ -112,4 +114,14 @@ if __name__ == '__main__':
         plot.ylabel("Fit to data (Compression ratio)")
         plot.xlabel("Parsimony (-Program length)")
         plot.title("Pareto front for %s, %d example%s"%(arguments.problem,arguments.number,'' if arguments.number == 1 else 's'))
+                
+        # these are matplotlib.patch.Patch properties
+        ax = plot.gca()
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        # place a text box in upper left in axes coords
+        plot.text(0.05, 0.05, u"\n".join(trainingData), transform=ax.transAxes,
+                  fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
+
+        # illustrate the synthesized programs along the front
+        # todo
         plot.show()
