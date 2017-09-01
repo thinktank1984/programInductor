@@ -561,10 +561,15 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
     }
     output_length = u.l - 1;
   } else if (focus == null) { // insertion rule
-    if (r.copyOffset == 0) // not copying
+    if (r.copyOffset == 0) { // not copying
       assert constant_specification(structural_change);
-    else // copying
+    } else { // copying
       assert empty_specification(structural_change);
+      if (r.copyOffset == 1) assert right_trigger.spec != null;
+      if (r.copyOffset == 2) assert right_trigger.spec2 != null;
+      if (r.copyOffset == -1) assert left_trigger.spec != null;
+      if (r.copyOffset == -2) assert left_trigger.spec2 != null;
+    }
 
 #ifdef SYLLABLEBOUNDARYFEATURE
     bit inserting_syllable = (r.copyOffset == 1 && is_syllable_specification(right_trigger.spec)) ||
@@ -605,11 +610,10 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
 	    inserted++;
 	  }
 	} else { // not inserting a syllable so just use the old logic
-#else
+#endif
 	inserted = 1; 
 	output[j] = r.copyOffset == 0?
 	  extract_constant_sound(structural_change) : (u.s[j + r.copyOffset - (r.copyOffset > 0 ? 1 : 0)]);
-#endif
 #ifdef SYLLABLEBOUNDARYFEATURE
 	}
 #endif

@@ -506,9 +506,9 @@ class Rule():
             else: p += unicode(self.leftTriggers.specifications[-self.copyOffset - 1])
             p += u'ᵢ'
         p += u' / '
-        p += self.rightTriggers.pretty(self.copyOffset)
-        p += u' _ '
         p += self.leftTriggers.pretty(self.copyOffset)
+        p += u' _ '
+        p += self.rightTriggers.pretty(self.copyOffset)
         return p
         
 

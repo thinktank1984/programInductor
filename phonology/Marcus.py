@@ -96,9 +96,11 @@ if __name__ == '__main__':
         surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
 
         points = []
+        costToSolution = {}
         for d in range(0,arguments.depth + 1):
             worker = UnderlyingProblem([(w,) for w in trainingData ])
             solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE)
+            for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
             points += costs
         pointsFromEachExperiment.append(removePointsNotOnFront(points))
         
@@ -123,5 +125,24 @@ if __name__ == '__main__':
                   fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
 
         # illustrate the synthesized programs along the front
-        # todo
+        for c1,c2 in points:
+            solution = costToSolution[(c1,c2)]
+            x1 = -c1
+            y1 = float(surfaceLength)/c2
+            x2 = x1
+            y2 = y1 + 0.1
+            print x2,y2
+            print solution.pretty()
+            plot.text(x2,y2, solution.pretty(),
+                      fontsize=12, bbox=props,
+                      verticalalignment = 'bottom', horizontalalignment = 'center')
+            ax.annotate('',
+                        xy = (x2,y2),xycoords = 'data',
+                        xytext = (x1,y1),textcoords = 'data',
+                        arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
+
+
+
+        plot.ylim([1,2])
+#        plot.xlim([1,2])
         plot.show()

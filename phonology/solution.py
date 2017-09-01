@@ -23,6 +23,17 @@ class Solution():
                          (["underlying form: %s"%str(u)
                            for u in self.underlyingForms ]))
 
+    def pretty(self):
+        p = ''
+        for prefix, suffix in zip(self.prefixes, self.suffixes):
+            if len(prefix) == 0 and len(suffix) == 0: continue
+            if len(prefix) > 0: p += u''.join(prefix.phonemes) + u'+'
+            p += u'stem'
+            if len(suffix) > 0: p += u'+' + u''.join(suffix.phonemes)
+            p += u'\n'
+        p += u'\n'.join([ r.pretty() for r in self.rules ])
+        return p
+
     def cost(self):
         return sum([ r.cost() for r in self.rules ] +
                    [ len(s) for s in (self.prefixes + self.suffixes + self.underlyingForms) ])
