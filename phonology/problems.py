@@ -1010,6 +1010,47 @@ underlyingProblems.append(Problem(
      (u"gəbəzzam",),
      (u"gəlam",)]))
 
+underlyingProblems.append(Problem(
+    u'''
+    (adapted from 9): North Saami, but only with the m/n alternation included
+Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
+    My analysis:
+    {h,g,b,ð} > t / _ #
+    {ǰ} > š / _ #
+    m > n / _ #
+    Not affected: s
+    ''',
+	#Nominative sg.	Essive
+    [
+#	(u"varit",	u"varihin"),#	“2 year old reindeer buck”
+	(u"oahpis",	u"oahpisin"),#	“acquaintance”
+	(u"čoarvuš",	u"čoarvušin"),#	“antlers & skullcap”
+#	(u"lottaaš",	u"lottaaǰin"),#	“small bird”
+#	(u"čuoivvat",	u"čuoivvagin"),#	“yellow-brown reindeer”
+#	(u"ahhkut",	u"ahhkubin"),#	“grandchild of woman”
+#	(u"suohkat",	u"suohkaðin"),#	“thick”
+#	(u"heeǰoš",	u"heeǰoǰin"),#	“poor guy”
+#	(u"aaǰǰut",	u"aaǰǰubin"),#	“grandchild of man”
+#	(u"bissobeahtset",	u"bissobeahtsehin"),#	“butt of gun”
+#	(u"čeahtsit",	u"čeahtsibin"),#	“children of elder brother of man”
+	(u"yaaʔmin",	u"yaaʔmimin"),#	“death”
+#	(u"čuoivat",	u"čuoivagin"),#	“yellow-grey reindeer”
+#	(u"laageš",	u"laageǰin"),#	“mountain birch”
+#	(u"gahpir",	u"gahpirin"),#	“cap”
+	(u"gaauhtsis",	u"gaauhtsisin"),#	“8 people”
+#	(u"aaslat",	u"aaslagin"),#	man’s name
+#	(u"baðoošgaattset",	u"baðoošgaattsebin"),#	“bird type”
+#	(u"ahhkit",	u"ahhkiðin"),#	“boring”
+#	(u"bahaanaalat",	u"bahaanaalagin"),#	“badly behaved”
+	(u"beštor",	u"beštorin"),#	“bird type”
+	(u"heevemeahhtun",	u"heevemeahhtunin"),#	“inappropriate”
+#	(u"beeǰot",	u"beeǰohin"),#	“white reindeer”
+	(u"bissomeahtun",	u"bissomeahtumin"),#	“unstable”
+	(u"laðas",	u"laðasin"),#	“something jointed”
+#	(u"heaiyusmielat",	u"heaiyusmielagin"),#	“unhappy”
+	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
+	(u"yaman",	u"yamanin")]))
+
 interactingProblems = []
 
 interactingProblems.append(Problem(
