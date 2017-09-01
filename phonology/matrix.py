@@ -361,32 +361,28 @@ class UnderlyingProblem():
             if n > len(self.data) - 2: n = len(self.data) - 2
             trainingData = random.sample(self.data[:-2], n) + self.data[-2:]
 
+        newSolution = None
         while True:
             worker = UnderlyingProblem(trainingData, self.bank)
-            ss = worker.sketchChangeToSolution(solution, rules)
-            if ss == []: return []
-            print "CEGIS: About to find a counterexample to:\n",ss[0]
-            ce = self.findCounterexample(ss[0], trainingData)
+            newSolution = worker.sketchChangeToSolution(solution, rules, previousCEGISsolution = newSolution)
+            if newSolution == None: return []
+            print "CEGIS: About to find a counterexample to:\n",newSolution
+            ce = self.findCounterexample(newSolution, trainingData)
             print "Counterexample:",ce
             if ce == None:
                 print "No counterexample so I am just returning best solution"
-                for s in ss:
-                    s.clearTransducers()
-                    s.underlyingForms = None
-                ss = [ self.solveUnderlyingForms(s) for s in ss ]
-                print "Final CEGIS solution:\n%s"%(ss[0])
-                return ss
+                newSolution.clearTransducers()
+                newSolution.underlyingForms = None
+                newSolution = self.solveUnderlyingForms(newSolution)
+                print "Final CEGIS solution:\n%s"%(newSolution)
+                return [newSolution]
             trainingData = trainingData + [ce]
         assert False
             
-    def sketchChangeToSolution(self,solution, rules, k = 1):
-        # if we are not changing any of the rules just enumerate one solution
-        if not any([ r == None for r in rules ]): k = 1
-        
+    def sketchChangeToSolution(self, solution, rules, previousCEGISsolution = None): 
         Model.Global()
 
         originalRules = list(rules) # save it for later
-        solutionsSoFar = [] # how many of the K requested solutions have we found
 
         if False:
             # Use the general-purpose sketch forward model implementation
@@ -406,11 +402,12 @@ class UnderlyingProblem():
         for j in range(self.numberOfInflections):
             # Do we have at least two examples for this particular inflection?
             inflectionExamples = len([ None for l in self.data if l[j] != None ])
-            if inflectionExamples >= fixedMorphologyThreshold:
+            if inflectionExamples >= fixedMorphologyThreshold and previousCEGISsolution != None:
                 print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
-                condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
-                condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
-                morphologicalCosts.append(len(solution.prefixes[j]) + len(solution.suffixes[j]))
+                condition(wordEqual(prefixes[j], previousCEGISsolution.prefixes[j].makeConstant(self.bank)))
+                condition(wordEqual(suffixes[j], previousCEGISsolution.suffixes[j].makeConstant(self.bank)))
+                morphologicalCosts.append(len(previousCEGISsolution.prefixes[j]) + \
+                                          len(previousCEGISsolution.suffixes[j]))
             else: morphologicalCosts.append(None)
             if inflectionExamples == 0:
                 # Never seen this inflection: give it the empty morphology
@@ -429,39 +426,31 @@ class UnderlyingProblem():
                                morphologicalCosts = morphologicalCosts)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
-        for _ in range(k):
-            # Condition on it being a different solution
-            for other in solutionsSoFar:
-                condition(And([ ruleEqual(r,o.makeConstant(self.bank))
-                                for r,o,v in zip(rules, other.rules, originalRules)
-                                if v == None ]) == 0)
-            output = self.solveSketch()#minimizeBound = 50)
-            if output == None:
-                print "\t(no modification possible: got %d solutions)"%(len(solutionsSoFar))
-                # Because these are executed in parallel, do not throw an exception
-                break
-            loss = parseMinimalCostValue(output)
-            if loss == None:
-                print "WARNING: None loss"
-                print output
-                printLastSketchOutput()
-                print makeSketchSkeleton()
-                assert False
+        output = self.solveSketch()#minimizeBound = 50)
+        if output == None:
+            print "\t(no modification possible)"
+            # Because these are executed in parallel, do not throw an exception
+            return None
+        loss = parseMinimalCostValue(output)
+        if loss == None:
+            print "WARNING: None loss"
+            print output
+            printLastSketchOutput()
+            print makeSketchSkeleton()
+            assert False
 
-            newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
-                                   suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
-                                   underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                                   rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
-                                                     for r,rp in zip(rules,originalRules) ],
-                                   adjustedCost = loss)
-            print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
-                                                                               indent("\n".join(map(str,newSolution.rules))))
-                                                                             
+        newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
+                               suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
+                               underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
+                               rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
+                                                 for r,rp in zip(rules,originalRules) ],
+                               adjustedCost = loss)
+        print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
+                                                                           indent("\n".join(map(str,newSolution.rules))))
 
-            solutionsSoFar.append(newSolution)
-            solutionsSoFar[-1].verifyRuleCompilation(self.bank,self.data)
+        newSolution.verifyRuleCompilation(self.bank,self.data)
         flushEverything()
-        return [ s.withoutUselessRules() for s in solutionsSoFar ]
+        return newSolution.withoutUselessRules()
 
     def sketchIncrementalChange(self, solution, radius = 1, k = 1):
         # This is the actual sequence of radii that we go through
