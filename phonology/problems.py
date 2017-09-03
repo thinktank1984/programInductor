@@ -1399,47 +1399,47 @@ sevenProblems.append(Problem(
 #	Adjectives
 #	Masc.	Fem.	Neut.	Pl.
 	[
-            (u"mlád",	u"mladá",	u"mladó",	u"mladí"),#	young
-            (u"túp",	u"tupá",	u"tupó",	u"tupí"),#	blunt
-            (u"blág",	u"blagá",	u"blagó",	u"blagí"),#	mild
-            (u"grúb",	u"grubá",	u"grubó",	u"grubí"),#	coarse
-            (u"béo",	u"belá",	u"beló",	u"belí"),#	white
-            (u"veseo",	u"vesela",	u"veselo",	u"veseli"),#	gay
-            (u"debéo",	u"debelá",	u"debeló",	u"debelí"),#	fat
-            (u"mío",	u"milá",	u"miló",	u"milí"),#	dear
-            (u"zelén",	u"zelená",	u"zelenó",	u"zelení"),#	green
-            (u"kradén",	u"kradená", 	u"kradenó", 	u"kradení"),#	stolen
-            (u"dalék",	u"daleká", 	u"dalekó", 	u"dalekí"),#	far
-            (u"visók",	u"visoká", 	u"visokó", 	u"visokí"),#	high
-            (u"dubók",	u"duboká",	u"dubokó",	u"dubokí"),#	deep
-            (u"križan",	u"križana",	u"križano",	u"križani"),#	cross
-            (u"sunčan", 	u"sunčana", 	u"sunčano", 	u"sunčani"),#	sunny
-            (u"svečan", 	u"svečana", 	u"svečano", 	u"svečani"),#	formal
-            (u"bogat",	u"bogata",	u"bogato",	u"bogati"),#	rich
-            (u"rapav",	u"rapava",	u"rapavo",	u"rapavi"),#	rough
-            (u"yásan",	u"yasná",	u"yasnó",	u"yasní"),#	clear
-            (u"vážan",	u"važná",	u"važnó",	u"važní"),#	important
-            (u"sítan",	u"sitná",	u"sitnó",	u"sitní"),#	tiny
-            (u"ledan",	u"ledna",	u"ledno",	u"ledni"),#	frozen
-            (u"tának",	u"tanká",	u"tankó",	u"tankí"),#	slim
-            (u"krátak",	u"kratká",	u"kratkó",	u"kratkí"),#	short
-            (u"blízak",	u"bliská",	u"bliskó",	u"bliskí"),#	close
-            (u"úzak",	u"uská",	u"uskó",	u"uskí"),#	narrow
-            (u"dóbar",	u"dobrá",	u"dobró",	u"dobrí"),#	kind
-            (u"óštar",	u"oštrá",	u"oštró",	u"oštrí"),#	sharp
-            (u"bodar",	u"bodra",	u"bodro",	u"bodri"),#	alert
-            (u"ustao",	u"ustala",	u"ustalo",	u"ustali"),#	tired
-            (u"múkao",	u"muklá",	u"mukló",	u"muklí"),#	hoarse
-            (u"óbao",	u"oblá",	u"obló",	u"oblí"),#	plump
-            (u"pódao",	u"podlá",	u"podló",	u"podlí"),#	base
+            (u"mlád",	u"mladá",	u"mladó",	u"mladí",None,None,None,None),#	young
+            (u"túp",	u"tupá",	u"tupó",	u"tupí",None,None,None,None),#	blunt
+            (u"blág",	u"blagá",	u"blagó",	u"blagí",None,None,None,None),#	mild
+            (u"grúb",	u"grubá",	u"grubó",	u"grubí",None,None,None,None),#	coarse
+            (u"béo",	u"belá",	u"beló",	u"belí",None,None,None,None),#	white
+            (u"veseo",	u"vesela",	u"veselo",	u"veseli",None,None,None,None),#	gay
+            (u"debéo",	u"debelá",	u"debeló",	u"debelí",None,None,None,None),#	fat
+            (u"mío",	u"milá",	u"miló",	u"milí",None,None,None,None),#	dear
+            (u"zelén",	u"zelená",	u"zelenó",	u"zelení",None,None,None,None),#	green
+            (u"kradén",	u"kradená", 	u"kradenó", 	u"kradení",None,None,None,None),#	stolen
+            (u"dalék",	u"daleká", 	u"dalekó", 	u"dalekí",None,None,None,None),#	far
+            (u"visók",	u"visoká", 	u"visokó", 	u"visokí",None,None,None,None),#	high
+            (u"dubók",	u"duboká",	u"dubokó",	u"dubokí",None,None,None,None),#	deep
+            (u"križan",	u"križana",	u"križano",	u"križani",None,None,None,None),#	cross
+            (u"sunčan", 	u"sunčana", 	u"sunčano", 	u"sunčani",None,None,None,None),#	sunny
+            (u"svečan", 	u"svečana", 	u"svečano", 	u"svečani",None,None,None,None),#	formal
+            (u"bogat",	u"bogata",	u"bogato",	u"bogati",None,None,None,None),#	rich
+            (u"rapav",	u"rapava",	u"rapavo",	u"rapavi",None,None,None,None),#	rough
+            (u"yásan",	u"yasná",	u"yasnó",	u"yasní",None,None,None,None),#	clear
+            (u"vážan",	u"važná",	u"važnó",	u"važní",None,None,None,None,None,None,None,None),#	important
+            (u"sítan",	u"sitná",	u"sitnó",	u"sitní",None,None,None,None),#	tiny
+            (u"ledan",	u"ledna",	u"ledno",	u"ledni",None,None,None,None),#	frozen
+            (u"tának",	u"tanká",	u"tankó",	u"tankí",None,None,None,None),#	slim
+            (u"krátak",	u"kratká",	u"kratkó",	u"kratkí",None,None,None,None),#	short
+            (u"blízak",	u"bliská",	u"bliskó",	u"bliskí",None,None,None,None),#	close
+            (u"úzak",	u"uská",	u"uskó",	u"uskí",None,None,None,None),#	narrow
+            (u"dóbar",	u"dobrá",	u"dobró",	u"dobrí",None,None,None,None),#	kind
+            (u"óštar",	u"oštrá",	u"oštró",	u"oštrí",None,None,None,None),#	sharp
+            (u"bodar",	u"bodra",	u"bodro",	u"bodri",None,None,None,None),#	alert
+            (u"ustao",	u"ustala",	u"ustalo",	u"ustali",None,None,None,None),#	tired
+            (u"múkao",	u"muklá",	u"mukló",	u"muklí",None,None,None,None),#	hoarse
+            (u"óbao",	u"oblá",	u"obló",	u"oblí",None,None,None,None),#	plump
+            (u"pódao",	u"podlá",	u"podló",	u"podlí",None,None,None,None),#	base
 
 	# Verbs
 	# 1sg pres	masc. past	fem. past	neut. past	
-	# tepém	tépao	teplá	tepló	wander
-	# skubém	skúbao	skublá	skubló	tear
-	# tresém	trésao	treslá	tresló	shake
-	# vezém	vézao	vezlá	vezló	lead
-]))
+	    (None,None,None,None,u"tepém",	u"tépao",	u"teplá",	u"tepló"),#	wander
+	    (None,None,None,None,u"skubém",	u"skúbao",	u"skublá",	u"skubló"),#	tear
+	    (None,None,None,None,u"tresém",	u"trésao",	u"treslá",	u"tresló"),	#shake
+	(None,None,None,None,u"vezém",	u"vézao",	u"vezlá",	u"vezló")]))#	lead
+
 
 sevenProblems.append(Problem('''2: Standard Ukrainian
 	Standard Ukrainian has palatalized and non-palatalized consonants, but only non-palatalized consonants before e. Consonants are generally palatalized before i, with some apparent exceptions such as bily ‘ache’, which need not be seen as exceptions, given the right analysis. Give ordered rules to account for the alternations of the following nouns. The alternation between o and e is limited to suffixes. Also for masculine nouns referring to persons, ov/ev is inserted between the root and the case suffix in the locative singular (see ‘son-in-law’, ‘grandfather’). The data are initially ambiguous as to whether or not the alternations between o and i and between e and i are to be implemented by the same rule. Consider both possibilities; give an argument for selecting one of these solutions. 
