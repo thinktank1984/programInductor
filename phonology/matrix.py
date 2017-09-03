@@ -636,7 +636,7 @@ class UnderlyingProblem():
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
 
         stemCostExpression = sum([ wordLength(u) for u in stems ] + [ wordLength(u) for u in suffixes ] + [ wordLength(u) for u in prefixes ])
-        stemCostVariable = unknownInteger()
+        stemCostVariable = unknownInteger(numberOfBits = 6)
         condition(stemCostVariable == stemCostExpression)
         minimize(stemCostExpression)
         ruleCostExpression = sum([ ruleCost(r) for r in rules ])
@@ -654,7 +654,8 @@ class UnderlyingProblem():
 
             output = self.solveSketch(minimizeBound = 64)
 
-            if output == None: break
+            if output == None:
+                break
 
             s = Solution(suffixes = [ parseAffix(output, m) for m in suffixes ],
                          prefixes = [ parseAffix(output, m) for m in prefixes ],
@@ -669,8 +670,11 @@ class UnderlyingProblem():
             actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
             assert actualCosts == (rc,uc)
             (rc,uc) = actualCosts
+            print "Actual costs:",actualCosts
             solutionCosts.append((rc,uc))
 
+        print " pareto: got %d solutions of depth %d"%(len(solutions),depth)
+        
         if len(solutions) > 0:
             optimalCost, optimalSolution = min([(uc + float(rc)/temperature, s)
                                                 for ((rc,uc),s) in zip(solutionCosts, solutions) ])

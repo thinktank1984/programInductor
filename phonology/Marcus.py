@@ -76,12 +76,9 @@ if __name__ == '__main__':
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-d','--depth', default = 3, type = int)
     parser.add_argument('-n','--number', default = 4, type = int)
-    parser.add_argument('-e','--experiments', default = 1, type = int)
     parser.add_argument('-q','--quiet', action = 'store_true')
     
     arguments = parser.parse_args()
-
-    pointsFromEachExperiment = [] # pareto curve for each experiment
 
     sampling = {'aba': sampleABA,
                 'abb': sampleABB,
@@ -89,30 +86,23 @@ if __name__ == '__main__':
                 'aax': sampleAAX,
                 }
         
-    for experiment in range(arguments.experiments):
-        print "Experiment %d:"%(1+experiment)
-        trainingData = sampling[arguments.problem](arguments.number)
-        print u"\n".join(trainingData)
-        surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
+    trainingData = sampling[arguments.problem](arguments.number)
+    print u"\n".join(trainingData)
+    surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
 
-        points = []
-        costToSolution = {}
-        for d in range(0,arguments.depth + 1):
-            worker = UnderlyingProblem([(w,) for w in trainingData ])
-            solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE)
-            for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
-            points += costs
-        pointsFromEachExperiment.append(removePointsNotOnFront(points))
+    costToSolution = {}
+    for d in range(0,arguments.depth + 1):
+        worker = UnderlyingProblem([(w,) for w in trainingData ])
+        solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE, useMorphology = True)
+        for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
         
-    print pointsFromEachExperiment
-    colors = cm.rainbow(np.linspace(0, 1, len(pointsFromEachExperiment)))
+    colors = cm.rainbow(np.linspace(0, 1, 1))
     if not arguments.quiet:
         #plot.rc('text', usetex=True)
         #plot.rc('font', family='serif')
-        for points,color in zip(pointsFromEachExperiment,colors):
-            plot.scatter([ -p[0] for p in points],
-                         [ float(surfaceLength)/p[1] for p in points],
-                         alpha = 1.0/(arguments.experiments+2), s = 100, color = color)
+        plot.scatter([ -p[0] for p in costToSolution],
+                     [ float(surfaceLength)/p[1] for p in costToSolution],
+                     alpha = 1.0/(1+2), s = 100, color = colors)
         plot.ylabel("Fit to data (Compression ratio)")
         plot.xlabel("Parsimony (-Program length)")
         plot.title("Pareto front for %s, %d example%s"%(arguments.problem,arguments.number,'' if arguments.number == 1 else 's'))
@@ -124,8 +114,12 @@ if __name__ == '__main__':
         plot.text(0.05, 0.05, u"\n".join(trainingData), transform=ax.transAxes,
                   fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
 
+        front = removePointsNotOnFront(costToSolution.keys())
+        # diagram the front itself
+        plot.plot([ -c1 for c1,c2 in front ],[ float(surfaceLength)/c2 for c1,c2 in front ],'--')
+
         # illustrate the synthesized programs along the front
-        for c1,c2 in points:
+        for c1,c2 in costToSolution:
             solution = costToSolution[(c1,c2)]
             x1 = -c1
             y1 = float(surfaceLength)/c2

@@ -24,7 +24,7 @@ class Solution():
                            for u in self.underlyingForms ]))
 
     def pretty(self):
-        p = ''
+        p = u''
         for prefix, suffix in zip(self.prefixes, self.suffixes):
             if len(prefix) == 0 and len(suffix) == 0: continue
             if len(prefix) > 0: p += u''.join(prefix.phonemes) + u'+'
@@ -32,6 +32,7 @@ class Solution():
             if len(suffix) > 0: p += u'+' + u''.join(suffix.phonemes)
             p += u'\n'
         p += u'\n'.join([ r.pretty() for r in self.rules ])
+        if p == u'': p = u'surface=underlying'
         return p
 
     def cost(self):

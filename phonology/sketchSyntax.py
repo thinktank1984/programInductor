@@ -154,7 +154,7 @@ class Subtraction(Expression):
 class Model():
     def __init__(self):
         self.flipCounter = 0
-        self.integerCounter = 0
+        self.integerSizes = []
         self.definitionCounter = 0
         self.definedFunctions = []
         self.statements = []
@@ -162,9 +162,9 @@ class Model():
     def flip(self, p = 0.5):
         self.flipCounter += 1
         return Variable("__FLIP__%d"%self.flipCounter)
-    def unknownInteger(self):
-        self.integerCounter += 1
-        return Variable("__INTEGER__%d"%self.integerCounter)
+    def unknownInteger(self, numberOfBits = None):
+        self.integerSizes.append(numberOfBits)
+        return Variable("__INTEGER__%d"%(len(self.integerSizes)))
     def defineFunction(self,returnValue, arguments, body):
         k = len(self.definedFunctions)
         self.definedFunctions.append("%s specialDefinedFunction_%d(%s){\n%s\n}"%(returnValue,
@@ -195,8 +195,8 @@ class Model():
             
         for f in range(self.flipCounter):
             h += "bit __FLIP__%d = ??;\n" % (f + 1)
-        for f in range(self.integerCounter):
-            h += "int __INTEGER__%d = ??;\n" % (f + 1)
+        for f,s in enumerate(self.integerSizes):
+            h += "int __INTEGER__%d = ??%s;\n" % (f + 1, '' if s == None else '(%d)'%s)
 
         h += "\n".join(self.definedFunctions)
 
@@ -231,9 +231,9 @@ currentModel = None
 def flip(p = 0.5):
     global currentModel
     return currentModel.flip(p)
-def unknownInteger():
+def unknownInteger(numberOfBits = None):
     global currentModel
-    return currentModel.unknownInteger()
+    return currentModel.unknownInteger(numberOfBits = numberOfBits)
 def ite(condition,yes,no):
     return Conditional(condition,yes,no)
 
@@ -307,6 +307,22 @@ def parseMinimalCostValue(output):
                  raise Exception('Error parsing minimize hole value: %s'%l)
              vp = int(m.group(1))
              if v != None: assert vp < v
+             v = vp
+    return v
+def parseMinimalCostValues(output):
+    v = None
+    for l in output.splitlines():
+        if '*********INSIDE minimizeHoleValue' in l:
+             #*********INSIDE minimizeHoleValue, mhsize=[0-9] current value of H__BND0=12,
+             vp = [ int(m.group(1))
+                    for m in re.finditer('H__BND[0-9]=([0-9]+),',l) ]
+             if vp == []:
+                 raise Exception('Error parsing minimize hole values: %s'%l)
+             if v != None:
+                 # At least one of them has to be better
+                 assert any([ new < old for old,new in zip(v,vp) ])
+                 # And none of them can be worse
+                 assert not any([ old < new for old,new in zip(v,vp) ])
              v = vp
     return v
              
