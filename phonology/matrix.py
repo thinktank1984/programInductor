@@ -477,7 +477,7 @@ class UnderlyingProblem():
         # Figure out how many CPUs we want to use.
         # if the solution we are modifying has lots of rules use fewer
         # This is because more rules means that each sketch invocation uses more memory;
-        if len(solution.rules) > 4: desiredNumberOfCPUs = 20
+        if len(solution.rules) > 3: desiredNumberOfCPUs = 20
         else: desiredNumberOfCPUs = 35
         allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchCEGISChange(solution,v,k), ruleVectors)
         allSolutions = [ s for ss in allSolutions for s in ss ]
