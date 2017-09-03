@@ -1418,7 +1418,7 @@ sevenProblems.append(Problem(
             (u"bogat",	u"bogata",	u"bogato",	u"bogati",None,None,None,None),#	rich
             (u"rapav",	u"rapava",	u"rapavo",	u"rapavi",None,None,None,None),#	rough
             (u"yásan",	u"yasná",	u"yasnó",	u"yasní",None,None,None,None),#	clear
-            (u"vážan",	u"važná",	u"važnó",	u"važní",None,None,None,None,None,None,None,None),#	important
+            (u"vážan",	u"važná",	u"važnó",	u"važní",None,None,None,None),#	important
             (u"sítan",	u"sitná",	u"sitnó",	u"sitní",None,None,None,None),#	tiny
             (u"ledan",	u"ledna",	u"ledno",	u"ledni",None,None,None,None),#	frozen
             (u"tának",	u"tanká",	u"tankó",	u"tankí",None,None,None,None),#	slim
