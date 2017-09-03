@@ -503,6 +503,7 @@ class UnderlyingProblem():
                 print " [?] WARNING: Missing morphology for some inflections, padding with empty"
                 solution.prefixes += [Morph([])]*(len(self.data[0]) - len(solution.prefixes))
                 solution.suffixes += [Morph([])]*(len(self.data[0]) - len(solution.prefixes))
+                print solution
                 assert len(solution.prefixes) == len(solution.suffixes)
             elif len(solution.prefixes) > len(self.data[0]):
                 print " [-] FATAL: Solution has more inflections and than data set???"
