@@ -348,14 +348,11 @@ class UnderlyingProblem():
 
     def sketchCEGISChange(self,solution, rules, k = 1):
         assert k == 1
-        # if we are not changing any of the rules just act as a verifier
-        if not any([ r == None for r in rules ]): trainingData = self.data
-        else:
-            n = len(self.data)/5
-            if n < 4: n = 4
-            if n > 10: n = 10
-            if n > len(self.data) - 2: n = len(self.data) - 2
-            trainingData = random.sample(self.data[:-2], n) + self.data[-2:]
+        n = len(self.data)/5
+        if n < 4: n = 4
+        if n > 10: n = 10
+        if n > len(self.data) - 2: n = len(self.data) - 2
+        trainingData = random.sample(self.data[:-2], n) + self.data[-2:]
 
         newSolution = None
         while True:
