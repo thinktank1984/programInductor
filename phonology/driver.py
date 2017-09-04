@@ -3,6 +3,7 @@ from countingProblems import CountingProblem
 from utilities import *
 
 from matrix import *
+from randomSampleSolver import RandomSampleSolver
 
 import argparse
 from multiprocessing import Pool
@@ -130,7 +131,8 @@ def handleProblem(parameters):
             if parameters['stochastic']:
                 UnderlyingProblem(p.data).stochasticSearch(20, parameters['beam'])
             elif parameters['randomSample']:
-                UnderlyingProblem(p.data).randomSampleSolver()
+                RandomSampleSolver(p.data, parameters['timeout']*60*60, 5, 15).solve()
+                assert False
             elif parameters['incremental']:
                 ss = UnderlyingProblem(p.data).incrementallySolve(windowSize = parameters['window'],
                                                                   beam = parameters['beam'],
@@ -180,6 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
+    parser.add_argument('--timeout', default = 1.0, type = float)
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
@@ -231,6 +234,7 @@ if __name__ == '__main__':
                    'eager': arguments.eager,
                    'beam': arguments.beam,
                    'stochastic': arguments.stochastic,
+                   'timeout': arguments.timeout,
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))
