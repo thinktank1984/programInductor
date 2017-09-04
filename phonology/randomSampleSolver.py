@@ -33,7 +33,7 @@ class RandomSampleSolver():
     def solve(self, numberOfWorkers = None):
         if numberOfWorkers == None: numberOfWorkers = numberOfCPUs()
         print "# of workers:",numberOfWorkers
-        solutions = map(lambda j: self.worker(j), range(numberOfWorkers))#Pool(numberOfWorkers).
+        solutions = Pool(numberOfWorkers).map(lambda j: self.worker(j), range(numberOfWorkers))
 
         # Now coalesce the rules and figure out how frequently they occurred
         ruleFrequencies = {} # map from the Unicode representation of a rule to (frequency,rule)
