@@ -96,16 +96,12 @@ class UnderlyingProblem():
             else: # underlying form is unknown
                 return concatenate3(prefix, stem, suffix)
         
-        surfaceLengths = [ 0 if s == None else len(s)
-                           for s in surfaces ]
-        prediction = [ applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), surfaceLengths[i] + 1)
-                     for i in range(len(surfaces)) ]
-        for i in range(len(surfaces)):
-            surface = surfaces[i]
+        for i,surface in enumerate(surfaces):
             if surface == None: continue
-            if not isinstance(surface,Expression):
-                surface = surface.makeConstant(self.bank)
-            condition(wordEqual(surface, prediction[i]))
+            
+            prediction = applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), len(surface) + 1)
+
+            condition(wordEqual(surface.makeConstant(self.bank), prediction))
     
     def conditionOnData(self, rules, stems, prefixes, suffixes):
         '''Conditions on inflection matrix.'''
@@ -368,7 +364,6 @@ class UnderlyingProblem():
             if newSolution == None: return []
             print "CEGIS: About to find a counterexample to:\n",newSolution
             ce = self.findCounterexample(newSolution, trainingData)
-            print "Counterexample:",ce
             if ce == None:
                 print "No counterexample so I am just returning best solution"
                 newSolution.clearTransducers()
