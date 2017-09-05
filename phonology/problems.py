@@ -1638,6 +1638,8 @@ sevenProblems.append(Problem('''5: Turkish
 	Provide a phonological analysis of the following data from Turkish.
 My analysis:
 Morphology: 
+stem
+stem + /s
 ''',[
     
 #	nom	poss	dat	abl	nom. pl

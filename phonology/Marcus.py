@@ -77,6 +77,9 @@ if __name__ == '__main__':
     parser.add_argument('-d','--depth', default = 3, type = int)
     parser.add_argument('-n','--number', default = 4, type = int)
     parser.add_argument('-q','--quiet', action = 'store_true')
+    parser.add_argument('--save', default = None, type = str)
+    parser.add_argument('--load', default = None, type = str)
+    
     
     arguments = parser.parse_args()
 
@@ -91,10 +94,18 @@ if __name__ == '__main__':
     surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
 
     costToSolution = {}
-    for d in range(0,arguments.depth + 1):
-        worker = UnderlyingProblem([(w,) for w in trainingData ])
-        solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE, useMorphology = True)
-        for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
+    if arguments.load != None:
+        assert not arguments.quiet
+        costToSolution = loadPickle(arguments.load)
+    else:
+        for d in range(0,arguments.depth + 1):
+            worker = UnderlyingProblem([(w,) for w in trainingData ])
+            solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE, useMorphology = True)
+            for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
+
+    if arguments.save != None:
+        assert arguments.load == None
+        dumpPickle(costToSolution, arguments.save)
         
     colors = cm.rainbow(np.linspace(0, 1, 1))
     if not arguments.quiet:
