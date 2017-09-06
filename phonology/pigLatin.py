@@ -49,11 +49,23 @@ pigLatinExamples4 = [(u"pɩg", u"ɩgpe"),#pe"),
       (u"it", u"ite"),
       (u"ask", u"aske")
 ]
-pigLatinExamples = pigLatinExamples4
 
+# Ø ---> 1 /  _ σ
+# Ø ---> d /  _ #
+# Ø ---> ə /  _ #
+chineseExamples = [(u"xau-",u"xau-xau-də"),
+                   (u"man-",u"man-man-də"),
+#                   (u"kwaj-",u"kwajkwajdə"),
+#                   (u"çin-",u"çinçində"),
+                   (u"le-",u"le-le-də")]
+
+examples = chineseExamples
 depth = 3
 
-solution = SupervisedProblem([ (Morph(tokenize(x)), Morph(tokenize(y))) for x,y in pigLatinExamples ]).solve(depth)
+
+
+
+solution = SupervisedProblem([ (Morph(tokenize(x)), Morph(tokenize(y))) for x,y in examples ]).solve(depth)
 if solution == None:
     print "No solution."
 else:
