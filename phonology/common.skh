@@ -485,7 +485,13 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
 
   // sanity check
   if (focus != null) assert r.copyOffset == 0; // not inserting so don't copy
-  if (r.copyOffset != 0) assert empty_specification(structural_change);
+  if (r.copyOffset != 0) {
+    assert empty_specification(structural_change);
+    // Long-distance copying has to be unambiguous in order to have deterministic rules
+    if (r.copyOffset < 0 && left_trigger.starred) assert left_trigger.endOfString && r.copyOffset == -2;
+    if (r.copyOffset > 0 && right_trigger.starred) assert right_trigger.endOfString && r.copyOffset == 2;
+  }
+  
   // HEURISTIC: long-distance dependencies tend to only occur on one side
   if (left_trigger.starred) assert !right_trigger.starred;
   if (right_trigger.starred) assert !left_trigger.starred;
@@ -506,7 +512,6 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   assert !has_syllable_feature(structural_change);
 #endif
 #ifndef SYLLABLEBOUNDARYFEATURE
-  assert r.copyOffset == 0;
 #define MAXIMALINCREASE 1
 #else
 #define MAXIMALINCREASE 4
@@ -613,7 +618,9 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
 #endif
 	inserted = 1; 
 	output[j] = r.copyOffset == 0?
-	  extract_constant_sound(structural_change) : (u.s[j + r.copyOffset - (r.copyOffset > 0 ? 1 : 0)]);
+	  extract_constant_sound(structural_change)
+	  : (r.copyOffset == -2 && left_trigger.starred ?
+	     u.s[0] : u.s[j + r.copyOffset - (r.copyOffset > 0 ? 1 : 0)]);
 #ifdef SYLLABLEBOUNDARYFEATURE
 	}
 #endif

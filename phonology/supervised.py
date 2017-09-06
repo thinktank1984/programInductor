@@ -7,36 +7,46 @@ from morph import Morph
 from sketch import *
 
 
-def solveTopSupervisedRules(examples, k, existingRule = None):
-    # print "SUPERVISEDINPUTS:"
-    # for x,y in examples:
-    #     print x,
-    #     print "\t",y
+class SupervisedProblem():
+    def __init__(self, examples):
+        self.examples = examples
+        self.bank = FeatureBank([ w for x,y in self.examples for w in [x,y]  ])
+        self.maximumObservationLength = max([len(m) for e in examples for m in e ]) + 1
+        self.maximumMorphLength = self.maximumObservationLength
 
-        
-    solutions = [] if existingRule == None else [existingRule]
-    bank = FeatureBank([ ''.join(w.phonemes) for (x,y) in examples for w in [x,y] ])
 
-    maximumObservationLength = max([len(m) for e in examples for m in e ]) + 1
-    maximumMorphLength = maximumObservationLength
+    def fastTopK(self, k, existingRule = None):
+        solutions = [] if existingRule == None else [existingRule]
 
-    for _ in range(k - (1 if existingRule else 0)):
+        for _ in range(k - (1 if existingRule else 0)):
+            Model.Global()
+            rule = Rule.sample()
+            for other in solutions:
+                condition(ruleEqual(rule, other.makeConstant(self.bank)) == 0)
+            minimize(ruleCost(rule))
+
+            for x,y in self.examples:
+                condition(wordEqual(applyRule(rule, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
+                                    y.makeConstant(self.bank)))
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+            if not output: break
+
+            solutions.append(Rule.parse(self.bank, output, rule))
+        return solutions
+
+    def solve(self, d):
         Model.Global()
-        rule = Rule.sample()
-        for other in solutions:
-            condition(ruleEqual(rule, other.makeConstant(bank)) == 0)
-        minimize(ruleCost(rule))
+        rules = [ Rule.sample() for _ in range(d) ]
+        minimize(sum([ ruleCost(r) for r in rules ]))
 
-        condition(fixStructuralChange(rule))
+        for x,y in self.examples:
+            condition(wordEqual(applyRules(rules, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
+                                y.makeConstant(self.bank)))
+        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+        if not output:
+            printLastSketchOutput()
+            return None
+        
+        return [ Rule.parse(self.bank, output, r)
+                 for r in rules ] 
 
-        for x,y in examples:
-            condition(wordEqual(applyRule(rule, x.makeConstant(bank), max(len(x),len(y)) + 1),
-                                y.makeConstant(bank)))
-        output = solveSketch(bank, maximumObservationLength, maximumMorphLength)
-        if not output: break
-                   
-        solutions.append(Rule.parse(bank, output, rule))
-    # print "SUPERVISEDOUTPUTS:"
-    # for r in solutions:
-    #     print r
-    return solutions

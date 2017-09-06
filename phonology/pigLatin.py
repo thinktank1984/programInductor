@@ -2,6 +2,7 @@
 
 from utilities import *
 
+from supervised import SupervisedProblem
 from features import FeatureBank, tokenize
 from rule import Rule
 from morph import Morph
@@ -39,40 +40,21 @@ pigLatinExamples3 = [(u"pɩg", u"pɩgp"),#pe"),
                      (u"ask", u"ask")
 ]
 # learn pig Latin. System produces:
-#    # ---> -1 / # [ -vowel ] [  ]* _ 
-#    # ---> e /  _ 
-#    [ -vowel ] ---> Ø / # _ 
-pigLatinExamples4 = [(u"pɩg", u"ɩgpe"),#pe"),
-                    (u"latɩn", u"atɩnle"),#le"),
-                    (u"no", u"one"),#ne"),
-                    (u"it", u"ite"),
-                     (u"ask", u"aske")
+# Ø ---> -2 / # [ -vowel ] [  ]* _ #
+# [ -vowel ] ---> Ø / # _ 
+# Ø ---> e /  _ #
+s4 = [(u"pɩg", u"ɩgpe"),#pe"),
+      (u"latɩn", u"atɩnle"),#le"),
+      (u"no", u"one"),#ne"),
+      (u"it", u"ite"),
+      (u"ask", u"aske")
 ]
 pigLatinExamples = pigLatinExamples4
 
 depth = 3
 
-bank = FeatureBank([ w for l in pigLatinExamples for w in l ])
-maximumObservationLength = max([ len(tokenize(w)) for l in pigLatinExamples for w in l ]) + 1
-
-def conditionOnExample(r, x, y):
-    y = makeConstantWord(bank, y)
-    x = makeConstantWord(bank, x)
-    condition(wordEqual(y, applyRules(r, x, 10)))
-
-Model.Global()
-rules = [ Rule.sample() for _ in range(depth) ]
-def applyRules(r,x):
-    if len(r) == 0: return x
-    return applyRules(r[1:], applyRule(r[0], x))
-
-for x,y in pigLatinExamples:
-    conditionOnExample(rules, x, y)
-minimize(sum([ ruleCost(r) for r in rules ]))
-output = solveSketch(bank, maximumObservationLength)
-
-if not output:
-    print "Failed to discover a system of rules."
-    assert False
-for r in rules:
-    print Rule.parse(bank, output, r)
+solution = SupervisedProblem([ (Morph(tokenize(x)), Morph(tokenize(y))) for x,y in pigLatinExamples ]).solve(depth)
+if solution == None:
+    print "No solution."
+else:
+    for r in solution: print r
