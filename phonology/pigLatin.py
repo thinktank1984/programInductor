@@ -43,7 +43,7 @@ pigLatinExamples3 = [(u"pɩg", u"pɩgp"),#pe"),
 # Ø ---> -2 / # [ -vowel ] [  ]* _ #
 # [ -vowel ] ---> Ø / # _ 
 # Ø ---> e /  _ #
-s4 = [(u"pɩg", u"ɩgpe"),#pe"),
+pigLatinExamples4 = [(u"pɩg", u"ɩgpe"),#pe"),
       (u"latɩn", u"atɩnle"),#le"),
       (u"no", u"one"),#ne"),
       (u"it", u"ite"),
