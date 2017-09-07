@@ -8,7 +8,7 @@ from rule import * # Rule,Guard,FeatureMatrix,EMPTYRULE
 from morph import Morph
 from sketchSyntax import Expression,makeSketchSkeleton
 from sketch import *
-from supervised import solveTopSupervisedRules
+from supervised import SupervisedProblem
 from latex import latexMatrix
 from UG import str2ug #FlatUG, ChomskyUG, FeatureUG, SkeletonUG, SkeletonFeatureUG
 
@@ -133,7 +133,7 @@ class UnderlyingProblem():
             if rs == []: return [[]]
             ys = [ self.applyRule(rs[0],x) #Morph.fromMatrix(rs[0].apply(x))
                    for x in xs ]            
-            alternatives = solveTopSupervisedRules(zip(xs,ys), k, rs[0])
+            alternatives = SupervisedProblem(zip(xs,ys)).fastTopK(k, rs[0])
             suffixes = f(ys, rs[1:])
             return [ [a] + s
                      for a in alternatives
@@ -635,14 +635,14 @@ class UnderlyingProblem():
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
 
-        stemCostExpression = sum([ wordLength(u) for u in stems ] + [ wordLength(u) for u in suffixes ] + [ wordLength(u) for u in prefixes ])
+        stemCostExpression = sum([ wordLength(u) for u in stems ])
         stemCostVariable = unknownInteger(numberOfBits = 6)
         condition(stemCostVariable == stemCostExpression)
         minimize(stemCostExpression)
-        ruleCostExpression = sum([ ruleCost(r) for r in rules ])
+        ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u) for u in suffixes ] + [ wordLength(u) for u in prefixes ])
         ruleCostVariable = unknownInteger()
         condition(ruleCostVariable == ruleCostExpression)
-        if len(rules) > 0:
+        if len(rules) > 0 or useMorphology:
             minimize(ruleCostExpression)
 
         solutions = []
@@ -664,8 +664,8 @@ class UnderlyingProblem():
             solutions.append(s)
             print s
 
-            rc = sum([r.cost() for r in s.rules ])
-            uc = sum([len(u) for u in s.prefixes+s.suffixes+s.underlyingForms ])
+            rc = sum([r.cost() for r in s.rules ] + [len(a) for a in s.prefixes + s.suffixes ])
+            uc = sum([len(u) for u in s.underlyingForms ])
             print "Costs:",(rc,uc)
             actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
             assert actualCosts == (rc,uc)

@@ -60,14 +60,9 @@ def sampleAAX(n):
     return l
 
 def removePointsNotOnFront(points):
-    points = list(set(points))
-
-    toRemove = []
-    for p in points:
-        for q in points:
-            if q[0] < p[0] and q[1] < p[1]:
-                toRemove.append(p)
-    return [ p for p in points if not p in toRemove ]
+    return sorted([ (x,y) for x,y in points
+                    if not any([ a >= x and b >= y and (a,b) != (x,y)
+                                 for a,b in points ])])
 
 
 if __name__ == '__main__':
@@ -125,9 +120,9 @@ if __name__ == '__main__':
         plot.text(0.05, 0.05, u"\n".join(trainingData), transform=ax.transAxes,
                   fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
 
-        front = removePointsNotOnFront(costToSolution.keys())
+        front = removePointsNotOnFront([ (-c1,float(surfaceLength)/c2) for c1,c2 in costToSolution.keys() ])
         # diagram the front itself
-        plot.plot([ -c1 for c1,c2 in front ],[ float(surfaceLength)/c2 for c1,c2 in front ],'--')
+        plot.plot([ x for x,y in front ], [ y for x,y in front ],'--')
 
         # illustrate the synthesized programs along the front
         for c1,c2 in costToSolution:
