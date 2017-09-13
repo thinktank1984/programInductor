@@ -107,9 +107,9 @@ if __name__ == '__main__':
         #plot.rc('text', usetex=True)
         #plot.rc('font', family='serif')
         plot.scatter([ -p[0] for p in costToSolution],
-                     [ float(surfaceLength)/p[1] for p in costToSolution],
+                     [ -p[1]/float(arguments.number) for p in costToSolution],
                      alpha = 1.0/(1+2), s = 100, color = colors)
-        plot.ylabel("Fit to data (Compression ratio)")
+        plot.ylabel("Fit to data (-average UR size)")
         plot.xlabel("Parsimony (-Program length)")
         plot.title("Pareto front for %s, %d example%s"%(arguments.problem,arguments.number,'' if arguments.number == 1 else 's'))
                 
@@ -120,22 +120,37 @@ if __name__ == '__main__':
         plot.text(0.05, 0.05, u"\n".join(trainingData), transform=ax.transAxes,
                   fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
 
-        front = removePointsNotOnFront([ (-c1,float(surfaceLength)/c2) for c1,c2 in costToSolution.keys() ])
+        front = removePointsNotOnFront([ (-c1,-c2/float(arguments.number)) for c1,c2 in costToSolution.keys() ])
         # diagram the front itself
         plot.plot([ x for x,y in front ], [ y for x,y in front ],'--')
 
+        # Decide which points to label with the corresponding program
+        solutionsToLabel = list(front)
+        for c2 in set([ c2 for c1,c2 in costToSolution ]):
+            y = -c2/float(arguments.number)
+            candidates = [ -c1 for c1,_c2 in costToSolution if _c2 == c2 and not (-c1,y) in front ]
+            if candidates != []:
+                chosen = choice(candidates)
+                solutionsToLabel.append((chosen,y))
+
         # illustrate the synthesized programs along the front
-        for c1,c2 in costToSolution:
+        dy = 0.3
+        for c1,c2 in sorted(costToSolution.keys(), key = lambda cs: (cs[1],cs[0])):
             solution = costToSolution[(c1,c2)]
             x1 = -c1
-            y1 = float(surfaceLength)/c2
+            y1 = -c2/float(arguments.number)
             x2 = x1
-            y2 = y1 + 0.1
+            y2 = y1 + dy
             print x2,y2
             print solution.pretty()
+
+            if not (x1,y1) in solutionsToLabel: continue
+            dy = -1*dy
+            
             plot.text(x2,y2, solution.pretty(),
                       fontsize=12, bbox=props,
-                      verticalalignment = 'bottom', horizontalalignment = 'center')
+                      verticalalignment = 'bottom' if dy < 0 else 'top',
+                      horizontalalignment = 'center')
             ax.annotate('',
                         xy = (x2,y2),xycoords = 'data',
                         xytext = (x1,y1),textcoords = 'data',
@@ -143,6 +158,6 @@ if __name__ == '__main__':
 
 
 
-        plot.ylim([1,2])
+        #plot.ylim([1,2])
 #        plot.xlim([1,2])
         plot.show()

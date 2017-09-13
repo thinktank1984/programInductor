@@ -7,6 +7,9 @@ class Expression:
     def __add__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
         return Addition(self,o)
+    def __mul__(self,o):
+        if not isinstance(o,Expression): o = Constant(o)
+        return Multiplication(self,o)
     def __sub__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
         return Subtraction(self,o)
@@ -143,13 +146,16 @@ class Addition(Expression):
         self.x = x
         self.y = y
     def sketch(self): return "((%s) + (%s))" % (self.x.sketch(),self.y.sketch())
-    def web(self): return "((%s) + (%s))" % (self.x.web(),self.y.web())
+class Multiplication(Expression):
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+    def sketch(self): return "((%s) * (%s))" % (self.x.sketch(),self.y.sketch())
 class Subtraction(Expression):
     def __init__(self,x,y):
         self.x = x
         self.y = y
     def sketch(self): return "((%s) - (%s))" % (self.x.sketch(),self.y.sketch())
-    def web(self): return "((%s) - (%s))" % (self.x.web(),self.y.web())
 
 class Model():
     def __init__(self):

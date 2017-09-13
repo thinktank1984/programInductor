@@ -298,6 +298,7 @@ struct Rule {
   Guard right_trigger;
   // If we are inserting a new phoneme, copy it from this offset:
   // 0 = do not copy; -(1|2) = copy from left; +(1|2) = copy from right
+  // If we are deleting a phoneme, ensure that is equal to this offset.
   int copyOffset;
 }
 
@@ -439,6 +440,7 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
       int secondary_index = index2sound(j - 1); //R? (l + 1 - j):(j - 2);
       this_is_okay = this_is_okay && (g.spec2 == null || (
 #ifdef SYLLABLEBOUNDARYFEATURE
+							  // FIXME: sigma [stuff]
 				      is_syllable_specification(g.spec2)?
 				      (R? are_two_syllables_starting_at(u,index2sound(j))
 				       : are_two_syllables_ending_at(u,index2sound(j))) :
@@ -484,12 +486,18 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   Guard right_trigger = r.right_trigger;
 
   // sanity check
-  if (focus != null) assert r.copyOffset == 0; // not inserting so don't copy
+  if (focus != null && structural_change != null) assert r.copyOffset == 0; // not inserting so don't copy
   if (r.copyOffset != 0) {
-    assert empty_specification(structural_change);
-    // Long-distance copying has to be unambiguous in order to have deterministic rules
-    if (r.copyOffset < 0 && left_trigger.starred) assert left_trigger.endOfString && r.copyOffset == -2;
-    if (r.copyOffset > 0 && right_trigger.starred) assert right_trigger.endOfString && r.copyOffset == 2;
+    if (focus == null) {
+      assert empty_specification(structural_change);
+      // Long-distance copying has to be unambiguous in order to have deterministic rules
+      if (r.copyOffset < 0 && left_trigger.starred) assert left_trigger.endOfString && r.copyOffset == -2;
+      if (r.copyOffset > 0 && right_trigger.starred) assert right_trigger.endOfString && r.copyOffset == 2;
+    } else if (structural_change == null) {
+      assert empty_specification(focus);
+      // symmetry breaking
+      assert r.copyOffset == 1 && !right_trigger.starred && right_trigger.spec != null;
+    }
   }
   
   // HEURISTIC: long-distance dependencies tend to only occur on one side
@@ -549,7 +557,7 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
     bit ruleApplies = 0;
     for (int j = 0; j < u.l; j++){
       assert j < unrollBound;
-      if (triggered[j]) {
+      if (triggered[j] && (r.copyOffset == 0 ? 1 : (j + 1 < u.l && u.s[j] == u.s[j + 1]))) {
 	assert !ruleApplies;
 	ruleApplies = 1;
       }
@@ -559,7 +567,7 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
     int outputIndex = 0;
     for (int j = 0; j < u.l; j++) {
       assert j < unrollBound;
-      if (!triggered[j]) {
+      if (!(triggered[j] && (r.copyOffset == 0 ? 1 : (j + 1 < u.l && u.s[j] == u.s[j + 1])))) {
 	output[outputIndex] = u.s[j];
 	outputIndex++;
       }

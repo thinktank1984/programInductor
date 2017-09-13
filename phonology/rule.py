@@ -344,6 +344,14 @@ class Guard():
         if self.endOfString: parts += [u'#']
         if self.side == 'L': parts.reverse()
         return u" ".join(parts)
+
+    def groundAdjacent(self,p):
+        assert self.side == 'R'
+        assert not self.starred
+        newSpecifications = list(self.specifications)
+        newSpecifications[0] = ConstantPhoneme(p)
+        return Guard('R', self.endOfString, False, newSpecifications)
+        
     
     def skeleton(self):
         parts = []
@@ -449,6 +457,11 @@ class Rule():
         self.copyOffset = copyOffset
         self.representation = None # Unicode representation
 
+    def isGeminiRule(self):
+        return self.copyOffset == 1 and isinstance(self.structuralChange,EmptySpecification)
+    def isCopyRule(self):
+        return self.copyOffset != 0 and isinstance(self.focus,EmptySpecification)
+
     def merge(self, other):
         return Rule(self.focus.merge(other.focus),
                     self.structuralChange.merge(other.structuralChange),
@@ -473,15 +486,15 @@ class Rule():
 
     def doesNothing(self):
         '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''
-        return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing()
+        return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing() and self.copyOffset == 0
 
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         if not hasattr(self, 'representation') or self.representation == None:
             if not hasattr(self, 'copyOffset'): self.copyOffset = 0
             # check this: should I be calling Unicode recursively?
-            self.representation = u"{} ---> {} / {} _ {}".format(unicode(self.focus),
-                                                                 unicode(self.structuralChange) if self.copyOffset == 0 else self.copyOffset,
+            self.representation = u"{} ---> {} / {} _ {}".format(unicode(self.focus) if not self.isGeminiRule() else self.copyOffset,
+                                                                 unicode(self.structuralChange) if not self.isCopyRule() else self.copyOffset,
                                                                  unicode(self.leftTriggers),
                                                                  unicode(self.rightTriggers))
         return self.representation
@@ -498,13 +511,18 @@ class Rule():
                                                        self.rightTriggers.latex())
 
     def pretty(self):
-        p = unicode(self.focus)
-        p += u'⟶'
-        if self.copyOffset == 0: p += unicode(self.structuralChange)
+        # deletion & deGemini
+        if self.isGeminiRule():
+            p = unicode(self.rightTriggers.specifications[0]) + u'ᵢ'
         else:
+            p = unicode(self.focus)
+        p += u'⟶'
+        # insertion and copying
+        if self.isCopyRule():
             if self.copyOffset > 0: p += unicode(self.rightTriggers.specifications[self.copyOffset - 1])
             else: p += unicode(self.leftTriggers.specifications[-self.copyOffset - 1])
             p += u'ᵢ'
+        else: p += unicode(self.structuralChange)
         p += u' / '
         p += self.leftTriggers.pretty(self.copyOffset)
         p += u' _ '
@@ -537,9 +555,14 @@ class Rule():
         if isinstance(self.focus,ConstantPhoneme):
             inputs = [self.focus.p]
         elif isinstance(self.focus,FeatureMatrix):
-            inputs = [ p
-                       for p in bank.phonemes
-                       if self.focus.matches(featureMap[p]) ]
+            if not self.isGeminiRule():
+                inputs = [ p
+                           for p in bank.phonemes
+                           if self.focus.matches(featureMap[p]) ]
+            else:
+                inputs = [p
+                          for p in bank.phonemes
+                          if self.rightTriggers.specifications[0].matches(featureMap[p]) ]
         elif isinstance(self.focus,EmptySpecification):
             # insertion rule
             assert isinstance(self.structuralChange,ConstantPhoneme)
@@ -574,18 +597,29 @@ class Rule():
 
         if len(mapping) == 0: raise InvalidRule('mapping has length zero')
 
-        mapping = dict([ (i if insertion else bank.phoneme2fst(i),
-                          # '.' is magical error signal
-                          o if deletion  else ('.' if o == None else bank.phoneme2fst(o)))
-                         for i,o in mapping.iteritems() ])
-        if getVerbosity() >= 5:
-            print "mapping:"
-            print mapping
-            print
-        regex = transducerOfRule(mapping,
-                                 self.leftTriggers.fst(bank),
-                                 self.rightTriggers.fst(bank),
-                                 bank.transducerAlphabet())
+        if self.isGeminiRule():
+            # ground out the variable
+            groundings = [ Rule(ConstantPhoneme(p), self.structuralChange, self.leftTriggers,
+                                self.rightTriggers.groundAdjacent(p),0)
+                           for p in mapping ]
+            if getVerbosity() >= 5:
+                print "GROUNDINGS (%s):"%self
+                for r in groundings: print r
+            regex = groundings[0].fst(bank)
+            for g in groundings[1:]: regex = regex*g.fst(bank)
+        else:
+            mapping = dict([ (i if insertion else bank.phoneme2fst(i),
+                              # '.' is magical error signal
+                              o if deletion  else ('.' if o == None else bank.phoneme2fst(o)))
+                             for i,o in mapping.iteritems() ])
+            if getVerbosity() >= 5:
+                print "mapping:"
+                print mapping
+                print
+            regex = transducerOfRule(mapping,
+                                     self.leftTriggers.fst(bank),
+                                     self.rightTriggers.fst(bank),
+                                     bank.transducerAlphabet())
         
         Rule.SAVEDTRANSDUCERS[unicode(self)] = regex
         return regex        

@@ -635,11 +635,12 @@ class UnderlyingProblem():
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
 
+        morphologicalCoefficient = 3
         stemCostExpression = sum([ wordLength(u) for u in stems ])
         stemCostVariable = unknownInteger(numberOfBits = 6)
         condition(stemCostVariable == stemCostExpression)
         minimize(stemCostExpression)
-        ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u) for u in suffixes ] + [ wordLength(u) for u in prefixes ])
+        ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])
         ruleCostVariable = unknownInteger()
         condition(ruleCostVariable == ruleCostExpression)
         if len(rules) > 0 or useMorphology:
@@ -664,7 +665,7 @@ class UnderlyingProblem():
             solutions.append(s)
             print s
 
-            rc = sum([r.cost() for r in s.rules ] + [len(a) for a in s.prefixes + s.suffixes ])
+            rc = sum([r.cost() for r in s.rules ] + [len(a)*morphologicalCoefficient for a in s.prefixes + s.suffixes ])
             uc = sum([len(u) for u in s.underlyingForms ])
             print "Costs:",(rc,uc)
             actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))

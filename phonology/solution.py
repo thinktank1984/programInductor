@@ -33,6 +33,7 @@ class Solution():
             p += u'\n'
         p += u'\n'.join([ r.pretty() for r in self.rules ])
         if p == u'': p = u'surface=underlying'
+        if p[-1] == u'\n': p = p[:-1]
         return p
 
     def cost(self):

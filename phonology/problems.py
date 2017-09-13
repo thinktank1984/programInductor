@@ -1051,6 +1051,14 @@ Posit appropriate underlying forms and any rules needed to explain the following
 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
 	(u"yaman",	u"yamanin")]))
 
+underlyingProblems.append(Problem(
+    '''deGemini test''',
+    [(u"tes",u"tessi"),
+     (u"tes",u"tesi"),
+     (u"ak",u"akki"),
+     (u"lof",u"loffi"),
+     (u"pig",u"pigi")]))
+
 interactingProblems = []
 
 interactingProblems.append(Problem(
