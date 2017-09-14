@@ -66,7 +66,7 @@ def removePointsNotOnFront(points):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Generate and analyze synthetic rule learning problems ala Gary Marcus ABA/ABB patterns')
-    parser.add_argument('-p','--problem', default = 'aba', type = str)
+    parser.add_argument('-p','--problem', default = 'abb', type = str)
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-d','--depth', default = 3, type = int)
     parser.add_argument('-n','--number', default = 4, type = int)
