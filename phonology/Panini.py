@@ -31,6 +31,17 @@ def parallelInversion(transducersAndOutputs, alphabet = None):
         if alphabet != None:
             lm = union(*alphabet).closure()
             a = a*lm
+        a.topsort()
+        for s in a.states():
+            iterator = a.mutable_arcs(s)
+            while not iterator.done():
+                value = iterator.value()
+                #print value.olabel,value.ilabel,value.weight
+                assert value.olabel == value.ilabel
+                if value.olabel != 0:
+                    value.weight = 1
+                    iterator.set_value(value)
+                iterator.next()
         return shortestpath(a).stringify()
     except:
         # print "Got an exception in parallel inversion..."
