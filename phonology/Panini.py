@@ -57,26 +57,28 @@ if __name__ == '__main__':
 
     
 
-    r1 = transducerOfRule({'': 'aaa'}, '[BOS]', '', alphabet)*\
-         transducerOfRule({'a': 'a'},
-                          "c",
+    r1 = transducerOfRule({'': 'z'}, '[BOS]', '', alphabet)*\
+         transducerOfRule({'a': ''},
+                          union('c','b'),
                           "",
                           alphabet)
-    r2 = transducerOfRule({'': 'zzz'}, '', '[EOS]', alphabet)*\
+    r2 = transducerOfRule({'': 'z'}, '', '[EOS]', alphabet)*\
          transducerOfRule({'a': ''},
                           union("c","b"),
                           "",
                           alphabet)
     # x*y is saying run x and then feed its output into y
-    m1 = transducerOfRule({'': 'a'},'','[EOS]',alphabet)
-    m2 = transducerOfRule({'': 'z'},'','[EOS]',alphabet)
-    print runForward(m1*m2,'ccc')
+    if False:
+        m1 = transducerOfRule({'': 'a'},'','[EOS]',alphabet)
+        m2 = transducerOfRule({'': 'z'},'','[EOS]',alphabet)
+        print runForward(m1*m2,'ccc')
     
-    stem = 'bcaab'
+    stem = 'bcab'
     y1 = runForward(r1,stem)
     y2 = runForward(r2,stem)
 
     print y1,"~",y2
+    print runForward(r1,'bcb'),'~',runForward(r2,'bcb')
 
     print parallelInversion([(y1,r1),
                              (y2,r2)])

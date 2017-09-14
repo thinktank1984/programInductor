@@ -109,9 +109,9 @@ if __name__ == '__main__':
         #plot.rc('font', family='serif')
         plot.scatter([ -p[0] for p in costToSolution],
                      [ -p[1]/float(arguments.number) for p in costToSolution],
-                     alpha = 1.0/(1+2), s = 100, color = colors)
-        plot.ylabel("Fit to data (-average UR size)")
-        plot.xlabel("Parsimony (-Program length)")
+                     alpha = 1.0/(1+2), s = 100, color = colors, label = 'Programs')
+        plot.ylabel("Fit to data (-average UR size)",fontsize = 14)
+        plot.xlabel("Parsimony (-Program length)",fontsize = 14)
         plot.title("Pareto front for %s, %d example%s"%(arguments.problem,arguments.number,'' if arguments.number == 1 else 's'))
                 
         # these are matplotlib.patch.Patch properties
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
         front = removePointsNotOnFront([ (-c1,-c2/float(arguments.number)) for c1,c2 in costToSolution.keys() ])
         # diagram the front itself
-        plot.plot([ x for x,y in front ], [ y for x,y in front ],'--')
+        plot.plot([ x for x,y in front ], [ y for x,y in front ],'--', label = 'Pareto front')
 
         # Decide which points to label with the corresponding program
         solutionsToLabel = list(front)
@@ -135,22 +135,28 @@ if __name__ == '__main__':
                 solutionsToLabel.append((chosen,y))
 
         # illustrate the synthesized programs along the front
-        dy = 0.3
+        dy = 0.5
+        dx = 2
         for c1,c2 in sorted(costToSolution.keys(), key = lambda cs: (cs[1],cs[0])):
             solution = costToSolution[(c1,c2)]
             x1 = -c1
             y1 = -c2/float(arguments.number)
-            x2 = x1
-            y2 = y1 + dy
+            fronting = 1 if (x1,y1) in front else -1
+            x2 = x1 + fronting*dx
+            y2 = y1 + fronting*dy
             print x2,y2
             print solution.pretty()
 
             if not (x1,y1) in solutionsToLabel: continue
-            dy = -1*dy
+            #dy = -1*dy
+            #dx = -1*dx
+
+            if any([r.doesNothing() for r in solution.rules ]): continue
+            
             
             plot.text(x2,y2, solution.pretty(),
                       fontsize=12, bbox=props,
-                      verticalalignment = 'bottom' if dy < 0 else 'top',
+                      verticalalignment = 'bottom' if fronting == 1 else 'top',
                       horizontalalignment = 'center')
             ax.annotate('',
                         xy = (x2,y2),xycoords = 'data',
@@ -158,7 +164,11 @@ if __name__ == '__main__':
                         arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
 
 
+        bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
+        t = ax.text(max([x for x,y in solutionsToLabel ]), max([y for x,y in solutionsToLabel ]), "Better models", ha="center", va="center", rotation=45,
+                    size=12,
+                    bbox=bbox_props)
 
-        #plot.ylim([1,2])
-#        plot.xlim([1,2])
+
+        plot.legend(loc = 'lower center',fontsize = 9)
         plot.show()
