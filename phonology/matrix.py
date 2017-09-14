@@ -29,8 +29,10 @@ def sampleMorphWithLength(l):
         
 
 class UnderlyingProblem():
-    def __init__(self, data, bank = None):
-        self.bank = bank if bank != None else FeatureBank([ w for l in data for w in l if w != None ])
+    def __init__(self, data, bank = None, useSyllables = False):
+        if bank != None: self.bank = bank
+        else:
+            self.bank = FeatureBank([ w for l in data for w in l if w != None ] + ([u'-' if useSyllables else []] ))
 
         self.numberOfInflections = len(data[0])
         for d in data: assert len(d) == self.numberOfInflections

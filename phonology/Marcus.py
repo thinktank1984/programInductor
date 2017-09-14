@@ -25,13 +25,12 @@ def sampleConsonant():
 def sampleSyllable():
     v = sampleVowel()
     k = sampleConsonant()
-    return k + v + u"-"
+    return k + v
 def sampleAB():
     while True:
         s = sampleSyllable()
         d = sampleSyllable()
-        if len(set(tokenize(s))&set(tokenize(d))) == 1: # they should have exactly one thing in common: syllable boundary
-            return s,d
+        return s,d
 def sampleABA(n):
     l = []
     for _ in range(n):
@@ -72,6 +71,7 @@ if __name__ == '__main__':
     parser.add_argument('-d','--depth', default = 3, type = int)
     parser.add_argument('-n','--number', default = 4, type = int)
     parser.add_argument('-q','--quiet', action = 'store_true')
+    parser.add_argument('--noSyllables', action = 'store_true')
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--load', default = None, type = str)
     
@@ -94,7 +94,8 @@ if __name__ == '__main__':
         costToSolution = loadPickle(arguments.load)
     else:
         for d in range(0,arguments.depth + 1):
-            worker = UnderlyingProblem([(w,) for w in trainingData ])
+            worker = UnderlyingProblem([(w,) for w in trainingData ],
+                                       useSyllables = not arguments.noSyllables)
             solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE, useMorphology = True)
             for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
 

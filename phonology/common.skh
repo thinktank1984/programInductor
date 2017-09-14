@@ -178,19 +178,38 @@ bit empty_vector(bit[NUMBEROFFEATURES] v) {
 }
 
 #ifdef SYLLABLEBOUNDARYFEATURE
+#define MAXIMUMONSET 2
 int syllable_starting_at([int l],Sound[l] u, int e) {
   if (e < 0 || e >= l) return -1;
   // returns a negative number if there is no syllable starting at e
   // returns the index of the end of the syllable otherwise
-  if (e == 0 || u[e - 1] == SYLLABLEBOUNDARYPHONEME) { // before the beginning of the syllable should be the end of another syllable
-    for (int d = 1; d < 4; d++) {
-      int test_index = e + d;
+
+  if (u[e].f[VOWELFEATURE]) return -1; // have to start out a consonant
+  if (e > 0 && !u[e - 1].f[VOWELFEATURE]) return -1; // thing before us has to be a vowel
+
+  int nucleus;
+  bit have_nucleus = 0;
+  for (int d = 1; d < MAXIMUMONSET + 1; d++) {
+    int test_index = e + d;
+    if (!have_nucleus) {
       if (test_index == l) return -1;
-      if (u[test_index] == SYLLABLEBOUNDARYPHONEME)
-	return test_index;
+      if (u[test_index].f[VOWELFEATURE]) {
+	nucleus = test_index;
+	have_nucleus = 1;
+      }
     }
   }
-  return -1;
+  if (!have_nucleus) return -1;
+
+  // Found this nucleus of the syllable. if there is another syllable
+  // after this than the return value is just the nucleus. otherwise
+  // the return value is end of string
+  for (int d = 1; d < MAXIMUMONSET + 1; d++) {
+    int test_index = nucleus + d;
+    if (test_index == l) return l - 1;
+    if (u[test_index].f[VOWELFEATURE]) return nucleus;
+  }
+  assert 0;
 }
 bit is_syllable_starting_at([int l],Sound[l] u,int e){ return syllable_starting_at(u,e) != -1; }
 bit are_two_syllables_starting_at([int l],Sound[l] u,int e){
@@ -202,15 +221,32 @@ int syllable_ending_at([int l],Sound[l] u, int e) {
   if (e < 0 || e >= l) return -1;
   // returns a negative number if there is no syllable ending at e
   // returns the index of the start of the syllable otherwise
-  if (u[e] == SYLLABLEBOUNDARYPHONEME) {
-    for (int d = 1; d < 4; d++) {
-      int test_index = e - d;
-      if (test_index == 0) return 0; // butting up against the start of the word
-      if (u[test_index] == SYLLABLEBOUNDARYPHONEME) // butting up against the previous syllable
-	return test_index + 1;
+  int nucleus;
+  bit have_nucleus = 0;
+  
+  if (e == l - 1) {
+    for (int d = 0; d < MAXIMUMONSET; d++) {
+      if (!have_nucleus && u[e - d].f[VOWELFEATURE]) {
+	nucleus = e - d;
+	have_nucleus = 1;
+      }
     }
+    assert have_nucleus;
+  } else {
+    if (!u[e].f[VOWELFEATURE]) return -1;
+    bit to_the_right = 0;
+    for (int d = 1; d < MAXIMUMONSET + 1; d++) {
+      to_the_right = to_the_right || (e + d < l && u[e + d].f[VOWELFEATURE]);
+    }
+    if (!to_the_right) return -1;
+    nucleus = e;
   }
-  return -1;
+  for (int d = 1; d < MAXIMUMONSET; d++) {
+    if (nucleus - d < 0) return 0;
+    if (u[nucleus - d].f[VOWELFEATURE]) return nucleus - d + 1;
+  }
+	
+  assert 0;
 }
 bit is_syllable_ending_at([int l],Sound[l] u,int e) { return syllable_ending_at(u,e) == -1; }
 bit are_two_syllables_ending_at([int l],Sound[l] u,int e){
@@ -522,7 +558,7 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
 #ifndef SYLLABLEBOUNDARYFEATURE
 #define MAXIMALINCREASE 1
 #else
-#define MAXIMALINCREASE 4
+#define MAXIMALINCREASE 3
 #endif
 
 
