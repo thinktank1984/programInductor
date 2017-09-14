@@ -123,7 +123,7 @@ class Solution():
 
     def transduceUnderlyingForm(self, bank, surfaces):
         '''surfaces: list of morphs'''
-        if True: # do not use transducers until I can fix the bug
+        if False: # do not use transducers until I can fix the bug
             bound = max(map(len,surfaces)) + 1
             Model.Global()
             rules = [r.makeDefinition(bank) for r in self.rules ]
