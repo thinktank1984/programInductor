@@ -124,15 +124,16 @@ class Solution():
     def transduceUnderlyingForm(self, bank, surfaces):
         '''surfaces: list of morphs'''
         if True: # do not use transducers until I can fix the bug
-            bound = max(map(len,surfaces)) + 1
+            bound = max([len(s) for s in surfaces if s != None]) + 1
             Model.Global()
             rules = [r.makeDefinition(bank) for r in self.rules ]
             prefixes = [p.makeConstant(bank) for p in self.prefixes ]
             suffixes = [p.makeConstant(bank) for p in self.suffixes ]
             stem = Morph.sample()
             for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
-                condition(wordEqual(s.makeConstant(bank),
-                                    applyRules(rules,concatenate3(prefix,stem,suffix),bound)))
+                if s != None:
+                    condition(wordEqual(s.makeConstant(bank),
+                                        applyRules(rules,concatenate3(prefix,stem,suffix),bound)))
             minimize(wordLength(stem))
             output = solveSketch(bank,bound,bound)
             if output == None: return None
