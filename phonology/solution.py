@@ -125,7 +125,7 @@ class Solution():
     def transduceUnderlyingForm(self, bank, surfaces):
         '''surfaces: list of morphs'''
         if True: # do not use transducers until I can fix the bug
-            bound = max([len(s) for s in surfaces if s != None]) + 1
+            bound = max([len(s) for s in surfaces if s != None]) + 3
             Model.Global()
             rules = [r.makeDefinition(bank) for r in self.rules ]
             prefixes = [p.makeConstant(bank) for p in self.prefixes ]
