@@ -14,6 +14,7 @@ class Morph():
     def __unicode__(self):
         return u"/ {} /".format(u" ".join(self.phonemes))
     def __str__(self): return unicode(self).encode('utf-8')
+    def __repr__(self): return str(self)
     # this interferes with parallel computation - probably because it messes up serialization
     # def __repr__(self): return unicode(self)
     def __len__(self): return len(self.phonemes)
