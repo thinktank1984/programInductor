@@ -275,7 +275,7 @@ bit has_syllable_feature(Specification s) {
 int specification_cost(Specification s) {
   if (s == null) return 2;
   switch(s) {
-  case ConstantPhoneme:{ return 2; }
+  case ConstantPhoneme:{ return 1; }
   case Vector:{
     int c = 1;
     int f = 0;
@@ -297,7 +297,7 @@ int specification_cost(Specification s) {
 int guard_specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
-  case ConstantPhoneme:{ return 2; }
+  case ConstantPhoneme:{ return 1; }
   case Vector:{
     //    if (empty_vector(s.mask)) return 1;
     //    assert !empty_vector(s.mask);
@@ -512,7 +512,8 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
 
 int rule_cost(Rule r) {
   return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
-		      specification_cost(r.focus) + specification_cost(r.structural_change));
+		      specification_cost(r.focus) + specification_cost(r.structural_change) +
+		      (r.copyOffset == 0 ? 0 : 2));
 }
 
 Word apply_rule(Rule r, Word u, int unrollBound) {

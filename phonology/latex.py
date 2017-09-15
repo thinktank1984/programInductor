@@ -29,13 +29,13 @@ latexMap = {
     u"ṭ": '\\.*t',
     u"ḍ": '\\.*d',
     u"ð": 'D',
-    u"ǰ": '\\|x{j}',
-    u"ž": '\\|x{z}',
+    u"ǰ": '\\v{j}',
+    u"ž": '\\v{z}',
     u"n̥": '\\r*n',
     u"ñ": '\\~n',
-    u"š": '\\|x{s}',
-    u"č": '\\|x{c}',
-    u"č^h": '\\|x{c}\\super h',
+    u"š": '\\v{s}',
+    u"č": '\\v{c}',
+    u"č^h": '\\v{c}\\super h',
     u"k|": 'k\\textcorner',
     u"k^h": 'k\\super h',
     u"k^y": 'k\\super y',
@@ -50,7 +50,7 @@ latexMap = {
     u"ʔ": 'P',
     u"r̃": '\\~r',
     u"r̥̃": '\\r*{\\~r}',
-    u"ř": '\\|x{r}'
+    u"ř": '\\v{r}'
 }
 
 # tone stuff

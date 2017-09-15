@@ -79,7 +79,7 @@ class ConstantPhoneme(Specification):
             return self.p
     def __str__(self): return unicode(self).encode('utf-8')
     def doesNothing(self): return False
-    def cost(self): return 2
+    def cost(self): return 1
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
     def fst(self,bank):
@@ -480,7 +480,7 @@ class Rule():
         return table[k]
 
     def cost(self):
-        return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
+        return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost() + (0 if self.copyOffset == 0 else 2)
     def alternationCost(self):
         return self.leftTriggers.cost() + self.rightTriggers.cost()   
 
