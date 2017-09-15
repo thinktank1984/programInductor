@@ -583,7 +583,7 @@ class UnderlyingProblem():
 
     def computeSolutionScores(self,solution,invariant):
         # Compute the description length of everything
-        descriptionLengths = [ self.inflectionsDescriptionLength(solution, x) for x in self.data ]
+        descriptionLengths = Pool(numberOfCPUs()).map(lambda x: self.inflectionsDescriptionLength(solution, x), self.data)
         everythingCost = sum(descriptionLengths)
         invariantCost = sum([ len(u) for u in solution.underlyingForms ]) 
         return {'solution': solution,
