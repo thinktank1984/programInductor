@@ -5,7 +5,8 @@ from rule import *
 from features import *
 from compileRuleToSketch import compileRuleToSketch
 
-from Panini import *
+#pretty sure you do not actually need this
+#from Panini import *
 
 class Solution():
     def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
