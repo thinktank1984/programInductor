@@ -378,7 +378,7 @@ class UnderlyingProblem():
 
         originalRules = list(rules) # save it for later
 
-        if False:
+        if True:
             # Use the general-purpose sketch forward model implementation
             rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
                       for rule in rules ]
@@ -442,7 +442,7 @@ class UnderlyingProblem():
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
 
-        newSolution.verifyRuleCompilation(self.bank,self.data)
+        #newSolution.verifyRuleCompilation(self.bank,self.data)
         flushEverything()
         return newSolution.withoutUselessRules()
 

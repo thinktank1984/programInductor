@@ -39,6 +39,9 @@ return new Word(s = o,l = u.l);
     
         
     if deletion:
+        if rule.isGeminiRule():
+            print "Sorry but I don't know how to handle Gemini rules"
+            assert False
         for x,y in mapping.iteritems(): assert y == ''
         condition = " || ".join([ 'u.s[j] == phoneme_%d'%(bank.phoneme2index[x]) for x in mapping ])
         body = '''if (%s && %s && (%s)) {
@@ -60,6 +63,7 @@ return new Word(s = o[0::(u.l - triggered)],l = (u.l - triggered));
 
     if insertion:
         insert = 'phoneme_%d'%(bank.phoneme2index[mapping['']])
+        if rule.copyOffset != 0: print "I don't know how to handle copying rules"
         assert rule.copyOffset == 0
 
         return leftPrefix + rightPrefix + '''
