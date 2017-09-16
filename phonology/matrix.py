@@ -348,8 +348,7 @@ class UnderlyingProblem():
 
             return solutions
 
-    def sketchCEGISChange(self,solution, rules, k = 1):
-        assert k == 1
+    def sketchCEGISChange(self,solution, rules):
         n = len(self.data)/5
         if n < 4: n = 4
         if n > 10: n = 10
@@ -359,10 +358,10 @@ class UnderlyingProblem():
         newSolution = None
         while True:
             worker = UnderlyingProblem(trainingData, self.bank)
-            newSolution = worker.sketchChangeToSolution(solution, rules, previousCEGISsolution = newSolution)
+            newSolution = worker.sketchChangeToSolution(solution, rules)
             if newSolution == None: return []
             print "CEGIS: About to find a counterexample to:\n",newSolution
-            ce = self.findCounterexample(newSolution, trainingData)
+            ce = self.findCounterexample(newSolution, trainingData, allTheData = self.data)
             if ce == None:
                 print "No counterexample so I am just returning best solution"
                 newSolution.clearTransducers()
@@ -373,7 +372,9 @@ class UnderlyingProblem():
             trainingData = trainingData + [ce]
         assert False
             
-    def sketchChangeToSolution(self, solution, rules, previousCEGISsolution = None): 
+    def sketchChangeToSolution(self, solution, rules, allTheData = None):
+        assert allTheData != None
+        
         Model.Global()
 
         originalRules = list(rules) # save it for later
@@ -391,17 +392,19 @@ class UnderlyingProblem():
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
         # Should we hold the morphology fixed?
-        fixedMorphologyThreshold = 8
+        fixedMorphologyThreshold = 10
         morphologicalCosts = []
         for j in range(self.numberOfInflections):
             # Do we have at least two examples for this particular inflection?
-            inflectionExamples = len([ None for l in self.data if l[j] != None ])
-            if inflectionExamples >= fixedMorphologyThreshold and previousCEGISsolution != None:
+            # todo: this calculation is wrong - it should be based on the solution we are modifying
+            inflectionExamples = len([ None for l in allTheData if l[j] != None ])
+            
+            if inflectionExamples >= fixedMorphologyThreshold:
                 print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
-                condition(wordEqual(prefixes[j], previousCEGISsolution.prefixes[j].makeConstant(self.bank)))
-                condition(wordEqual(suffixes[j], previousCEGISsolution.suffixes[j].makeConstant(self.bank)))
-                morphologicalCosts.append(len(previousCEGISsolution.prefixes[j]) + \
-                                          len(previousCEGISsolution.suffixes[j]))
+                condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
+                condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
+                morphologicalCosts.append(len(solution.prefixes[j]) + \
+                                          len(solution.suffixes[j]))
             else: morphologicalCosts.append(None)
             if inflectionExamples == 0:
                 # Never seen this inflection: give it the empty morphology
@@ -473,7 +476,7 @@ class UnderlyingProblem():
         # This is because more rules means that each sketch invocation uses more memory;
         if len(solution.rules) > 3: desiredNumberOfCPUs = 20
         else: desiredNumberOfCPUs = 35
-        allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchCEGISChange(solution,v,k), ruleVectors)
+        allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchCEGISChange(solution,v), ruleVectors)
         allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
