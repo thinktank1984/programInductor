@@ -358,10 +358,10 @@ class UnderlyingProblem():
         newSolution = None
         while True:
             worker = UnderlyingProblem(trainingData, self.bank)
-            newSolution = worker.sketchChangeToSolution(solution, rules)
+            newSolution = worker.sketchChangeToSolution(solution, rules, allTheData = self.data)
             if newSolution == None: return []
             print "CEGIS: About to find a counterexample to:\n",newSolution
-            ce = self.findCounterexample(newSolution, trainingData, allTheData = self.data)
+            ce = self.findCounterexample(newSolution, trainingData)
             if ce == None:
                 print "No counterexample so I am just returning best solution"
                 newSolution.clearTransducers()

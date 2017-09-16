@@ -1593,7 +1593,7 @@ C_i > 0 / _ C_i #, s > 0/s_
 	(u"frons",			u"frondis",None),#   		leaf
 	(u"inku:s",			u"inku:dis",None),#  		anvil
 	(u"sors",			u"sortis",None),#			lot
-    # illustrate s deletion
+    # illustrate s deletion: occurs after +son -vowel
 	(u"fu:r",			u"fu:ris",None),#			thief
 	(u"murmur",    		u"murmuris",None),#  		murmur
 	(u"augur",     		u"auguris",None),#   		augur
