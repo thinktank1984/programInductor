@@ -1628,18 +1628,18 @@ C_i > 0 / _ C_i #, s > 0/s_
  	(u"liber",	None,u"libri:"),#	book
 
 # What other phonological rule or rules are needed to account for the following data?
-    # some kind of doubling of consonant or deletion of adjacent identical consonant
-	# (u"as",			u"assis",None),#			whole
-	# (u"os",			u"ossis",None),#			bone
-	# (u"far",			u"farris",None),#			spell
-	# (u"mel",			u"mellis",None),#			honey
+    # C_i > 0 / _ C_i #
+	(u"as",			u"assis",None),#			whole
+	(u"os",			u"ossis",None),#			bone
+	(u"far",			u"farris",None),#			spell
+	(u"mel",			u"mellis",None),#			honey
     # # /r/ deletion? this is tricky
-     #    (u"o:s",			u"o:ris",None),#			mouth
-     #    (u"flo:s",			u"flo:ris",None),#			flower
-     #    (u"mu:s",			u"mu:ris",None),#		mouse
-     #    (u"cru:s",			u"cru:ris",None),#		leg
-     #    (u"kinis",			u"kineris",None),#		ash
-     #    (u"pulvis",		u"pulveris",None),#		dust
+        (u"o:s",			u"o:ris",None),#			mouth
+        (u"flo:s",			u"flo:ris",None),#			flower
+        (u"mu:s",			u"mu:ris",None),#		mouse
+        (u"cru:s",			u"cru:ris",None),#		leg
+        (u"kinis",			u"kineris",None),#		ash
+        (u"pulvis",		u"pulveris",None),#		dust
     ]))
 	
 sevenProblems.append(Problem('''5: Turkish
