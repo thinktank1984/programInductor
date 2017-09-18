@@ -656,11 +656,20 @@ class UnderlyingProblem():
         for _ in range(k):
             # Excludes solutions we have already found
             for rc,uc in solutionCosts:
-                condition(And([ruleCostVariable == rc,stemCostVariable == uc]) == 0)
+                if len(solutions) < k/2:
+                    # This condition just says that it has to be a
+                    # different trade-off. Gets things a little bit off of
+                    # the front
+                    condition(And([ruleCostVariable == rc,stemCostVariable == uc]) == 0)
+                else:
+                    # This condition says that it has to actually be on
+                    # the pareto - a stronger constraint
+                    condition(Or([ruleCostVariable < rc, stemCostVariable < uc]))
 
             output = self.solveSketch(minimizeBound = 64)
 
             if output == None:
+                print "Exiting Pareto procedure early"
                 break
 
             s = Solution(suffixes = [ parseAffix(output, m) for m in suffixes ],

@@ -101,6 +101,8 @@ if __name__ == '__main__':
 
     if arguments.save != None:
         assert arguments.load == None
+        assert str(arguments.number) in arguments.save
+        assert arguments.problem in arguments.save
         dumpPickle(costToSolution, arguments.save)
         
     colors = cm.rainbow(np.linspace(0, 1, 1))
@@ -112,7 +114,10 @@ if __name__ == '__main__':
                      alpha = 1.0/(1+2), s = 100, color = colors, label = 'Programs')
         plot.ylabel("Fit to data (-average UR size)",fontsize = 14)
         plot.xlabel("Parsimony (-Program length)",fontsize = 14)
-        plot.title("Pareto front for %s, %d example%s"%(arguments.problem,arguments.number,'' if arguments.number == 1 else 's'))
+        plot.title("Pareto front for %s, %d example%s%s"%(arguments.problem,
+                                                          arguments.number,
+                                                          '' if arguments.number == 1 else 's',
+                                                          ', w/o syllables' if arguments.noSyllables else ''))
                 
         # these are matplotlib.patch.Patch properties
         ax = plot.gca()

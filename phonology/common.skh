@@ -513,7 +513,7 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
 int rule_cost(Rule r) {
   return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
 		      specification_cost(r.focus) + specification_cost(r.structural_change) +
-		      (r.copyOffset == 0 ? 0 : 2));
+		      (r.copyOffset == 0 ? 0 : 1));
 }
 
 Word apply_rule(Rule r, Word u, int unrollBound) {
