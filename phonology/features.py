@@ -172,6 +172,7 @@ for v in vs:
 for p in [u'v',u'b',u't',u'z',u'š',u'l',u'd',u'm',u's',u't^s',u'n',u'r']:
     featureMap[p + u'^y'] = featureMap[p] + [palletized]
 
+
 def tokenize(word):
     # š can be realized in two different ways
     if u"š" in word:

@@ -412,10 +412,15 @@ class UnderlyingProblem():
                 condition(wordLength(prefixes[j]) == 0)
                 condition(wordLength(suffixes[j]) == 0)
 
-        # this piece of code will also hold the underlying forms fixed
-        if False and len(solution.underlyingForms) > 3:
-            for stemVariable,oldValue in zip(stems,solution.underlyingForms):
-                condition(wordEqual(stemVariable, oldValue.makeConstant(self.bank)))
+        # After underlyingFormLag examples passed an observation, we stop trying to modify the underlying form.
+        # Set underlyingFormLag = infinity to disable this heuristic.
+        underlyingFormLag = 10
+        for stem, observation in zip(stems, self.data):
+            observationIndex = allTheData.index(observation)
+            if observationIndex < len(allTheData) - underlyingFormLag and observationIndex < len(solution.underlyingForms):
+                oldStem = solution.underlyingForms[observationIndex]
+                print "\t\t(clamping UR for observation %s to %s)"%(observation,oldStem)
+                condition(wordEqual(stem, oldStem.makeConstant(self.bank)))
 
         # Only add in the cost of the new rules that we are synthesizing
         self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None],
