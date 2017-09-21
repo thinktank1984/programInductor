@@ -117,6 +117,9 @@ class ConstantPhoneme(Specification):
 
     def extension(self,b): return [self.p]
 
+    def sketchEquals(self,v,b):
+        return "(extract_constant_sound(%s) == phoneme_%d)"%(v,b.phoneme2index[self.p])
+
 class EmptySpecification():
     def __init__(self): pass
     def __unicode__(self): return u"Ø"
@@ -151,6 +154,9 @@ class EmptySpecification():
         return True
     def apply(self, test):
         raise Exception('cannot apply deletion rule')
+
+    def sketchEquals(self,v,_):
+        return "((%s) == null)"%(v)
     
 class FeatureMatrix():
     def __init__(self, featuresAndPolarities):
@@ -281,7 +287,18 @@ class FeatureMatrix():
                         if not (extension in results):
                             results[extension] = matrix
             return results.values()
-                        
+
+    def sketchEquals(self,v,b):
+        e = "(vector_specification(%s) "%v
+        for j,f in enumerate(b.features):
+            if (True,f) in self.featuresAndPolarities:
+                e += " && !vector_unspecified(%s,%d) && vector_preference(%s,%d)"%(v,j,v,j) 
+            elif (False,f) in self.featuresAndPolarities:
+                e += " && !vector_unspecified(%s,%d) && !vector_preference(%s,%d)"%(v,j,v,j)
+            else:
+                e += " && vector_unspecified(%s,%d)"%(v,j)
+                
+        return e + ")"                        
 
 class Guard():
     def __init__(self, side, endOfString, starred, specifications):
@@ -442,6 +459,20 @@ class Guard():
                                     results.append(Guard(side,ending,starred,[s1,s2]))
                     else: assert False
         return results
+
+    def sketchEquals(self,v,b):
+        if len(self.specifications) > 0:
+            spec1 = self.specifications[0].sketchEquals(v + '.spec',b)
+        else: spec1 = '%s.spec == null'%v
+        if len(self.specifications) > 1:
+            spec2 = self.specifications[1].sketchEquals(v + '.spec',b)
+        else: spec2 = '%s.spec2 == null'%v
+        
+        return "(%s.endOfString == %d && %s.starred == %d && %s && %s)"%(v,int(self.endOfString),
+                                                                   v,int(self.starred),
+                                                                   spec1,spec2)
+        
+        
     
 class Rule():
     SAVEDTRANSDUCERS = {}
@@ -762,6 +793,13 @@ class Rule():
                         results.append(Rule(focus,change,gl,gr,0))
         return results
 
+    def sketchEquals(self,v,b):
+        return "(%s.copyOffset == %d && %s && %s && %s && %s)"%(v,self.copyOffset,
+                                                                self.focus.sketchEquals(v+'.focus',b),
+                                                                self.structuralChange.sketchEquals(v+'.structural_change',b),
+                                                                self.leftTriggers.sketchEquals(v+'.left_trigger',b),
+                                                                self.rightTriggers.sketchEquals(v+'.right_trigger',b))
+
 
 EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  structuralChange = FeatureMatrix([]),
@@ -769,6 +807,25 @@ EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  rightTriggers = Guard('R',False,False,[]),
                  copyOffset = 0)
 assert EMPTYRULE.doesNothing()
+
+def sketchUniversalGrammar(fragments, bank):
+    from sketchSyntax import definePreprocessor
+    
+    definitions = {}
+    for f in fragments:
+        if isinstance(f,FeatureMatrix):
+            if any([not (e in bank.features) for _,e in f.featuresAndPolarities ]): continue
+            definitions['UNIVERSALSPECIFICATIONGRAMMAR'] = definitions.get('UNIVERSALSPECIFICATIONGRAMMAR',"")
+            definitions['UNIVERSALSPECIFICATIONGRAMMAR'] += " if %s return 1; "%(f.sketchEquals('s',bank))
+        elif isinstance(f,Rule):
+            try:
+                predicate = f.sketchEquals('r',bank)
+                definitions['UNIVERSALRULEGRAMMAR'] = definitions.get('UNIVERSALRULEGRAMMAR','')
+                definitions['UNIVERSALRULEGRAMMAR'] += " if %s return 1; "%(f.sketchEquals('r',bank))
+            except: continue
+            
+    for k,v in definitions.iteritems():
+        definePreprocessor(k,v)
 
 if __name__ == '__main__':
     from problems import *

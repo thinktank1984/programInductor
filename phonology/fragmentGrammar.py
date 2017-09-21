@@ -461,6 +461,10 @@ class FragmentGrammar():
         self.guardTable[key] = ll
         return ll
 
+    def sketchUniversalGrammar(self,bank):
+        for f in self.ruleFragments + self.guardFragments + self.specificationFragments:
+            f.sketchUniversalGrammar(bank)
+
 emptyFragmentGrammar = FragmentGrammar()
 
 def pseudoCountPenalty(pc, fragments):

@@ -165,6 +165,9 @@ class Model():
         self.definedFunctions = []
         self.statements = []
         self.quantifiedConditions = 0
+        self.preprocessorDefinitions = {}
+    def preprocessorDefinition(self,k,v):
+        self.preprocessorDefinitions[k] = v
     def flip(self, p = 0.5):
         self.flipCounter += 1
         return Variable("__FLIP__%d"%self.flipCounter)
@@ -211,20 +214,6 @@ class Model():
             h += "\t" + a.sketch() + "\n"
         h += "}\n"
         return h
-    def web(self):
-        h = "var posterior = function() {\n"
-            
-        for f in range(self.flipCounter):
-            h += "\tvar __FLIP__%d = flip()\n" % (f + 1)
-
-        for a in self.statements:
-            h += "\t" + a.web() + "\n"
-
-        h += "\treturn ["
-        h += ", ".join([ "__FLIP__%d" % (f + 1) for f in range(self.flipCounter) ])
-        h += "]\n}"
-        h += "\nInfer({method: 'enumerate'},posterior)"
-        return h
     @staticmethod
     def Global():
         global currentModel
@@ -247,6 +236,10 @@ def define(ty, value):
     return currentModel.define(ty, value)
 def defineFunction(returnType,arguments,body):
     return currentModel.defineFunction(returnType,arguments,body)
+def definePreprocessor(k,v):
+    currentModel.preprocessorDefinition(k,v)
+def currentModelPreprocessorDefinitions():
+    return currentModel.preprocessorDefinitions
 
 def condition(predicate):
     currentModel.condition(predicate)
@@ -277,8 +270,6 @@ def conditionMutuallyExclusive(flags):
 
 def makeSketchSkeleton():
     return currentModel.sketch()
-def makeWebSkeleton():
-    return currentModel.web()
 
 def parseFlip(output, variable):
     pattern = 'void glblInit_%s__ANONYMOUS_'%str(variable)

@@ -139,6 +139,8 @@ if __name__ == '__main__':
                 chosen = choice(candidates)
                 solutionsToLabel.append((chosen,y))
 
+        xs = []
+        ys = []
         # illustrate the synthesized programs along the front
         dy = 0.5
         dx = 2
@@ -152,11 +154,16 @@ if __name__ == '__main__':
             print x2,y2
             print solution.pretty()
 
+            xs += [x1,x2]
+            ys += [y1,y2]
+
             if not (x1,y1) in solutionsToLabel: continue
             #dy = -1*dy
             #dx = -1*dx
 
             if any([r.doesNothing() for r in solution.rules ]): continue
+            # don't show anything which is two big because it will take up too much space on the graph
+            if fronting == -1 and any([len(r.pretty()) > 30 for r in solution.rules ]): continue
             
             
             plot.text(x2,y2, solution.pretty(),
@@ -175,5 +182,7 @@ if __name__ == '__main__':
                     bbox=bbox_props)
 
 
+        plot.xlim([min(xs) - 1,max(xs) + 1])
+        plot.ylim([min(ys) - 1,max(ys) + 1])
         plot.legend(loc = 'lower center',fontsize = 9)
         plot.show()

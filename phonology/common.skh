@@ -127,6 +127,30 @@ bit constant_specification(Specification p) {
   }
 }
 
+bit vector_specification(Specification p) {
+  if (p == null) return 0;
+  switch (p) {
+  case Vector:{return 1;
+  }
+  case ConstantPhoneme:{ return 0; }
+  }
+}
+bit vector_unspecified(Specification p,int f) {
+  if (p == null) assert 0;
+  switch (p) {
+  case Vector:{return !p.mask[f];
+  }
+  case ConstantPhoneme:{ assert 0; }
+  }
+}
+bit vector_preference(Specification p,int f) {
+  if (p == null) assert 0;
+  switch (p) {
+  case Vector:{return p.preference[f];
+  }
+  case ConstantPhoneme:{ assert 0; }
+  }
+}
 Sound extract_constant_sound(Specification p) {
   if (p == null) return null;
   switch (p) {
@@ -273,6 +297,9 @@ bit has_syllable_feature(Specification s) {
 #endif
 
 int specification_cost(Specification s) {
+#ifdef UNIVERSALSPECIFICATIONGRAMMAR
+  UNIVERSALSPECIFICATIONGRAMMAR
+#endif
   if (s == null) return 2;
   switch(s) {
   case ConstantPhoneme:{ return 1; }
@@ -295,6 +322,10 @@ int specification_cost(Specification s) {
 
 
 int guard_specification_cost(Specification s) {
+#ifdef UNIVERSALSPECIFICATIONGRAMMAR
+  UNIVERSALSPECIFICATIONGRAMMAR
+#endif
+
   if (s == null) return 0;
   switch(s) {
   case ConstantPhoneme:{ return 1; }
@@ -395,6 +426,9 @@ int alternation_cost(Rule r) {
 }
 
 int guard_cost(Guard g) {
+#ifdef UNIVERSALGUARDGRAMMAR
+  UNIVERSALGUARDGRAMMAR
+#endif    
   return validateCost(guard_specification_cost(g.spec) +
 		      guard_specification_cost(g.spec2) +
 		      g.endOfString +
@@ -511,6 +545,9 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
 }
 
 int rule_cost(Rule r) {
+#ifdef UNIVERSALRULEGRAMMAR
+  UNIVERSALRULEGRAMMAR
+#endif
   return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
 		      specification_cost(r.focus) + specification_cost(r.structural_change) +
 		      (r.copyOffset == 0 ? 0 : 1));

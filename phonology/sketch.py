@@ -62,6 +62,8 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
     h += "#define True 1\n#define False 0\n"
     h += bank.sketch()
+    h += "\n".join(["#define %s %s"%(k,v) for k,v in currentModelPreprocessorDefinitions().iteritems() ])
+    h += "\n"
     h += "#include \"common.skh\"\n"
     h += makeSketchSkeleton()
     return h

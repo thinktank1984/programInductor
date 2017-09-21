@@ -207,6 +207,19 @@ class UnderlyingProblem():
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
 
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
+        # EXPERIMENTAL: insert some UG!!!
+        universal = [FeatureMatrix([(True,'vowel')]),
+                     FeatureMatrix([(False,'vowel')]),
+                     FeatureMatrix([(True,'voice')]),
+                     FeatureMatrix([(False,'voice')]),
+                     FeatureMatrix([(False,'sonorant')]),
+                     Rule(FeatureMatrix([(False,'sonorant')]),
+                          FeatureMatrix([(False,'voice')]),
+                          Guard('L',False,False,[]),
+                          Guard('R',True,False,[]),
+                          0)]
+        #sketchUniversalGrammar(universal,self.bank)
+
         # guess the size of each stem to be its corresponding smallest observation length
         if morphologicalCosts == None:
             approximateStemSize = [ min([ len(w) for w in i if w != None ])
