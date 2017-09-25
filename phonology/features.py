@@ -97,7 +97,7 @@ featureMap = {
     u"ḍ": [retroflex,stop,coronal,voice],
     u"ð": [dental,fricative,voice,coronal],
     u"z": [alveolar,fricative,voice,coronal, sibilant],
-    u"ǰ": [alveopalatal,affricate,voice,coronal],
+    u"ǰ": [alveopalatal,affricate,stop,voice,coronal],
     u"ǰ|": [alveopalatal,stop,voice,coronal],
     u"ž": [alveopalatal,fricative,voice,coronal, sibilant],
     u"s": [alveolar,fricative,coronal, sibilant],
@@ -107,7 +107,7 @@ featureMap = {
     u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
     u"š": [alveopalatal,fricative,coronal, sibilant],
     u"c": [palatal,stop,coronal],
-    u"č": [alveopalatal,affricate,coronal],
+    u"č": [alveopalatal,affricate,coronal,stop],
     u"č|": [alveopalatal,stop,coronal],
     u"č^h": [alveopalatal,affricate,coronal,aspirated],
     u"k": [velar,stop],
@@ -208,7 +208,8 @@ class FeatureBank():
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
     mutuallyExclusiveClasses = [["high","middle","low"],
                                 ["front","central","back"],
-                                ["stop","fricative"]]
+                                ["stop","fricative"],
+                                ["fricative","affricate"]]
     
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))

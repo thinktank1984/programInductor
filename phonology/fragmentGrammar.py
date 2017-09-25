@@ -30,6 +30,12 @@ class VariableFragment(Fragment):
         if self.k == [] or any([ isinstance(program,_k) for _k in self.k ]):
             return [(self.ty,program)]
         raise MatchFailure()
+    def sketchCost(self,v,b):
+        calculator['FC'] = 'specification_cost'
+        calculator['GUARD'] = 'guard_cost'
+        calculator['MATRIX'] = 'specification_cost'
+        calculator['CONSTANT'] = 'specification_cost'
+        return ([], '%s(%s)'%(calculator[self.ty],v))
 
 class RuleFragment(Fragment):
     def __init__(self, focus, change, left, right):
@@ -55,6 +61,33 @@ class RuleFragment(Fragment):
             for r in GuardFragment.abstract(p.rightTriggers,q.rightTriggers)
         ]
 
+    def sketchCost(self,v,b):
+        '''v: string representation of a sketch variable. v should have type Rule in the actual sketch.
+        b: a feature bank
+        returns: (listOfChecksThatHavetoBeTrueToMatch, listOfExtraExpenses)'''
+        (fc,fe) = self.focus.sketchCost('%s.focus'%v,b)
+        (sc,se) = self.structuralChange.sketchCost('%s.structural_change'%v,b)
+        (lc,le) = self.left.sketchCost('%s.left_trigger'%v,b)
+        (rc,re) = self.right.sketchCost('%s.right_trigger'%v,b)
+        return (fc + sc + rc + lc,
+                fe + se + le + re)
+
+    # if isinstance(VariableFragment,self.focus):
+    #         # focus is an additional expense
+    #         additionalExpenses.append('specification_cost(%s.focus)'%v)
+    #     else:
+    #         if isinstance(self.focus,MatrixFragment) or isinstance(self.focus.child,EmptySpecification):
+    #             checks.append(self.focus.child.sketchEquals('%s.focus'%v,b))
+    #         else: assert False
+    #     if isinstance(VariableFragment,self.structuralChange):
+    #         # focus is an additional expense
+    #         additionalExpenses.append('specification_cost(%s.structural_change)'%v)
+    #     else:
+    #         if isinstance(self.structuralChange,MatrixFragment) or isinstance(self.structuralChange.child,EmptySpecification):
+    #             checks.append(self.structuralChange.child.sketchEquals('%s.structural_change'%v,b))
+    #         else: assert False
+        
+
 
 class FCFragment(Fragment):
     def __init__(self, child, logPrior = None):
@@ -74,6 +107,9 @@ class FCFragment(Fragment):
                 raise MatchFailure()
             else:
                 return self.child.match(program)
+    def sketchCost(self,v,b):
+        assert isinstance(self.child,EmptySpecification)
+        return (['(%s == null)'%v],[])
 
     @staticmethod
     def abstract(p,q):
@@ -88,6 +124,7 @@ class FCFragment(Fragment):
 
 class SpecificationFragment(Fragment):
     def __init__(self, child, logPrior = None):
+        assert False
         self.child = child
         self.logPrior = child.logPrior if logPrior == None else logPrior
 
@@ -105,6 +142,9 @@ class SpecificationFragment(Fragment):
         if isinstance(p,ConstantPhoneme) and isinstance(q,ConstantPhoneme):
             fragments += ConstantFragment.abstract(p,q)
         return fragments
+
+    def sketchCost(self,v,b):
+        assert False
 
 class MatrixFragment(Fragment):
     def __init__(self, child, logPrior = None):
@@ -127,6 +167,10 @@ class MatrixFragment(Fragment):
                 return [] # prefer matrix fragments that are short
         else:
             return [VariableFragment('MATRIX',[FeatureMatrix])]
+
+    def sketchCost(self,v,b):
+        assert isinstance(self.child,FeatureMatrix)
+        return ([self.child.sketchEquals(v,b)],[])
 
 class ConstantFragment(Fragment):
     def __init__(self): raise Exception('should never make a constant fragment')
@@ -172,6 +216,16 @@ class GuardFragment(Fragment):
                     for s1 in SpecificationFragment.abstract(p.specifications[0],q.specifications[0])
                     for s2 in SpecificationFragment.abstract(p.specifications[1],q.specifications[1])]
         raise Exception('GuardFragment.abstract: should never reach this point')
+
+    def sketchCost(self,v,b):
+        checks = ['(%s.endOfString = %d)'%(v,int(self.endOfString)),
+                  '(%s.starred = %d)'%(v,int(self.starred))]
+        expenses = []
+        for component, suffix in zip(self.specifications,['spec','spec2']):
+            k,e = component.sketchCost('%s.%s'%(v,suffix),b)
+            checks += k
+            expenses += e
+        return (checks, expenses)
     
 
 def programSubexpressions(program):
@@ -462,10 +516,25 @@ class FragmentGrammar():
         return ll
 
     def sketchUniversalGrammar(self,bank):
-        for f in self.ruleFragments + self.guardFragments + self.specificationFragments:
-            f.sketchUniversalGrammar(bank)
+        from sketchSyntax import definePreprocessor
+        definitions = {}
+        for dictionaryKey, fragments, v in [('UNIVERSALRULEGRAMMAR',self.ruleFragments,'r'),
+                                            ('UNIVERSALSPECIFICATIONGRAMMAR',self.specificationFragments,'s'),
+                                            ('UNIVERSALGUARDGRAMMAR',self.guardFragments, 'g')]:
+            for checks, expenses in sorted([ r.sketchCost(v,bank) for r in fragments],
+                                           key = lambda z: len(z[1])):
+                check = "&&".join(['1'] + checks)
+                cost = " + ".join(['1'] + expenses)
+                definitions[dictionaryKey] = definitions.get(dictionaryKey,'')
+                definitions[dictionaryKey] += " if (%s) return %s; "%(check, cost)
+        for k,v in definitions.iteritems():
+            definePreprocessor(k,v)
+
+        
 
 emptyFragmentGrammar = FragmentGrammar()
+# manualFragmentGrammar = FragmentGrammar([('RULE',
+#                                           RuleFragment(MatrixFragment()))])
 
 def pseudoCountPenalty(pc, fragments):
     if len(fragments) == 0:

@@ -439,6 +439,97 @@ bit guard_does_something(Guard g){
   return g.endOfString || g.spec != null;
 }
 
+bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unrollBound){
+  // guard sanity checks
+  if (g.spec == null) assert g.spec2 == null;
+  if (g.starred) { // * applies to the second specification
+    assert g.spec != null && g.spec2 != null;
+    // do not put a star on constant
+    assert !constant_specification(g.spec);
+#ifdef SYLLABLEBOUNDARYFEATURE
+    // todo: allow star on and with syllable
+    assert !is_syllable_specification(g.spec);
+    assert !is_syllable_specification(g.spec2);
+#endif
+  }
+#ifdef SYLLABLEBOUNDARYFEATURE
+  if (is_syllable_specification(g.spec2))
+    assert is_syllable_specification(g.spec);
+#endif
+
+
+  // The index counts how many sounds we have consumed from the input
+  // consider making these macros if it ends up being too slow
+  // not sure if that even matters
+/* #define index2okay(i) (R? (l - (i)) : i) */
+/* #define index2sound(o) (R? (l - 1 - o) : o) */
+  int index2okay(int i){
+    if (R) return l - i;
+    else return i;
+  }
+  int index2sound(int o){
+    if (R) return l - 1 - (o - 1);
+    else return (o - 1);
+  }
+
+  Specification r1 = g.spec2;
+  Specification r2 = g.spec;
+
+
+  bit[l + 1] okay;
+  bit a1old = 0,a2old = 0;
+#ifdef SYLLABLEBOUNDARYFEATURE
+  bit[l + 1] A1;
+#endif
+  // the only way that the empty string can be matched by .*g is if g is either empty or #
+  // # by itself entails that both of the specifications are null
+  for (int j = 0; j <= l; j++) {
+    assert j <= unrollBound;
+    bit a1,a2;
+    if (r1 == null) { // leftmost specification is epsilon
+      a1 = j == 0 || !g.endOfString;
+    } else { // leftmost specification corresponds to a set of phonemes
+#ifdef SYLLABLEBOUNDARYFEATURE
+      if (is_syllable_specification(r1)) {
+	if (!R)
+	  a1 = is_syllable_ending_at(u.s, index2sound(j)) && (!g.endOfString || 0 == syllable_ending_at(u.s, index2sound(j)));
+	else
+	  a1 = is_syllable_starting_at(u.s, index2sound(j)) && (!g.endOfString || u.l - 1 == syllable_starting_at(u.s, index2sound(j)));
+      } else
+#endif	
+	a1 = (j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 0 || !g.endOfString));
+
+    }
+    if (r2 == null) { // all specifications are empty
+      a2 = a1;
+    } else if (g.starred) {
+      a2 = a1 || (j > 0 && matches_specification(u[index2sound(j)], r2) && a2old);
+    } else if (!g.starred) {
+#ifdef SYLLABLEBOUNDARYFEATURE
+      if (is_syllable_specification(g.spec)) {
+	if (!R) {
+	  int e = syllable_ending_at(u.s, j - 1);
+	  if (e != -1) a2 = A1[e];
+	  else a2 = 0;
+	} else {
+	  int e = syllable_starting_at(u.s, u.l - j);
+	  if (e != -1) a2 = A1[u.l - e - 1];
+	  else a2 = 0;
+	}
+      } else
+#endif
+      a2 = j > 0 && matches_specification(u[index2sound(j)],g.spec) && a1old;
+    }
+    okay[index2okay(j)] = a2;
+    a2old = a2;
+    a1old = a1;
+#ifdef SYLLABLEBOUNDARYFEATURE
+    A1[j] = a1;
+#endif
+  }
+  return okay;
+}
+
 // apply_guard(u, g, 0)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
 // apply_guard(u, g, 1)[j] = g.* matches u[j],u[j+1],...,u[l-1], eg, from j onward
 bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){

@@ -74,7 +74,8 @@ if __name__ == '__main__':
     parser.add_argument('--noSyllables', action = 'store_true')
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--load', default = None, type = str)
-    
+    parser.add_argument('--animationStage', default = 99, type = int)
+    parser.add_argument('--export', action = 'store_true')
     
     arguments = parser.parse_args()
 
@@ -107,11 +108,13 @@ if __name__ == '__main__':
         
     colors = cm.rainbow(np.linspace(0, 1, 1))
     if not arguments.quiet:
+        plot.figure(figsize = (12,8))
         #plot.rc('text', usetex=True)
         #plot.rc('font', family='serif')
-        plot.scatter([ -p[0] for p in costToSolution],
-                     [ -p[1]/float(arguments.number) for p in costToSolution],
-                     alpha = 1.0/(1+2), s = 100, color = colors, label = 'Programs')
+        if arguments.animationStage > 1:
+            plot.scatter([ -p[0] for p in costToSolution],
+                         [ -p[1]/float(arguments.number) for p in costToSolution],
+                         alpha = 1.0/(1+2), s = 100, color = colors, label = 'Programs')
         plot.ylabel("Fit to data (-average UR size)",fontsize = 14)
         plot.xlabel("Parsimony (-Program length)",fontsize = 14)
         plot.title("Pareto front for %s, %d example%s%s"%(arguments.problem,
@@ -123,12 +126,13 @@ if __name__ == '__main__':
         ax = plot.gca()
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         # place a text box in upper left in axes coords
-        plot.text(0.05, 0.05, u"\n".join(trainingData), transform=ax.transAxes,
+        plot.text(0.05, 0.05, u"\n".join(["Examples:"] + trainingData), transform=ax.transAxes,
                   fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
 
         front = removePointsNotOnFront([ (-c1,-c2/float(arguments.number)) for c1,c2 in costToSolution.keys() ])
         # diagram the front itself
-        plot.plot([ x for x,y in front ], [ y for x,y in front ],'--', label = 'Pareto front')
+        if arguments.animationStage > 2:
+            plot.plot([ x for x,y in front ], [ y for x,y in front ],'--', label = 'Pareto front')
 
         # Decide which points to label with the corresponding program
         solutionsToLabel = list(front)
@@ -165,24 +169,27 @@ if __name__ == '__main__':
             # don't show anything which is two big because it will take up too much space on the graph
             if fronting == -1 and any([len(r.pretty()) > 30 for r in solution.rules ]): continue
             
-            
-            plot.text(x2,y2, solution.pretty(),
-                      fontsize=12, bbox=props,
-                      verticalalignment = 'bottom' if fronting == 1 else 'top',
-                      horizontalalignment = 'center')
-            ax.annotate('',
-                        xy = (x2,y2),xycoords = 'data',
-                        xytext = (x1,y1),textcoords = 'data',
-                        arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
+            if arguments.animationStage > 3:
+                plot.text(x2,y2, solution.pretty(),
+                          fontsize=12, bbox=props,
+                          verticalalignment = 'bottom' if fronting == 1 else 'top',
+                          horizontalalignment = 'center')
+                ax.annotate('',
+                            xy = (x2,y2),xycoords = 'data',
+                            xytext = (x1,y1),textcoords = 'data',
+                            arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
 
 
-        bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
-        t = ax.text(max([x for x,y in solutionsToLabel ]), max([y for x,y in solutionsToLabel ]), "Better models", ha="center", va="center", rotation=45,
-                    size=12,
-                    bbox=bbox_props)
+        if arguments.animationStage > 0:
+            bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
+            t = ax.text(max([x for x,y in solutionsToLabel ]), max([y for x,y in solutionsToLabel ]), "Better models", ha="center", va="center", rotation=45,
+                        size=12,
+                        bbox=bbox_props)
 
 
         plot.xlim([min(xs) - 1,max(xs) + 1])
         plot.ylim([min(ys) - 1,max(ys) + 1])
         plot.legend(loc = 'lower center',fontsize = 9)
+        #if arguments.export:
+        plot.savefig('paper/marcusAnimation%d.png'%arguments.animationStage,bbox_inches = 'tight')
         plot.show()
