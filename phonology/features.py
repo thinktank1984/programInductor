@@ -149,6 +149,102 @@ featureMap = {
     u"-": [syllableBoundary],
 }
 
+distinctiveFeatures = {
+    # unrounded vowels
+    u"i": [voice,tense,high,front],
+    u"ɨ": [voice,tense,high,central],
+    u"ɯ": [voice,tense,high,back],
+    u"ɩ": [voice,lax,high,front],
+    u"e": [voice,tense,middle,front],
+    u"ə": [voice,tense,middle,central],
+    u"ɛ": [voice,lax,middle,front],
+    u"æ": [voice,low,front],
+    u"a": [voice,low,central],
+    u"ʌ": [voice,central,middle,lax],
+    # rounded vowels
+    u"u": [voice,tense,high,back,rounded],
+    u"ü": [voice,tense,high,front,rounded],
+    u"ʊ": [voice,lax,high,back,rounded],
+    u"o": [voice,tense,middle,back,rounded],
+    u"ö": [voice,tense,middle,front,rounded],
+    u"ɔ": [voice,lax,middle,back,rounded],
+    #possibly missing are umlauts
+
+    # consonance
+    u"p": [bilabial,stop],
+    u"p|": [bilabial,stop,unreleased],
+    u"p^h": [bilabial,stop,aspirated],
+    u"b": [bilabial,stop,voice],
+    u"f": [labiodental,fricative],
+    u"v": [labiodental,fricative,voice],
+    u"β": [bilabial,fricative,voice],
+    u"m": [bilabial,nasal,voice,sonorant],
+    u"m̥": [bilabial,nasal,sonorant],
+    u"θ": [dental,fricative,coronal],
+    u"d": [alveolar,stop,voice,coronal],
+    u"d̪": [dental,stop,voice,coronal],
+    u"d^z": [alveolar,affricate,coronal,voice],
+    u"t": [alveolar,stop,coronal],
+    u"t̪": [dental,stop,coronal],
+    u"t|": [alveolar,stop,coronal,unreleased],
+    u"t^s": [alveolar,affricate,coronal],
+    u"t^h": [alveolar,stop,aspirated,coronal],
+    u"ṭ": [retroflex,stop,coronal],
+    u"ḍ": [retroflex,stop,coronal,voice],
+    u"ð": [dental,fricative,voice,coronal],
+    u"z": [alveolar,fricative,voice,coronal, sibilant],
+    u"ǰ": [alveopalatal,affricate,stop,voice,coronal],
+    u"ǰ|": [alveopalatal,stop,voice,coronal],
+    u"ž": [alveopalatal,fricative,voice,coronal, sibilant],
+    u"s": [alveolar,fricative,coronal, sibilant],
+    u"n": [alveolar,nasal,voice,coronal,sonorant],
+    u"ṇ": [retroflex,nasal,voice,sonorant],
+    u"n̥": [alveolar,nasal,coronal,sonorant],
+    u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
+    u"š": [alveopalatal,fricative,coronal, sibilant],
+    u"c": [palatal,stop,coronal],
+    u"č": [alveopalatal,affricate,coronal,stop],
+    u"č|": [alveopalatal,stop,coronal],
+    u"č^h": [alveopalatal,affricate,coronal,aspirated],
+    u"k": [velar,stop],
+    u"k|": [velar,stop,unreleased],
+    u"k^h": [velar,stop,aspirated],
+    u"k^y": [velar,stop,palatal],
+    u"x": [velar,fricative],
+    u"X": [uvular,fricative], # χ
+    u"x^y": [velar,fricative,palatal],
+    u"g": [velar,stop,voice],
+    u"g^y": [velar,stop,voice,palatal],
+    u"ɣ": [velar,fricative,voice],
+    u"ŋ": [velar,nasal,voice,sonorant],
+    u"q": [uvular,stop],
+    u"N": [uvular,nasal,voice],
+    u"G": [uvular,stop,voice],
+    u"ʔ": [laryngeal,stop,sonorant],
+    u"h": [laryngeal,fricative,sonorant],
+    u"ħ": [pharyngeal,fricative,sonorant],
+
+    # glides
+    u"w": [glide,voice,bilabial,sonorant],
+    u"y": [glide,palatal,voice,sonorant],
+
+    # liquids
+    u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],
+    u"ṛ": [retroflex,coronal,voice,sonorant], # I don't really know what features are for this
+    u"r̃": [liquid,trill,voice,coronal,sonorant],
+    u"r̥̃": [liquid,trill,coronal,sonorant],
+    u"ř": [liquid,flap,voice,coronal,sonorant],
+    u"l": [liquid,lateral,voice,alveolar,coronal,sonorant],
+#    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
+
+    # I'm not sure what this is
+    # I think it is a mistranscription, as it is in IPA but not APA
+    # u"ɲ": []
+
+    u"ʕ": [pharyngeal,voice,fricative],
+    u"-": [syllableBoundary],
+}
+
 # Automatically annotate vowels
 for k in featureMap:
     features = featureMap[k]
@@ -208,8 +304,7 @@ class FeatureBank():
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
     mutuallyExclusiveClasses = [["high","middle","low"],
                                 ["front","central","back"],
-                                ["stop","fricative"],
-                                ["fricative","affricate"]]
+                                ["stop","fricative","affricate"]]
     
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))
