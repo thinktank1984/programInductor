@@ -34,9 +34,10 @@ def processMorphology(stems, inflections, dictionary):
 
 
 class Problem():
-    def __init__(self,description,data,parameters = None):
+    def __init__(self,description,data,parameters = None,solutions = []):
         self.parameters = parameters
         self.description = description
+        self.solutions = solutions
         if parameters:
             self.data = [ x.replace(u"’",u"") for x in data ]
         else:
@@ -1389,7 +1390,11 @@ in between sonants voiced fricatives become stops
 	(u"d̪əsen",	u"d̪əsent̪ə"),#	‘d̪ecent̪’
 	(u"d̪ulen",	u"d̪ulent̪ə"),#	‘bad̪’
 	(u"əst̪uðian",	u"əst̪uðiant̪ə"),#	‘student’
-	(u"blaŋ",	u"blaŋkə")]))#	‘white’
+	(u"blaŋ",	u"blaŋkə")],#	‘white’
+    solutions = [u''' + stem + 
+ + stem + ə
+    [-sonorant] > [-voice] / _ #
+    [+stop +voice] > [+fricative] / [+sonorant -nasal] _ [+sonorant]''']))
 
 interactingProblems.append(Problem(
     '''6: Finnish

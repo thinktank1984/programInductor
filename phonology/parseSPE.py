@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from solution import Solution
+from morph import Morph
+
 import re
 from features import *
 from rule import *
@@ -132,5 +135,23 @@ def parseRule(s):
 
     return Rule(focus, change, l,r,copyOffset)
 
+def parseSolution(s):
+    lines = [ x.strip() for x in s.split('\n') ]
+    prefixes = []
+    suffixes = []
+    rules = []
+    for l in lines:
+        if 'stem' in l:
+            [prefix,_,suffix] = l.split('+')
+            prefixes.append(Morph(tokenize(prefix)))
+            suffixes.append(Morph(tokenize(suffix)))
+        else:
+            rules.append(parseRule(l))
+    return Solution(rules, prefixes, suffixes)
+
 if __name__ == '__main__':
     print parseRule('0 > -2 / #[-vowel][]* _ e #').pretty()
+    print parseSolution(u''' + stem + 
+ + stem + ə
+    [-sonorant] > [-voice] / _ #
+    [+stop +voice] > [+fricative] / [+sonorant -nasal] _ [+sonorant]''')

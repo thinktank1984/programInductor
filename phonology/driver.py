@@ -1,6 +1,7 @@
 from problems import underlyingProblems,interactingProblems,sevenProblems,nineProblems
 from countingProblems import CountingProblem
 from utilities import *
+from parseSPE import parseSolution
 
 from matrix import *
 from randomSampleSolver import RandomSampleSolver
@@ -130,6 +131,13 @@ def handleProblem(parameters):
         if parameters['testing'] == 0.0:
             if parameters['stochastic']:
                 UnderlyingProblem(p.data).stochasticSearch(20, parameters['beam'])
+            elif parameters['verify']:
+                for s in p.solutions:
+                    s = parseSolution(s)
+                    print "verifying:"
+                    print s
+                    list(UnderlyingProblem(p.data).findCounterexamples(s))
+                ss = []
             elif parameters['randomSample']:
                 RandomSampleSolver(p.data, parameters['timeout']*60*60, 5, 15).solve()
                 assert False
@@ -194,6 +202,7 @@ if __name__ == '__main__':
     parser.add_argument('--stochastic', default = False, action = 'store_true')
     parser.add_argument('--incremental', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
+    parser.add_argument('--verify',action = 'store_true')
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
     arguments = parser.parse_args()
@@ -225,6 +234,7 @@ if __name__ == '__main__':
                    'randomSample': arguments.randomSample,
                    'universalGrammar': arguments.universal.split(','),
                    'top': arguments.top,
+                   'verify': arguments.verify,
                    'threshold': arguments.threshold,
                    'redirect': False,
                    'incremental': arguments.incremental,
