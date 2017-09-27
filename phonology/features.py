@@ -52,6 +52,7 @@ unreleased = "unreleased"
 laryngeal = "laryngeal"
 pharyngeal = "pharyngeal"
 syllableBoundary = "syllableBoundary"
+wordBoundary = "wordBoundary"
 
 featureMap = {
     # unrounded vowels
@@ -147,6 +148,7 @@ featureMap = {
 
     u"ʕ": [pharyngeal,voice,fricative],
     u"-": [syllableBoundary],
+    u"##": [wordBoundary],
 }
 
 distinctiveFeatures = {

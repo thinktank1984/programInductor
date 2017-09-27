@@ -4,6 +4,35 @@ from features import *
 def transposeInflections(inflections):
     return [ tuple([ inflections[x][y] for x in range(len(inflections)) ]) for y in range(len(inflections[0])) ]
 
+def processMorphology(stems, inflections, dictionary):
+    # map from (stem, inflection) to surface form
+    surfaces = {}
+    for surface, translation in dictionary.iteritems():
+        found = False
+        for stem in stems:
+            for inflection in inflections:
+                if inflection + ' ' + stem == translation or stem + ' ' + inflection == translation or stem + inflection == translation:
+                    if found:
+                        print "DEGENERACY:"
+                        print "Trying to parse the mapping:",surface, translation
+                        print "found that it is compatible with",stem, inflection
+                        print "previously found it to be",found
+                    assert not found
+                    found = (stem, inflection)
+                    surfaces[(stem, inflection)] = surface.replace(' ','##').replace(u'ɗ',u'd').replace(u'ɓ',u'b')
+        if not found:
+            print "Could not explain",surface, translation
+            assert False
+    # Construct the inflection matrix
+    matrix = [ tuple([ surfaces.get((stem, inflection),None) for inflection in set(inflections) ])
+             for stem in set(stems) ]
+    return matrix
+            
+            
+                
+
+
+
 class Problem():
     def __init__(self,description,data,parameters = None):
         self.parameters = parameters
@@ -1161,78 +1190,128 @@ it also looks like coronal is deleted in certain contexts.
 	(u"ri:s",	u"ri:nos",	u"ri:ni",	u"ri:si"),#	‘nose’
 	(u"delp^hi:s",	u"delp^hi:nos",	u"delp^hi:ni",	u"delp^hi:si")]))#	‘porpoise’
 
-interactingProblems.append('''
-Problem(
-4: Shona
+interactingProblems.append(Problem(
+'''4: Shona
 	Acute accent indicates H tone and unaccented vowels have L tone. Given the two sets of data immediately below, what tone rule do the following data motivate? There are alternations in the form of adjectives, e.g. kurefú, karefú, marefú all meaning “long”. Adjectives have an agreement prefix, hence ku-refú marks the form of the adjective in one grammatical class, and so on. In some cases, the agreement is realized purely as a change in the initial consonant of the adjective, i.e. gúrú ~ kúrú ~ húrú which need not be explained.
+''',
+    processMorphology(
+        ['baboon',
+         'boy (aug.)',
+         'table',
+         'word',
+         'hoe',
+         'house',
+         'gazelle',
+         'money',
+         'knife',
+         'axe',
+         'messenger',
+         'cloth',
+         'firewood (dim.)',
+         'pot',
+         'worms',
+         'wealth',
+         'country',
+         'bones',
+         'pumpkin',
+         'porcupine',
+         'firewood',
+         'books',
+         'book',
+         'store',
+         'baboons',
+         'hoes',
+         'knives',
+         'words',
+         'axes',
+         'to the land',
+         'gazelle (dim.)',
+         'porcupines (dim.)',
+         'letter',
+         'person',
+         'clothes'],
+        ['',
+         'died',
+         'big',
+         'short',
+         'clean',
+         'fell',
+         'many',
+         'tall',
+         'long',
+         'thick',
+         'thin'],
+        {
+	u'bveni':	'baboon',	u'bveni pfúpi':	'short baboon',
+	u'guɗo':	'baboon',	u'gudo rákafá':	'baboon died',
+        u'táfura':	'table',	u'táfura húrú':	'big table',
+	u'šoko':	'word',	u'šoko bvúpi':	'short word',
+	u'ɓadzá':	'hoe',	u'ɓadzá gúrú':	'big hoe',
+	u'zigómaná':	'boy (aug.)',	u'zigómaná gúrú':	'big boy (aug.)',
+	u'imbá':	'house',	u'imbá čéna':	'clean house',
+	u'mhará':	'gazelle',	u'mhará čéna':	'clean gazelle',
+	u'marí':	'money',	u'marí čéna':	'clean money',
 
-	bveni	‘baboon’	bveni pfúpi	‘short baboon’
-	táfura	‘table’	táfura húrú	‘big table’
-	šoko	‘word’	šoko bvúpi	‘short word’
-	ɓadzá	‘hoe’	ɓadzá gúrú	‘big hoe’
-	zigómaná	‘boy (aug.)’	zigómaná gúrú	‘big boy (aug.)’
-	imbá	‘house’	imbá čéna	‘clean house’
-	mhará	‘gazelle’	mhará čéna	‘clean gazelle’
-	marí	‘money’	marí čéna	‘clean money’
+	u'ɓáŋgá':	'knife',	u'ɓáŋga gúrú':	'big knife',
+	u'ɗémó':	'axe',	u'ɗémo bvúpi':	'short axe',
+	u'nhúmé':	'messenger',	u'nhúme pfúpi':	'short messenger',
+	u'ǰírá':	'cloth',	u'ǰíra ǰéna':	'clean cloth',
+	u'hárí':	'pot',	u'hári húrú':	'big pot',
+	u'mbúndúdzí':	'worms',	u'mbúndúdzi húrú':	'big worms',
+	u'fúma':	'wealth',	u'fúma čéna':	'clean wealth',
+	u'nyíka':	'country',	u'nyíka húrú':	'big country',
+	u'hákáta':	'bones',	u'hákáta pfúpi':	'short bones',
+	u'ǰékéra':	'pumpkin',	u'ǰékéra gúrú':	'big pumpkin',
 
-	ɓáŋgá	‘knife’	ɓáŋga gúrú	‘big knife’
-	ɗémó	‘axe’	ɗémo bvúpi	‘short axe’
-	nhúmé	‘messenger’	nhúme pfúpi	‘short messenger’
-	ǰírá	‘cloth’	ǰíra ǰéna	‘clean cloth’
-	hárí	‘pot’	hári húrú	‘big pot’
-	mbúndúdzí	‘worms’	mbúndúdzi húrú	‘big worms’
-	fúma	‘wealth’	fúma čéna	‘clean wealth’
-	nyíka	‘country’	nyíka húrú	‘big country’
-	hákáta	‘bones’	hákáta pfúpi	‘short bones’
-	ǰékéra	‘pumpkin’	ǰékéra gúrú	‘big pumpkin’
+#These data provide further illustration of the operation of this tone rule, which will help you to state the conditions on the rule correctly.
 
-These data provide further illustration of the operation of this tone rule, which will help you to state the conditions on the rule correctly.
 
-	guɗo	‘baboon’	gudo rákafá	‘the baboon died’
-	ɓadzá	‘hoe’	ɓadzá rákawá	‘the hoe fell’
-	nuŋgú	‘porcupine’	nuŋgú yákafá	‘the porcupine died’
-	ɓáŋgá	‘knife’	ɓáŋga rákawá	‘the knife fell’
-	nhúmé	‘messenger’	nhúme yákafá	‘the messenger died’
-	búku	‘book’	búku rákawá	‘the book fell’
-	mapfeni	‘baboons’	mapfeni makúrú	‘big baboons’
-	mapadzá	‘hoes’	mapadzá makúrú	‘big hoes’
-	mapáŋgá	‘knives’	mapáŋgá makúrú	‘big knives’
-	nhúmé	‘messenger’	nhúmé ndefú	‘short messenger’
-	matémó	‘axes’	matémó mapfúpi	‘short axes’
-	mabúku	‘books’	mabúku mažínǰí	‘many books’
-	čitóro	‘store’	čitóro čikúrú	‘big store’
+	#u'ɓadzá':	'hoe',
+	    u'ɓadzá rákawá':	'hoe fell',
+	u'nuŋgú':	'porcupine',	u'nuŋgú yákafá':	'porcupine died',
+	#u'ɓáŋgá':	'knife',
+            u'ɓáŋga rákawá':	'knife fell',
+	u'nhúmé':	'messenger',
+	    u'nhúme yákafá':	'messenger died',
+	u'búku':	'book',	u'búku rákawá':	'book fell',
+	u'mapfeni':	'baboons',	u'mapfeni makúrú':	'big baboons',
+	u'mapadzá':	'hoes',	u'mapadzá makúrú':	'big hoes',
+	u'mapáŋgá':	'knives',	u'mapáŋgá makúrú':	'big knives',
+	u'nhúmé':	'messenger',	u'nhúmé ndefú':	'short messenger',
+	u'matémó':	'axes',	u'matémó mapfúpi':	'short axes',
+	u'mabúku':	'books',	u'mabúku mažínǰí':	'many books',
+	u'čitóro':	'store',	u'čitóro čikúrú':	'big store',
 
-	In the examples below, a second tone rule applies.
+	#In the examples below, a second tone rule applies.
 
-	guɗo	‘baboon’	guɗo refú	‘tall baboon’
-	búku	‘book’	búku refú	‘long book’
-	ɓadzá	‘hoe’	ɓadzá refú	‘long hoe’
-	nuŋgú	‘porcupine’	nuŋgú ndefú	‘long porcupine’
-	mašoko	‘words’	mašoko marefú	‘long words’
-	kunyíka	‘to the land’	kunyíka kurefú	‘to the long land’
-	mapadzá	‘hoes’	mapadzá márefú	‘long hoes’
-	kamhará	‘gazelle (dim.)’	kamhará kárefú	‘long gazelle (dim.)’
-	tunuŋgú	‘porcupines (dim.)’	tunuŋgú túrefú	‘long porcupines (dim.)’
+	u'guɗo':	'baboon',	u'guɗo refú':	'tall baboon',
+	u'búku':	'book',	u'búku refú':	'long book',
+	u'ɓadzá':	'hoe',	u'ɓadzá refú':	'long hoe',
+	u'nuŋgú':	'porcupine',	u'nuŋgú ndefú':	'long porcupine',
+	u'mašoko':	'words',	u'mašoko marefú':	'long words',
+	u'kunyíka':	'to the land',	u'kunyíka kurefú':	'long to the land',
+	u'mapadzá':	'hoes',	u'mapadzá márefú':	'long hoes',
+	u'kamhará':	'gazelle (dim.)',	u'kamhará kárefú':	'long gazelle (dim.)',
+	u'tunuŋgú':	'porcupines (dim.)',	u'tunuŋgú túrefú':	'long porcupines (dim.)',
 
-	guɗo	‘baboon’	guɗo gobvú	‘thick baboon’
-	búku	‘book’	búku gobvú	‘thick book’
-	ɓadzá	‘hoe’	ɓadzá gobvú	‘thick hoe’
-	makuɗo	‘baboons’	makuɗo makobvú	‘thick baboons’
-	mapadzá	‘hoes’	mapadzá mákobvú	‘thick hoes’
-	tsamba	‘letter’	tsamba nhete	‘thin letter’
-	búku	‘book’	búku ɗete	‘thin book’
-	ɓadzá	‘hoe’	badzá ɗéte	‘thin hoe’
-	imbá	‘house’	imbá nhéte	‘thin house’
+	u'guɗo':	'baboon',	u'guɗo gobvú':	'thick baboon',
+	u'búku':	'book',	u'búku gobvú':	'thick book',
+	u'ɓadzá':	'hoe',	u'ɓadzá gobvú':	'thick hoe',
+	u'makuɗo':	'baboons',	u'makuɗo makobvú':	'thick baboons',
+	u'mapadzá':	'hoes',	u'mapadzá mákobvú':	'thick hoes',
+	u'tsamba':	'letter',	u'tsamba nhete':	'thin letter',
+	u'búku':	'book',	u'búku ɗete':	'thin book',
+	u'ɓadzá':	'hoe',	u'badzá ɗéte':	'thin hoe',
+	u'imbá':	'house',	u'imbá nhéte':	'thin house',
 
-	What do the following examples show about these tone rules?
+#	What do the following examples show about these tone rules?
 
-	ɓáŋgá	‘knife’	ɓáŋgá ɗéte	‘thin knife’
-	ɗémó	‘axe’	ɗémó ɗéte	‘thin axe’
-	murúmé	‘person’	murúmé mútete	‘thin person’
-	kahúní	‘firewood (dim.)’	kahúní kárefú	‘long firewood’
-	mačírá	‘clothes’	mačírá márefú	‘long clothes’
-	hárí	‘pot’	hárí nhéte	‘thin pot’
-''')
+	u'ɓáŋgá':	'knife',	u'ɓáŋgá ɗéte':	'thin knife',
+	u'ɗémó':	'axe',	u'ɗémó ɗéte':	'thin axe',
+	u'murúmé':	'person',	u'murúmé mútete':	'thin person',
+	u'kahúní':	'firewood (dim.)',	u'kahúní kárefú':	'long firewood',
+	u'mačírá':	'clothes',	u'mačírá márefú':	'long clothes',
+	u'hárí':	'pot',	u'hárí nhéte':	'thin pot'})))
 
 interactingProblems.append(Problem(
 '''5: Catalan
