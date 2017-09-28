@@ -47,6 +47,16 @@ class UnderlyingProblem():
     def solveSketch(self, minimizeBound = 31):
         return solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
+    def debugSolution(self,s,u):
+        for i in range(self.numberOfInflections):
+            x = s.prefixes[i] + u + s.suffixes[i]
+            print "Debugging inflection %d, which has UR = %s"%(i + 1,x)
+            for r in s.rules:
+                y = self.applyRuleUsingSketch(r,x)
+                print "Rewrites to %s using rule\t%s"%(y,r)
+                x = y
+            print 
+
     def applyRuleUsingSketch(self,r,u):
         '''u: morph; r: rule'''
         Model.Global()
@@ -823,3 +833,13 @@ class UnderlyingProblem():
                 print " [+] Got a new best solution (loss = %d):"%bestScore
                 print bestSolution
             else: print "Solution was not any better..."
+
+if __name__ == '__main__':
+    from parseSPE import parseSolution
+    from problems import sevenProblems
+
+    s = parseSolution(sevenProblems[1].solutions[0])
+    solver = UnderlyingProblem(sevenProblems[1].data)
+
+    solver.debugSolution(s,Morph(tokenize(u"koš^yil^y")))
+    

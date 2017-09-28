@@ -53,6 +53,8 @@ laryngeal = "laryngeal"
 pharyngeal = "pharyngeal"
 syllableBoundary = "syllableBoundary"
 wordBoundary = "wordBoundary"
+con = "continuant"
+syllabic = "syllabic"
 
 featureMap = {
     # unrounded vowels
@@ -153,23 +155,23 @@ featureMap = {
 
 distinctiveFeatures = {
     # unrounded vowels
-    u"i": [voice,tense,high,front],
-    u"ɨ": [voice,tense,high,central],
-    u"ɯ": [voice,tense,high,back],
-    u"ɩ": [voice,lax,high,front],
-    u"e": [voice,tense,middle,front],
-    u"ə": [voice,tense,middle,central],
-    u"ɛ": [voice,lax,middle,front],
-    u"æ": [voice,low,front],
-    u"a": [voice,low,central],
-    u"ʌ": [voice,central,middle,lax],
+    u"i": [syllabic,sonorant,voice,con, tense, high],
+    u"ɨ": [syllabic,sonorant,voice,con, tense,high,back],
+    #u"ɯ": [syllabic,sonorant,voice, tense,high,back],
+    u"ɩ": [syllabic,sonorant,con,voice, high],
+    u"e": [syllabic,sonorant,con,voice,tense,middle,front],
+    u"ə": [syllabic,sonorant,con,voice,tense,middle,central],
+    u"ɛ": [syllabic,sonorant,con,voice,lax,middle,front],
+    u"æ": [syllabic,sonorant,con,voice,low,front],
+    u"a": [syllabic,sonorant,con,voice,low,central],
+    u"ʌ": [syllabic,sonorant,con,voice,central,middle,lax],
     # rounded vowels
-    u"u": [voice,tense,high,back,rounded],
-    u"ü": [voice,tense,high,front,rounded],
-    u"ʊ": [voice,lax,high,back,rounded],
-    u"o": [voice,tense,middle,back,rounded],
-    u"ö": [voice,tense,middle,front,rounded],
-    u"ɔ": [voice,lax,middle,back,rounded],
+    u"u": [syllabic,sonorant,con,voice,tense,high,back,rounded],
+    u"ü": [syllabic,sonorant,con,voice,tense,high,front,rounded],
+    u"ʊ": [syllabic,sonorant,con,voice,high,back,rounded],
+    u"o": [syllabic,sonorant,con,voice,tense,middle,back,rounded],
+    u"ö": [syllabic,sonorant,con,voice,tense,middle,front,rounded],
+    u"ɔ": [syllabic,sonorant,con,voice,middle,back,rounded],
     #possibly missing are umlauts
 
     # consonance

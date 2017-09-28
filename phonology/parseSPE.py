@@ -75,19 +75,23 @@ def whitespaceDelimitedSequence(*things):
 def runParser(p,s):
     for suffix, result in p(s):
         if len(suffix) == 0: return result
-    assert False
+    return None
 
 featureParser = alternation(*[ constantParser(p + f, (p == '+',f)) 
                                for f in set([ f for fs in featureMap.values() for f in fs ])
                                for p in ['-','+'] ])
 whitespaceFeatureParser = whitespaceDelimited(featureParser)
 featuresParser = repeat(whitespaceFeatureParser)
-matrixParser = mapParserOutput(concatenate(concatenate(constantParser('['), featuresParser, lambda v1,v2: v2),
+matrixParser = mapParserOutput(concatenate(concatenate(constantParser('['),
+                                                       whitespaceDelimited(featuresParser),
+                                                       lambda v1,v2: v2),
                                            constantParser(']'),
                                            lambda v1,v2: v1),
                                lambda fp: FeatureMatrix(fp))
 phonemeParser = alternation(*[ constantParser(k,ConstantPhoneme(k)) for k in featureMap ])
-specificationParser = alternation(matrixParser,phonemeParser)
+consonantParser = constantParser('C',FeatureMatrix([(False,'vowel')]))
+vowelParser = constantParser('V',FeatureMatrix([(True,'vowel')]))
+specificationParser = alternation(matrixParser,phonemeParser,vowelParser,consonantParser)
 guardSpecificationParser = concatenate(specificationParser,
                                        optional(whitespaceDelimited(constantParser('*','*'))),
                                        lambda v1,v2: (v1,v2))
@@ -113,7 +117,7 @@ ruleParser = whitespaceDelimitedSequence(focusChangeParser,
 
 def parseRule(s):
     p = runParser(ruleParser,s)
-    if s == None: return None
+    if p == None: return None
     [focus,_,change,_,l,_,r] = p
 
     l = Guard(endOfString = '#' == l[0],
@@ -145,11 +149,18 @@ def parseSolution(s):
             [prefix,_,suffix] = l.split('+')
             prefixes.append(Morph(tokenize(prefix)))
             suffixes.append(Morph(tokenize(suffix)))
-        else:
-            rules.append(parseRule(l))
+        elif len(l) > 0:
+            r = parseRule(l)
+            if r == None:
+                print "Could not parse '%s'"%l
+                assert False
+            rules.append(r)
     return Solution(rules, prefixes, suffixes)
 
 if __name__ == '__main__':
+    print parseRule(u'o > e / a [ ] _')
+    print list(featuresParser(''))
+    assert False
     print parseRule('0 > -2 / #[-vowel][]* _ e #').pretty()
     print parseSolution(u''' + stem + 
  + stem + ə

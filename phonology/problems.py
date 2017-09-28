@@ -1394,7 +1394,11 @@ in between sonants voiced fricatives become stops
     solutions = [u''' + stem + 
  + stem + ə
     [-sonorant] > [-voice] / _ #
-    [+stop +voice] > [+fricative] / [+sonorant -nasal] _ [+sonorant]''']))
+    [+stop +voice] > [+fricative] / [+sonorant -nasal] _ [+sonorant]
+    [+sonorant -lateral +coronal] > 0 / _ #
+    [+coronal -sonorant] > 0 / [+coronal +sonorant] _ #
+    k > 0 /  ŋ _ #
+    [+vowel] > 0 / [+vowel] [-vowel]* _ [+vowel] #''']))
 
 interactingProblems.append(Problem(
     '''6: Finnish
@@ -1572,7 +1576,17 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
 	# pole	pol^ya	pol^yu	pol^yi	pil^y	field
 	# slovo	slova	slovu	slov^yi	sliw	word
 	# more	mor^ya	mor^yu	mor^yi	mir^y	sea
-]))
+],
+                             solutions = 
+[u''' + stem + 
+ + stem + am
+ + stem + ov^yi
+ + stem + i
+ + stem + ov^yi
+[-vowel] > [+palletized] / _ [+high -back]
+[+vowel -high -low] > e / a C _
+C > [-palletized] / _ e
+''']))
 
 sevenProblems.append(Problem('''3: Somali
 	In the following Somali data, [ḍ] is a voiced retroflex stop and [ṛ] is a voiced retroflex spirant. Account for all phonological alternations in these data. In your discussion of these forms, be sure to make it clear what you assume the underlying representations of relevant morphemes are. Your discussion should also make it clear what motivates your underlying representations and rules. For instance if you could analyse some alternation by assuming underlying X and rule Y, say why (or whether) that choice is preferable to the alternative of assuming underlying P and rule Q.
@@ -1724,7 +1738,15 @@ C_i > 0 / _ C_i #, s > 0/s_
         (u"cru:s",			u"cru:ris",None),#		leg
         (u"kinis",			u"kineris",None),#		ash
         (u"pulvis",		u"pulveris",None),#		dust
-    ]))
+    ],
+                             solutions = [u'''
+ + stem + s
+ + stem + is
+ + stem + i:
+                             [-sonorant] > [-voice] / _ [-voice]
+                             s > 0/[+coronal +sonorant] _
+                             [+coronal -sonorant] > 0 / _s
+''']))
 	
 sevenProblems.append(Problem('''5: Turkish
 	Provide a phonological analysis of the following data from Turkish.
