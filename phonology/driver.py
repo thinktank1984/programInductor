@@ -190,7 +190,8 @@ if __name__ == '__main__':
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
-    parser.add_argument('--timeout', default = 1.0, type = float)
+    parser.add_argument('--timeout', default = 1.0, type = float,
+                        help = 'timeout for ransac solver. can be a real number. measured in hours.')
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
@@ -198,7 +199,8 @@ if __name__ == '__main__':
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
     parser.add_argument('--eager', default = False, action = 'store_true')
-    parser.add_argument('--randomSample', default = False, action = 'store_true')
+    parser.add_argument('--randomSample', default = False, action = 'store_true',
+                        help = 'ransac style solver')
     parser.add_argument('--stochastic', default = False, action = 'store_true')
     parser.add_argument('--incremental', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)

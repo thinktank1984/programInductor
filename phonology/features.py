@@ -66,7 +66,7 @@ featureMap = {
     u"ə": [voice,tense,middle,central],
     u"ɛ": [voice,lax,middle,front],
     u"æ": [voice,low,front],
-    u"a": [voice,low,central],
+    u"a": [voice,low,central,back],
     u"ʌ": [voice,central,middle,lax],
     # rounded vowels
     u"u": [voice,tense,high,back,rounded],

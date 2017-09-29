@@ -4,6 +4,17 @@ from features import *
 def transposeInflections(inflections):
     return [ tuple([ inflections[x][y] for x in range(len(inflections)) ]) for y in range(len(inflections[0])) ]
 
+def stripConsonants(matrix):
+    def s(x):
+        if x == None: return x
+        canonical = []
+        for p in tokenize(x):
+            if p == u'##': canonical.append(p)
+            elif 'vowel' in featureMap[p] and not 'highTone' in featureMap[p]: canonical.append(u'a')
+            elif 'vowel' in featureMap[p] and 'highTone' in featureMap[p]: canonical.append(u'á')
+        return u''.join(canonical)
+    return [tuple(map(s,i)) for i in matrix ]
+
 def processMorphology(stems, inflections, dictionary):
     # map from (stem, inflection) to surface form
     surfaces = {}
@@ -1195,7 +1206,7 @@ interactingProblems.append(Problem(
 '''4: Shona
 	Acute accent indicates H tone and unaccented vowels have L tone. Given the two sets of data immediately below, what tone rule do the following data motivate? There are alternations in the form of adjectives, e.g. kurefú, karefú, marefú all meaning “long”. Adjectives have an agreement prefix, hence ku-refú marks the form of the adjective in one grammatical class, and so on. In some cases, the agreement is realized purely as a change in the initial consonant of the adjective, i.e. gúrú ~ kúrú ~ húrú which need not be explained.
 ''',
-    processMorphology(
+    stripConsonants(processMorphology(
         ['baboon',
          'boy (aug.)',
          'table',
@@ -1312,7 +1323,7 @@ interactingProblems.append(Problem(
 	u'murúmé':	'person',	u'murúmé mútete':	'thin person',
 	u'kahúní':	'firewood (dim.)',	u'kahúní kárefú':	'long firewood',
 	u'mačírá':	'clothes',	u'mačírá márefú':	'long clothes',
-	u'hárí':	'pot',	u'hárí nhéte':	'thin pot'})))
+	    u'hárí':	'pot',	u'hárí nhéte':	'thin pot'}))))
 
 interactingProblems.append(Problem(
 '''5: Catalan

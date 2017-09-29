@@ -44,6 +44,8 @@ class UnderlyingProblem():
         self.maximumObservationLength = max([ len(w) for l in self.data for w in l if w != None ])
         self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
+        self.wordBoundaries = any([ (u'##' in w.phonemes) for l in self.data for w in l if w ])
+
     def solveSketch(self, minimizeBound = 31):
         return solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
 
@@ -284,6 +286,9 @@ class UnderlyingProblem():
                     condition(wordEqual(p,k.makeConstant(self.bank)))
                 for s,k in zip(suffixes,fixedMorphology.suffixes):
                     condition(wordEqual(s,k.makeConstant(self.bank)))
+            if self.wordBoundaries:
+                for prefix, suffix in zip(prefixes, suffixes):
+                    condition(Or([wordLength(prefix) == 0, wordLength(suffix) == 0]))
 
             self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
 

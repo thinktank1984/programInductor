@@ -26,7 +26,13 @@ class RandomSampleSolver():
             endingPoint = startingPoint + size
             subset = self.data[startingPoint:endingPoint]
 
-            solutions += UnderlyingProblem(subset).counterexampleSolution(k = 4)
+            n0 = min(6,size)
+            morphology = Solution(rules = [],
+                                  prefixes = [Morph([])]*2,
+                                  suffixes = [Morph([]),Morph([u'ə'])])
+            solutions += UnderlyingProblem(subset).counterexampleSolution(initialTrainingSize = n0,
+                                                                          fixedMorphology = morphology,
+                                                                          k = 4)
 
         return [ s.clearTransducers() for s in solutions ]
 
