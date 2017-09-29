@@ -244,6 +244,7 @@ if __name__ == '__main__':
                    'save': arguments.save,
                    'restore': arguments.restore,
                    'eager': arguments.eager,
+                   'cores': arguments.cores,
                    'beam': arguments.beam,
                    'stochastic': arguments.stochastic,
                    'timeout': arguments.timeout,
