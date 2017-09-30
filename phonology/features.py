@@ -58,23 +58,22 @@ syllabic = "syllabic"
 
 featureMap = {
     # unrounded vowels
-    u"i": [voice,tense,high,front],
-    u"ɨ": [voice,tense,high,central],
-    u"ɯ": [voice,tense,high,back],
-    u"ɩ": [voice,lax,high,front],
-    u"e": [voice,tense,middle,front],
-    u"ə": [voice,tense,middle,central],
-    u"ɛ": [voice,lax,middle,front],
-    u"æ": [voice,low,front],
-    u"a": [voice,low,central,back],
-    u"ʌ": [voice,central,middle,lax],
+    u"i": [voice,tense,high],
+    u"ɨ": [voice,tense,high,back],
+    u"ɩ": [voice,high,front],
+    u"e": [voice,tense],
+    u"ə": [voice,back],
+    u"ɛ": [voice],
+    u"æ": [voice,low,tense],
+    u"a": [voice,low,tense,back],
+    u"ʌ": [voice,back,tense],
     # rounded vowels
     u"u": [voice,tense,high,back,rounded],
-    u"ü": [voice,tense,high,front,rounded],
-    u"ʊ": [voice,lax,high,back,rounded],
-    u"o": [voice,tense,middle,back,rounded],
-    u"ö": [voice,tense,middle,front,rounded],
-    u"ɔ": [voice,lax,middle,back,rounded],
+    u"ü": [voice,tense,high,rounded],
+    u"ʊ": [voice,high, back, rounded],
+    u"o": [voice,tense,back,rounded],
+    u"ö": [voice,tense,rounded],
+    u"ɔ": [voice,back,rounded],
     #possibly missing are umlauts
 
     # consonance
@@ -250,10 +249,10 @@ distinctiveFeatures = {
 }
 
 # Automatically annotate vowels
+vs = [u"i",u"ɨ",u"ɩ",u"e",u"ə",u"ɛ",u"æ",u"a",u"ʌ",u"u",u"ü",u"ʊ",u"o",u"ö",u"ɔ"]
 for k in featureMap:
     features = featureMap[k]
-    # These indicate that it is a vowel
-    if front in features or central in features or back in features:
+    if k in vs:
         features.append(vowel)
 
 # Include vowel/consonants diacritics

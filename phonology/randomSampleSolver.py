@@ -47,8 +47,11 @@ class RandomSampleSolver():
             (oldFrequency,_) = ruleFrequencies.get(unicode(r), (0,r))
             ruleFrequencies[unicode(r)] = (oldFrequency + 1, r)
 
+        print "Most popular rules..."
         for f,r in sorted(ruleFrequencies.keys(), key = lambda fr: fr[0]):
             print f,"\t",unicode(r)
+
+        return 
         
         # Now coalesce the morphologies and figure out how frequently those occurred
         morphologyFrequencies = {} # map from (frequency, prefixes, suffixes)

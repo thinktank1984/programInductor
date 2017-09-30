@@ -353,7 +353,7 @@ class UnderlyingProblem():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(depth + 1)
                     depth += 1
-                    counterexample = self.findCounterexample(prefixes, suffixes, rules, trainingData)
+                    counterexample = self.findCounterexample(expandedSolution, trainingData)
                     if counterexample != None:
                         trainingData.append(counterexample)
                         print "Despite being better, there is a counterexample; continue CEGIS"
