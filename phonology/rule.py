@@ -800,6 +800,12 @@ class Rule():
                                                                 self.leftTriggers.sketchEquals(v+'.left_trigger',b),
                                                                 self.rightTriggers.sketchEquals(v+'.right_trigger',b))
 
+    def explain(self,b):
+        print "\tMAPPING:",u"  ".join([ k + u'⟶' + unicode(v)
+                                        for k,v in self.calculateMapping(b).iteritems()])
+        for s in list(reversed(self.leftTriggers.specifications)) + self.rightTriggers.specifications:
+            print "\tspecification_extension:"," ".join(s.extension(b))
+
 
 EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  structuralChange = FeatureMatrix([]),

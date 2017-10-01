@@ -116,6 +116,8 @@ ruleParser = whitespaceDelimitedSequence(focusChangeParser,
                                          rightGuardParser)
 
 def parseRule(s):
+    # remove any comments
+    if ';' in s: s = s[:s.index(';')].strip()
     p = runParser(ruleParser,s)
     if p == None: return None
     [focus,_,change,_,l,_,r] = p

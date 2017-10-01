@@ -136,6 +136,10 @@ def handleProblem(parameters):
                     s = parseSolution(s)
                     print "verifying:"
                     print s
+                    b = UnderlyingProblem(p.data).bank
+                    for r in s.rules:
+                        print "Explaining rule: ",r
+                        r.explain(b)
                     list(UnderlyingProblem(p.data).findCounterexamples(s))
                 ss = []
             elif parameters['randomSample']:
