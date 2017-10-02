@@ -74,25 +74,17 @@ class UnderlyingProblem():
         result = Morph.sample()
         _r = r.makeDefinition(self.bank)
         condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank), self.maximumObservationLength + 1)))
-        # IMPORTANT!
-        # if the result is a more than we need to make sure that morphs can be big
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
-        if output != None:
-            return Morph.parse(self.bank, output, result)
-        else:
-            print "WARNING: Gets rejected in applyRule. Falling back on Python implementation."
-            print u
-            print r
-            printSketchFailure()
-            # Weaker test
-            Model.Global()
-            condition(wordLength(applyRule(r.makeConstant(self.bank),u.makeConstant(self.bank),self.maximumObservationLength)) > 0)
-            if solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength) == None:
-                print "WARNING: weaker test also fails"
-            else:
-                print "WARNING: weaker test succeeds"
-            return Morph.fromMatrix(r.apply(u))
-
+        try:
+            output = self.solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
+        except SynthesisFailure:
+            print "applyRuleUsingSketch: UNSATISFIABLE for %s %s"%(u,r)
+            assert False
+        except SynthesisTimeout:
+            print "applyRuleUsingSketch: TIMEOUT for %s %s"%(u,r)
+            assert False
+        return Morph.parse(self.bank, output, result)
+        
+    
     def applyRule(self, r, u):
         ruleOutput = runForward(r.fst(self.bank),u.fst(self.bank))
         if ruleOutput == None: return None
@@ -143,6 +135,7 @@ class UnderlyingProblem():
                                             for inflections in self.data ])
 
     def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
+        if k == 1: return [solution]
         if maximumNumberOfSolutions != None:
             # enforce k^d < maximumNumberOfSolutions
             # k < maximumNumberOfSolutions**(1/d)
@@ -154,7 +147,7 @@ class UnderlyingProblem():
 
         def f(xs, rs):
             if rs == []: return [[]]
-            ys = [ self.applyRule(rs[0],x) #Morph.fromMatrix(rs[0].apply(x))
+            ys = [ self.applyRuleUsingSketch(rs[0],x)
                    for x in xs ]            
             alternatives = SupervisedProblem(zip(xs,ys)).fastTopK(k, rs[0])
             suffixes = f(ys, rs[1:])
