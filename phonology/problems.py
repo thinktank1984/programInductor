@@ -686,17 +686,11 @@ underlyingProblems.append(Problem(
     t seems to devoice all of the consonant to the left:
     [ ] > [-voice] / _ C* t
     
-    {a,o:} > {e,ö:} / [+front] [ ]* _ [ ] [ ] #
-    o: > ö: is [-back +front]
-    a > e is [low,central] > [tense,middle,front], matrix [-low,-Central-+tense,]
+    {a,o:} > {e,ö:} / {e,i,ü,ö} [ ]* _ [ ] [ ] #
+    o: > ö: is [-back]
+    a > e is [-back -low]
     so it's becoming a front middle tense vowel
     the rule that it learns is needlessly verbose because it doesn't understand that some features are mutually exclusive
-    
-    
-    
-    This is going to be tricky to learn incrementally because a correct spreading rule is only learned for data points where there is also a vowel harmony.
-    So you really have to do joint inference over everything.
-
 Morphological analysis:
 Inflection 0:	/  / + stem + /  /
 Inflection 1:	/  / + stem + / b a n /
@@ -736,7 +730,17 @@ If it understood the certain features are mutually exclusive, the spreading rule
 	(u"fal",	u"falban",	u"falto:l",	u"falnak"), #	wall
 	(u"ö:r",	u"ö:rben",	u"ö:rtö:l",	u"ö:rnek"), #	guard
 	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak") #	mouth
-    ]))
+    ],
+    solutions = [
+        '''
+ + stem + 
+ + stem + ban
+ + stem + to:l
+ + stem + nak
+        [+vowel] > [-back -low] / [+vowel -back ] [ ]* _
+        [ ] > [+voice] / _ b
+        [ -sonorant ] > [-voice] / _[-voice]
+        ''']))
 
 underlyingProblems.append(Problem(
     u'''

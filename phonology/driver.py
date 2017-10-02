@@ -131,6 +131,10 @@ def handleProblem(parameters):
         if parameters['testing'] == 0.0:
             if parameters['stochastic']:
                 UnderlyingProblem(p.data).stochasticSearch(20, parameters['beam'])
+            elif parameters['debug']:
+                for s in p.solutions:
+                    s = parseSolution(s)
+                    UnderlyingProblem(p.data).debugSolution(s,Morph(tokenize(parameters['debug'])))
             elif parameters['verify']:
                 for s in p.solutions:
                     s = parseSolution(s)
@@ -202,6 +206,7 @@ if __name__ == '__main__':
     parser.add_argument('--window', default = 2, type = int)
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
+    parser.add_argument('--debug', default = None, type = unicode)
     parser.add_argument('--eager', default = False, action = 'store_true')
     parser.add_argument('--randomSample', default = False, action = 'store_true',
                         help = 'ransac style solver')
@@ -243,6 +248,7 @@ if __name__ == '__main__':
                    'verify': arguments.verify,
                    'threshold': arguments.threshold,
                    'redirect': False,
+                   'debug': arguments.debug,
                    'incremental': arguments.incremental,
                    'window': arguments.window,
                    'save': arguments.save,

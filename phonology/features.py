@@ -21,8 +21,8 @@ lax = "lax"
 high = "high"
 middle = "middle"
 low = "low"
-front = "front"
-central = "central"
+#front = "front"
+#central = "central"
 back = "back"
 rounded = "rounded"
 #unrounded = "unrounded"
@@ -60,7 +60,7 @@ featureMap = {
     # unrounded vowels
     u"i": [voice,tense,high],
     u"ɨ": [voice,tense,high,back],
-    u"ɩ": [voice,high,front],
+    u"ɩ": [voice,high],
     u"e": [voice,tense],
     u"ə": [voice,back],
     u"ɛ": [voice],
@@ -152,101 +152,6 @@ featureMap = {
     u"##": [wordBoundary],
 }
 
-distinctiveFeatures = {
-    # unrounded vowels
-    u"i": [syllabic,sonorant,voice,con, tense, high],
-    u"ɨ": [syllabic,sonorant,voice,con, tense,high,back],
-    #u"ɯ": [syllabic,sonorant,voice, tense,high,back],
-    u"ɩ": [syllabic,sonorant,con,voice, high],
-    u"e": [syllabic,sonorant,con,voice,tense,middle,front],
-    u"ə": [syllabic,sonorant,con,voice,tense,middle,central],
-    u"ɛ": [syllabic,sonorant,con,voice,lax,middle,front],
-    u"æ": [syllabic,sonorant,con,voice,low,front],
-    u"a": [syllabic,sonorant,con,voice,low,central],
-    u"ʌ": [syllabic,sonorant,con,voice,central,middle,lax],
-    # rounded vowels
-    u"u": [syllabic,sonorant,con,voice,tense,high,back,rounded],
-    u"ü": [syllabic,sonorant,con,voice,tense,high,front,rounded],
-    u"ʊ": [syllabic,sonorant,con,voice,high,back,rounded],
-    u"o": [syllabic,sonorant,con,voice,tense,middle,back,rounded],
-    u"ö": [syllabic,sonorant,con,voice,tense,middle,front,rounded],
-    u"ɔ": [syllabic,sonorant,con,voice,middle,back,rounded],
-    #possibly missing are umlauts
-
-    # consonance
-    u"p": [bilabial,stop],
-    u"p|": [bilabial,stop,unreleased],
-    u"p^h": [bilabial,stop,aspirated],
-    u"b": [bilabial,stop,voice],
-    u"f": [labiodental,fricative],
-    u"v": [labiodental,fricative,voice],
-    u"β": [bilabial,fricative,voice],
-    u"m": [bilabial,nasal,voice,sonorant],
-    u"m̥": [bilabial,nasal,sonorant],
-    u"θ": [dental,fricative,coronal],
-    u"d": [alveolar,stop,voice,coronal],
-    u"d̪": [dental,stop,voice,coronal],
-    u"d^z": [alveolar,affricate,coronal,voice],
-    u"t": [alveolar,stop,coronal],
-    u"t̪": [dental,stop,coronal],
-    u"t|": [alveolar,stop,coronal,unreleased],
-    u"t^s": [alveolar,affricate,coronal],
-    u"t^h": [alveolar,stop,aspirated,coronal],
-    u"ṭ": [retroflex,stop,coronal],
-    u"ḍ": [retroflex,stop,coronal,voice],
-    u"ð": [dental,fricative,voice,coronal],
-    u"z": [alveolar,fricative,voice,coronal, sibilant],
-    u"ǰ": [alveopalatal,affricate,stop,voice,coronal],
-    u"ǰ|": [alveopalatal,stop,voice,coronal],
-    u"ž": [alveopalatal,fricative,voice,coronal, sibilant],
-    u"s": [alveolar,fricative,coronal, sibilant],
-    u"n": [alveolar,nasal,voice,coronal,sonorant],
-    u"ṇ": [retroflex,nasal,voice,sonorant],
-    u"n̥": [alveolar,nasal,coronal,sonorant],
-    u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
-    u"š": [alveopalatal,fricative,coronal, sibilant],
-    u"c": [palatal,stop,coronal],
-    u"č": [alveopalatal,affricate,coronal,stop],
-    u"č|": [alveopalatal,stop,coronal],
-    u"č^h": [alveopalatal,affricate,coronal,aspirated],
-    u"k": [velar,stop],
-    u"k|": [velar,stop,unreleased],
-    u"k^h": [velar,stop,aspirated],
-    u"k^y": [velar,stop,palatal],
-    u"x": [velar,fricative],
-    u"X": [uvular,fricative], # χ
-    u"x^y": [velar,fricative,palatal],
-    u"g": [velar,stop,voice],
-    u"g^y": [velar,stop,voice,palatal],
-    u"ɣ": [velar,fricative,voice],
-    u"ŋ": [velar,nasal,voice,sonorant],
-    u"q": [uvular,stop],
-    u"N": [uvular,nasal,voice],
-    u"G": [uvular,stop,voice],
-    u"ʔ": [laryngeal,stop,sonorant],
-    u"h": [laryngeal,fricative,sonorant],
-    u"ħ": [pharyngeal,fricative,sonorant],
-
-    # glides
-    u"w": [glide,voice,bilabial,sonorant],
-    u"y": [glide,palatal,voice,sonorant],
-
-    # liquids
-    u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],
-    u"ṛ": [retroflex,coronal,voice,sonorant], # I don't really know what features are for this
-    u"r̃": [liquid,trill,voice,coronal,sonorant],
-    u"r̥̃": [liquid,trill,coronal,sonorant],
-    u"ř": [liquid,flap,voice,coronal,sonorant],
-    u"l": [liquid,lateral,voice,alveolar,coronal,sonorant],
-#    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
-
-    # I'm not sure what this is
-    # I think it is a mistranscription, as it is in IPA but not APA
-    # u"ɲ": []
-
-    u"ʕ": [pharyngeal,voice,fricative],
-    u"-": [syllableBoundary],
-}
 
 # Automatically annotate vowels
 vs = [u"i",u"ɨ",u"ɩ",u"e",u"ə",u"ɛ",u"æ",u"a",u"ʌ",u"u",u"ü",u"ʊ",u"o",u"ö",u"ɔ"]
@@ -305,9 +210,7 @@ class FeatureBank():
    
     """Builds a bank of features and sounds that are specialized to a particular data set.
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
-    mutuallyExclusiveClasses = [["high","middle","low"],
-                                ["front","central","back"],
-                                ["stop","fricative","affricate"]]
+    mutuallyExclusiveClasses = [["stop","fricative","affricate"]]
     
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))
