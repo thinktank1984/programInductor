@@ -1840,58 +1840,103 @@ stem + /s
 sevenProblems.append(Problem('''6: Kera
 	Propose rules to account for the following alternations. It will prove useful to think about Kera vowels in terms of high versus non-high vowels. Also, in this language it would be convenient to assume that [h] and [ʔ] are specified as [+low]. Pay attention to both verbs like bɨlan ‘want me’, balnan ‘wanted me’ and bal-l-a ‘you must want!’, i.e. there are present, past and imperative forms involved, certain tenses being marked by suffixes. Finally, pay attention to what might look like a coincidence in the distribution of vowels in the underlying forms of verb roots: there are no coincidences.
 ''',
-	# hama-n  	‘eat me’	se:ne-n	‘my brother’	
-	# hama-m  	‘eat you m.’	se:ne-m 	‘your masc. brother’
-	# hɨm-i	‘eat you f.’	si:n-i	‘your fem. brother’
-	# hɨm-u	‘eat him’	si:n-u	‘his brother’
-	# ham-a	‘eat her’	se:n-a	‘her brother’
-	# hama-ŋ  	‘eat you pl.’	se:ne-ŋ	‘your pl. brother’
+	[(u'hama-n',#  	‘eat me’	
+	  u'hama-m',#  	‘eat you m.’	
+	  u'hɨm-i',#	‘eat you f.’	
+	  u'hɨm-u',#	‘eat him’	
+	  u'ham-a',#	‘eat her’	
+	  u'hama-ŋ'),#  	‘eat you pl.’	
 
-	# kolo-n	‘change me’	gi:di-n	‘my belly’
-	# kolo-m	‘change you masc.’	gi:di-m	‘your masc. belly’
-	# kul-i	‘change you fem.’	gi:d-i	‘your fem. belly’
-	# kul-u	‘change him’	gi:du	‘his belly’
-	# kol-a	‘change her’	gi:d-ɨ	‘her belly’
-	# kolo-ŋ	‘change you pl.’	gi:di-ŋ	‘your pl. belly’
-	
-	# cɨ:rɨ-n	‘my head’	gunu-n	‘wake me’
-	# cɨ:rɨ-m	‘your masc. head’	gunu-m 	‘wake you masc.’
-	# ci:r-i	‘your fem. head’	gun-i	‘wake you fem.’
-	# cu:r-u	‘his head’	gun-u	‘wake him’
-	# cɨ:r-ɨ	‘her head’	gun-ɨ	‘wake her’
-	# cɨ:rɨ-ŋ	‘your pl. head’	gunu-ŋ	‘wake you pl.’
-	
-	# bɨla-n	‘want me’	ŋɨfa-n	‘meet me’
-	# bɨla-m	‘want you masc.’	ŋɨfa-m	‘meet you masc.’
-	# bɨl-i	‘want you fem.’	ŋɨf-i	‘meet you fem.’
-	# bɨl-u	‘want him’	ŋɨf-u	‘meet him’
-	# bɨl-a	‘want her’	ŋɨf-a	‘meet her’
-	# bɨla-ŋ	‘want you pl.’	ŋɨfa-ŋ	‘meet you pl.’
+         (u"se:ne-n",#	‘my brother’
+          u"se:ne-m",# 	‘your masc. brother’
+          u"si:n-i",#	‘your fem. brother’
+          u"si:n-u",#	‘his brother’
+          u"se:n-a",#	‘her brother’
+          u"se:ne-ŋ"),#	‘your pl. brother’
+         
+	(u'kolo-n'#,	‘change me’	
+	u'kolo-m',#	‘change you masc.’	
+	 u'kul-i',#	‘change you fem.’	
+	 u'kul-u',#	‘change him’	
+	 u'kol-a',#	‘change her’	
+	 u'kolo-ŋ'),#	‘change you pl.’	
 
-	# ʔasa-n	‘know me’	ʔapa-n	‘find me’
-	# ʔasa-m	‘know you masc.’	ʔapa-m	‘find you masc.’
-	# ʔɨs-i	‘know you fem.’	ʔɨp-i	‘find you fem.’
-	# ʔɨs-u	‘know him’	ʔɨp-u	‘find him’
-	# ʔas-a	‘know her’	ʔap-a	‘find her’
-	# ʔasa-ŋ	‘know you pl.’	ʔapa-ŋ	‘find you pl.’
+         (u"gi:di-n",#	‘my belly’
+          u"gi:di-m",#	‘your masc. belly’
+          u"gi:d-i",#	‘your fem. belly’
+          u"gi:du",#	‘his belly’
+          u"gi:d-ɨ",#	‘her belly’
+          u"gi:di-ŋ"),#	‘your pl. belly’
+         
+	(u'cɨ:rɨ-n'#,	‘my head’	
+	 u'cɨ:rɨ-m',#	‘your masc. head’	
+	 u'ci:r-i',#	‘your fem. head’	
+	 u'cu:r-u',#	‘his head’	
+	 u'cɨ:r-ɨ',#	‘her head’	
+	 u'cɨ:rɨ-ŋ'),#	‘your pl. head’	
 
-	# hara-n	‘give me back’
-	# hara-m	‘give you masc. back’
-	# hɨr-i	‘give you fem. back’
-	# hɨr-u	‘give him back’
-	# har-a	‘give her back’
-	# hara-ŋ	‘give you pl. back’
-	
-	# balna-n  	‘wanted me’	ŋafna-n 	‘met me’
-	# balna-m 	‘wanted you masc.’	ŋafna-m	‘met you masc.’
-	# bɨln-i	‘wanted you fem.’	ŋɨfn-i	‘met you fem.’
-	# bɨln-u	‘wanted him’	ŋɨfn-u	‘met him’
-	# baln-a	‘wanted her’	ŋafn-a	‘met her’
-	# balna-ŋ  	‘wanted you pl.’	ŋafna-ŋ 	‘met you pl.’
-	# bal-l-a	‘you must want!’	ŋaf-l-a	‘you must meet!’
-		
+         (u"gunu-n",#	‘wake me’
+          u"gunu-m",# 	‘wake you masc.’
+          u"gun-i",#	‘wake you fem.’
+          u"gun-u",#	‘wake him’
+          u"gun-ɨ",#	‘wake her’
+          u"gunu-ŋ"),#	‘wake you pl.’
+         
+	(u'bɨla-n'#,	‘want me’	
+	 u'bɨla-m',#	‘want you masc.’	
+	 u'bɨl-i',#	‘want you fem.’	
+	 u'bɨl-u',#	‘want him’	
+	 u'bɨl-a',#	‘want her’	
+	 u'bɨla-ŋ'),#	‘want you pl.’	
+
+         (u'ŋɨfa-n',#	‘meet me’
+          u'ŋɨfa-m',#	‘meet you masc.’
+          u'ŋɨf-i',#	‘meet you fem.’
+          u'ŋɨf-u',#	‘meet him’
+          u'ŋɨf-a',#	‘meet her’
+          u'ŋɨfa-ŋ'),#	‘meet you pl.’
+         
+	(u'ʔasa-n'#,	‘know me’	
+	 u'ʔasa-m',#	‘know you masc.’	
+	 u'ʔɨs-i',#	‘know you fem.’	
+	 u'ʔɨs-u',#	‘know him’	
+	 u'ʔas-a',#	‘know her’	
+	 u'ʔasa-ŋ'),#	‘know you pl.’	
+
+         (u'ʔapa-n',#	‘find me’
+          u'ʔapa-m',#	‘find you masc.’
+          u'ʔɨp-i',#	‘find you fem.’
+          u'ʔɨp-u',#	‘find him’
+          u'ʔap-a',#	‘find her’
+          u'ʔapa-ŋ'),#	‘find you pl.’
+         
+	(u'hara-n'#,	‘give me back’
+	 u'hara-m',#	‘give you masc. back’
+	 u'hɨr-i',#	‘give you fem. back’
+	 u'hɨr-u',#	‘give him back’
+	 u'har-a',#	‘give her back’
+	 u'hara-ŋ'),#	‘give you pl. back’
+	 
+	(u'balna-n',#  	‘wanted me’	
+	 u'balna-m',# 	wanted you masc.’	
+	 u'bɨln-i',#	‘wanted you fem.’	
+	 u'bɨln-u',#	‘wanted him’	
+	 u'baln-a',#	‘wanted her’	
+	 u'balna-ŋ'),#  	‘wanted you pl.’	
+
+         (u'ŋafna-n ',#	‘met me’
+          u'ŋafna-m',#	‘met you masc.’
+          u'ŋɨfn-i',#	‘met you fem.’
+          u'ŋɨfn-u',#	‘met him’
+          u'ŋafn-a',#	‘met her’
+          u'ŋafna-ŋ'),# 	‘met you pl.’
+         
+#todo
+         
+	 # bal-l-a	‘you must want!’	ŋaf-l-a	‘you must meet!’
+	 
 	# ba	‘not’	pa	‘again’	bɨ-pa	‘no more’
-[]))
+        )])
 
 sevenProblems.append(Problem('''7: Keley-i
 	Account for the alternations in the following verbs. The different forms relate to whether the action is in the past or future, and which element in the sentence is emphasised (subject, object, instrument). Roots underlyingly have the shape CVC(C)VC, and certain forms such as the subject focus future require changes in the stem that result in a CVCCVC shape. This may be accomplished by reduplicating the initial CV- for stems whose first vowel is [e] (ʔum-bebhat – behat) or doubling the middle consonant (ʔum-buŋŋet – buŋet). The contrastive identification imperfective form conditions lengthening of the consonant in the middle of the stem, when the first vowel is not [e] (memayyuʔ – bayuʔ). These changes are part of the morphology, so do not attempt to write phonological rules to double consonants or reduplicate syllables. Be sure to explicitly state the underlying form of each root and affix. Understanding the status of [s] and [h] in this language is important in solving this problem. It is also important to consider exactly what underlying nasal consonant is present in these various prefixes and infixes – there is evidence in the data which shows that the underlying nature of the nasal explains certain observed differences in phonological behavior.
