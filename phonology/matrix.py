@@ -10,7 +10,6 @@ from sketchSyntax import Expression,makeSketchSkeleton
 from sketch import *
 from supervised import SupervisedProblem
 from latex import latexMatrix
-from UG import str2ug #FlatUG, ChomskyUG, FeatureUG, SkeletonUG, SkeletonFeatureUG
 
 from pathos.multiprocessing import ProcessingPool as Pool
 import random
@@ -334,6 +333,8 @@ class UnderlyingProblem():
 
         depth = 1
 
+        solution = None
+
         while True:
             print "CEGIS: Training data:"
             for r in trainingData:
@@ -342,15 +343,16 @@ class UnderlyingProblem():
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
-            solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology)
-                
-            depth = solution.depth() # update depth because it might have grown
-            solverTime = time() - solverTime
+            try:
+                solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology)            
+                depth = solution.depth() # update depth because it might have grown
+                solverTime = time() - solverTime
 
-            counterexample = self.findCounterexample(solution, trainingData)
-            if counterexample != None:
-                trainingData.append(counterexample)
-                continue
+                counterexample = self.findCounterexample(solution, trainingData)
+                if counterexample != None:
+                    trainingData.append(counterexample)
+                    continue
+            except SynthesisTimeout: return [solution] if solution else []
             
             # we found a solution that had no counterexamples
             #print "Final set of counterexamples:"
@@ -359,12 +361,16 @@ class UnderlyingProblem():
             # When we expect it to be tractable, we should try doing a little bit deeper
             if depth < 3 and self.numberOfInflections < 3:
                 slave = UnderlyingProblem(trainingData, self.bank)
-                expandedSolution = slave.sketchJointSolution(depth + 1, fixedMorphology = fixedMorphology)
+                try:
+                    expandedSolution = slave.sketchJointSolution(depth + 1, fixedMorphology = fixedMorphology)
+                except SynthesisTimeout: return [solution]
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(depth + 1)
                     depth += 1
-                    counterexample = self.findCounterexample(expandedSolution, trainingData)
+                    try: counterexample = self.findCounterexample(expandedSolution, trainingData)
+                    except SynthesisTimeout: return [solution]
+                    
                     if counterexample != None:
                         trainingData.append(counterexample)
                         print "Despite being better, there is a counterexample; continue CEGIS"
@@ -376,14 +382,17 @@ class UnderlyingProblem():
                     
             print "Final solutions:"
             print solution
-            solution = self.solveUnderlyingForms(solution)
+            try: solution = self.solveUnderlyingForms(solution)
+            except SynthesisTimeout: return [solution]
 
             # Do we have enough time in our budget to not be fast?
-            if solverTime*k < threshold:
-                solutions = self.solveTopRules(solution, k)
-            else:
-                print "Using the optimized top rules."
-                solutions = self.fastTopRules(solution, k)
+            try:
+                if solverTime*k < threshold:
+                    solutions = self.solveTopRules(solution, k)
+                else:
+                    print "Using the optimized top rules."
+                    solutions = self.fastTopRules(solution, k)
+            except SynthesisTimeout: return [solution]
 
             return solutions
 

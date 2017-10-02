@@ -698,10 +698,10 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   
   Sound[u.l + MAXIMALINCREASE] output;
 
-  bit[u.l + 1] right_okay = apply_guard(u.s,right_trigger,1, unrollBound);
+  bit[u.l + 1] right_okay = apply_guard_sophisticated(u.s,right_trigger,1, unrollBound);
   bit right_final_okay = right_okay[0];
   
-  bit[u.l + 1] left_okay = apply_guard(u.s,left_trigger,0, unrollBound);
+  bit[u.l + 1] left_okay = apply_guard_sophisticated(u.s,left_trigger,0, unrollBound);
   bit left_final_okay = left_okay[u.l];
 
 
