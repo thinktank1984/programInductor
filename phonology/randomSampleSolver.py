@@ -63,8 +63,8 @@ class RandomSampleSolver():
             ruleFrequencies[unicode(r)] = (oldFrequency + 1, r)
 
         print "Most popular rules..."
-        for f,r in sorted(ruleFrequencies.keys(), key = lambda fr: fr[0]):
-            print f,"\t",unicode(r)
+        for f,r in sorted(ruleFrequencies.values(), key = lambda fr: fr[0]):
+            print f,"\t",r.pretty()
 
         return 
         
