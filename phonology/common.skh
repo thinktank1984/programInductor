@@ -1,7 +1,7 @@
 // alternations basically already have their specifications given
 // so it should be okay that they are a little bit bigger
 #ifndef ALTERNATIONPROBLEM
-#define MAXIMUMCOST 11
+#define MAXIMUMCOST 12
 #else
 #define MAXIMUMCOST 14
 #endif
@@ -496,8 +496,10 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
 	else
 	  a1 = is_syllable_starting_at(u.s, index2sound(j)) && (!g.endOfString || u.l - 1 == syllable_starting_at(u.s, index2sound(j)));
       } else
-#endif	
+#endif
 	a1 = (j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 0 || !g.endOfString));
+      /* if (0) // optional end of string: {#,r1} */
+      /* 	a1 = a1 || (j == 0); */
 
     }
     if (r2 == null) { // all specifications are empty
@@ -519,6 +521,8 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
       } else
 #endif
       a2 = j > 0 && matches_specification(u[index2sound(j)],g.spec) && a1old;
+      /* if (0 && r1 == null) // optional end of string: {#,r2} */
+      /* 	a2 = a2 || (j == 0); */
     }
     okay[index2okay(j)] = a2;
     a2old = a2;

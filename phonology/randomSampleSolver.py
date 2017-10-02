@@ -5,6 +5,7 @@ from matrix import *
 from pathos.multiprocessing import ProcessingPool as Pool
 from time import time
 import random
+from sketch import setGlobalTimeout
 
 class RandomSampleSolver():
     def __init__(self, data, timeout, lower, upper):
@@ -19,6 +20,8 @@ class RandomSampleSolver():
 
         solutions = []
 
+        setGlobalTimeout(self.timeout)
+        
         while time() - startTime < self.timeout:
             # Sample another group of data
             size = random.choice(range(self.lower, self.upper + 1))
@@ -30,17 +33,24 @@ class RandomSampleSolver():
             morphology = Solution(rules = [],
                                   prefixes = [Morph([])]*2,
                                   suffixes = [Morph([]),Morph([u'ə'])])
-            solutions += UnderlyingProblem(subset).counterexampleSolution(initialTrainingSize = n0,
-                                                                          fixedMorphology = morphology,
-                                                                          k = 4)
+            try:
+                solutions += UnderlyingProblem(subset).counterexampleSolution(initialTrainingSize = n0,
+                                                                              fixedMorphology = morphology,
+                                                                              k = 1)
+            except SynthesisTimeout: break
+        
 
         return [ s.clearTransducers() for s in solutions ]
 
     def solve(self, numberOfWorkers = None):
         if numberOfWorkers == None: numberOfWorkers = numberOfCPUs()
         print "# of workers:",numberOfWorkers
-        solutions = Pool(numberOfWorkers).map(lambda j: self.worker(j), range(numberOfWorkers))
-
+        if numberOfWorkers > 1:
+            solutions = Pool(numberOfWorkers).map(lambda j: self.worker(j), range(numberOfWorkers))
+        else:
+            solutions = map(lambda j: self.worker(j), range(numberOfWorkers))
+            setGlobalTimeout(None)
+            
         # Now coalesce the rules and figure out how frequently they occurred
         ruleFrequencies = {} # map from the Unicode representation of a rule to (frequency,rule)
         for r in [ r for ss in solutions for s in ss for r in s.rules ]:

@@ -68,10 +68,14 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h += makeSketchSkeleton()
     return h
 
+globalTimeoutCounter = None
+def setGlobalTimeout(seconds):
+    global globalTimeoutCounter
+    globalTimeoutCounter = seconds
 lastFailureOutput = None
 lastSketchOutput = None
-def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None):
-    global lastFailureOutput,lastSketchOutput
+def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None, timeout = None):
+    global lastFailureOutput,lastSketchOutput,globalTimeoutCounter
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
@@ -90,13 +94,27 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
 
     # Temporary file for collecting the sketch output
     outputFile = makeTemporaryFile('',d = './solver_output')
+
+    if timeout != None: timeout = ' --fe-timeout %d '%(int(timeout/60.0))
+    elif globalTimeoutCounter != None:
+        if int(globalTimeoutCounter/60.0) < 1:
+            print "Exhausted global timeout budget."
+            return 'timeout'
+        timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
+    else: timeout = ''
     
-    command = "sketch --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (minimizeBound, unroll, temporarySketchFile, outputFile, outputFile)
+    command = "sketch %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
+                                                                                     minimizeBound,
+                                                                                     unroll,
+                                                                                     temporarySketchFile,
+                                                                                     outputFile,
+                                                                                     outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
     os.system(command)
     print "Ran the solver in %02f sec"%(time() - startTime)
+    if globalTimeoutCounter != None: globalTimeoutCounter -= (time() - startTime)
     flushEverything()
     
     output = open(outputFile,'r').read()
@@ -106,8 +124,9 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
 
     lastSketchOutput = output
     
-    if "not be resolved." in output or "Rejected" in output:
+    if "not be resolved." in output or "Rejected" in output or "Sketch front-end timed out" in output:
         lastFailureOutput = source+"\n"+output
+        if "Sketch front-end timed out" in output: return 'timeout'
         return None
     else:
         return output

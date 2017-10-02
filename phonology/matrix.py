@@ -21,6 +21,8 @@ from time import time
 
 class SynthesisFailure(Exception):
     pass
+class SynthesisTimeout(Exception):
+    pass
 
 def sampleMorphWithLength(l):
     m = Morph.sample()
@@ -42,12 +44,19 @@ class UnderlyingProblem():
                         for i in Lex] for Lex in data ]
 
         self.maximumObservationLength = max([ len(w) for l in self.data for w in l if w != None ])
-        self.maximumMorphLength = max(10,self.maximumObservationLength - 2)
 
         self.wordBoundaries = any([ (u'##' in w.phonemes) for l in self.data for w in l if w ])
 
     def solveSketch(self, minimizeBound = 31):
-        return solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength, showSource = False, minimizeBound = minimizeBound)
+        o = solveSketch(self.bank,
+                        # unroll: +1 for extra UR size, +1 for guard buffer
+                        self.maximumObservationLength + 2,
+                        # maximum morpheme size
+                        self.maximumObservationLength,
+                        showSource = False, minimizeBound = minimizeBound)
+        if o == None: raise SynthesisFailure()
+        if o == 'timeout': raise SynthesisTimeout()
+        return o
 
     def debugSolution(self,s,u):
         for i in range(self.numberOfInflections):
@@ -179,9 +188,10 @@ class UnderlyingProblem():
             
             self.conditionOnData(rules, stems, prefixes, suffixes)
             self.minimizeJointCost(rules, stems, prefixes, suffixes)
-            
-            output = self.solveSketch()
-            if not output:
+
+            try:
+                output = self.solveSketch()
+            except SynthesisFailure,SynthesisTimeout:
                 if getVerbosity() > 0:
                     print "Found %d/%d solutions."%(len(solutions),k)
                 break
@@ -240,6 +250,7 @@ class UnderlyingProblem():
             approximateStemSize = [ min([ len(w) - (0 if morphologicalCosts[j] == None else morphologicalCosts[j])
                                           for j,w in enumerate(i) if w != None ])
                                     for i in self.data ]
+            
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             if self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
@@ -249,6 +260,7 @@ class UnderlyingProblem():
                         break
             else: adjustment = 0
             affixAdjustment.append(adjustment)
+        
                 
         affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) - affixAdjustment[j]
                           for j in range(self.numberOfInflections) ])
@@ -290,13 +302,16 @@ class UnderlyingProblem():
                 for prefix, suffix in zip(prefixes, suffixes):
                     condition(Or([wordLength(prefix) == 0, wordLength(suffix) == 0]))
 
-            self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound)
+            morphologicalCosts = None
+            if fixedMorphology: morphologicalCosts = [ len(prefix) + len(suffix)
+                                                       for prefix, suffix in zip(fixedMorphology.prefixes,
+                                                                                 fixedMorphology.suffixes) ]
+
+            self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound, morphologicalCosts)
 
             self.conditionOnData(rules, stems, prefixes, suffixes)
 
             output = self.solveSketch()
-            if not output:
-                raise SynthesisFailure("Failed at morphological analysis.")
 
             solution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                                 suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
@@ -313,6 +328,8 @@ class UnderlyingProblem():
                 return self.sketchJointSolution(depth, canAddNewRules = canAddNewRules)
             else:
                 return None
+        # pass this exception onto the caller
+        #except SynthesisTimeout:
 
 
     def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, fixedMorphology = None):
@@ -333,6 +350,7 @@ class UnderlyingProblem():
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology)
+                
             depth = solution.depth() # update depth because it might have grown
             solverTime = time() - solverTime
 
@@ -456,8 +474,9 @@ class UnderlyingProblem():
                                morphologicalCosts = morphologicalCosts)
         self.conditionOnData(rules, stems, prefixes, suffixes)
 
-        output = self.solveSketch()#minimizeBound = 50)
-        if output == None:
+        try:
+            output = self.solveSketch()#minimizeBound = 50)
+        except SynthesisFailure,SynthesisTimeout:
             print "\t(no modification possible)"
             # Because these are executed in parallel, do not throw an exception
             return None
@@ -699,9 +718,9 @@ class UnderlyingProblem():
                     # the pareto - a stronger constraint
                     condition(Or([ruleCostVariable < rc, stemCostVariable < uc]))
 
-            output = self.solveSketch(minimizeBound = 64)
-
-            if output == None:
+            try:
+                output = self.solveSketch(minimizeBound = 64)
+            except SynthesisFailure,SynthesisTimeout:
                 print "Exiting Pareto procedure early"
                 break
 
@@ -756,6 +775,7 @@ class UnderlyingProblem():
         '''N: number of random samples.
         lower: lower bound on the size of the random samples.
         upper: upper bound on the size of the random samples.'''
+        assert False
         
         # Figure out the morphology from the first few examples
         preliminarySolution = UnderlyingProblem(self.data[:4], self.bank).sketchJointSolution(1, canAddNewRules = True)
