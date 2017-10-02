@@ -6,6 +6,7 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from time import time
 import random
 from sketch import setGlobalTimeout
+import traceback
 
 class RandomSampleSolver():
     def __init__(self, data, timeout, lower, upper):
@@ -15,32 +16,36 @@ class RandomSampleSolver():
         self.upper = min(upper, len(self.data))
 
     def worker(self, seed):
-        random.seed(seed)
-        startTime = time()
+        try:
+            random.seed(seed)
+            startTime = time()
 
-        solutions = []
+            solutions = []
 
-        setGlobalTimeout(self.timeout)
-        
-        while time() - startTime < self.timeout:
-            # Sample another group of data
-            size = random.choice(range(self.lower, self.upper + 1))
-            startingPoint = choice(range(len(self.data) - size + 1))
-            endingPoint = startingPoint + size
-            subset = self.data[startingPoint:endingPoint]
+            setGlobalTimeout(self.timeout)
 
-            n0 = min(6,size)
-            morphology = Solution(rules = [],
-                                  prefixes = [Morph([])]*2,
-                                  suffixes = [Morph([]),Morph([u'ə'])])
-            try:
-                solutions += UnderlyingProblem(subset).counterexampleSolution(initialTrainingSize = n0,
-                                                                              fixedMorphology = morphology,
-                                                                              k = 1)
-            except SynthesisTimeout: break
-        
+            while time() - startTime < self.timeout:
+                # Sample another group of data
+                size = random.choice(range(self.lower, self.upper + 1))
+                startingPoint = choice(range(len(self.data) - size + 1))
+                endingPoint = startingPoint + size
+                subset = self.data[startingPoint:endingPoint]
 
-        return [ s.clearTransducers() for s in solutions ]
+                n0 = min(6,size)
+                morphology = Solution(rules = [],
+                                      prefixes = [Morph([])]*2,
+                                      suffixes = [Morph([]),Morph([u'ə'])])
+                try:
+                    solutions += UnderlyingProblem(subset).counterexampleSolution(initialTrainingSize = n0,
+                                                                                  fixedMorphology = morphology,
+                                                                                  k = 1)
+                except SynthesisTimeout: break
+
+
+            return [ s.clearTransducers() for s in solutions ]
+        except Exception as e:
+            print "Exception in worker:", traceback.format_exc()
+            return [ s.clearTransducers() for s in solutions ]
 
     def solve(self, numberOfWorkers = None):
         if numberOfWorkers == None: numberOfWorkers = numberOfCPUs()
