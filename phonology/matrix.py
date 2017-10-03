@@ -714,8 +714,11 @@ class UnderlyingProblem():
 
             try:
                 output = self.solveSketch(minimizeBound = 64)
-            except SynthesisFailure,SynthesisTimeout:
-                print "Exiting Pareto procedure early"
+            except SynthesisFailure:
+                print "Exiting Pareto procedure early due to unsatisfied"
+                break
+            except SynthesisTimeout:
+                print "Exiting Pareto procedure early due to timeout"
                 break
 
             s = Solution(suffixes = [ parseAffix(output, m) for m in suffixes ],
@@ -765,93 +768,6 @@ class UnderlyingProblem():
             setVerbosity(0)
             print "MDL:",mdl+population[0].modelCost()
 
-    def randomSampleSolver(self, N = 30, lower = 5, upper = 8):
-        '''N: number of random samples.
-        lower: lower bound on the size of the random samples.
-        upper: upper bound on the size of the random samples.'''
-        assert False
-        
-        # Figure out the morphology from the first few examples
-        preliminarySolution = UnderlyingProblem(self.data[:4], self.bank).sketchJointSolution(1, canAddNewRules = True)
-        print "Sticking with that morphology from here on out..."
-        
-        # construct random subsets
-        subsets = []
-        print "%d random subsets of the training data:"%N
-        for _ in range(N):
-            size = choice(range(lower, upper + 1))
-            startingPoint = choice(range(len(self.data) - size))        
-            endingPoint = startingPoint + size
-            subsets.append(self.data[startingPoint:endingPoint])
-            print "SUBSET:"
-            print u"\n".join([ u'~'.join(map(unicode,x)) for x in subsets[-1] ])
-
-        nc = min(N,numberOfCPUs())
-        solutions = Pool(nc).map(lambda subset: UnderlyingProblem(subset, self.bank).counterexampleSolution(k = 10, fixedMorphology = preliminarySolution),subsets)
-        for ss,subset in zip(solutions, subsets):
-            print " [+] Random sample solver: Training data:"
-            print u"\n".join([u"\t".join(map(unicode,xs)) for xs in subset ])
-            print " Solutions:"
-            for s in ss: print s
-            print 
-            
-        # Coalesce all of the rules found by the random samples
-        coalescedRules = []
-        for ss in solutions:
-            for s in ss:
-                for r in s.rules:
-                    if not any([ unicode(r) == unicode(rp) for rp in coalescedRules ]):
-                        coalescedRules.append(r)
-
-        print "Here are all of the %d unique rules that were were discovered from the random samples:"%len(coalescedRules)
-        for r in coalescedRules:
-            print r
-
-        print "Starting local search using these unique rules..."
-
-        def mutate(s):
-            kindOfMutation = choice(range(3))
-            rs = None
-            while rs == None:
-                if kindOfMutation == 0 and s.rules != []: # random deletion
-                    rs = randomlyRemoveOne(s.rules)
-                elif kindOfMutation == 1 and len(s.rules) > 1: # random swap
-                    i = None
-                    j = None
-                    while i == j:
-                        i = random.choice(range(len(s.rules)))
-                        j = random.choice(range(len(s.rules)))
-                    rs = list(s.rules)
-                    rs[i] = s.rules[j]
-                    rs[j] = s.rules[i]
-                elif kindOfMutation == 2: # random insertion of a rule that is not already there
-                    j = random.choice(range(len(s.rules)) + 1)
-                    r = random.choice([ r for r in coalescedRules if not r in s.rules ])
-                    rs = s.rules[:j] + [r] + s.rules[j:]
-            return Solution(rules = rs,prefixes = s.prefixes,suffixes = s.suffixes)
-                    
-        bestSolution = preliminarySolution
-        bestScore = self.solutionDescriptionLength(preliminarySolution) + preliminarySolution.modelCost()
-        
-        while True:
-            children = [ mutate(bestSolution) for _ in range(100) ]
-            children += [ mutate(mutate(bestSolution)) for _ in range(100) ]
-            # remove duplicate children
-            uniqueChildren = {}
-            for c in children: uniqueChildren[str(c)] = c
-            children = uniqueChildren.values()
-            if len(children) == 0: continue
-            
-            print "Got %d children"%len(children)
-
-            scoredChildren = Pool(nc).map(lambda c: (self.solutionDescriptionLength(c) + c.modelCost(), c))
-            (bestNewScore,bestNewSolution) = min(scoredChildren)
-            if bestNewScore <= bestScore:
-                bestScore = bestNewScore
-                bestSolution = bestNewSolution
-                print " [+] Got a new best solution (loss = %d):"%bestScore
-                print bestSolution
-            else: print "Solution was not any better..."
 
 if __name__ == '__main__':
     from parseSPE import parseSolution

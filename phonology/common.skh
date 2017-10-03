@@ -492,9 +492,9 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
 #ifdef SYLLABLEBOUNDARYFEATURE
       if (is_syllable_specification(r1)) {
 	if (!R)
-	  a1 = is_syllable_ending_at(u.s, index2sound(j)) && (!g.endOfString || 0 == syllable_ending_at(u.s, index2sound(j)));
+	  a1 = is_syllable_ending_at(u, index2sound(j)) && (!g.endOfString || 0 == syllable_ending_at(u, index2sound(j)));
 	else
-	  a1 = is_syllable_starting_at(u.s, index2sound(j)) && (!g.endOfString || u.l - 1 == syllable_starting_at(u.s, index2sound(j)));
+	  a1 = is_syllable_starting_at(u, index2sound(j)) && (!g.endOfString || l - 1 == syllable_starting_at(u, index2sound(j)));
       } else
 #endif
 	a1 = (j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 0 || !g.endOfString));
@@ -510,12 +510,12 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
 #ifdef SYLLABLEBOUNDARYFEATURE
       if (is_syllable_specification(g.spec)) {
 	if (!R) {
-	  int e = syllable_ending_at(u.s, j - 1);
+	  int e = syllable_ending_at(u, j - 1);
 	  if (e != -1) a2 = A1[e];
 	  else a2 = 0;
 	} else {
-	  int e = syllable_starting_at(u.s, u.l - j);
-	  if (e != -1) a2 = A1[u.l - e - 1];
+	  int e = syllable_starting_at(u, l - j);
+	  if (e != -1) a2 = A1[l - e - 1];
 	  else a2 = 0;
 	}
       } else
@@ -698,10 +698,10 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   
   Sound[u.l + MAXIMALINCREASE] output;
 
-  bit[u.l + 1] right_okay = apply_guard_sophisticated(u.s,right_trigger,1, unrollBound);
+  bit[u.l + 1] right_okay = apply_guard(u.s,right_trigger,1, unrollBound);
   bit right_final_okay = right_okay[0];
   
-  bit[u.l + 1] left_okay = apply_guard_sophisticated(u.s,left_trigger,0, unrollBound);
+  bit[u.l + 1] left_okay = apply_guard(u.s,left_trigger,0, unrollBound);
   bit left_final_okay = left_okay[u.l];
 
 
@@ -808,13 +808,16 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
     if (inserted == 0) return u;
     output_length = u.l + inserted;
   } else { // Modification rule
+    bit made_a_change = 0;
     for (int j = 0; j < u.l; j++) {
       assert j < unrollBound;
       output[j] = triggered[j] ?
 	apply_specification(structural_change, u.s[j]) :
 	u.s[j];
+      if (triggered[j] && output[j] != u.s[j]) made_a_change = 1;
     }
     output_length = u.l;
+    if (!made_a_change) return u;
   }
   
   return new Word(s = output[0::output_length], l = output_length);
