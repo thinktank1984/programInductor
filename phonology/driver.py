@@ -147,7 +147,7 @@ def handleProblem(parameters):
                     list(UnderlyingProblem(p.data).findCounterexamples(s))
                 ss = []
             elif parameters['randomSample']:
-                RandomSampleSolver(p.data, parameters['timeout']*60*60, 5, 15).solve(numberOfWorkers = parameters['cores'])
+                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 18).solve(numberOfWorkers = parameters['cores'])
                 assert False
             elif parameters['incremental']:
                 ss = UnderlyingProblem(p.data).incrementallySolve(windowSize = parameters['window'],
