@@ -305,6 +305,8 @@ class FeatureBank():
             h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes))
                                                             if self.phonemes[j] != u'-' ]))
+        h += "\n#define UNKNOWNCONSTANTSPECIFICATION {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
+        
         # This is more for debugging than anything else - common shouldn't use it
         for featureName in self.features:
             h += "\n#define %sFEATURE %d\n" % (featureName.upper(), self.feature2index[featureName])
