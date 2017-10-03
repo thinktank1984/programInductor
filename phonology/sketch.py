@@ -68,6 +68,11 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     h += makeSketchSkeleton()
     return h
 
+class SynthesisFailure(Exception):
+    pass
+class SynthesisTimeout(Exception):
+    pass
+
 globalTimeoutCounter = None
 def setGlobalTimeout(seconds):
     global globalTimeoutCounter
@@ -99,7 +104,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     elif globalTimeoutCounter != None:
         if int(globalTimeoutCounter/60.0) < 1:
             print "Exhausted global timeout budget."
-            return 'timeout'
+            raise SynthesisTimeout()
         timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
     else: timeout = ''
     
@@ -126,8 +131,8 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     
     if "not be resolved." in output or "Rejected" in output or "Sketch front-end timed out" in output:
         lastFailureOutput = source+"\n"+output
-        if "Sketch front-end timed out" in output: return 'timeout'
-        return None
+        if "Sketch front-end timed out" in output: raise SynthesisTimeout()
+        else: raise SynthesisFailure()
     else:
         return output
 

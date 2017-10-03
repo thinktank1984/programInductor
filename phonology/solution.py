@@ -136,10 +136,9 @@ class Solution():
                     condition(wordEqual(s.makeConstant(bank),
                                         applyRules(rules,concatenate3(prefix,stem,suffix),bound)))
             minimize(wordLength(stem))
-            output = solveSketch(bank,bound,bound)
-            if output == None: return None
-            return Morph.parse(bank,output,stem)
-        
+            try: output = solveSketch(bank,bound,bound)
+            except SynthesisFailure: return None
+            return Morph.parse(bank,output,stem)        
         try:
             transducers = self.inflectionTransducers(bank)
         except InvalidRule as ex:

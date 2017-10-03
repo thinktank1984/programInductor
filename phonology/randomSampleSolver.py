@@ -41,10 +41,11 @@ class RandomSampleSolver():
                                                                                   k = 1)
                 except SynthesisTimeout: break
 
-
+            flushEverything()
             return [ s.clearTransducers() for s in solutions ]
         except Exception as e:
             print "Exception in worker:", traceback.format_exc()
+            flushEverything()
             return [ s.clearTransducers() for s in solutions ]
 
     def solve(self, numberOfWorkers = None):

@@ -18,11 +18,6 @@ import pickle
 import math
 from time import time
 
-class SynthesisFailure(Exception):
-    pass
-class SynthesisTimeout(Exception):
-    pass
-
 def sampleMorphWithLength(l):
     m = Morph.sample()
     condition(wordLength(m) == l)
@@ -47,15 +42,12 @@ class UnderlyingProblem():
         self.wordBoundaries = any([ (u'##' in w.phonemes) for l in self.data for w in l if w ])
 
     def solveSketch(self, minimizeBound = 31):
-        o = solveSketch(self.bank,
-                        # unroll: +1 for extra UR size, +1 for guard buffer
-                        self.maximumObservationLength + 2,
-                        # maximum morpheme size
-                        self.maximumObservationLength,
-                        showSource = False, minimizeBound = minimizeBound)
-        if o == None: raise SynthesisFailure()
-        if o == 'timeout': raise SynthesisTimeout()
-        return o
+        return solveSketch(self.bank,
+                           # unroll: +1 for extra UR size, +1 for guard buffer
+                           self.maximumObservationLength + 2,
+                           # maximum morpheme size
+                           self.maximumObservationLength,
+                           showSource = False, minimizeBound = minimizeBound)
 
     def debugSolution(self,s,u):
         for i in range(self.numberOfInflections):
