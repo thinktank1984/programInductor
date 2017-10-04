@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
+from parseSPE import parseRule
 from rule import *
 from time import time
 from math import log
@@ -21,23 +21,26 @@ class Fragment():
     def match(self,program): raise Exception('Match not implemented for fragment: %s'%str(self))
 
 class VariableFragment(Fragment):
-    def __init__(self, ty, k = []):
+    def __init__(self, ty):
+        # ty should be a Python class within the rule structure
+        # for example it could be Rule, FeatureMatrix, ...
         self.ty = ty
         self.logPrior = -1.6
-        self.k = k
-    def __unicode__(self): return unicode(self.ty)
+    def __unicode__(self): return unicode(self.ty.__name__)
     def match(self, program):
-        if self.k == [] or any([ isinstance(program,_k) for _k in self.k ]):
+        if isinstance(program,self.ty):
             return [(self.ty,program)]
         raise MatchFailure()
     def sketchCost(self,v,b):
-        calculator['FC'] = 'specification_cost'
-        calculator['GUARD'] = 'guard_cost'
-        calculator['MATRIX'] = 'specification_cost'
-        calculator['CONSTANT'] = 'specification_cost'
+        calculator = {}
+        calculator[FC] = 'specification_cost'
+        calculator[Guard] = 'guard_cost'
+        calculator[FeatureMatrix] = 'specification_cost'
+        calculator[ConstantPhoneme] = 'specification_cost'
         return ([], '%s(%s)'%(calculator[self.ty],v))
 
 class RuleFragment(Fragment):
+    CONSTRUCTOR = Rule
     def __init__(self, focus, change, left, right):
         self.focus, self.change, self.left, self.right = focus, change, left, right
         self.logPrior = focus.logPrior + change.logPrior + left.logPrior + right.logPrior
@@ -87,9 +90,11 @@ class RuleFragment(Fragment):
     #             checks.append(self.structuralChange.child.sketchEquals('%s.structural_change'%v,b))
     #         else: assert False
         
-
+RuleFragment.BASEPRODUCTIONS = [RuleFragment(VariableFragment(FC),VariableFragment(FC),
+                                             VariableFragment(Guard),VariableFragment(Guard))]
 
 class FCFragment(Fragment):
+    CONSTRUCTOR = FC
     def __init__(self, child, logPrior = None):
         self.child = child
         self.logPrior = child.logPrior if logPrior == None else logPrior
@@ -115,28 +120,32 @@ class FCFragment(Fragment):
     def abstract(p,q):
         fragments = []
         if unicode(p) != unicode(q):
-            fragments += [VariableFragment('FC')]
-        if isinstance(p,EmptySpecification) and isinstance(q,EmptySpecification):
-            fragments += [FCFragment(EmptySpecification(), -1)]
+            fragments += [VariableFragment(FC)]
+        # if isinstance(p,EmptySpecification) and isinstance(q,EmptySpecification):
+        #     fragments += [FCFragment(EmptySpecification(), -1)]
         if (not isinstance(p,EmptySpecification)) and (not isinstance(q,EmptySpecification)):
             fragments += SpecificationFragment.abstract(p,q)
         return fragments
 
+FCFragment.BASEPRODUCTIONS = [FCFragment(EmptySpecification(),-1),
+                              FCFragment(VariableFragment(Specification))]
+
 class SpecificationFragment(Fragment):
+    CONSTRUCTOR = Specification
     def __init__(self, child, logPrior = None):
-        assert False
         self.child = child
         self.logPrior = child.logPrior if logPrior == None else logPrior
 
     def __unicode__(self): return unicode(self.child)
 
-    def match(self, program): raise Exception('not implemented')
+    def match(self, program):
+        return self.child.match(program)
 
     @staticmethod
     def abstract(p,q):
         fragments = []
         if unicode(p) != unicode(q):
-            fragments += [VariableFragment('MATRIX',[FeatureMatrix])]
+            fragments += [VariableFragment(FeatureMatrix)]
         if isinstance(p,FeatureMatrix) and isinstance(q,FeatureMatrix):
             fragments += MatrixFragment.abstract(p,q)
         if isinstance(p,ConstantPhoneme) and isinstance(q,ConstantPhoneme):
@@ -145,12 +154,15 @@ class SpecificationFragment(Fragment):
 
     def sketchCost(self,v,b):
         assert False
+SpecificationFragment.BASEPRODUCTIONS = [SpecificationFragment(VariableFragment(FeatureMatrix)),
+                                         SpecificationFragment(VariableFragment(ConstantPhoneme))]
 
 class MatrixFragment(Fragment):
+    CONSTRUCTOR = FeatureMatrix
     def __init__(self, child, logPrior = None):
         self.child = child
         self.childUnicode = unicode(child)
-        self.logPrior = child.logPrior if logPrior == None else logPrior
+        self.logPrior = None#child.logPrior if logPrior == None else logPrior
 
     def __unicode__(self): return self.childUnicode
 
@@ -166,20 +178,25 @@ class MatrixFragment(Fragment):
             else:
                 return [] # prefer matrix fragments that are short
         else:
-            return [VariableFragment('MATRIX',[FeatureMatrix])]
+            return [VariableFragment(FeatureMatrix)]
 
     def sketchCost(self,v,b):
         assert isinstance(self.child,FeatureMatrix)
         return ([self.child.sketchEquals(v,b)],[])
 
+MatrixFragment.BASEPRODUCTIONS = [] #VariableFragment(FeatureMatrix)]
+
 class ConstantFragment(Fragment):
+    CONSTRUCTOR = ConstantPhoneme
     def __init__(self): raise Exception('should never make a constant fragment')
-    def __unicode__(self): return u"CONSTANT"
+    def __unicode__(self): raise Exception('should never try to print the constant fragment')
     @staticmethod
     def abstract(p,q):
-        return [VariableFragment('CONSTANT',[ConstantPhoneme])]
+        return [VariableFragment(ConstantPhoneme)]
+ConstantFragment.BASEPRODUCTIONS = [] #VariableFragment(ConstantPhoneme)]
 
 class GuardFragment(Fragment):
+    CONSTRUCTOR = Guard
     def __init__(self, specifications, endOfString, starred):
         self.logPrior = sum([s.logPrior for s in specifications ])
         if starred: self.logPrior -= 1.0
@@ -205,7 +222,7 @@ class GuardFragment(Fragment):
     @staticmethod
     def abstract(p,q):
         if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications):
-            return [VariableFragment('GUARD')]
+            return [VariableFragment(Guard)]
         if len(p.specifications) == 0:
             return [GuardFragment([],p.endOfString,False)]
         if len(p.specifications) == 1:
@@ -226,21 +243,24 @@ class GuardFragment(Fragment):
             checks += k
             expenses += e
         return (checks, expenses)
-    
+GuardFragment.BASEPRODUCTIONS = [GuardFragment([VariableFragment(Specification)]*s,e,starred)
+                                 for e in [True,False]
+                                 for s in range(3)
+                                 for starred in ([True,False] if s > 1 else [False]) ]    
 
 def programSubexpressions(program):
     '''Yields the sequence of tuples of (ty,expression)'''
     if isinstance(program, Rule):
-        yield ('RULE',program)
+        yield (Rule,program)
         for x in programSubexpressions(program.focus): yield x
         for x in programSubexpressions(program.structuralChange): yield x
         for x in programSubexpressions(program.leftTriggers): yield x
         for x in programSubexpressions(program.rightTriggers): yield x
     elif isinstance(program, Guard):
-        yield ('GUARD', program)
+        yield (Guard, program)
         for x in programSubexpressions(program.specifications): yield x
     elif isinstance(program, FeatureMatrix):
-        yield ('SPECIFICATION', program)
+        yield (Specification, program)
        
     
 def proposeFragments(problems, verbose = False):
@@ -251,16 +271,16 @@ def proposeFragments(problems, verbose = False):
         ruleSets.append(set([ r for s in problem for r in s ]))
 
     abstractFragments = {
-        'RULE': RuleFragment.abstract,
-        'GUARD': GuardFragment.abstract,
-        'SPECIFICATION': SpecificationFragment.abstract
+        Rule: RuleFragment.abstract,
+        Guard: GuardFragment.abstract,
+        Specification: SpecificationFragment.abstract
     }
 
     # Don't allow fragments that are already in the grammar, for example SPECIFICATION -> MATRIX
     badFragments = {
-        'GUARD': ['GUARD'],
-        'SPECIFICATION': ['MATRIX','CONSTANT','SPECIFICATION','[  ]'],
-        'RULE': ['RULE']
+        Guard: [Guard],
+        Specification: [FeatureMatrix,ConstantPhoneme,Specification,'[  ]'],
+        Rule: [Rule]
         }
 
     startTime = time()
@@ -294,7 +314,7 @@ def proposeFragments(problems, verbose = False):
                 print f
             print ""
 
-    return [ (t, f) for t in fragments for f in fragments[t] ] # if t != 'RULE' ] #and t != 'GUARD' ]
+    return [ (t, f) for t in fragments for f in fragments[t] ] # if t != Rule ] #and t != 'GUARD' ]
 
 def fragmentLikelihood(parameters):
     (problems, fragments, newFragment) = parameters
@@ -326,7 +346,7 @@ def pickFragments(problems, fragments, maximumGrammarSize):
 
     showMostLikelySolutions()
 
-    typeOrdering = ['SPECIFICATION','GUARD','RULE']
+    typeOrdering = [Specification,Guard,Rule]
 
     startTime = time()
     while len(chosenFragments) < maximumGrammarSize:
@@ -383,26 +403,30 @@ class FragmentGrammar():
         self.fCTable = {}
         
         self.likelihoodCalculator = {}
-        self.likelihoodCalculator['RULE'] = lambda r: self.ruleLogLikelihood(r)
-        self.likelihoodCalculator['SPECIFICATION'] = lambda s: self.specificationLogLikelihood(s)
-        self.likelihoodCalculator['GUARD'] = lambda g: self.guardLogLikelihood(g)
-        self.likelihoodCalculator['CONSTANT'] = lambda k: self.constantLogLikelihood(k)
-        self.likelihoodCalculator['MATRIX'] = lambda m: self.matrixLogLikelihood(m)
-        self.likelihoodCalculator['FC'] = lambda fc:  self.fCLogLikelihood(fc)
-        self.likelihoodCalculator['ENDING'] = lambda e: self.endingLogLikelihood(e)
+        self.likelihoodCalculator[Rule] = lambda r: self.ruleLogLikelihood(r)
+        self.likelihoodCalculator[Specification] = lambda s: self.specificationLogLikelihood(s)
+        self.likelihoodCalculator[Guard] = lambda g: self.guardLogLikelihood(g)
+        self.likelihoodCalculator[ConstantPhoneme] = lambda k: self.constantLogLikelihood(k)
+        self.likelihoodCalculator[FeatureMatrix] = lambda m: self.matrixLogLikelihood(m)
+        self.likelihoodCalculator[FC] = lambda fc:  self.fCLogLikelihood(fc)
         
         # different types of fragments
         # fragments of type rule, etc
-        self.ruleFragments = [ f for t,f in fragments if t == 'RULE' ]
-        self.guardFragments = [ f for t,f in fragments if t == 'GUARD' ]
-        self.specificationFragments = [ f for t,f in fragments if t == 'SPECIFICATION' ]
+        self.ruleFragments = normalizeLogDistribution([ (l,f) for t,l,f in fragments if t == Rule ])
+        self.guardFragments = normalizeLogDistribution([ (l,f) for t,l,f in fragments if t == Guard ])
+        self.specificationFragments = normalizeLogDistribution([ (l,f) for t,l,f in fragments if t == Specification ])
+        self.fragments = fragments
 
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
 
+    def __str__(self):
+        return formatTable([ ["%01f"%l,"%s ::="%t.__name__, str(f) ]
+                             for t,l,f in self.fragments])
+
     def fragmentLikelihood(self, program, fragments):
         ll = float('-inf')
-        for fragment in fragments:
+        for lf,fragment in fragments:
             try:
                 m = fragment.match(program)
             except MatchFailure:
@@ -411,7 +435,7 @@ class FragmentGrammar():
             fragmentLikelihood = 0.0
             for childType,child in m:
                 fragmentLikelihood += self.likelihoodCalculator[childType](child)
-            ll = lse(ll, fragmentLikelihood - log(len(fragments)))
+            ll = lse(ll, fragmentLikelihood + lf)
         return ll
         
     def ruleLogLikelihood(self, r):
@@ -419,56 +443,21 @@ class FragmentGrammar():
         if key in self.ruleTable:
             return self.ruleTable[key]
         
-        # pseudo- counts
-        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.ruleFragments)
-        
-        ll = self.fragmentLikelihood(r, self.ruleFragments) + fragmentPenalty
-        ll = lse(ll,
-                 self.fCLogLikelihood(r.focus) +
-                 self.fCLogLikelihood(r.structuralChange) +
-                 self.guardLogLikelihood(r.leftTriggers) +
-                 self.guardLogLikelihood(r.rightTriggers) +
-                 recursivePenalty)
+        ll = self.fragmentLikelihood(r, self.ruleFragments)
         self.ruleTable[key] = ll
         return ll
 
     def fCLogLikelihood(self,s):
         key = unicode(s)
         if key in self.fCTable: return self.fCTable[key]
-        
-        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.specificationFragments)
-        ll = log(0.33) + recursivePenalty
-        if isinstance(s, EmptySpecification):
-            pass
-        elif isinstance(s, FeatureMatrix):
-            ll += self.matrixLogLikelihood(s)
-        elif isinstance(s, ConstantPhoneme):
-            ll += self.constantLogLikelihood(s)
-        else:
-            raise Exception('fCLogLikelihood: got a bad specification!')
-
-        ll = lse(ll,
-                 fragmentPenalty + self.fragmentLikelihood(s, self.specificationFragments))
+        ll = self.fragmentLikelihood(s, self.specificationFragments)
         self.fCTable[key] = ll
         return ll
     
     def specificationLogLikelihood(self, s):
         key = unicode(s)
         if key in self.specificationTable: return self.specificationTable[key]
-
-        # pseudo- counts
-        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.specificationFragments)
-        
-        ll = recursivePenalty
-        if isinstance(s, FeatureMatrix):
-            ll += self.matrixLogLikelihood(s)
-        elif isinstance(s, ConstantPhoneme):
-            ll += self.constantLogLikelihood(s)
-        else:
-            raise Exception('specificationLogLikelihood: got a bad specification!')
-
-        ll = lse(ll,
-                 fragmentPenalty + self.fragmentLikelihood(s, self.specificationFragments))
+        ll = self.fragmentLikelihood(s, self.specificationFragments)
         self.specificationTable[key] = ll
         return ll
 
@@ -499,19 +488,7 @@ class FragmentGrammar():
     def guardLogLikelihood(self, m):
         key = unicode(m)
         if key in self.guardTable: return self.guardTable[key]
-        recursivePenalty, fragmentPenalty = pseudoCountPenalty(5,self.guardFragments)
-        
-        # non- fragment case
-        ll = sum([ self.specificationLogLikelihood(s) for s in m.specifications ]) + recursivePenalty
-        ll += log(0.2) if m.endOfString else log(0.8)
-        if len(m.specifications) == 2:
-            ll += log(0.33) if m.starred else log(0.66)
-        ll += self.guardLengthLogLikelihood(len(m.specifications))
-        # empirical frequencies of guard sizes:
-        # [(0, 0.52), (1, 0.32), (2, 0.16)]
-
-        ll = lse(ll,
-                 self.fragmentLikelihood(m, self.guardFragments) + fragmentPenalty)
+        ll = self.fragmentLikelihood(m, self.guardFragments)
         self.guardTable[key] = ll
         return ll
 
@@ -531,9 +508,16 @@ class FragmentGrammar():
             definePreprocessor(k,v)
 
         
-
-emptyFragmentGrammar = FragmentGrammar()
-# manualFragmentGrammar = FragmentGrammar([('RULE',
+BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0, f)
+                   for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
+                   for f in k.BASEPRODUCTIONS]
+BASEPRODUCTIONS += [(Specification, 0, MatrixFragment(FeatureMatrix([(False,'voice')])))]
+emptyFragmentGrammar = FragmentGrammar(BASEPRODUCTIONS)
+print str(emptyFragmentGrammar)
+r = parseRule('e > a / # _ [ -voice ]* h #')
+print r
+print emptyFragmentGrammar.ruleLogLikelihood(r)
+# manualFragmentGrammar = FragmentGrammar([(Rule,
 #                                           RuleFragment(MatrixFragment()))])
 
 def pseudoCountPenalty(pc, fragments):

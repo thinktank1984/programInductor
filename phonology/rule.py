@@ -39,7 +39,9 @@ SPE-style brackets for rule alternatives.
             k -= 1
         return k
 
-
+# abstract class for focus/change
+class FC():
+    def __init__(self): pass
 
 class Specification():
     def __init__(self): pass
@@ -71,7 +73,7 @@ class Specification():
     def enumeration(b,cost):
         return ConstantPhoneme.enumeration(b,cost) + FeatureMatrix.enumeration(b,cost)
         
-class ConstantPhoneme(Specification):
+class ConstantPhoneme(Specification,FC):
     def __init__(self, p): self.p = p
     def __unicode__(self):
         if self.p == '-': return u"σ"
@@ -120,7 +122,7 @@ class ConstantPhoneme(Specification):
     def sketchEquals(self,v,b):
         return "(extract_constant_sound(%s) == phoneme_%d)"%(v,b.phoneme2index[self.p])
 
-class EmptySpecification():
+class EmptySpecification(Specification,FC):
     def __init__(self): pass
     def __unicode__(self): return u"Ø"
     def __str__(self): return unicode(self).encode('utf-8')
@@ -158,7 +160,7 @@ class EmptySpecification():
     def sketchEquals(self,v,_):
         return "((%s) == null)"%(v)
     
-class FeatureMatrix():
+class FeatureMatrix(Specification,FC):
     def __init__(self, featuresAndPolarities):
         self.featuresAndPolarities = featuresAndPolarities
         self.representation = None # string representation

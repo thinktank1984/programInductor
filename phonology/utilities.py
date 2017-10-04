@@ -176,3 +176,17 @@ def unique(xs):
 def randomlyRemoveOne(xs):
     j = random.choice(range(len(xs)))
     return xs[:j] + xs[j + 1:]
+
+def formatTable(t, separation = 5):
+    columnSizes = [max([len(x[j]) for x in t ])
+                   for j in range(len(t[0])) ]
+    formatted = []
+    for r in t:
+        formatted.append(''.join([ x + ' '*(columnSizes[c] - len(x) + separation)
+                                   for c,x in enumerate(r) ]).strip())
+    return "\n".join(formatted)
+
+
+            
+        
+        
