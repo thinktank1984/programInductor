@@ -15,6 +15,7 @@ class MatchFailure(Exception):
 
 class Fragment():
     def __str__(self): return unicode(self).encode('utf-8')
+    def __repr__(self): return str(self)
     def __eq__(self,other): return unicode(self) == unicode(other)
     def __hash__(self):
         return hash(str(self))
@@ -412,58 +413,69 @@ class FragmentGrammar():
         
         # different types of fragments
         # fragments of type rule, etc
-        self.ruleFragments = normalizeLogDistribution([ (l,f) for t,l,f in fragments if t == Rule ])
-        self.guardFragments = normalizeLogDistribution([ (l,f) for t,l,f in fragments if t == Guard ])
-        self.specificationFragments = normalizeLogDistribution([ (l,f) for t,l,f in fragments if t == Specification ])
-        self.fragments = fragments
+        self.ruleFragments = normalizeLogDistribution([ (l,t,f) for t,l,f in fragments if t == Rule ])
+        self.guardFragments = normalizeLogDistribution([ (l,t,f) for t,l,f in fragments if t == Guard ])
+        self.specificationFragments = normalizeLogDistribution([ (l,t,f) for t,l,f in fragments if t == Specification ])
+        self.fragments = self.ruleFragments + self.guardFragments + self.specificationFragments
 
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
 
     def __str__(self):
-        return formatTable([ ["%01f"%l,"%s ::="%t.__name__, str(f) ]
-                             for t,l,f in self.fragments])
+        return formatTable([ ["%f"%l,"%s ::="%t.__name__, str(f) ]
+                             for l,t,f in self.fragments])
 
     def fragmentLikelihood(self, program, fragments):
-        ll = float('-inf')
-        for lf,fragment in fragments:
+        '''returns (likelihood, {fragment: expected uses})'''
+        z = float('-inf')
+        uses = []
+        for lf,concreteClass,fragment in fragments:
+            assert isinstance(program, concreteClass)
             try:
                 m = fragment.match(program)
             except MatchFailure:
                 continue
             
             fragmentLikelihood = 0.0
+            theseUses = {fragment:1}
             for childType,child in m:
-                fragmentLikelihood += self.likelihoodCalculator[childType](child)
-            ll = lse(ll, fragmentLikelihood + lf)
-        return ll
-        
+                (childLikelihood, childUses) = self.likelihoodCalculator[childType](child)
+                theseUses = mergeCounts(childUses, theseUses)
+                fragmentLikelihood += childLikelihood
+            uses.append((fragmentLikelihood + lf,theseUses))
+            z = lse(z, fragmentLikelihood + lf)
+        expectedUses = {}
+        for ll,u in uses:
+            probabilityOfTheseUses = math.exp(ll - z)
+            expectedUses = mergeCounts(expectedUses, scaleDictionary(probabilityOfTheseUses, u))
+        return z,expectedUses
+
     def ruleLogLikelihood(self, r):
         key = unicode(r)
         if key in self.ruleTable:
             return self.ruleTable[key]
         
-        ll = self.fragmentLikelihood(r, self.ruleFragments)
-        self.ruleTable[key] = ll
-        return ll
+        ll,u = self.fragmentLikelihood(r, self.ruleFragments)
+        self.ruleTable[key] = (ll,u)
+        return ll,u
 
     def fCLogLikelihood(self,s):
         key = unicode(s)
         if key in self.fCTable: return self.fCTable[key]
-        ll = self.fragmentLikelihood(s, self.specificationFragments)
-        self.fCTable[key] = ll
-        return ll
+        ll,u = self.fragmentLikelihood(s, self.specificationFragments)
+        self.fCTable[key] = ll,u
+        return ll,u
     
     def specificationLogLikelihood(self, s):
         key = unicode(s)
         if key in self.specificationTable: return self.specificationTable[key]
-        ll = self.fragmentLikelihood(s, self.specificationFragments)
-        self.specificationTable[key] = ll
-        return ll
+        ll,u = self.fragmentLikelihood(s, self.specificationFragments)
+        self.specificationTable[key] = (ll,u)
+        return ll,u
 
     def constantLogLikelihood(self, k):
         if isinstance(k,ConstantPhoneme):
-            return -log(float(self.numberOfPhonemes))
+            return -log(float(self.numberOfPhonemes)), {}
         else:
             raise Exception('constantLogLikelihood: did not get a constant')
 
@@ -475,7 +487,7 @@ class FragmentGrammar():
     def matrixLogLikelihood(self, m):
         if isinstance(m,FeatureMatrix):
             # empirical probabilities on matrix problems: [(0, 0.3225806451612903), (1, 0.6129032258064516), (2, 0.03225806451612903), (3, 0.03225806451612903)]
-            return len(m.featuresAndPolarities)*(-log(float(self.numberOfFeatures))) + self.matrixSizeLogLikelihood(len(m.featuresAndPolarities))
+            return len(m.featuresAndPolarities)*(-log(float(self.numberOfFeatures))) + self.matrixSizeLogLikelihood(len(m.featuresAndPolarities)),{}
         else:
             raise Exception('matrixLogLikelihood')
 
@@ -488,9 +500,9 @@ class FragmentGrammar():
     def guardLogLikelihood(self, m):
         key = unicode(m)
         if key in self.guardTable: return self.guardTable[key]
-        ll = self.fragmentLikelihood(m, self.guardFragments)
-        self.guardTable[key] = ll
-        return ll
+        ll,u = self.fragmentLikelihood(m, self.guardFragments)
+        self.guardTable[key] = (ll,u)
+        return ll,u
 
     def sketchUniversalGrammar(self,bank):
         from sketchSyntax import definePreprocessor
@@ -507,20 +519,31 @@ class FragmentGrammar():
         for k,v in definitions.iteritems():
             definePreprocessor(k,v)
 
+    def insideOutside(self, frontiers, smoothing = 0):
+        '''frontiers: list of list of rules.
+        returns a new fragment grammar with the same structure but different probabilities'''
+        uses = {}
+        for frontier in frontiers:
+            weightedUses = [ self.ruleLogLikelihood(r) for r in frontier ]
+            uses = reduce(mergeCounts, [uses] + [ scaleDictionary(math.exp(w), u)
+                                                  for w,u in normalizeLogDistribution(weightedUses) ])
+        newFragments = [ (k, safeLog(uses.get(f,0.0) + smoothing), f) for _,k,f in self.fragments ]
+
+        return FragmentGrammar(newFragments)            
+            
+
         
-BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0, f)
+BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0.0, f)
                    for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
                    for f in k.BASEPRODUCTIONS]
-BASEPRODUCTIONS += [(Specification, 0, MatrixFragment(FeatureMatrix([(False,'voice')])))]
-emptyFragmentGrammar = FragmentGrammar(BASEPRODUCTIONS)
-print str(emptyFragmentGrammar)
-r = parseRule('e > a / # _ [ -voice ]* h #')
-print r
-print emptyFragmentGrammar.ruleLogLikelihood(r)
-# manualFragmentGrammar = FragmentGrammar([(Rule,
-#                                           RuleFragment(MatrixFragment()))])
 
-def pseudoCountPenalty(pc, fragments):
-    if len(fragments) == 0:
-        return 0.0,float('-inf')
-    return log(float(pc)/(len(fragments)+pc)),log(float(len(fragments))/(len(fragments)+pc))
+if __name__ == '__main__':
+    BASEPRODUCTIONS += [(Specification, 0, MatrixFragment(FeatureMatrix([(False,'voice')])))]
+    emptyFragmentGrammar = FragmentGrammar(BASEPRODUCTIONS)
+    print str(emptyFragmentGrammar)
+    r = parseRule('e > a / # _ [ -voice ]* h #')
+    print r
+    print emptyFragmentGrammar.ruleLogLikelihood(r)
+    print emptyFragmentGrammar.insideOutside([[r]])
+    print emptyFragmentGrammar.insideOutside([[r]]).ruleLogLikelihood(r)
+

@@ -13,6 +13,8 @@ def mergeCounts(m,n):
     for f in set(m.keys() + n.keys()):
         c[f] = m.get(f,0.0) + n.get(f,0.0)
     return c
+def scaleDictionary(s,d):
+    return dict([ (k,v*s) for k,v in d.iteritems() ])
 def isFinite(x):
     return not (math.isnan(x) or math.isinf(x))
 def lse(x,y):
@@ -28,9 +30,11 @@ def lseList(l):
     for x in l[1:]: a = lse(a,x)
     return a
 def normalizeLogDistribution(d):
-    z = lseList([w for w,_ in d ])
-    return [(w-z,x) for w,x in d ]
-
+    z = lseList([t[0] for t in d ])
+    return [(t[0]-z,) + t[1:] for t in d ]
+def safeLog(x):
+    try: return math.log(x)
+    except ValueError: return float('-inf')
 
 def randomTestSplit(data,ratio):
     """ratio: what fraction is testing data. returns training,test"""
