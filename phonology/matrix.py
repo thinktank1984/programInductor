@@ -224,7 +224,7 @@ class UnderlyingProblem():
                           Guard('L',False,False,[]),
                           Guard('R',True,False,[]),
                           0)]
-        sketchUniversalGrammar(universal,self.bank)
+        #sketchUniversalGrammar(universal,self.bank)
 
         # guess the size of each stem to be its corresponding smallest observation length
         if morphologicalCosts == None:
