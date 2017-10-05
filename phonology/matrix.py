@@ -66,7 +66,7 @@ class UnderlyingProblem():
         _r = r.makeDefinition(self.bank)
         condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank), self.maximumObservationLength + 1)))
         try:
-            output = self.solveSketch(self.bank, self.maximumObservationLength, self.maximumObservationLength)
+            output = self.solveSketch(self.bank)
         except SynthesisFailure:
             print "applyRuleUsingSketch: UNSATISFIABLE for %s %s"%(u,r)
             assert False
