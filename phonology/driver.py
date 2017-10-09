@@ -3,8 +3,10 @@ from countingProblems import CountingProblem
 from utilities import *
 from parseSPE import parseSolution
 
+
 from matrix import *
 from randomSampleSolver import RandomSampleSolver
+from incremental import IncrementalSolver
 
 import argparse
 from multiprocessing import Pool
@@ -150,11 +152,9 @@ def handleProblem(parameters):
                 RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 18).solve(numberOfWorkers = parameters['cores'])
                 assert False
             elif parameters['incremental']:
-                ss = UnderlyingProblem(p.data).incrementallySolve(windowSize = parameters['window'],
-                                                                  beam = parameters['beam'],
-                                                                  eager = parameters['eager'],
-                                                                  saveProgressTo = parameters['save'],
-                                                                  loadProgressFrom = parameters['restore'])
+                ss = IncrementalSolver(p.data,parameters['window']).\
+                     incrementallySolve(saveProgressTo = parameters['save'],
+                                        loadProgressFrom = parameters['restore'])
             else:
                 ss = UnderlyingProblem(p.data).counterexampleSolution()
             print "ss = "
