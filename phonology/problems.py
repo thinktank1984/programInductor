@@ -1349,9 +1349,6 @@ NOTE: This problem set had a bug in it that Tim discovered.
 So I have replaced it with /d̪/
 /t/ might actually also be a dental
 So I have replaced it with /t̪/
-The fricative /ž/ alternates with /č/ (not a stop but a affricate). This is a bug - it should be a stop
-Call it /č|/
-Also introduce /ǰ|/, also modeled as a stop
 feminine suffix: ə
 word final devoicing
 in between sonants voiced fricatives become stops

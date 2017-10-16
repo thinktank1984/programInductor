@@ -27,7 +27,7 @@ class RandomSampleSolver():
             while time() - startTime < self.timeout:
                 # Sample another group of data
                 size = random.choice(range(self.lower, self.upper + 1))
-                startingPoint = choice(range(len(self.data) - size + 1))
+                startingPoint = 0#choice(range(len(self.data) - size + 1))
                 endingPoint = startingPoint + size
                 subset = self.data[startingPoint:endingPoint]
 
