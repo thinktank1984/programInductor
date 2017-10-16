@@ -126,8 +126,8 @@ featureMap = {
     u"q": [uvular,stop],
     u"N": [uvular,nasal,voice],
     u"G": [uvular,stop,voice],
-    u"ʔ": [laryngeal,stop,sonorant],
-    u"h": [laryngeal,fricative,sonorant],
+    u"ʔ": [laryngeal,stop,sonorant,low],
+    u"h": [laryngeal,fricative,sonorant,low],
     u"ħ": [pharyngeal,fricative,sonorant],
 
     # glides
