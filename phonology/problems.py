@@ -609,7 +609,14 @@ k ---> y / [  ] _
      (u"kosiri",	u"noyosiriti"),
      (u"pisiro",	u"nowisiroti"),
      (u"porita",	u"noworitati")
-    ]))
+    ],
+    solutions = [
+        '''
+ + stem + 
+no + stem + ti
+p > w / V_V
+k > y / V_V
+        ''']))
 
 underlyingProblems.append(Problem(
     u'''
@@ -640,7 +647,11 @@ Phonological rules:
      (u"koina",),
      (u"ɣočuuka",),
      (u"ɣokaya",),
-     (u"koɣaya",)]))
+     (u"koɣaya",)],
+    solutions = ['''
+ɣo + stem + a
+ɣ ---> k /  _ o [ -stop ]
+''']))
 
 underlyingProblems.append(Problem(
     u'''
