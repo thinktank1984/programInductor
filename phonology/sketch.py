@@ -41,8 +41,6 @@ def ruleEqual(p,q): return p == q
 def alternationEqual(p,q): return p == q
 @sketchImplementation("is_deletion_rule")
 def isDeletionRule(r): return r.structuralChange == None
-@sketchImplementation("fix_structural_change")
-def fixStructuralChange(r): pass
 
 def makeConstantVector(v):
     return Array(map(Constant,v))

@@ -21,14 +21,8 @@ class IncrementalSolver(UnderlyingProblem):
 
         originalRules = list(rules) # save it for later
 
-        if True:
-            # Use the general-purpose sketch forward model implementation
-            rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
-                      for rule in rules ]
-        else:
-            # Compile each rule into its own special function
-            rules = [ (compileRuleToSketch(self.bank,rule) if rule != None else Rule.sample())
-                      for rule in rules ]
+        rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
+                  for rule in rules ]
         stems = [ Morph.sample() for _ in self.data ]
         prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
         suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]

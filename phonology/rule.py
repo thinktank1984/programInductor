@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from problems import interactingProblems
-from sketchSyntax import define, FunctionCall, Constant
+from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition
 from features import FeatureBank,featureMap,tokenize
 from latex import latexWord
 from morph import Morph
@@ -672,12 +672,17 @@ class Rule():
     # Produces sketch object
     @staticmethod
     def sample():
-        return define("Rule", FunctionCall("unknown_rule",[]))
+        return define("Rule", FunctionCall("unknown_rule",[]), globalToHarnesses = True)
 
     # Produces a rule object from a sketch output
     @staticmethod
     def parse(bank, output, variable):
-        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), copyOffset=([0-9\-\(\)]+)\)' % str(variable)
+        if isinstance(variable, Variable):
+            pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), copyOffset=([0-9\-\(\)]+)\)' % str(variable)
+        else:
+            assert isinstance(variable, FunctionCall) and len(variable.x) == 0
+            # Search for the global definition, get the unique variable name it corresponds to, and parse that
+            return Rule.parse(bank, output, getGeneratorDefinition(variable.f, output))            
         m = re.search(pattern, output)
         if not m:
             raise Exception('Failure parsing rule')

@@ -166,6 +166,9 @@ class Model():
         self.statements = []
         self.quantifiedConditions = 0
         self.preprocessorDefinitions = {}
+        self.auxiliaryHarnesses = []
+    def auxiliaryHarness(self,k):
+        self.auxiliaryHarnesses.append(k)
     def preprocessorDefinition(self,k,v):
         self.preprocessorDefinitions[k] = v
     def flip(self, p = 0.5):
@@ -181,11 +184,16 @@ class Model():
                                                                                  arguments,
                                                                                  body))
         return lambda *a: FunctionCall("specialDefinedFunction_%d"%k,a) 
-    def define(self, ty, value):
+    def define(self, ty, value, globalToHarnesses = False):
         name = "__DEFINITION__%d"%self.definitionCounter
+        globalName = "__GLOBALDEFINITION__%d"%self.definitionCounter
         self.definitionCounter += 1
-        self.statements.append(Definition(ty, name, value))
-        return Variable(name)
+        if globalToHarnesses:
+            self.definedFunctions.append('%s %s() { return %s; }'%(ty,globalName,value))
+            return FunctionCall(globalName, [])
+        else:
+            self.statements.append(Definition(ty, name, value))
+            return Variable(name)
     def condition(self, predicate):
         self.statements.append(Assertion(predicate))
     def quantifiedCondition(self, predicate):
@@ -213,6 +221,10 @@ class Model():
         for a in self.statements:
             h += "\t" + a.sketch() + "\n"
         h += "}\n"
+
+        for j,a in enumerate(self.auxiliaryHarnesses):
+            h += "\nharness void auxiliaryHarness_%d() {\ncondition(%s)\n}\n"%(j,a.sketch())
+            
         return h
     @staticmethod
     def Global():
@@ -232,8 +244,8 @@ def unknownInteger(numberOfBits = None):
 def ite(condition,yes,no):
     return Conditional(condition,yes,no)
 
-def define(ty, value):
-    return currentModel.define(ty, value)
+def define(ty, value, globalToHarnesses = False):
+    return currentModel.define(ty, value, globalToHarnesses = globalToHarnesses)
 def defineFunction(returnType,arguments,body):
     return currentModel.defineFunction(returnType,arguments,body)
 def definePreprocessor(k,v):
@@ -323,3 +335,13 @@ def parseMinimalCostValues(output):
              v = vp
     return v
              
+def getGeneratorDefinition(generatorName, output):
+    readingGenerator = False
+    for l in output.splitlines():
+        if l.startswith('void %s'%generatorName):
+            readingGenerator = True
+        elif readingGenerator and '_out = _out' in l:
+            m = re.search('_out = _(.*);',l)
+            assert m
+            return Variable('_' + m.group(1))
+            
