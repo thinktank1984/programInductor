@@ -6,6 +6,7 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from time import time
 import random
 from sketch import setGlobalTimeout
+from sketchSyntax import auxiliaryCondition
 import traceback
 
 
@@ -13,6 +14,9 @@ class IncrementalSolver(UnderlyingProblem):
     def __init__(self, data, window, bank = None):
         UnderlyingProblem.__init__(self, data, bank = bank)
         self.windowSize = window
+
+        self.fixedMorphologyThreshold = 10
+        self.fixedUnderlyingFormThreshold = 10
 
     def sketchChangeToSolution(self, solution, rules, allTheData = None):
         assert allTheData != None
@@ -23,49 +27,64 @@ class IncrementalSolver(UnderlyingProblem):
 
         rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
                   for rule in rules ]
-        stems = [ Morph.sample() for _ in self.data ]
-        prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
-        suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
+        prefixes = []
+        suffixes = []
 
-        # Should we hold the morphology fixed?
-        fixedMorphologyThreshold = 10
+        # Calculate the random variables for the morphology
+        # Some of these will be constant if we have seen them enough
+        
         morphologicalCosts = []
         for j in range(self.numberOfInflections):
-            # Do we have at least two examples for this particular inflection?
-            # todo: this calculation is wrong - it should be based on the solution we are modifying
+            # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
             inflectionExamples = len([ None for l in allTheData if l[j] != None ])
             
-            if inflectionExamples >= fixedMorphologyThreshold:
+            if inflectionExamples >= self.fixedMorphologyThreshold:
                 print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
-                condition(wordEqual(prefixes[j], solution.prefixes[j].makeConstant(self.bank)))
-                condition(wordEqual(suffixes[j], solution.suffixes[j].makeConstant(self.bank)))
                 morphologicalCosts.append(len(solution.prefixes[j]) + \
                                           len(solution.suffixes[j]))
-            else: morphologicalCosts.append(None)
+                prefixes.append(solution.prefixes[j].makeDefinition(self.bank))
+                suffixes.append(solution.suffixes[j].makeDefinition(self.bank))
+            else:
+                morphologicalCosts.append(None)
+                prefixes.append(Morph.sample())
+                suffixes.append(Morph.sample())
             if inflectionExamples == 0:
                 # Never seen this inflection: give it the empty morphology
                 print "Clamping the morphology of inflection %d to be empty"%j
                 condition(wordLength(prefixes[j]) == 0)
                 condition(wordLength(suffixes[j]) == 0)
 
-        # After underlyingFormLag examples passed an observation, we stop trying to modify the underlying form.
-        # Set underlyingFormLag = infinity to disable this heuristic.
-        underlyingFormLag = 10
-        for stem, observation in zip(stems, self.data):
-            observationIndex = allTheData.index(observation)
-            if observationIndex < len(allTheData) - underlyingFormLag and observationIndex < len(solution.underlyingForms):
-                oldStem = solution.underlyingForms[observationIndex]
-                print "\t\t(clamping UR for observation %s to %s)"%(observation,oldStem)
-                condition(wordEqual(stem, oldStem.makeConstant(self.bank)))
-
+        # Construct the random variables for the stems
+        # After fixedUnderlyingFormThreshold examples passed an observation, we stop trying to modify the underlying form.
+        # Set fixedUnderlyingFormThreshold = infinity to disable this heuristic.
+        observationsWithFixedUnderlyingForms = [ o for j,o in enumerate(allTheData)
+                                                 if j < len(allTheData) - self.fixedUnderlyingFormThreshold \
+                                                 and j < len(solution.underlyingForms) ]
+        for j,observation in enumerate(observationsWithFixedUnderlyingForms):
+            # we need to also take into account the length of these auxiliary things because they aren't necessarily in self.data
+            if max([ len(o) for o in observation if o != None ]) > self.maximumObservationLength: continue
+            
+            print "\t\t(clamping UR for observation %s to %s)"%(observation,solution.underlyingForms[j])
+            stem = solution.underlyingForms[j].makeConstant(self.bank)
+            for i,o in enumerate(observation):
+                if o == None: continue
+                phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
+                auxiliaryCondition(wordEqual(o.makeConstant(self.bank),
+                                             applyRules(rules, phonologicalInput, len(o) + 1)))
+        stems = [ Morph.sample() for observation in self.data
+                  if not (observation in observationsWithFixedUnderlyingForms) ]
+        dataToConditionOn = [ d for d in self.data
+                              if not (d in observationsWithFixedUnderlyingForms)]
+            
         # Only add in the cost of the new rules that we are synthesizing
         self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None],
                                stems, prefixes, suffixes,
                                morphologicalCosts = morphologicalCosts)
-        self.conditionOnData(rules, stems, prefixes, suffixes)
+        self.conditionOnData(rules, stems, prefixes, suffixes,
+                             observations = dataToConditionOn)
 
         try:
-            output = self.solveSketch()#minimizeBound = 50)
+            output = self.solveSketch()
         except SynthesisFailure,SynthesisTimeout:
             print "\t(no modification possible)"
             # Because these are executed in parallel, do not throw an exception
@@ -78,16 +97,20 @@ class IncrementalSolver(UnderlyingProblem):
             print makeSketchSkeleton()
             assert False
 
-        newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
-                               suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
-                               underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
-                               rules = [ (Rule.parse(self.bank, output, r) if rp == None else rp)
-                                                 for r,rp in zip(rules,originalRules) ],
+        newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) \
+                                            if morphologicalCosts[j] == None \
+                                            else solution.prefixes[j] \
+                                            for j,p in enumerate(prefixes) ],
+                               suffixes = [ Morph.parse(self.bank, output, s) \
+                                            if morphologicalCosts[j] == None \
+                                            else solution.suffixes[j] \
+                                            for j,s in enumerate(suffixes) ],
+                               rules = [ Rule.parse(self.bank, output, r) if rp == None else rp
+                                         for r,rp in zip(rules,originalRules) ],
                                adjustedCost = loss)
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
 
-        #newSolution.verifyRuleCompilation(self.bank,self.data)
         flushEverything()
         return newSolution.withoutUselessRules()
 
@@ -207,6 +230,7 @@ class IncrementalSolver(UnderlyingProblem):
                             scoreDictionary['modelCost'] + scoreDictionary['everythingCost'],
                             scoreDictionary['modelCost'] + scoreDictionary['invariantCost'],
                             scoreDictionary['solution'])
+                    eager = False
                     if eager: costRanking = ['everythingCost','invariantCost']
                     else:     costRanking = ['invariantCost','everythingCost']
                     print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)

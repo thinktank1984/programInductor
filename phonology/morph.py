@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from sketchSyntax import define, FunctionCall
-from sketch import makeConstantWord
+from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant
+from sketch import makeConstantWord, getGeneratorDefinition
 from features import FeatureBank,featureMap
 from utilities import *
 
@@ -36,10 +36,14 @@ class Morph():
 
     @staticmethod
     def sample():
-        return define("Word", FunctionCall("unknown_word",[]))
+        return define("Word", FunctionCall("unknown_word",[]), globalToHarnesses = True)
 
     def makeConstant(self, bank):
         return makeConstantWord(bank, "".join(self.phonemes))
+
+    # Returns a variable that refers to a sketch object
+    def makeDefinition(self, bank):
+        return globalConstant("Word", self.makeConstant(bank))
 
     def fst(self,bank):
         return ''.join([bank.phoneme2fst(p) for p in self.phonemes ])
@@ -50,6 +54,11 @@ class Morph():
 
     @staticmethod
     def parse(bank, output, variable):
+        if variable.definingFunction != None:
+            # Search for the global definition, get the unique variable name it corresponds to, and parse that
+            variable, output = getGeneratorDefinition(variable.definingFunction, output)
+            return Morph.parse(bank, output, variable)
+        
         pattern = 'Word.* %s.* = new Word\(l=([0-9]+)\);'%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Could not find word %s in:\n%s'%(variable,output))

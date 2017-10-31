@@ -23,7 +23,7 @@ class Expression:
     def __lt__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
         return LessThan(self,o)
-    def __str__(self): return self.web()
+    def __str__(self): return self.sketch()
     def __radd__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
         return Addition(self,o)
@@ -34,13 +34,19 @@ class FunctionCall(Expression):
         self.x = arguments
     def sketch(self):
         return str(self.f) + "(" + ", ".join([a.sketch() for a in self.x ]) + ")"
-    def web(self):
-        return str(self.f) + "(" + ", ".join([a.web() for a in self.x ]) + ")"
 
 class Variable(Expression):
-    def __init__(self,n): self.n = n
+    def __init__(self,n,definingFunction = None):
+        self.n = n
+        self.definingFunction = definingFunction
+    def __str__(self):
+        if self.definingFunction == None: return self.n
+        return "#<%s : %s>"%(self.n,self.definingFunction)
+    def registerDefiningFunction(self,fn):
+        assert self.definingFunction == None
+        self.definingFunction = fn
+        return self        
     def sketch(self): return self.n
-    def web(self): return self.n
 
 class Constant(Expression):
     def __init__(self,k): self.k = str(k)
@@ -167,6 +173,7 @@ class Model():
         self.quantifiedConditions = 0
         self.preprocessorDefinitions = {}
         self.auxiliaryHarnesses = []
+        self.globalConstants = []
     def auxiliaryHarness(self,k):
         self.auxiliaryHarnesses.append(k)
     def preprocessorDefinition(self,k,v):
@@ -183,14 +190,18 @@ class Model():
                                                                                  k,
                                                                                  arguments,
                                                                                  body))
-        return lambda *a: FunctionCall("specialDefinedFunction_%d"%k,a) 
+        return lambda *a: FunctionCall("specialDefinedFunction_%d"%k,a)
+    def globalConstant(self, ty, value):
+        name = "__globalConstant_%s_%d__"%(ty,len(self.globalConstants))
+        self.globalConstants.append("%s %s = %s;"%(ty,name,value.sketch()))
+        return Variable(name)
     def define(self, ty, value, globalToHarnesses = False):
         name = "__DEFINITION__%d"%self.definitionCounter
         globalName = "__GLOBALDEFINITION__%d"%self.definitionCounter
         self.definitionCounter += 1
         if globalToHarnesses:
             self.definedFunctions.append('%s %s() { return %s; }'%(ty,globalName,value))
-            return FunctionCall(globalName, [])
+            return self.globalConstant(ty, FunctionCall(globalName, [])).registerDefiningFunction(globalName)
         else:
             self.statements.append(Definition(ty, name, value))
             return Variable(name)
@@ -217,13 +228,16 @@ class Model():
 
         h += "\n".join(self.definedFunctions)
 
-        h += "\nharness void main(int __ASSERTIONCOUNT__) {\n"
+        globalDefinitionPrefix = "\n".join(self.globalConstants)
+
+        h += "\nharness void main() {\n"
+        h += globalDefinitionPrefix + "\n"
         for a in self.statements:
             h += "\t" + a.sketch() + "\n"
         h += "}\n"
 
         for j,a in enumerate(self.auxiliaryHarnesses):
-            h += "\nharness void auxiliaryHarness_%d() {\ncondition(%s)\n}\n"%(j,a.sketch())
+            h += "\nharness void auxiliaryHarness_%d() {\n%s\n assert (%s);\n}\n"%(j,globalDefinitionPrefix, a.sketch())
             
         return h
     @staticmethod
@@ -246,6 +260,8 @@ def ite(condition,yes,no):
 
 def define(ty, value, globalToHarnesses = False):
     return currentModel.define(ty, value, globalToHarnesses = globalToHarnesses)
+def globalConstant(ty, value):
+    return currentModel.globalConstant(ty, value)
 def defineFunction(returnType,arguments,body):
     return currentModel.defineFunction(returnType,arguments,body)
 def definePreprocessor(k,v):
@@ -255,6 +271,9 @@ def currentModelPreprocessorDefinitions():
 
 def condition(predicate):
     currentModel.condition(predicate)
+
+def auxiliaryCondition(predicate):
+    currentModel.auxiliaryHarness(predicate)
 
 def quantifiedCondition(predicate):
     currentModel.quantifiedCondition(predicate)
@@ -337,11 +356,14 @@ def parseMinimalCostValues(output):
              
 def getGeneratorDefinition(generatorName, output):
     readingGenerator = False
+    body = []
     for l in output.splitlines():
         if l.startswith('void %s'%generatorName):
             readingGenerator = True
-        elif readingGenerator and '_out = _out' in l:
-            m = re.search('_out = _(.*);',l)
-            assert m
-            return Variable('_' + m.group(1))
-            
+        elif readingGenerator:
+            body.append(l)
+            if '_out = _out' in l:
+                m = re.search('_out = _(.*);',l)
+                assert m
+                return Variable('_' + m.group(1)), "\n".join(body)
+

@@ -10,12 +10,12 @@ int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 #define True 1
 #define False 0
 
-struct Sound {
+struct Sound {//@Immutable("")
   bit[NUMBEROFFEATURES] f;
 }
 
 
-struct Word {
+struct Word {//@Immutable("")
   int l;
   Sound[l] s;
 }
@@ -79,12 +79,13 @@ generator Word unknown_word() {
   return w;
 }
 
-struct Specification{}
-struct Vector extends Specification{
+struct Specification{//@Immutable("")
+}
+struct Vector extends Specification{//@Immutable("")
   bit[NUMBEROFFEATURES] mask;
   bit[NUMBEROFFEATURES] preference;
 }
-struct ConstantPhoneme extends Specification{
+struct ConstantPhoneme extends Specification{//@Immutable("")
   Sound phoneme;
 }
 
@@ -344,7 +345,7 @@ int guard_specification_cost(Specification s) {
   }
 }
 
-struct Guard {
+struct Guard {//@Immutable("")
   bit endOfString; // is it constrains to be at the end of string?
   bit starred; // is it of the form spec*spec2
   Specification spec; // Primary specification - holds immediately adjacent
@@ -358,7 +359,7 @@ bit guard_equal(Guard p, Guard q) {
     specification_equal(p.spec2, q.spec2);
 }
 
-struct Rule {
+struct Rule {//@Immutable("")
   Specification focus;
   Specification structural_change;
   Guard left_trigger;

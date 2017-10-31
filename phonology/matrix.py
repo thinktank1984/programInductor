@@ -109,10 +109,11 @@ class UnderlyingProblem():
 
             condition(wordEqual(surface.makeConstant(self.bank), prediction))
     
-    def conditionOnData(self, rules, stems, prefixes, suffixes):
+    def conditionOnData(self, rules, stems, prefixes, suffixes, observations = None):
         '''Conditions on inflection matrix.'''
-        for i in range(len(stems)):
-            self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
+        if observations == None: observations = self.data
+        for stem, observation in zip(stems, observations):
+            self.conditionOnStem(rules, stem, prefixes, suffixes, observation)
     
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''

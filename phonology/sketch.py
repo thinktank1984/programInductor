@@ -48,8 +48,7 @@ def makeConstantMatrix(m):
     return Array([ makeConstantVector(v) for v in m ])
 def makeConstantWord(bank, w):
     w = bank.variablesOfWord(w)
-    w = Array([ Variable(v) for v in w ])
-    return makeWord(w)
+    return Constant('(new Word(l = %d, s = {%s}))'%(len(w),",".join(w)))
     
 
 def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
@@ -121,7 +120,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     flushEverything()
     
     output = open(outputFile,'r').read()
-    if not leavitt:
+    if False and not leavitt:
         os.remove(temporarySketchFile)
         os.remove(outputFile)
 
