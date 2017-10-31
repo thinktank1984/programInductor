@@ -167,7 +167,7 @@ def handleProblem(parameters):
                                                         testing = parameters['testing'],
                                                         inductiveBiases = parameters['universalGrammar'])
         if not isinstance(ss,list): ss = [ss]
-        ss = [s.rules for s in ss ] # just save the rules
+        
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
 
@@ -176,7 +176,7 @@ def handleProblem(parameters):
         handle.close()
     
     if ss != None and parameters['top'] > 1 and parameters['testing'] == 0.0:
-        dumpPickle(ss, "pickles/matrix_"+str(problemIndex)+".p")
+        dumpPickle(ss, "pickles/"+str(problemIndex)+".p")
     if accuracy != None and compression != None:
         parameters['accuracy'] = accuracy
         parameters['compression'] = compression
@@ -265,7 +265,7 @@ if __name__ == '__main__':
                   for testing in map(float,arguments.hold.split(',')) ]
     print parameters
     
-    if arguments.cores > 1 and False:
+    if arguments.cores > 1 and arguments.problem == 'integration':
         Pool(arguments.cores).map(handleProblem, parameters)
     else:
         map(handleProblem, parameters)
