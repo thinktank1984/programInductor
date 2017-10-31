@@ -156,7 +156,8 @@ def handleProblem(parameters):
                      incrementallySolve(saveProgressTo = parameters['save'],
                                         loadProgressFrom = parameters['restore'])
             else:
-                ss = UnderlyingProblem(p.data).counterexampleSolution()
+                ss = UnderlyingProblem(p.data).counterexampleSolution(k = parameters['top'],
+                                                                      threshold = parameters['threshold'])
             print "ss = "
             print ss
         else:

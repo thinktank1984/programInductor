@@ -7,7 +7,7 @@ from latex import latexWord
 from morph import Morph
 from utilities import *
 
-from Panini import *
+#from Panini import *
 
 import re
 from random import choice,random
