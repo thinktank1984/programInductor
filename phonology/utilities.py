@@ -15,6 +15,8 @@ def mergeCounts(m,n):
     return c
 def scaleDictionary(s,d):
     return dict([ (k,v*s) for k,v in d.iteritems() ])
+def isNumber(x):
+    return isinstance(x, (int, long, float, complex))
 def isFinite(x):
     return not (math.isnan(x) or math.isinf(x))
 def lse(x,y):
@@ -29,9 +31,9 @@ def lseList(l):
     a = l[0]
     for x in l[1:]: a = lse(a,x)
     return a
-def normalizeLogDistribution(d):
-    z = lseList([t[0] for t in d ])
-    return [(t[0]-z,) + t[1:] for t in d ]
+def normalizeLogDistribution(d, index = 0):
+    z = lseList([t[index] for t in d ])
+    return [t[:index] + (t[index]-z,) + t[index + 1:] for t in d ]
 def safeLog(x):
     try: return math.log(x)
     except ValueError: return float('-inf')

@@ -45,6 +45,7 @@ class RuleFragment(Fragment):
     def __init__(self, focus, change, left, right):
         self.focus, self.change, self.left, self.right = focus, change, left, right
         self.logPrior = focus.logPrior + change.logPrior + left.logPrior + right.logPrior
+        assert isNumber(self.logPrior)
     def match(self,program):
         return self.focus.match(program.focus) + self.change.match(program.structuralChange) + self.left.match(program.leftTriggers) + self.right.match(program.rightTriggers)
     def __unicode__(self):
@@ -99,6 +100,7 @@ class FCFragment(Fragment):
     def __init__(self, child, logPrior = None):
         self.child = child
         self.logPrior = child.logPrior if logPrior == None else logPrior
+        assert isNumber(self.logPrior)
 
     def __unicode__(self): return unicode(self.child)
 
@@ -122,8 +124,6 @@ class FCFragment(Fragment):
         fragments = []
         if unicode(p) != unicode(q):
             fragments += [VariableFragment(FC)]
-        # if isinstance(p,EmptySpecification) and isinstance(q,EmptySpecification):
-        #     fragments += [FCFragment(EmptySpecification(), -1)]
         if (not isinstance(p,EmptySpecification)) and (not isinstance(q,EmptySpecification)):
             fragments += SpecificationFragment.abstract(p,q)
         return fragments
@@ -136,6 +136,7 @@ class SpecificationFragment(Fragment):
     def __init__(self, child, logPrior = None):
         self.child = child
         self.logPrior = child.logPrior if logPrior == None else logPrior
+        assert isNumber(self.logPrior)
 
     def __unicode__(self): return unicode(self.child)
 
@@ -163,19 +164,24 @@ class MatrixFragment(Fragment):
     def __init__(self, child, logPrior = None):
         self.child = child
         self.childUnicode = unicode(child)
-        self.logPrior = None#child.logPrior if logPrior == None else logPrior
+        self.logPrior = child.logPrior if logPrior == None else logPrior
+        assert isNumber(self.logPrior)
 
     def __unicode__(self): return self.childUnicode
 
     def match(self, program):
         if unicode(program) == self.childUnicode: return []
         raise MatchFailure()
+
+    @staticmethod
+    def fromFeatureMatrix(m):
+        return MatrixFragment(m, EMPTYFRAGMENTGRAMMAR.matrixLogLikelihood(m)[0])
         
     @staticmethod
     def abstract(p,q):
         if unicode(p) == unicode(q):
             if len(p.featuresAndPolarities) < 3:
-                return [MatrixFragment(p, emptyFragmentGrammar.matrixLogLikelihood(p))]
+                return [MatrixFragment.fromFeatureMatrix(p)]
             else:
                 return [] # prefer matrix fragments that are short
         else:
@@ -202,6 +208,7 @@ class GuardFragment(Fragment):
         self.logPrior = sum([s.logPrior for s in specifications ])
         if starred: self.logPrior -= 1.0
         if endOfString: self.logPrior -= 1.0
+        assert isNumber(self.logPrior)
 
         self.specifications = specifications
         self.starred = starred
@@ -264,13 +271,7 @@ def programSubexpressions(program):
         yield (Specification, program)
        
     
-def proposeFragments(problems, verbose = False):
-    ruleSets = []
-    for problem in problems:
-        # problem should be a list of solutions
-        # each solution should be a list of rules
-        ruleSets.append(set([ r for s in problem for r in s ]))
-
+def proposeFragments(ruleSets, verbose = False):
     abstractFragments = {
         Rule: RuleFragment.abstract,
         Guard: GuardFragment.abstract,
@@ -279,10 +280,13 @@ def proposeFragments(problems, verbose = False):
 
     # Don't allow fragments that are already in the grammar, for example SPECIFICATION -> MATRIX
     badFragments = {
-        Guard: [Guard],
-        Specification: [FeatureMatrix,ConstantPhoneme,Specification,'[  ]'],
-        Rule: [Rule]
+        Guard: [VariableFragment(Guard)],
+        Specification: [MatrixFragment(FeatureMatrix([]),0)],
+        Rule: []
         }
+    badFragments[Guard] += [ f for _,_,f in EMPTYFRAGMENTGRAMMAR.guardFragments ]
+    badFragments[Rule] += [ f for _,_,f in EMPTYFRAGMENTGRAMMAR.ruleFragments ]
+    badFragments[Specification] += [ f for _,_,f in EMPTYFRAGMENTGRAMMAR.specificationFragments ]
 
     startTime = time()
     fragments = {} # map from type to a set of fragments
@@ -294,10 +298,9 @@ def proposeFragments(problems, verbose = False):
                         fragments[pt] = fragments.get(pt,set([]))
                         for qt,qf in programSubexpressions(q):
                             if pt != qt: continue
-
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             newFragments = [ f for f in abstractFragments[pt](pf,qf)
-                                             if not (str(f) in badFragments[pt]) ]
+                                             if not (f in badFragments[pt]) ]
                             # if [ f for f in newFragments if "instance at" in str(f) ]:
                             #     print pt,pf
                             #     print qt,qf
@@ -383,13 +386,30 @@ def pickFragments(problems, fragments, maximumGrammarSize):
     print "Search time:",(time() - startTime),"seconds"
     return chosenFragments
 
-def induceGrammar(problems, maximumGrammarSize = 20):
-    fragments = proposeFragments(problems, verbose = True)
-    p = problems
-    picker = pickFragments
-    chosenFragments = picker(p, fragments, maximumGrammarSize)
+def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 20, smoothing = 1.0):
+    fragments = proposeFragments(ruleEquivalenceClasses, verbose = True)
 
-    return FragmentGrammar(chosenFragments)
+    currentGrammar = EMPTYFRAGMENTGRAMMAR
+    previousDescriptionLength = float('inf')
+
+    while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
+        candidates = []
+        for (t,f) in fragments:
+            newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
+                         estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
+            newScore = newGrammar.AIC(ruleEquivalenceClasses)
+            candidates.append((newScore,newGrammar))
+        (bestScore,bestGrammar) = min(candidates)
+        if bestScore <= previousDescriptionLength:
+            previousDescriptionLength = bestScore
+            currentGrammar = bestGrammar
+            print "Updated grammar to:"
+            print bestGrammar
+        else:
+            print "No improvement possible"
+            break
+        
+    return currentGrammar
             
 
 class FragmentGrammar():
@@ -413,23 +433,29 @@ class FragmentGrammar():
         
         # different types of fragments
         # fragments of type rule, etc
-        self.ruleFragments = normalizeLogDistribution([ (l,t,f) for t,l,f in fragments if t == Rule ])
-        self.guardFragments = normalizeLogDistribution([ (l,t,f) for t,l,f in fragments if t == Guard ])
-        self.specificationFragments = normalizeLogDistribution([ (l,t,f) for t,l,f in fragments if t == Specification ])
-        self.fragments = self.ruleFragments + self.guardFragments + self.specificationFragments
-
+        self.ruleFragments = normalizeLogDistribution([ f for f in fragments if f[0] == Rule ],
+                                                      index = 1)
+        self.guardFragments = normalizeLogDistribution([ f for f in fragments if f[0] == Guard ],
+                                                       index = 1)
+        self.specificationFragments = normalizeLogDistribution([ f for f in fragments if f[0] == Specification ],
+                                                               index = 1)
+        self.focusChangeFragments = normalizeLogDistribution([ f for f in fragments if f[0] == FC ],
+                                                             index = 1)
+        assert len(fragments) == len(self.ruleFragments) + len(self.guardFragments) + len(self.specificationFragments) + len(self.focusChangeFragments)
+        self.fragments = self.ruleFragments + self.guardFragments + self.specificationFragments + self.focusChangeFragments
+        
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
 
     def __str__(self):
         return formatTable([ ["%f"%l,"%s ::="%t.__name__, str(f) ]
-                             for l,t,f in self.fragments])
+                             for t,l,f in self.fragments])
 
     def fragmentLikelihood(self, program, fragments):
         '''returns (likelihood, {fragment: expected uses})'''
         z = float('-inf')
         uses = []
-        for lf,concreteClass,fragment in fragments:
+        for concreteClass,lf,fragment in fragments:
             assert isinstance(program, concreteClass)
             try:
                 m = fragment.match(program)
@@ -462,7 +488,7 @@ class FragmentGrammar():
     def fCLogLikelihood(self,s):
         key = unicode(s)
         if key in self.fCTable: return self.fCTable[key]
-        ll,u = self.fragmentLikelihood(s, self.specificationFragments)
+        ll,u = self.fragmentLikelihood(s, self.focusChangeFragments)
         self.fCTable[key] = ll,u
         return ll,u
     
@@ -527,23 +553,48 @@ class FragmentGrammar():
             weightedUses = [ self.ruleLogLikelihood(r) for r in frontier ]
             uses = reduce(mergeCounts, [uses] + [ scaleDictionary(math.exp(w), u)
                                                   for w,u in normalizeLogDistribution(weightedUses) ])
-        newFragments = [ (k, safeLog(uses.get(f,0.0) + smoothing), f) for _,k,f in self.fragments ]
+        newFragments = [ (k, safeLog(uses.get(f,0.0) + smoothing), f) for k,_,f in self.fragments ]
 
-        return FragmentGrammar(newFragments)            
-            
+        return FragmentGrammar(newFragments)
 
+    def estimateParameters(self, frontiers, smoothing = 0):
+        '''frontiers: list of list of rules.
+        returns a new fragment grammar with the same structure but different probabilities'''
+        flatFragments = [(t,0.0,f) for t,_,f in self.fragments ]
+        return FragmentGrammar(flatFragments).insideOutside(frontiers, smoothing = smoothing)
+
+    def frontierLikelihood(self, frontier):
+        '''frontier: list of rules.
+           returns log sum P[r|G]'''
+        return lseList([ self.ruleLogLikelihood(r)[0] for r in frontier ])
+    def frontiersLikelihood(self,frontiers):
+        return sum([self.frontierLikelihood(f) for f in frontiers ])
+    def logPrior(self):
+        return sum([ f.logPrior for _,_,f in self.fragments ])
+    def frontiersLogJoint(self,frontiers, priorWeight = 0.05):
+        return self.frontiersLikelihood(frontiers) + priorWeight*self.logPrior()
+    def AIC(self, frontiers):
+        return len(self.fragments) - self.frontiersLogJoint(frontiers)
         
+
+
 BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0.0, f)
                    for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
                    for f in k.BASEPRODUCTIONS]
+EMPTYFRAGMENTGRAMMAR = FragmentGrammar(BASEPRODUCTIONS)
 
 if __name__ == '__main__':
-    BASEPRODUCTIONS += [(Specification, 0, MatrixFragment(FeatureMatrix([(False,'voice')])))]
-    emptyFragmentGrammar = FragmentGrammar(BASEPRODUCTIONS)
-    print str(emptyFragmentGrammar)
-    r = parseRule('e > a / # _ [ -voice ]* h #')
+    ruleSets = [[parseRule('e > a / # _ [ -voice ]* h #')],
+                [parseRule('e > 0 / # _ [ -voice ]* [ +vowel ]#')]]
+    proposeFragments(ruleSets,verbose = True)
+    
+    #BASEPRODUCTIONS += [(Specification, 0, MatrixFragment.fromFeatureMatrix(FeatureMatrix([(False,'voice')])))]
+    
+    
+    print str(EMPTYFRAGMENTGRAMMAR)
+    r = parseRule('e > f / # _ [ -voice ]* h #')
     print r
-    print emptyFragmentGrammar.ruleLogLikelihood(r)
-    print emptyFragmentGrammar.insideOutside([[r]])
-    print emptyFragmentGrammar.insideOutside([[r]]).ruleLogLikelihood(r)
+    print EMPTYFRAGMENTGRAMMAR.ruleLogLikelihood(r)
+    print EMPTYFRAGMENTGRAMMAR.insideOutside([[r]],smoothing = 0)
+    print EMPTYFRAGMENTGRAMMAR.insideOutside([[r]],smoothing = 0).ruleLogLikelihood(r)[0]
 

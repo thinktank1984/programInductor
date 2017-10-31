@@ -648,7 +648,7 @@ Phonological rules:
      (u"ɣočuuka",),
      (u"ɣokaya",),
      (u"koɣaya",)],
-    solutions = ['''
+    solutions = [u'''
 ɣo + stem + a
 ɣ ---> k /  _ o [ -stop ]
 ''']))
@@ -743,7 +743,7 @@ If it understood the certain features are mutually exclusive, the spreading rule
 	(u"sa:y",	u"sa:yban",	u"sa:yto:l",	u"sa:ynak") #	mouth
     ],
     solutions = [
-        '''
+        u'''
  + stem + 
  + stem + ban
  + stem + to:l
@@ -851,7 +851,9 @@ Final solution:
 	u"ŋa",#	‘5’
 	u"ǰuŋa",#	‘15’
 	u"ŋabǰu"],#	‘50’
-    parameters = [10,1,11,4,14,40,9,19,90,5,15,50]))
+    parameters = [10,1,11,4,14,40,9,19,90,5,15,50],
+    solutions = [u'''
+C > C/#_C''']))
 
 underlyingProblems.append(Problem(
     u'''
@@ -959,7 +961,13 @@ underlyingProblems.append(Problem(
         (u"oso",u"osofia"),
         (u"valu",u"valusia"),
         (u"u:",u"u:tia")
-    ]))
+    ],
+    solutions = [u'''
+ + stem + 
+ + stem + ia
+[ -vowel ] ---> Ø /  _ #
+i ---> Ø / [ +vowel -back ] _ 
+''']))
 
 underlyingProblems.append(Problem(
     '''
@@ -982,7 +990,11 @@ underlyingProblems.append(Problem(
         (u"xlep",u"xleba"),
         (u"grip",u"griba"),
         (u"trup",u"trupa")
-    ]))
+    ],
+    solutions = [u'''
+ + stem + 
+ + stem + a
+    [-sonorant] > [-voice] / _#''']))
 
 underlyingProblems.append(Problem(
     '''
@@ -1028,8 +1040,12 @@ underlyingProblems.append(Problem(
      (u"nimi",u"nimeæ"),
 #      (u"kaappi",u"kaappia"), # this was also be a typo: inconsistent with textbook solution
      #     (u"kaikki",u"kaikkea"), # oh I think I see what's going on: APA [a] is ambiguous
-     (u"kiirehti",u"kiirehtiæ")
-    ]))
+     (u"kiirehti",u"kiirehtiæ")],
+    solutions = [u'''
+ + stem + 
+ + stem + æ
+æ > a / [+back] [ ]* _ #
+    e > i / _ #''']))
 
 underlyingProblems.append(Problem(
     '''
@@ -1183,7 +1199,13 @@ o ---> u /  _ [ -nasal +voice ] #
 	    (u"sul",	u"soli"),#	‘salt’
             (u"buy",	u"boyi"),#	‘fight’
 	    (u"šum",	u"šumi"),#	‘noise’
-            (u"žur",	u"žuri")]))#	‘soup’
+            (u"žur",	u"žuri")],#	‘soup’
+    solutions = [u'''
+ + stem + 
+ + stem + i
+o ---> u /  _ [ -nasal +voice ] #
+[ -sonorant ] ---> [ -voice ] /  _ #
+''']))
 
 interactingProblems.append(Problem(
     '''3: Ancient Greek
@@ -1215,7 +1237,16 @@ it also looks like coronal is deleted in certain contexts.
 	(u"elpis",	u"elpidos",	u"elpidi",	u"elpisi"),#	‘hope’
 	(u"korus",	u"korut^hos",	u"korut^hi",	u"korusi"),#	‘helmet’
 	(u"ri:s",	u"ri:nos",	u"ri:ni",	u"ri:si"),#	‘nose’
-	(u"delp^hi:s",	u"delp^hi:nos",	u"delp^hi:ni",	u"delp^hi:si")]))#	‘porpoise’
+	(u"delp^hi:s",	u"delp^hi:nos",	u"delp^hi:ni",	u"delp^hi:si")],#	‘porpoise’
+    solutions = [u'''
+ + stem + s
+ + stem + os
+ + stem + i
+ + stem + si
+[ -sonorant ] ---> [ -voice ] /  _ [ -voice ]
+[ -sonorant ] ---> [ -aspirated ] /  _ [ -voice ]
+[ +coronal -liquid ] > 0 / _ s
+''']))
 
 interactingProblems.append(Problem(
 '''4: Shona
