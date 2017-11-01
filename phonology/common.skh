@@ -23,13 +23,6 @@ struct Word {//@Immutable("")
 int word_length(Word w) { return w.l; }
 
 bit sound_equal(Sound x, Sound y) {
-  /* if (x == y) return 1; */
-  /* int f = 0; */
-  /* repeat (NUMBEROFFEATURES) { */
-  /*     if (x.f[f] != y.f[f]) return 0; */
-  /*     f++; */
-  /* } */
-  /* return 1; */
   return x == y;
 }
 
@@ -70,11 +63,9 @@ generator Word unknown_word() {
   assert l >= 0 && l <= MAXIMUMMORPHLENGTH;
   
   Word w = new Word(l = l);
-  int j = 0;
-  repeat(MAXIMUMMORPHLENGTH) {
+  repeat(j : MAXIMUMMORPHLENGTH) {
     if (j < l)
       w.s[j] = UNKNOWNSOUND;
-    j++;
   }
   return w;
 }
@@ -164,10 +155,8 @@ bit matches_specification(Sound sound, Specification specification) {
   switch (specification) {
   case Vector:{
     bit[NUMBEROFFEATURES] mistakeVector = (sound.f^(specification.preference))&specification.mask;
-    int f = 0;
-    repeat (NUMBEROFFEATURES) {
+    repeat (f : NUMBEROFFEATURES) {
       if (mistakeVector[f]) return 0;
-      f++;
     }
     return 1;
   }
@@ -194,10 +183,8 @@ Sound apply_specification(Specification specification, Sound sound) {
 }
 
 bit empty_vector(bit[NUMBEROFFEATURES] v) {
-  int j = 0;
-  repeat (NUMBEROFFEATURES){
+  repeat (j : NUMBEROFFEATURES){
     if (v[j]) return 0;
-    j++;
   }
   return 1;
 }
@@ -306,10 +293,8 @@ int specification_cost(Specification s) {
   case ConstantPhoneme:{ return 1; }
   case Vector:{
     int c = 1;
-    int f = 0;
-    repeat (NUMBEROFFEATURES) {
+    repeat (f : NUMBEROFFEATURES) {
       c = validateCost(c + s.mask[f]);
-      f++;
     }
     // Alternation problems basically have their specification already given
     // So don't limit it
@@ -334,10 +319,8 @@ int guard_specification_cost(Specification s) {
     //    if (empty_vector(s.mask)) return 1;
     //    assert !empty_vector(s.mask);
     int c = 1;
-    int f = 0;
-    repeat (NUMBEROFFEATURES) {
+    repeat (f : NUMBEROFFEATURES) {
       c = validateCost(c + s.mask[f]);
-      f++;
     }
     assert c < 5; // at most 3 features mentioned
     return c;
