@@ -9,11 +9,11 @@ from utilities import *
 
 class CountingProblem():
     def __init__(self, data, count):
-        self.data = data
+        self.data = [ Morph(tokenize(x)) for x in data ]
         self.count = count
         self.bank = FeatureBank([ w for w in data ])
 
-        self.maximumObservationLength = max([ len(tokenize(w)) for w in data ]) + 1
+        self.maximumObservationLength = max([ len(w) for w in self.data ]) + 1
 
     def latex(self):
         r = "\\begin{tabular}{ll}\n"
@@ -67,22 +67,24 @@ class CountingProblem():
             o = self.data[j]
             k = self.count[j]
             if k <= 10:
-                condition(wordEqual(makeConstantWord(self.bank, o),
+                condition(wordEqual(o.makeConstant(self.bank),
                                     applyRule(r,morphs[k],self.maximumObservationLength)))
             elif k%10 == 0:
-                condition(wordEqual(makeConstantWord(self.bank, o),
+                condition(wordEqual(o.makeConstant(self.bank),
                                     applyRule(r,concatenate(morphs[k/10], morphs[10]),self.maximumObservationLength)))
             elif k < 20:
-                condition(wordEqual(makeConstantWord(self.bank, o),
+                condition(wordEqual(o.makeConstant(self.bank),
                                     applyRule(r,concatenate(morphs[10], morphs[k - 10]),self.maximumObservationLength)))
             else:
                 assert False
 
         minimize(ruleCost(r))
 
-        output = solveSketch(self.bank, self.maximumObservationLength)
-        
-        if not output:
+        try:
+            output = solveSketch(self.bank,
+                                 unroll = self.maximumObservationLength + 2,
+                                 maximumMorphLength = self.maximumObservationLength + 1)
+        except SynthesisFailure:
             print "Failed at phonological analysis."
             return None
 
