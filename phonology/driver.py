@@ -174,9 +174,14 @@ def handleProblem(parameters):
     if parameters['redirect']:
         sys.stdout,sys.stderr = oldOutput,oldErrors
         handle.close()
-    
-    if ss != None and parameters['top'] > 1 and parameters['testing'] == 0.0:
-        dumpPickle(ss, "pickles/"+str(problemIndex)+".p")
+
+    if parameters['pickleDirectory'] != None:
+        fullPath = os.path.join(parameters['pickleDirectory'], str(problemIndex) + ".p")
+        if not (ss != None and parameters['testing'] == 0.0):
+            print "Exporting to %s, in spite of weird parameter settings"%fullPath
+        if not os.path.exists(parameters['pickleDirectory']):
+            os.mkdir(parameters['pickleDirectory'])
+        dumpPickle(ss, fullPath)
     if accuracy != None and compression != None:
         parameters['accuracy'] = accuracy
         parameters['compression'] = compression
@@ -215,6 +220,7 @@ if __name__ == '__main__':
     parser.add_argument('--incremental', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('--verify',action = 'store_true')
+    parser.add_argument('--pickleDirectory',default = None,type = str)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
     arguments = parser.parse_args()
@@ -259,6 +265,7 @@ if __name__ == '__main__':
                    'beam': arguments.beam,
                    'stochastic': arguments.stochastic,
                    'timeout': arguments.timeout,
+                   'pickleDirectory': arguments.pickleDirectory
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))
