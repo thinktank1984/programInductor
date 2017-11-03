@@ -230,7 +230,7 @@ if __name__ == '__main__':
     from parseSPE import parseSolution
 
     parser = argparse.ArgumentParser(description = 'Infer universal grammars')
-    parser.add_argument('task',choices = ['fromGroundTruth','fromPickles'])
+    parser.add_argument('task',choices = ['fromGroundTruth','fromFrontiers'])
     arguments = parser.parse_args()
     if arguments.task == 'fromGroundTruth':
         groundTruthSolutions = []
@@ -242,60 +242,11 @@ if __name__ == '__main__':
         groundTruthRules = [ [r] for s in groundTruthSolutions for r in s.rules ]
         print "Going to induce a fragment grammar from %d rules"%(len(groundTruthRules))
         induceFragmentGrammar(groundTruthRules)
+    elif arguments.task == 'fromFrontiers':
+        frontiers = []
+        fs = os.listdir('frontierPickles')
+        for f in fs:
+            frontiers += loadPickle('frontierPickles/' + f)
+        print "Successfully loaded %s frontiers from %s pickles."%(len(frontiers),len(fs))
+        induceFragmentGrammar(frontiers)
 
-
-                
-    # allSolutions,solutionNames = loadAllSolutions()
-    # Chomsky = ChomskyUG()
-    # solutionsToFragment = []
-    # for j,solution in enumerate(allSolutions):
-    #     if "alternation" in solutionNames[j]:
-    #         continue
-    #     # for testing only use a few problems
-    #     testingProblems = [
-    #         '1',
-    #         '2',
-    #         '3',
-    #         '4',
-    #         '5',
-    #         '6',
-    #         '7',
-    #         '8',
-    #         '9',
-    #         '10',
-    #         '11',
-    #         '12',
-    #         '13',
-    #         '14',
-    #         '15',
-    #         '51',
-    #         '52',
-    #         '53'
-    #     ]
-    #     if not any([ p in solutionNames[j] for p in testingProblems ]):
-    #         continue
-        
-    #     # take only the top K solutions
-    #     K = 100
-    #     if len(solution) > K:
-    #         solutions = sorted(solution, key = lambda s: Chomsky.logLikelihood(s))[:K]
-    #     # sort the solutions
-    #     print solutionNames[j],len(solution),solution[0],solution[0][0]
-    #     solutionsToFragment.append(solution)
-
-    # # empirical distribution of matrix and guard size
-    # allRules = [ r
-    #              for rankedSolutions in solutionsToFragment
-    #              for r in rankedSolutions[0] ]
-    # print "\n".join(map(str,allRules))
-    # empiricalDistributionOfSizes(allRules)
-    # induceGrammar(solutionsToFragment, 20)
-        
-    
-    # #     solution = max(solution, key = lambda r: FlatUG().logLikelihood(r))
-    # #     print [FlatUG().logLikelihood([r]) for r in solution ]
-    # #     print [str(r) for r in solution ]
-    # # for k in [SkeletonFeatureUG,SkeletonUG,FeatureUG]:
-    # #     g = estimateUG(allSolutions, k, temperature = 1.0, iterations = 2, jitter = 0.5)
-    # #     print g
-    # #     g.plot()

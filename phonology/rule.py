@@ -11,7 +11,6 @@ from utilities import *
 
 import re
 from random import choice,random
-import numpy as np
 import itertools
 
 class InvalidRule(Exception):
@@ -48,6 +47,8 @@ class Specification():
 
     @staticmethod
     def sample(bank, canBeEmpty = False):
+        import numpy as np
+        
         if canBeEmpty and random() < 0.3:
             return EmptySpecification()
 

@@ -448,7 +448,14 @@ class FragmentGrammar():
         self.numberOfFeatures = 40 # same thing
 
     def __str__(self):
-        return formatTable([ ["%f"%l,"%s ::="%t.__name__, str(f) ]
+        def makingNamingIntuitive(n):
+            correspondence = {'Guard': 'Trigger',
+                              'Specification': 'PhonemeSet',
+                              'ConstantPhoneme': 'Phoneme'}
+            for k,v in correspondence.iteritems():
+                n = n.replace(k,v)
+            return n
+        return formatTable([ map(makingNamingIntuitive, ["%f"%l,"%s ::="%t.__name__, str(f) ])
                              for t,l,f in self.fragments])
 
     def fragmentLikelihood(self, program, fragments):
