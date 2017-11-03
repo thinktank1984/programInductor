@@ -131,13 +131,13 @@ def handleProblem(parameters):
         ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
     else:
         if parameters['testing'] == 0.0:
-            if parameters['stochastic']:
+            if parameters['task'] == 'stochastic':
                 UnderlyingProblem(p.data).stochasticSearch(20, parameters['beam'])
-            elif parameters['debug']:
+            elif parameters['task'] == 'debug':
                 for s in p.solutions:
                     s = parseSolution(s)
                     UnderlyingProblem(p.data).debugSolution(s,Morph(tokenize(parameters['debug'])))
-            elif parameters['verify']:
+            elif parameters['task'] == 'verify':
                 for s in p.solutions:
                     s = parseSolution(s)
                     print "verifying:"
@@ -148,18 +148,31 @@ def handleProblem(parameters):
                         r.explain(b)
                     list(UnderlyingProblem(p.data).findCounterexamples(s))
                 ss = []
-            elif parameters['randomSample']:
+            elif parameters['task'] == 'ransac':
                 RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 18).solve(numberOfWorkers = parameters['cores'])
                 assert False
-            elif parameters['incremental']:
+            elif parameters['task'] == 'incremental':
                 ss = IncrementalSolver(p.data,parameters['window']).\
                      incrementallySolve(saveProgressTo = parameters['save'],
                                         loadProgressFrom = parameters['restore'])
-            else:
+            elif parameters['task'] == 'CEGIS':
                 ss = UnderlyingProblem(p.data).counterexampleSolution(k = parameters['top'],
                                                                       threshold = parameters['threshold'])
-            print "ss = "
-            print ss
+            elif parameters['task'] == 'frontier':
+                f = str(problemIndex) + ".p"
+                seed = loadPickle(os.path.join(parameters['restore'], f))
+                assert isinstance(seed,list)
+                assert len(seed) == 1
+                worker = UnderlyingProblem(p.data)
+                seed = worker.solveUnderlyingForms(seed[0])
+                frontier = worker.solveFrontiers(seed, k = parameters['top'])
+                for rs in frontier:
+                    print "equivalence class:"
+                    for r in rs: print r.pretty()
+                    print
+                dumpPickle(frontier, os.path.join(parameters['save'], f))
+                sys.exit(0)
+                
         else:
             ss, accuracy, compression = heldOutSolution(p.data,
                                                         parameters['top'],
@@ -201,6 +214,12 @@ def handleProblem(parameters):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
     parser.add_argument('problem')
+    parser.add_argument('task',
+                        choices = ["CEGIS","incremental","ransac","stochastic",
+                                   "debug","verify","frontier"],
+                        default = "CEGIS",
+                        type = str,
+                        help = "The task you are asking the driver to initiate.")
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
@@ -214,12 +233,7 @@ if __name__ == '__main__':
     parser.add_argument('--restore', default = None, type = str)
     parser.add_argument('--debug', default = None, type = unicode)
     parser.add_argument('--eager', default = False, action = 'store_true')
-    parser.add_argument('--randomSample', default = False, action = 'store_true',
-                        help = 'ransac style solver')
-    parser.add_argument('--stochastic', default = False, action = 'store_true')
-    parser.add_argument('--incremental', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
-    parser.add_argument('--verify',action = 'store_true')
     parser.add_argument('--pickleDirectory',default = None,type = str)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
@@ -252,21 +266,17 @@ if __name__ == '__main__':
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,
                    'testing': testing,
-                   'randomSample': arguments.randomSample,
                    'universalGrammar': arguments.universal.split(','),
                    'top': arguments.top,
-                   'verify': arguments.verify,
+                   'task': arguments.task,
                    'threshold': arguments.threshold,
                    'redirect': False,
-                   'debug': arguments.debug,
-                   'incremental': arguments.incremental,
                    'window': arguments.window,
                    'save': arguments.save,
                    'restore': arguments.restore,
                    'eager': arguments.eager,
                    'cores': arguments.cores,
                    'beam': arguments.beam,
-                   'stochastic': arguments.stochastic,
                    'timeout': arguments.timeout,
                    'pickleDirectory': arguments.pickleDirectory
                    }

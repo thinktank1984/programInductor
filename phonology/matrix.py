@@ -17,6 +17,7 @@ import sys
 import pickle
 import math
 from time import time
+import itertools
 
 def sampleMorphWithLength(l):
     m = Morph.sample()
@@ -91,7 +92,7 @@ class UnderlyingProblem():
         self.data = [ d[2] for d in sorted(dataTaggedWithLength) ]
 
 
-    def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces):
+    def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces, auxiliaryHarness = False):
         """surfaces : list of numberOfInflections elements, each of which is a morph object"""
         assert self.numberOfInflections == len(surfaces)
         
@@ -106,14 +107,16 @@ class UnderlyingProblem():
             if surface == None: continue
             
             prediction = applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), len(surface) + 1)
-
-            condition(wordEqual(surface.makeConstant(self.bank), prediction))
+            predicate = wordEqual(surface.makeConstant(self.bank), prediction)
+            if auxiliaryHarness: auxiliaryCondition(predicate)
+            else: condition(predicate)
     
-    def conditionOnData(self, rules, stems, prefixes, suffixes, observations = None):
+    def conditionOnData(self, rules, stems, prefixes, suffixes, observations = None, auxiliaryHarness = False):
         '''Conditions on inflection matrix.'''
         if observations == None: observations = self.data
         for stem, observation in zip(stems, observations):
-            self.conditionOnStem(rules, stem, prefixes, suffixes, observation)
+            self.conditionOnStem(rules, stem, prefixes, suffixes, observation,
+                                 auxiliaryHarness = auxiliaryHarness)
     
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
@@ -132,27 +135,31 @@ class UnderlyingProblem():
             # enforce k^d < maximumNumberOfSolutions
             # k < maximumNumberOfSolutions**(1/d)
             k = int(min(k,maximumNumberOfSolutions**(1.0/k)))
-        
-        inputs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
-                   for j in range(len(self.data))
-                   for i in range(self.numberOfInflections) ]
 
-        def f(xs, rs):
-            if rs == []: return [[]]
-            ys = [ self.applyRuleUsingSketch(rs[0],x)
-                   for x in xs ]            
-            alternatives = SupervisedProblem(zip(xs,ys)).fastTopK(k, rs[0])
-            suffixes = f(ys, rs[1:])
-            return [ [a] + s
-                     for a in alternatives
-                     for s in suffixes ]
-
-        return [ Solution(prefixes = solution.prefixes,
-                          suffixes = solution.suffixes,
-                          underlyingForms = solution.underlyingForms,
-                          rules = rs)
-                 for rs in f(inputs, solution.rules) ]
+        fs = self.solveFrontiers(solution,k)
         
+        return [ Solution(underlyingForms = solution.underlyingForms,
+                          prefixes = solution.prefixes, suffixes = solution.suffixes,
+                          rules = list(rs))
+                 for rs in itertools.product(*fs) ]
+        
+
+    def solveFrontiers(self, solution, k):
+        '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a list of len(solution.rules), each of which has k rules.'''
+        if k == 1: return [[r] for r in solution.rules ]
+        
+        xs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
+               for j in range(len(self.data))
+               for i in range(self.numberOfInflections) ]
+        frontiers = []
+        for r in solution.rules:
+            ys = [ self.applyRuleUsingSketch(r,x)
+                   for x in xs ]
+            alternatives = SupervisedProblem(zip(xs,ys)).fastTopK(k, r)
+            frontiers.append(alternatives)
+            xs = ys
+
+        return frontiers
 
     def solveTopRules(self, solution, k):
         '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
@@ -267,7 +274,8 @@ class UnderlyingProblem():
 
         return totalCost
 
-    def sketchJointSolution(self, depth, canAddNewRules = False, costUpperBound = None, fixedRules = None, fixedMorphology = None):
+    def sketchJointSolution(self, depth, canAddNewRules = False, costUpperBound = None,
+                            fixedRules = None, fixedMorphology = None, auxiliaryHarness = False):
         try:
             Model.Global()
             if fixedRules == None:
@@ -294,7 +302,8 @@ class UnderlyingProblem():
 
             self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound, morphologicalCosts)
 
-            self.conditionOnData(rules, stems, prefixes, suffixes)
+            self.conditionOnData(rules, stems, prefixes, suffixes,
+                                 auxiliaryHarness = auxiliaryHarness)
 
             output = self.solveSketch()
 
@@ -310,7 +319,8 @@ class UnderlyingProblem():
             if canAddNewRules:
                 depth += 1
                 print "Expanding rule depth to %d"%depth
-                return self.sketchJointSolution(depth, canAddNewRules = canAddNewRules)
+                return self.sketchJointSolution(depth, canAddNewRules = canAddNewRules,
+                                                auxiliaryHarness = auxiliaryHarness)
             else:
                 return None
         # pass this exception onto the caller
@@ -337,7 +347,7 @@ class UnderlyingProblem():
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             try:
-                solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology)            
+                solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology, auxiliaryHarness = True)            
                 depth = solution.depth() # update depth because it might have grown
                 solverTime = time() - solverTime
 
@@ -355,7 +365,9 @@ class UnderlyingProblem():
             if depth < 3 and self.numberOfInflections < 3:
                 slave = UnderlyingProblem(trainingData, self.bank)
                 try:
-                    expandedSolution = slave.sketchJointSolution(depth + 1, fixedMorphology = fixedMorphology)
+                    expandedSolution = slave.sketchJointSolution(depth + 1,
+                                                                 fixedMorphology = fixedMorphology,
+                                                                 auxiliaryHarness = True)
                 except SynthesisTimeout: return [solution]
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution

@@ -26,9 +26,9 @@ class SupervisedProblem():
             minimize(ruleCost(rule))
 
             for x,y in self.examples:
-                condition(wordEqual(applyRule(rule, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
-                                    y.makeConstant(self.bank)))
-            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+                auxiliaryCondition(wordEqual(applyRule(rule, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
+                                             y.makeConstant(self.bank)))
+            output = solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength)
             if not output: break
 
             solutions.append(Rule.parse(self.bank, output, rule))
@@ -40,11 +40,12 @@ class SupervisedProblem():
         minimize(sum([ ruleCost(r) for r in rules ]))
 
         for x,y in self.examples:
-            condition(wordEqual(applyRules(rules, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
-                                y.makeConstant(self.bank)))
-        output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
-        if not output:
-            printLastSketchOutput()
+            auxiliaryCondition(wordEqual(applyRules(rules, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
+                                         y.makeConstant(self.bank)))
+        try:
+            output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)
+        except SynthesisFailure:
+            #printLastSketchOutput()
             return None
         
         return [ Rule.parse(self.bank, output, r)

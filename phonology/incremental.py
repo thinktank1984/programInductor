@@ -81,7 +81,8 @@ class IncrementalSolver(UnderlyingProblem):
                                stems, prefixes, suffixes,
                                morphologicalCosts = morphologicalCosts)
         self.conditionOnData(rules, stems, prefixes, suffixes,
-                             observations = dataToConditionOn)
+                             observations = dataToConditionOn,
+                             auxiliaryHarness = True)
 
         try:
             output = self.solveSketch()
@@ -178,7 +179,7 @@ class IncrementalSolver(UnderlyingProblem):
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
             worker = UnderlyingProblem(trainingData, self.bank)
-            solution = worker.sketchJointSolution(1,canAddNewRules = True)
+            solution = worker.sketchJointSolution(1,canAddNewRules = True,auxiliaryHarness = True)
             j = initialTrainingSize
         else:
             (j,trainingData,solution) = loadPickle(loadProgressFrom)
