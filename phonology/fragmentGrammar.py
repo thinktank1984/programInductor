@@ -455,7 +455,7 @@ class FragmentGrammar():
             for k,v in correspondence.iteritems():
                 n = n.replace(k,v)
             return n
-        return formatTable([ map(makingNamingIntuitive, ["%f"%l,"%s ::="%t.__name__, str(f) ])
+        return formatTable([ map(makingNamingIntuitive, ["%f"%l,"%s"%t.__name__, " ::= ", str(f) ])
                              for t,l,f in self.fragments])
 
     def fragmentLikelihood(self, program, fragments):
