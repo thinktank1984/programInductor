@@ -128,7 +128,17 @@ def handleProblem(parameters):
     accuracy, compression = None, None
     
     if problemIndex == 7:
-        ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
+        if parameters['task'] != 'frontier':
+            ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
+        else:
+            f = str(problemIndex) + ".p"
+            seed = loadPickle(os.path.join(parameters['restore'], f))
+            assert isinstance(seed,list)
+            assert len(seed) == 1
+            frontier = CountingProblem(p.data, p.parameters).solveFrontiers(seed, k = parameters['top'])
+            dumpPickle(frontier, os.path.join(parameters['save'], f))
+            sys.exit(0)
+            
     else:
         if parameters['testing'] == 0.0:
             if parameters['task'] == 'stochastic':
@@ -166,10 +176,6 @@ def handleProblem(parameters):
                 worker = UnderlyingProblem(p.data)
                 seed = worker.solveUnderlyingForms(seed[0])
                 frontier = worker.solveFrontiers(seed, k = parameters['top'])
-                for rs in frontier:
-                    print "equivalence class:"
-                    for r in rs: print r.pretty()
-                    print
                 dumpPickle(frontier, os.path.join(parameters['save'], f))
                 sys.exit(0)
                 

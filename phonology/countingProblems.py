@@ -39,17 +39,20 @@ class CountingProblem():
     #     solution = slave.topSolutions(k)
 
         
-        
+    def solveFrontiers(self, seed, k):
+        # Ignore the seed because this problem is very easy to solve
+        return [ [r] for r in self.topSolutions(k) ]
 
     def topSolutions(self, k = 10):
         solutions = []
+        oldMorphology = None
         for _ in range(k):
-            r = self.sketchSolution(solutions)
+            r,oldMorphology = self.sketchSolution(solutions,oldMorphology)
             if r == None: break
             solutions.append(r)
         return solutions
 
-    def sketchSolution(self, existingRules):
+    def sketchSolution(self, existingRules, existingMorphology = None):
         Model.Global()
 
         r = Rule.sample()
@@ -62,6 +65,11 @@ class CountingProblem():
         morphs[5] = Morph.sample()
         morphs[9] = Morph.sample()
         morphs[10] = Morph.sample()
+
+        if existingMorphology:
+            for k,v in existingMorphology.iteritems():
+                condition(wordEqual(v.makeConstant(self.bank),
+                                    morphs[k]))
 
         for j in range(len(self.data)):
             o = self.data[j]
@@ -89,6 +97,6 @@ class CountingProblem():
             return None
 
         r = Rule.parse(self.bank, output, r)
-        print r
-        return r
+        print r.pretty()
+        return r,dict([ (k,Morph.parse(self.bank, output, m)) for k,m in morphs.iteritems() ])
 
