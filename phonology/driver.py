@@ -132,7 +132,12 @@ def handleProblem(parameters):
             ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
         else:
             f = str(problemIndex) + ".p"
-            seed = loadPickle(os.path.join(parameters['restore'], f))
+            seed = os.path.join(parameters['restore'], f)
+            if not os.path.exists(seed):
+                print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
+                sys.exit(0)
+                
+            seed = loadPickle(seed)
             assert isinstance(seed,list)
             assert len(seed) == 1
             frontier = CountingProblem(p.data, p.parameters).solveFrontiers(seed, k = parameters['top'])
@@ -170,7 +175,11 @@ def handleProblem(parameters):
                                                                       threshold = parameters['threshold'])
             elif parameters['task'] == 'frontier':
                 f = str(problemIndex) + ".p"
-                seed = loadPickle(os.path.join(parameters['restore'], f))
+                seed = os.path.join(parameters['restore'], f)
+                if not os.path.exists(seed):
+                    print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
+                    sys.exit(0)
+                seed = loadPickle(seed)
                 assert isinstance(seed,list)
                 assert len(seed) == 1
                 worker = UnderlyingProblem(p.data)
