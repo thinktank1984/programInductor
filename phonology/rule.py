@@ -809,8 +809,11 @@ class Rule():
                                                                 self.rightTriggers.sketchEquals(v+'.right_trigger',b))
 
     def explain(self,b):
-        print "\tMAPPING:",u"  ".join([ k + u'⟶' + unicode(v)
-                                        for k,v in self.calculateMapping(b).iteritems()])
+        if self.copyOffset == 0:
+            print "\tMAPPING:",u"  ".join([ k + u'⟶' + unicode(v)
+                                            for k,v in self.calculateMapping(b).iteritems()])
+        else:
+            print "\tMAPPING: involves copying"
         for s in list(reversed(self.leftTriggers.specifications)) + self.rightTriggers.specifications:
             print "\tspecification_extension:"," ".join(s.extension(b))
 

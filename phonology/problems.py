@@ -1657,7 +1657,7 @@ ḍ > ṛ / _o#
 [
 #	Singular	Sing. Definite	Plural	Gloss
     # illustrates morphology
-	(u"daar",	u"daarta",	u"daaro"),#	house
+	(u"d̪aar",	u"d̪aarta",	u"d̪aaro"),#	house
 	(u"gees",	u"geesta",	u"geeso"),#	side
 	(u"laf",	u"lafta",	u"lafo"),#	bone
     # illustrate stop/fricative alternations
@@ -1665,8 +1665,8 @@ ḍ > ṛ / _o#
 	(u"naag",	u"naagta",	u"naaɣo"),#	woman
 	(u"tib",	u"tibta",    	u"tiβo"),#	pestle
 	(u"sab",	u"sabta",    	u"saβo"),#	outcast
-	(u"bad",	u"bada",	u"baðo"),#	sea
-	(u"šid",	u"šida",	u"šiðo"),#	person
+	(u"bad̪",	u"bad̪a",	u"baðo"),#	sea
+	(u"šid̪",	u"šid̪a",	u"šiðo"),#	person
     # 
 	(u"feeḍ",	u"feeḍa",  	u"feeṛo"),#	rib
 	(u"ʕiir",	u"ʕiirta",	u"ʕiiro"),#	buttermilk
@@ -1678,36 +1678,48 @@ ḍ > ṛ / _o#
 	(u"sun",	u"sunta",	u"sumo"),#	poison
 	(u"laan",	u"laanta",	u"laamo"),#	branch
 	(u"sin",	u"sinta",	u"simo"),#	hip
-	(u"dan",	u"danta",	u"dano"),#	affair
-	(u"daan",	u"daanta",	u"daano"),#	river bank
+	(u"d̪an",	u"d̪anta",	u"d̪ano"),#	affair
+	(u"d̪aan",	u"d̪aanta",	u"d̪aano"),#	river bank
 	(u"saan",	u"saanta",	u"saano"),#	hide
 	(u"nirig",	u"nirigta",	u"nirgo"),#	baby female camel
 	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo"),#	girl
 	(u"hoɣol",	u"hoɣoša",	u"hoglo"),#	downpour
 	(u"baɣal",	u"baɣaša",	u"baglo"),#	mule
 	(u"waħar",	u"waħarta",	u"waħaro"),#	female kid
-	(u"irbad",	u"irbada",	u"irbaðo"),#	needle
-	(u"kefed",	u"kefeda",	u"kefeðo"),#	pan
+	(u"irbad̪",	u"irbad̪a",	u"irbaðo"),#	needle
+	(u"kefed̪",	u"kefed̪a",	u"kefeðo"),#	pan
 	(u"šilin",	u"šilinta",	u"šilino"),#	female dwarf
 	(u"bohol",	u"bohoša",	u"boholo"),#	hole
     # todo: figure out what /j/ is supposed to be
 	#(u"jirid",	u"jirida",	u"jirdo"),#	trunk
-	(u"ʔaayad",	u"ʔaayada",	u"ʔaayaðo"),#	miracle
+	(u"ʔaayad̪",	u"ʔaayad̪a",	u"ʔaayaðo"),#	miracle
 	(u"gaʕan",	u"gaʕanta",	u"gaʕmo"),#	hand
 	(u"ʔinan",	u"ʔinanta",	u"ʔinano"),#	daughter
 
 	# 3sg msc. pst	3sg fem. past	1pl past	Gloss
 	# suɣay	sugtay	sugnay	wait
 	# kaβay	kabtay	kabnay	fix
-	# siðay	siday	sidnay	carry
-	# dilay	dišay	dillay	kill
+	# siðay	sid̪ay	sid̪nay	carry
+	# d̪ilay	d̪išay	d̪illay	kill
 	# ganay	gantay	gannay	aim
 	# tumay	tuntay	tunnay	hammer
 	# argay	aragtay	aragnay	see
-	# gudbay	guðubtay	guðubnay	cross a river
+	# gud̪bay	guðubtay	guðubnay	cross a river
 	# qoslay	qosošay	qosollay	laugh
-	# hadlay	haðašay	haðallay	talk
-]))
+	# had̪lay	haðašay	haðallay	talk
+], solutions = [u'''
+ + stem + 
+ + stem + ta
+ + stem + o
+[+stop +voice] > [+fricative] / V_V
+t > š/l_
+l > 0/_š
+m > n/_t
+m > n/_#
+0 > -2/VC_C#
+0 > -2/VC_CC
+t > 0/[+coronal +stop]_a
+''']))
 
 sevenProblems.append(Problem('''4: Latin
 	Provide a complete account of the following phonological alternations in Latin, including underlying forms for nouns stems.

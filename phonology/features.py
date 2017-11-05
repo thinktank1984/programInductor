@@ -97,6 +97,7 @@ featureMap = {
     u"t^h": [alveolar,stop,aspirated,coronal],
     u"ṭ": [retroflex,stop,coronal],
     u"ḍ": [retroflex,stop,coronal,voice],
+    u"ṛ": [retroflex,coronal,voice,fricative],
     u"ð": [dental,fricative,voice,coronal],
     u"z": [alveolar,fricative,voice,coronal, sibilant],
     u"ǰ": [alveopalatal,affricate,stop,voice,coronal,sibilant],
@@ -136,7 +137,6 @@ featureMap = {
 
     # liquids
     u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],
-    u"ṛ": [retroflex,coronal,voice,sonorant], # I don't really know what features are for this
     u"r̃": [liquid,trill,voice,coronal,sonorant],
     u"r̥̃": [liquid,trill,coronal,sonorant],
     u"ř": [liquid,flap,voice,coronal,sonorant],
