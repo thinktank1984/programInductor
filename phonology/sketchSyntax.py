@@ -334,7 +334,10 @@ def parseMinimalCostValue(output):
              if not m:
                  raise Exception('Error parsing minimize hole value: %s'%l)
              vp = int(m.group(1))
-             if v != None: assert vp < v
+             if v != None:
+                 # Actually, this is okay due to CEGIS/auxiliary harnesses
+                 #assert vp < v
+                 pass
              v = vp
     return v
 def parseMinimalCostValues(output):
