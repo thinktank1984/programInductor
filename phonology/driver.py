@@ -240,6 +240,8 @@ if __name__ == '__main__':
     parser.add_argument('-m','--cores', default = 1, type = int)
     parser.add_argument('--timeout', default = 1.0, type = float,
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
+    parser.add_argument('--serial', default = False, action = 'store_true',
+                        help = 'Run the incremental solver in serial mode (no parallelism)')
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = 'flat',type = str)
@@ -293,7 +295,8 @@ if __name__ == '__main__':
                    'cores': arguments.cores,
                    'beam': arguments.beam,
                    'timeout': arguments.timeout,
-                   'pickleDirectory': arguments.pickleDirectory
+                   'pickleDirectory': arguments.pickleDirectory,
+                   'serial': arguments.serial
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))

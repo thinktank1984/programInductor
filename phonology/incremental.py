@@ -2,7 +2,7 @@
 
 from matrix import *
 
-from pathos.multiprocessing import ProcessingPool as Pool
+
 from time import time
 import random
 from sketch import setGlobalTimeout
@@ -166,7 +166,9 @@ class IncrementalSolver(UnderlyingProblem):
         # This is because more rules means that each sketch invocation uses more memory;
         if len(solution.rules) > 3: desiredNumberOfCPUs = 20
         else: desiredNumberOfCPUs = 35
-        allSolutions = Pool(min(desiredNumberOfCPUs,numberOfCPUs())).map(lambda v: self.sketchCEGISChange(solution,v), ruleVectors)
+        allSolutions = parallelMap(min(desiredNumberOfCPUs,numberOfCPUs()),
+                                   lambda v: self.sketchCEGISChange(solution,v),
+                                   ruleVectors)
         allSolutions = [ s for ss in allSolutions for s in ss ]
         if allSolutions == []: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
