@@ -39,6 +39,8 @@ class VariableFragment(Fragment):
         calculator[FeatureMatrix] = 'specification_cost'
         calculator[ConstantPhoneme] = 'specification_cost'
         return ([], ['%s(%s)'%(calculator[self.ty],v)])
+    def numberOfVariables(self): return 1
+    def hasConstants(self): return False
 
 class RuleFragment(Fragment):
     CONSTRUCTOR = Rule
@@ -65,6 +67,9 @@ class RuleFragment(Fragment):
             for l in GuardFragment.abstract(p.leftTriggers, q.leftTriggers)
             for r in GuardFragment.abstract(p.rightTriggers,q.rightTriggers)
         ]
+
+    def numberOfVariables(self): return self.focus.numberOfVariables() + self.change.numberOfVariables() + self.left.numberOfVariables() + self.right.numberOfVariables()
+    def hasConstants(self): return self.focus.hasConstants() or self.change.hasConstants() or self.left.hasConstants() or self.right.hasConstants()
 
     def sketchCost(self,v,b):
         '''v: string representation of a sketch variable. v should have type Rule in the actual sketch.
@@ -115,6 +120,10 @@ class FCFragment(Fragment):
                 raise MatchFailure()
             else:
                 return self.child.match(program)
+    # The only FC ever created should be in the base grammar
+    def numberOfVariables(self): raise Exception('FCFragment: numberOfVariables should never be called')
+    def hasConstants(self): raise Exception('FCFragment: hasConstants should never be called')
+    
     def sketchCost(self,v,b):
         assert isinstance(self.child,EmptySpecification)
         return (['(%s == null)'%v],[])
@@ -142,6 +151,9 @@ class SpecificationFragment(Fragment):
 
     def match(self, program):
         return self.child.match(program)
+
+    def numberOfVariables(self): return self.child.numberOfVariables()
+    def hasConstants(self): return self.child.hasConstants()
 
     @staticmethod
     def abstract(p,q):
@@ -172,6 +184,9 @@ class MatrixFragment(Fragment):
     def match(self, program):
         if unicode(program) == self.childUnicode: return []
         raise MatchFailure()
+
+    def numberOfVariables(self): return 0
+    def hasConstants(self): return True
 
     @staticmethod
     def fromFeatureMatrix(m):
@@ -226,6 +241,9 @@ class GuardFragment(Fragment):
 
         return [ binding for f,p in zip(self.specifications,program.specifications)
                  for binding in f.match(p) ]
+
+    def numberOfVariables(self): return sum( s.numberOfVariables() for s in self.specifications)
+    def hasConstants(self): return any(s.hasConstants() for s in self.specifications)
 
     @staticmethod
     def abstract(p,q):
@@ -543,10 +561,19 @@ class FragmentGrammar():
         for dictionaryKey, fragments, v in [('UNIVERSALRULEGRAMMAR',self.ruleFragments,'r'),
                                             ('UNIVERSALSPECIFICATIONGRAMMAR',self.specificationFragments,'s'),
                                             ('UNIVERSALGUARDGRAMMAR',self.guardFragments, 'g')]:
-            for checks, expenses in sorted([ r.sketchCost(v,bank)
-                                             for baseType,_,r in fragments
-                                             if not (r in baseType2fragmentType[baseType].BASEPRODUCTIONS)],
-                                           key = lambda z: len(z[1])):
+            # Sort them so that the ones with fewer variables come first
+            fragments = sorted(fragments, key = lambda z: z[2].numberOfVariables())
+            for baseType,_,f in fragments:
+                # Make sure it is a new fragment and not already in the base grammar
+                if f in baseType2fragmentType[baseType].BASEPRODUCTIONS: continue
+                if not f.hasConstants(): continue
+
+                checks, expenses = f.sketchCost(v,bank)
+
+                # print "Sketching fragment:",f
+                # print checks
+                # print expenses
+                
                 check = "&&".join(['1'] + checks)
                 cost = " + ".join(['1'] + expenses)
                 definitions[dictionaryKey] = definitions.get(dictionaryKey,'')
