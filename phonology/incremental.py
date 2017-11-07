@@ -25,6 +25,7 @@ class IncrementalSolver(UnderlyingProblem):
 
         originalRules = list(rules) # save it for later
 
+        isNewRule = [ r == None for r in rules ]
         rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
                   for rule in rules ]
         prefixes = []
@@ -70,7 +71,8 @@ class IncrementalSolver(UnderlyingProblem):
                 if o == None: continue
                 phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
                 auxiliaryCondition(wordEqual(o.makeConstant(self.bank),
-                                             applyRules(rules, phonologicalInput, len(o) + 1)))
+                                             applyRules(rules, phonologicalInput, len(o) + 1,
+                                                        doNothing = isNewRule)))
         stems = [ Morph.sample() for observation in self.data
                   if not (observation in observationsWithFixedUnderlyingForms) ]
         dataToConditionOn = [ d for d in self.data

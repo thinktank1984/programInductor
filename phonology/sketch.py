@@ -17,8 +17,12 @@ def alternationCost(r): pass
 def applyRule(rule,i,unrollBound):
     if callable(rule): return rule(i,Constant(unrollBound))
     else: return FunctionCall("apply_rule", [rule,i,Constant(unrollBound)])
-def applyRules(rules,d,b):
-    for r in rules: d = applyRule(r,d,b)
+def applyRules(rules,d,b, doNothing = None):
+    for j,r in enumerate(rules):
+        if doNothing == None or (not doNothing[j]):
+            d = applyRule(r,d,b)
+        else:
+            d = doNothingRule(r,d,b)
     return d
 @sketchImplementation("make_word")
 def makeWord(features): return features
@@ -41,6 +45,8 @@ def ruleEqual(p,q): return p == q
 def alternationEqual(p,q): return p == q
 @sketchImplementation("is_deletion_rule")
 def isDeletionRule(r): return r.structuralChange == None
+@sketchImplementation("do_nothing_rule")
+def doNothingRule(*a): pass
 
 def makeConstantVector(v):
     return Array(map(Constant,v))
