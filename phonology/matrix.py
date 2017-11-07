@@ -18,6 +18,7 @@ import pickle
 import math
 from time import time
 import itertools
+import copy
 
 def sampleMorphWithLength(l):
     m = Morph.sample()
@@ -25,8 +26,10 @@ def sampleMorphWithLength(l):
     return m
         
 
-class UnderlyingProblem():
-    def __init__(self, data, bank = None, useSyllables = False):
+class UnderlyingProblem(object):
+    def __init__(self, data, bank = None, useSyllables = False, UG = None):
+        self.UG = UG
+        
         if bank != None: self.bank = bank
         else:
             self.bank = FeatureBank([ w for l in data for w in l if w != None ] + ([u'-'] if useSyllables else []))
@@ -221,18 +224,8 @@ class UnderlyingProblem():
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
 
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
-        # EXPERIMENTAL: insert some UG!!!
-        universal = [FeatureMatrix([(True,'vowel')]),
-                     FeatureMatrix([(False,'vowel')]),
-                     FeatureMatrix([(True,'voice')]),
-                     FeatureMatrix([(False,'voice')]),
-                     FeatureMatrix([(False,'sonorant')]),
-                     Rule(FeatureMatrix([(False,'sonorant')]),
-                          FeatureMatrix([(False,'voice')]),
-                          Guard('L',False,False,[]),
-                          Guard('R',True,False,[]),
-                          0)]
-        #sketchUniversalGrammar(universal,self.bank)
+        if self.UG:
+            self.UG.sketchUniversalGrammar(self.bank)
 
         # guess the size of each stem to be its corresponding smallest observation length
         if morphologicalCosts == None:
@@ -347,7 +340,7 @@ class UnderlyingProblem():
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             try:
-                solution = UnderlyingProblem(trainingData, self.bank).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology, auxiliaryHarness = True)            
+                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology, auxiliaryHarness = True)            
                 depth = solution.depth() # update depth because it might have grown
                 solverTime = time() - solverTime
 
@@ -363,7 +356,7 @@ class UnderlyingProblem():
 
             # When we expect it to be tractable, we should try doing a little bit deeper
             if depth < 3 and self.numberOfInflections < 3:
-                slave = UnderlyingProblem(trainingData, self.bank)
+                slave = self.restrict(trainingData)
                 try:
                     expandedSolution = slave.sketchJointSolution(depth + 1,
                                                                  fixedMorphology = fixedMorphology,
@@ -538,6 +531,12 @@ class UnderlyingProblem():
             mdl = self.solutionDescriptionLength(population[0])
             setVerbosity(0)
             print "MDL:",mdl+population[0].modelCost()
+
+    def restrict(self, newData):
+        """Creates a new version of this object which is identical but has different training data"""
+        restriction = copy.copy(self)
+        restriction.data = newData
+        return restriction
 
 
 if __name__ == '__main__':

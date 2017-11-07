@@ -749,7 +749,7 @@ If it understood the certain features are mutually exclusive, the spreading rule
  + stem + to:l
  + stem + nak
         [+vowel] > [-back -low] / [+vowel -back ] [ ]* _
-        [ ] > [+voice] / _ b
+        [ -sonorant ] > [+voice] / _ b
         [ -sonorant ] > [-voice] / _[-voice]
         ''']))
 
@@ -785,7 +785,12 @@ Phonological rules:
 	    (u"suka",	u"sokera"), #	‘plait’
 	    (u"huuta",	u"hootera"), #	‘blow’
 	    (u"riiŋga",	u"reeŋgera"), #	‘fold’
-	    (u"siinda",	u"seendera")])) #	‘win’
+	    (u"siinda",	u"seendera")],
+    solutions = [u'''
+ + stem + a
+ + stem + era
+    V > [-high]/_[ -liquid ]* e
+'''])) #	‘win’
 
 underlyingProblems.append(Problem(
     u'''

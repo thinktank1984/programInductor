@@ -8,9 +8,10 @@ import random
 from sketch import setGlobalTimeout
 import traceback
 
-class RandomSampleSolver():
-    def __init__(self, data, timeout, lower, upper):
-        self.data = data
+class RandomSampleSolver(UnderlyingProblem):
+    def __init__(self, data, timeout, lower, upper, UG = None):
+        super(self.__class__,self).__init__(data, UG = UG)
+        
         self.timeout = timeout
         self.lower = lower
         self.upper = min(upper, len(self.data))
@@ -36,9 +37,9 @@ class RandomSampleSolver():
                                       prefixes = [Morph([])]*2,
                                       suffixes = [Morph([]),Morph([u'ə'])])
                 try:
-                    solutions += UnderlyingProblem(subset).counterexampleSolution(initialTrainingSize = n0,
-                                                                                  fixedMorphology = morphology,
-                                                                                  k = 1)
+                    solutions += self.restrict(subset).counterexampleSolution(initialTrainingSize = n0,
+                                                                              fixedMorphology = morphology,
+                                                                              k = 1)
                 except SynthesisTimeout: break
 
             flushEverything()

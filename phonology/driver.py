@@ -3,7 +3,7 @@ from countingProblems import CountingProblem
 from utilities import *
 from parseSPE import parseSolution
 
-
+from fragmentGrammar import FragmentGrammar
 from matrix import *
 from randomSampleSolver import RandomSampleSolver
 from incremental import IncrementalSolver
@@ -122,6 +122,14 @@ def handleProblem(parameters):
     else:
         print CountingProblem(p.data, p.parameters).latex()
 
+    if parameters['universalGrammar'] != None:
+        if not os.path.exists(parameters['universalGrammar']):
+            print "Fatal error: Cannot find universal grammar",parameters['universalGrammar']
+            assert False
+        ug = FragmentGrammar.load(parameters['universalGrammar'])
+        print "Loaded %s:\n%s"%(parameters['universalGrammar'],ug)
+    else: ug = None
+
     startTime = time()
 
     ss = None # solutions to save out to the pickled file
@@ -164,15 +172,16 @@ def handleProblem(parameters):
                     list(UnderlyingProblem(p.data).findCounterexamples(s))
                 ss = []
             elif parameters['task'] == 'ransac':
-                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 18).solve(numberOfWorkers = parameters['cores'])
+                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 18, UG = ug).\
+                    solve(numberOfWorkers = parameters['cores'])
                 assert False
             elif parameters['task'] == 'incremental':
-                ss = IncrementalSolver(p.data,parameters['window']).\
+                ss = IncrementalSolver(p.data,parameters['window'],UG = ug).\
                      incrementallySolve(saveProgressTo = parameters['save'],
                                         loadProgressFrom = parameters['restore'])
             elif parameters['task'] == 'CEGIS':
-                ss = UnderlyingProblem(p.data).counterexampleSolution(k = parameters['top'],
-                                                                      threshold = parameters['threshold'])
+                ss = UnderlyingProblem(p.data, UG = ug).counterexampleSolution(k = parameters['top'],
+                                                                               threshold = parameters['threshold'])
             elif parameters['task'] == 'frontier':
                 f = str(problemIndex) + ".p"
                 seed = os.path.join(parameters['restore'], f)
@@ -244,7 +253,7 @@ if __name__ == '__main__':
                         help = 'Run the incremental solver in serial mode (no parallelism)')
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
-    parser.add_argument('-u','--universal', default = 'flat',type = str)
+    parser.add_argument('-u','--universal', default = None, type = str)
     parser.add_argument('--window', default = 2, type = int)
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
@@ -283,7 +292,7 @@ if __name__ == '__main__':
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,
                    'testing': testing,
-                   'universalGrammar': arguments.universal.split(','),
+                   'universalGrammar': arguments.universal,
                    'top': arguments.top,
                    'task': arguments.task,
                    'threshold': arguments.threshold,

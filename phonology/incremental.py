@@ -11,8 +11,8 @@ import traceback
 
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None):
-        UnderlyingProblem.__init__(self, data, bank = bank)
+    def __init__(self, data, window, bank = None, UG = None):
+        UnderlyingProblem.__init__(self, data, bank = bank, UG = UG)
         self.windowSize = window
 
         self.fixedMorphologyThreshold = 10
@@ -126,7 +126,7 @@ class IncrementalSolver(UnderlyingProblem):
 
         newSolution = None
         while True:
-            worker = IncrementalSolver(trainingData, self.windowSize, self.bank)
+            worker = self.restrict(trainingData)#, self.windowSize, self.bank)
             newSolution = worker.sketchChangeToSolution(solution, rules, allTheData = self.data)
             if newSolution == None: return []
             print "CEGIS: About to find a counterexample to:\n",newSolution
@@ -182,7 +182,7 @@ class IncrementalSolver(UnderlyingProblem):
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
-            worker = UnderlyingProblem(trainingData, self.bank)
+            worker = self.restrict(trainingData)#, self.bank)
             solution = worker.sketchJointSolution(1,canAddNewRules = True,auxiliaryHarness = True)
             j = initialTrainingSize
         else:
@@ -217,7 +217,7 @@ class IncrementalSolver(UnderlyingProblem):
                 # These can easily grow into the gigabytes and I have disk quotas
                 deleteTemporarySketchFiles()
                 try:
-                    worker = IncrementalSolver(trainingData + window, self.windowSize, self.bank)
+                    worker = self.restrict(trainingData + window)#, self.windowSize, self.bank)
                     solutions = worker.sketchIncrementalChange(solution, radius)
                     assert solutions != []
                     # see which of the solutions is best overall

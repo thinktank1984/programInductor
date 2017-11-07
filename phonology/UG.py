@@ -231,6 +231,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Infer universal grammars')
     parser.add_argument('task',choices = ['fromGroundTruth','fromFrontiers'])
+    parser.add_argument('--export', type = str, default = None)
     arguments = parser.parse_args()
     if arguments.task == 'fromGroundTruth':
         groundTruthSolutions = []
@@ -241,12 +242,16 @@ if __name__ == '__main__':
         print "Successfully loaded %s solutions"%(len(groundTruthSolutions))
         groundTruthRules = [ [r] for s in groundTruthSolutions for r in s.rules ]
         print "Going to induce a fragment grammar from %d rules"%(len(groundTruthRules))
-        induceFragmentGrammar(groundTruthRules)
+        g = induceFragmentGrammar(groundTruthRules)
     elif arguments.task == 'fromFrontiers':
         frontiers = []
         fs = os.listdir('frontierPickles')
         for f in fs:
             frontiers += loadPickle('frontierPickles/' + f)
         print "Successfully loaded %s frontiers from %s pickles."%(len(frontiers),len(fs))
-        induceFragmentGrammar(frontiers)
+        g = induceFragmentGrammar(frontiers)
+
+    if arguments.export != None:
+        print "Exporting universal grammar to %s"%(arguments.export)
+        g.export(arguments.export)
 

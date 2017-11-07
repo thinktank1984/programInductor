@@ -38,7 +38,7 @@ class VariableFragment(Fragment):
         calculator[Guard] = 'guard_cost'
         calculator[FeatureMatrix] = 'specification_cost'
         calculator[ConstantPhoneme] = 'specification_cost'
-        return ([], '%s(%s)'%(calculator[self.ty],v))
+        return ([], ['%s(%s)'%(calculator[self.ty],v)])
 
 class RuleFragment(Fragment):
     CONSTRUCTOR = Rule
@@ -71,7 +71,7 @@ class RuleFragment(Fragment):
         b: a feature bank
         returns: (listOfChecksThatHavetoBeTrueToMatch, listOfExtraExpenses)'''
         (fc,fe) = self.focus.sketchCost('%s.focus'%v,b)
-        (sc,se) = self.structuralChange.sketchCost('%s.structural_change'%v,b)
+        (sc,se) = self.change.sketchCost('%s.structural_change'%v,b)
         (lc,le) = self.left.sketchCost('%s.left_trigger'%v,b)
         (rc,re) = self.right.sketchCost('%s.right_trigger'%v,b)
         return (fc + sc + rc + lc,
@@ -243,8 +243,8 @@ class GuardFragment(Fragment):
         raise Exception('GuardFragment.abstract: should never reach this point')
 
     def sketchCost(self,v,b):
-        checks = ['(%s.endOfString = %d)'%(v,int(self.endOfString)),
-                  '(%s.starred = %d)'%(v,int(self.starred))]
+        checks = ['(%s.endOfString == %d)'%(v,int(self.endOfString)),
+                  '(%s.starred == %d)'%(v,int(self.starred))]
         expenses = []
         for component, suffix in zip(self.specifications,['spec','spec2']):
             k,e = component.sketchCost('%s.%s'%(v,suffix),b)
@@ -543,7 +543,9 @@ class FragmentGrammar():
         for dictionaryKey, fragments, v in [('UNIVERSALRULEGRAMMAR',self.ruleFragments,'r'),
                                             ('UNIVERSALSPECIFICATIONGRAMMAR',self.specificationFragments,'s'),
                                             ('UNIVERSALGUARDGRAMMAR',self.guardFragments, 'g')]:
-            for checks, expenses in sorted([ r.sketchCost(v,bank) for r in fragments],
+            for checks, expenses in sorted([ r.sketchCost(v,bank)
+                                             for baseType,_,r in fragments
+                                             if not (r in baseType2fragmentType[baseType].BASEPRODUCTIONS)],
                                            key = lambda z: len(z[1])):
                 check = "&&".join(['1'] + checks)
                 cost = " + ".join(['1'] + expenses)
@@ -582,6 +584,12 @@ class FragmentGrammar():
         return self.frontiersLikelihood(frontiers) + priorWeight*self.logPrior()
     def AIC(self, frontiers):
         return len(self.fragments) - self.frontiersLogJoint(frontiers)
+
+    def export(self,f):
+        dumpPickle(self.fragments, f)
+    @staticmethod
+    def load(f):
+        return FragmentGrammar(loadPickle(f))
         
 
 
@@ -589,6 +597,8 @@ BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0.0, f)
                    for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
                    for f in k.BASEPRODUCTIONS]
 EMPTYFRAGMENTGRAMMAR = FragmentGrammar(BASEPRODUCTIONS)
+baseType2fragmentType = dict((k.CONSTRUCTOR,k)\
+                             for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment])
 
 if __name__ == '__main__':
     ruleSets = [[parseRule('e > a / # _ [ -voice ]* h #')],
