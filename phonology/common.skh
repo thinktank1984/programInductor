@@ -807,7 +807,9 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   return new Word(s = output[0::output_length], l = output_length);
 }
 
-bit rule_does_something(Rule r, Word u, int unrollBound) {
+// Assert that r does nothing on u, and then return u
+// The idea is that you can plop this in as a replacement for apply_rule
+Word do_nothing_rule(Rule r, Word u, int unrollBound) {
   Specification focus = r.focus;
   Specification structural_change = r.structural_change;
   Guard left_trigger = r.left_trigger;
@@ -838,24 +840,20 @@ bit rule_does_something(Rule r, Word u, int unrollBound) {
 
     for (int j = 0; j < u.l; j++){
       assert j < unrollBound;
-      if (triggered[j] && (r.copyOffset == 0 ? 1 : (j + 1 < u.l && u.s[j] == u.s[j + 1]))) {
-	return 1;
-      }
+      assert !(triggered[j] && (r.copyOffset == 0 ? 1 : (j + 1 < u.l && u.s[j] == u.s[j + 1])));
     }
-    return 0;
   } else if (focus == null) { // insertion rule
     // Should we insert before u[j]?
     for (int j = 0; j <= u.l; j++) {
       assert j < unrollBound;
-      if (left_okay[j] && right_okay[j]) 
-	return 1;
+      assert !(left_okay[j] && right_okay[j]) ;
     }
-    return 0;
   } else { // Modification rule
     for (int j = 0; j < u.l; j++) {
       assert j < unrollBound;
-      if (triggered[j] && apply_specification(structural_change, u.s[j]) != u.s[j]) return 1;
+      assert !(triggered[j] && apply_specification(structural_change, u.s[j]) != u.s[j]);
     }
-    return 0;
   }
+
+  return u;
 }
