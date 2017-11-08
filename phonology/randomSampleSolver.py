@@ -39,7 +39,9 @@ class RandomSampleSolver(UnderlyingProblem):
                 try:
                     solutions += self.restrict(subset).counterexampleSolution(initialTrainingSize = n0,
                                                                               fixedMorphology = morphology,
-                                                                              k = 1)
+                                                                              k = 1,
+                                                                              maximumDepth = 2,
+                                                                              initialDepth = 2)
                 except SynthesisTimeout: break
 
             flushEverything()

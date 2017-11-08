@@ -268,6 +268,8 @@ class GuardFragment(Fragment):
             k,e = component.sketchCost('%s.%s'%(v,suffix),b)
             checks += k
             expenses += e
+        if len(self.specifications) < 1: checks += ['(%s.spec == null)'%v]
+        if len(self.specifications) < 2: checks += ['(%s.spec2 == null)'%v]
         return (checks, expenses)
 GuardFragment.BASEPRODUCTIONS = [GuardFragment([VariableFragment(Specification)]*s,e,starred)
                                  for e in [True,False]

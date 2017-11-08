@@ -684,7 +684,13 @@ Phonological rules:
      (u"ikə",		u"ikko"),
      (u"taka",		u"takko"),
      (u"kaka", u"kakko"),
-     (u"səkə",		u"səkko")]))
+     (u"səkə",		u"səkko")],
+    solutions = [u'''
+ + stem + ə
+ + stem + ko
+    [ +aspirated ] > [ -aspirated ] / _ C
+    ə > a / a C* _
+''']))
 
 underlyingProblems.append(Problem(
     u'''
@@ -835,7 +841,11 @@ My analysis:
 	(u"setare",	u"setaregan"), #	star
 	(u"bænde",	u"bændegan"), #	slave
 	(u"azade",	u"azadegan"), #	freeborn
-	(u"divane",	u"divanegan")])) #	insane
+	(u"divane",	u"divanegan")],
+    solutions = [u'''
+ + stem + 
+ + stem + an
+g ---> 0 / e _ #'''])) #	insane
 
 underlyingProblems.append(Problem(
     u'''7: Tibetan
@@ -947,7 +957,13 @@ Posit appropriate underlying forms and any rules needed to explain the following
 	(u"laðas",	u"laðasin"),#	“something jointed”
 	(u"heaiyusmielat",	u"heaiyusmielagin"),#	“unhappy”
 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
-	(u"yaman",	u"yamanin")]))#	“something that makes noise”
+	(u"yaman",	u"yamanin")],
+    solutions = [u'''
+ + stem + 
+ + stem + in
+m > n/_#
+[ -alveolar -alveopalatal ] ---> t /  _ #
+ǰ ---> š /  _ #''']))#	“something that makes noise”
 
 underlyingProblems.append(Problem(
     '''
@@ -1056,6 +1072,7 @@ underlyingProblems.append(Problem(
     '''
     Lithuanian voicing assimilation & epenthesis
 (problem 14)
+todo: not enough data for it to get this one
     ''',
     [(u"ateiti",),
      (u"atimti",),
@@ -1070,12 +1087,18 @@ underlyingProblems.append(Problem(
      (u"atiduoti",),
      (u"atidari:ti",),
      (u"atideti",),
-     (u"atiteisti",),]))
+     (u"atiteisti",),],
+    solutions = [u'''
+at + stem + ti
+    0 > i/ [+stop +coronal] _ [+stop +coronal]
+    [-sonorant] > [+voice]/_[+voice -sonorant]
+''']))
 
 underlyingProblems.append(Problem(
     '''
     Armenian voicing assimilation & epenthesis
 (problem 15)
+todo: not enough data for it to get this one
     ''',
     [(u"kert^ham",),
      (u"kasiem",),
@@ -1085,7 +1108,13 @@ underlyingProblems.append(Problem(
      (u"kətam",),
      (u"kəkienam",),
      (u"gəbəzzam",),
-     (u"gəlam",)]))
+     (u"gəlam",)],
+    solutions = [u'''
+k + stem + am
+a > e/i_
+    [-sonorant] > [+voice]/_[+voice -vowel]
+    0 > ə / [+velar +stop]_C
+''']))
 
 underlyingProblems.append(Problem(
     u'''

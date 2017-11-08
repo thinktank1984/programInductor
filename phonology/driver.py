@@ -182,6 +182,8 @@ def handleProblem(parameters):
             elif parameters['task'] == 'CEGIS':
                 ss = UnderlyingProblem(p.data, UG = ug).counterexampleSolution(k = parameters['top'],
                                                                                threshold = parameters['threshold'])
+            elif parameters['task'] == 'exact':
+                ss = UnderlyingProblem(p.data).sketchJointSolution(1, canAddNewRules = True)
             elif parameters['task'] == 'frontier':
                 f = str(problemIndex) + ".p"
                 seed = os.path.join(parameters['restore'], f)
@@ -239,7 +241,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
     parser.add_argument('problem')
     parser.add_argument('task',
-                        choices = ["CEGIS","incremental","ransac","stochastic",
+                        choices = ["CEGIS","incremental","ransac","stochastic","exact",
                                    "debug","verify","frontier"],
                         default = "CEGIS",
                         type = str,

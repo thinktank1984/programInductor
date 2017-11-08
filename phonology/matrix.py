@@ -299,6 +299,7 @@ class UnderlyingProblem(object):
                                  auxiliaryHarness = auxiliaryHarness)
 
             output = self.solveSketch()
+            print "Final hole value:",parseMinimalCostValue(output)
 
             solution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                                 suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
@@ -320,14 +321,14 @@ class UnderlyingProblem(object):
         #except SynthesisTimeout:
 
 
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, fixedMorphology = None):
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, fixedMorphology = None, initialDepth = 1, maximumDepth = 3):
         # Start out with the shortest examples
         #self.sortDataByLength()
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]
 
-        depth = 1
+        depth = initialDepth
 
         solution = None
 
@@ -355,7 +356,7 @@ class UnderlyingProblem(object):
             #print latexMatrix(trainingData)
 
             # When we expect it to be tractable, we should try doing a little bit deeper
-            if depth < 3 and self.numberOfInflections < 3:
+            if depth < maximumDepth and self.numberOfInflections < 3:
                 slave = self.restrict(trainingData)
                 try:
                     expandedSolution = slave.sketchJointSolution(depth + 1,
