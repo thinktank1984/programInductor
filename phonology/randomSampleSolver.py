@@ -51,13 +51,13 @@ class RandomSampleSolver(UnderlyingProblem):
             flushEverything()
             return [ s.clearTransducers() for s in solutions ]
 
-    def solve(self, numberOfWorkers = None):
+    def solve(self, numberOfWorkers = None, numberOfSamples = 50):
         if numberOfWorkers == None: numberOfWorkers = numberOfCPUs()
         print "# of workers:",numberOfWorkers
         if numberOfWorkers > 1:
-            solutions = Pool(numberOfWorkers).map(lambda j: self.worker(j), range(numberOfWorkers))
+            solutions = Pool(numberOfWorkers).map(lambda j: self.worker(j), range(numberOfSamples))
         else:
-            solutions = map(lambda j: self.worker(j), range(numberOfWorkers))
+            solutions = map(lambda j: self.worker(j), range(numberOfSamples))
             setGlobalTimeout(None)
             
         # Now coalesce the rules and figure out how frequently they occurred

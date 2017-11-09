@@ -172,8 +172,9 @@ def handleProblem(parameters):
                     list(UnderlyingProblem(p.data).findCounterexamples(s))
                 ss = []
             elif parameters['task'] == 'ransac':
-                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 18, UG = ug).\
-                    solve(numberOfWorkers = parameters['cores'])
+                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug).\
+                    solve(numberOfWorkers = parameters['cores'],
+                          numberOfSamples = parameters['samples'])
                 assert False
             elif parameters['task'] == 'incremental':
                 ss = IncrementalSolver(p.data,parameters['window'],UG = ug).\
@@ -260,6 +261,7 @@ if __name__ == '__main__':
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
     parser.add_argument('--debug', default = None, type = unicode)
+    parser.add_argument('--samples', default = 30, type = int)
     parser.add_argument('--eager', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('--pickleDirectory',default = None,type = str)
@@ -307,7 +309,8 @@ if __name__ == '__main__':
                    'beam': arguments.beam,
                    'timeout': arguments.timeout,
                    'pickleDirectory': arguments.pickleDirectory,
-                   'serial': arguments.serial
+                   'serial': arguments.serial,
+                   'samples': arguments.samples
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))
