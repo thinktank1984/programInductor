@@ -17,6 +17,7 @@ class IncrementalSolver(UnderlyingProblem):
 
         self.fixedMorphologyThreshold = 10
         self.fixedUnderlyingFormThreshold = 10
+        self.fixedMorphology = None
 
     def sketchChangeToSolution(self, solution, rules, allTheData = None):
         assert allTheData != None
@@ -39,7 +40,10 @@ class IncrementalSolver(UnderlyingProblem):
             # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
             inflectionExamples = len([ None for l in allTheData if l[j] != None ])
             
-            if inflectionExamples >= self.fixedMorphologyThreshold:
+            if inflectionExamples >= self.fixedMorphologyThreshold or self.fixedMorphology != None:
+                if self.fixedMorphology:
+                    assert self.fixedMorphology.prefixes[j] == solution.prefixes[j]
+                    assert self.fixedMorphology.suffixes[j] == solution.suffixes[j]
                 print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
                 morphologicalCosts.append(len(solution.prefixes[j]) + \
                                           len(solution.suffixes[j]))
@@ -171,14 +175,15 @@ class IncrementalSolver(UnderlyingProblem):
         return sorted(allSolutions,key = lambda s: s.cost())
     
 
-    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None):
-
+    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None,fixedMorphology = None):
         if loadProgressFrom == None:        
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
             worker = self.restrict(trainingData)#, self.bank)
-            solution = worker.sketchJointSolution(1,canAddNewRules = True,auxiliaryHarness = True)
+            solution = worker.sketchJointSolution(1,canAddNewRules = True,
+                                                  auxiliaryHarness = True,
+                                                  fixedMorphology = fixedMorphology)
             j = initialTrainingSize
         else:
             (j,trainingData,solution) = loadPickle(loadProgressFrom)
@@ -196,9 +201,11 @@ class IncrementalSolver(UnderlyingProblem):
         # Maintain the invariant: the first j examples have been explained
         while j < len(self.data):
             # Can we explain the jth example?
-            if self.verify(solution, self.data[j]):
-                j += 1
-                continue
+            try:
+                if self.verify(solution, self.data[j]):
+                    j += 1
+                    continue
+            except SynthesisTimeout: return [solution]
 
             trainingData = self.data[:j]
 
@@ -210,9 +217,9 @@ class IncrementalSolver(UnderlyingProblem):
             while True:
                 # Prevent the accumulation of a large number of temporary files
                 # These can easily grow into the gigabytes and I have disk quotas
-                deleteTemporarySketchFiles()
+                # deleteTemporarySketchFiles()
                 try:
-                    worker = self.restrict(trainingData + window)#, self.windowSize, self.bank)
+                    worker = self.restrict(trainingData + window)
                     solutions = worker.sketchIncrementalChange(solution, radius)
                     assert solutions != []
                     # see which of the solutions is best overall
@@ -258,6 +265,7 @@ class IncrementalSolver(UnderlyingProblem):
                         print "I refuse to use a radius this big."
                         return None
                     continue # retreat back to the loop over different radii
+                except SynthesisTimeout: return [solution]
 
                 # Successfully explained a new data item
 

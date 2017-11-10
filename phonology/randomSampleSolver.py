@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from matrix import *
+from incremental import IncrementalSolver
 
 from pathos.multiprocessing import ProcessingPool as Pool
 from time import time
@@ -8,9 +9,9 @@ import random
 from sketch import setGlobalTimeout
 import traceback
 
-class RandomSampleSolver(UnderlyingProblem):
+class RandomSampleSolver(IncrementalSolver):
     def __init__(self, data, timeout, lower, upper, UG = None, dummy = False):
-        super(self.__class__,self).__init__(data, UG = UG)
+        super(self.__class__,self).__init__(data, window = 2, UG = UG, numberOfCPUs = 1)
 
         self.dummy = dummy
         self.timeout = timeout
@@ -44,11 +45,15 @@ class RandomSampleSolver(UnderlyingProblem):
                                       prefixes = [Morph([])]*2,
                                       suffixes = [Morph([]),Morph([u'ə'])])
                 try:
-                    solutions += self.restrict(subset).counterexampleSolution(initialTrainingSize = n0,
-                                                                              fixedMorphology = morphology,
-                                                                              k = 1,
-                                                                              maximumDepth = 2,
-                                                                              initialDepth = 2)
+                    worker = self.restrict(subset)
+                    if False:# do straight up CEGIS
+                        solutions += worker.counterexampleSolution(initialTrainingSize = n0,
+                                                                   fixedMorphology = morphology,
+                                                                   k = 1,
+                                                                   maximumDepth = 2,
+                                                                   initialDepth = 2)
+                    else:
+                        solutions += worker.incrementallySolve(fixedMorphology = morphology)
                 except SynthesisTimeout: break
 
             flushEverything()
