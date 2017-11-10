@@ -1622,7 +1622,22 @@ sevenProblems.append(Problem(
 	    (None,None,None,None,u"tepém",	u"tépao",	u"teplá",	u"tepló"),#	wander
 	    (None,None,None,None,u"skubém",	u"skúbao",	u"skublá",	u"skubló"),#	tear
 	    (None,None,None,None,u"tresém",	u"trésao",	u"treslá",	u"tresló"),	#shake
-	(None,None,None,None,u"vezém",	u"vézao",	u"vezlá",	u"vezló")]))#	lead
+	    (None,None,None,None,u"vezém",	u"vézao",	u"vezlá",	u"vezló")],
+    solutions = [u'''
+ + stem + 
+ + stem + a
+ + stem + o
+ + stem + i
+ + stem + em
+ + stem + l
+ + stem + la
+ + stem + lo
+V > [+highTone]/[+highTone]C*_
+V > [-highTone]/_C*[+highTone]
+0 > a/C_C#
+l > o/_#
+[-sonorant] > [-voice]/_[-voice]
+''']))#	lead
 
 
 sevenProblems.append(Problem('''2: Standard Ukrainian

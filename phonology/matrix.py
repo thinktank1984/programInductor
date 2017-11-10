@@ -57,11 +57,29 @@ class UnderlyingProblem(object):
         for i in range(self.numberOfInflections):
             x = s.prefixes[i] + u + s.suffixes[i]
             print "Debugging inflection %d, which has UR = %s"%(i + 1,x)
-            for r in s.rules:
+            usedRules = []
+            for j,r in enumerate(s.rules):
                 y = self.applyRuleUsingSketch(r,x)
                 print "Rewrites to %s using rule\t%s"%(y,r)
+                if x != y: usedRules.append(j)
                 x = y
-            print 
+            print "Used rules:",usedRules
+            print
+
+    def illustrateSolution(self, solution):
+        for x in self.data:
+            u = solution.transduceUnderlyingForm(self.bank, x, getTrace = True)
+            if u == None: print "COUNTEREXAMPLE:"," ~ ".join(map(str,x))
+            else:
+                (ur, traces) = u
+                used = {}
+                for trace in traces:
+                    if trace == None: continue
+                    print trace
+                    for j in range(len(solution.rules) - 1):
+                        if trace[j] != trace[j + 1]: used[j] = True
+                print "Use rules",list(sorted(used.keys()))
+                #self.debugSolution(solution,ur)
 
     def applyRuleUsingSketch(self,r,u):
         '''u: morph; r: rule'''

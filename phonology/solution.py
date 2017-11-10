@@ -138,9 +138,9 @@ class Solution():
                     condition(wordEqual(s.makeConstant(bank),
                                         applyRules(rules,ur,bound)))
                     if getTrace:
-                        trace = [ Morph.sample() for j in range(len(rules) - 1) ]
+                        trace = [ Morph.sample() for j in range(len(rules)) ]
                         for j,t in enumerate(trace):
-                            condition(wordEqual(t, applyRules(rules[:j+1], ur, bound)))
+                            condition(wordEqual(t, applyRules(rules[:j], ur, bound)))
                         traces.append(trace)
                 elif getTrace: traces.append(None)
             minimize(wordLength(stem))

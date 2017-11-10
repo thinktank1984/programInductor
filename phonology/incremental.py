@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from matrix import *
-
+import utilities
 
 from time import time
 import random
-from sketch import setGlobalTimeout
 from sketchSyntax import auxiliaryCondition
 import traceback
 
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None):
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG)
+        self.numberOfCPUs = numberOfCPUs or utilities.numberOfCPUs()/2
         self.windowSize = window
 
         self.fixedMorphologyThreshold = 10
@@ -163,12 +163,7 @@ class IncrementalSolver(UnderlyingProblem):
         solution.clearTransducers()
         Rule.clearSavedTransducers()
         
-        # Figure out how many CPUs we want to use.
-        # if the solution we are modifying has lots of rules use fewer
-        # This is because more rules means that each sketch invocation uses more memory;
-        if len(solution.rules) > 3: desiredNumberOfCPUs = 20
-        else: desiredNumberOfCPUs = 35
-        allSolutions = parallelMap(min(desiredNumberOfCPUs,numberOfCPUs()),
+        allSolutions = parallelMap(self.numberOfCPUs,
                                    lambda v: self.sketchCEGISChange(solution,v),
                                    ruleVectors)
         allSolutions = [ s for ss in allSolutions for s in ss ]

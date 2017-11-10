@@ -169,7 +169,7 @@ def handleProblem(parameters):
                     for r in s.rules:
                         print "Explaining rule: ",r
                         r.explain(b)
-                    list(UnderlyingProblem(p.data).findCounterexamples(s))
+                    UnderlyingProblem(p.data).illustrateSolution(s)
                 ss = []
             elif parameters['task'] == 'ransac':
                 RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
@@ -263,6 +263,7 @@ if __name__ == '__main__':
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
     parser.add_argument('--debug', default = None, type = unicode)
+    parser.add_argument('--restrict', default = None, type = str)
     parser.add_argument('--samples', default = 30, type = int)
     parser.add_argument('--eager', default = False, action = 'store_true')
     parser.add_argument('--beam',default = 1,type = int)
@@ -304,6 +305,7 @@ if __name__ == '__main__':
                    'threshold': arguments.threshold,
                    'redirect': False,
                    'window': arguments.window,
+                   'debug': arguments.debug,
                    'save': arguments.save,
                    'restore': arguments.restore,
                    'eager': arguments.eager,
@@ -313,7 +315,7 @@ if __name__ == '__main__':
                    'pickleDirectory': arguments.pickleDirectory,
                    'serial': arguments.serial,
                    'samples': arguments.samples,
-                   'dummy':                      arguments.dummy,
+                   'dummy': arguments.dummy,
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))
