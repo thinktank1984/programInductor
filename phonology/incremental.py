@@ -12,7 +12,7 @@ import traceback
 class IncrementalSolver(UnderlyingProblem):
     def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG)
-        self.numberOfCPUs = numberOfCPUs or utilities.numberOfCPUs()/2
+        self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else utilities.numberOfCPUs()/2
         self.windowSize = window
 
         self.fixedMorphologyThreshold = 10

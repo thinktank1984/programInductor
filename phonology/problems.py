@@ -1776,16 +1776,8 @@ My analysis:
 Nominative: stem + /s/
 Genitive 1: stem + /is/
 Genitive 2: stem + /i/
-Phonological rules:
-[+voice] > [-voice] / _ i
-(these two have to be in this order)
-s > 0 / [+cor] _     (comes from: s > 0 / {r,l,n} _)
-{d,t} > 0 / _ s 
-e > i / _ [^ir]* i
-0 > e / {t,g}_r#
-
-(not sure about this)
-C_i > 0 / _ C_i #, s > 0/s_
+Observation: ir is not attested
+ir > er
 
 ''',
 [
@@ -1847,7 +1839,7 @@ C_i > 0 / _ C_i #, s > 0/s_
 	(u"os",			u"ossis",None),#			bone
 	(u"far",			u"farris",None),#			spell
 	(u"mel",			u"mellis",None),#			honey
-    # # /r/ deletion? this is tricky
+    # # /r/ creation: s > r/V_V
         (u"o:s",			u"o:ris",None),#			mouth
         (u"flo:s",			u"flo:ris",None),#			flower
         (u"mu:s",			u"mu:ris",None),#		mouse
@@ -1862,6 +1854,12 @@ C_i > 0 / _ C_i #, s > 0/s_
                              [-sonorant] > [-voice] / _ [-voice]
                              s > 0/[+coronal +sonorant] _
                              [+coronal -sonorant] > 0 / _s
+                             e > i/_CV ;;[+vowel -back -long] > [+high]/_CV ;; e > i
+                             0 > e/ C_[+coronal +sonorant]#
+                             s > r/V_V
+                             [+vowel -back] > [-high]/_r
+                             1 > 0/_C# ;; this isn't working
+                             
 ''']))
 	
 sevenProblems.append(Problem('''5: Turkish
