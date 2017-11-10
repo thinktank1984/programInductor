@@ -9,9 +9,10 @@ from sketch import setGlobalTimeout
 import traceback
 
 class RandomSampleSolver(UnderlyingProblem):
-    def __init__(self, data, timeout, lower, upper, UG = None):
+    def __init__(self, data, timeout, lower, upper, UG = None, dummy = False):
         super(self.__class__,self).__init__(data, UG = UG)
-        
+
+        self.dummy = dummy
         self.timeout = timeout
         self.lower = lower
         self.upper = min(upper, len(self.data))
@@ -31,6 +32,12 @@ class RandomSampleSolver(UnderlyingProblem):
                 startingPoint = choice(range(len(self.data) - size + 1))
                 endingPoint = startingPoint + size
                 subset = self.data[startingPoint:endingPoint]
+
+                if self.dummy:
+                    print "Not actually doing ransac, but if I were this is the data I would use:"
+                    for xs in subset:
+                        print "\t".join("".join(x.phonemes) for x in xs)
+                    break
 
                 n0 = min(6,size)
                 morphology = Solution(rules = [],

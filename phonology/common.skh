@@ -624,6 +624,8 @@ bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
 }
 
 int rule_cost(Rule r) {
+  if (r.copyOffset == 0 && empty_specification(r.focus) && empty_specification(r.structural_change) &&
+      !guard_does_something(r.right_trigger) && !guard_does_something(r.left_trigger)) return 0;
 #ifdef UNIVERSALRULEGRAMMAR
   UNIVERSALRULEGRAMMAR
 #endif

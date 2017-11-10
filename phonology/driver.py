@@ -172,7 +172,7 @@ def handleProblem(parameters):
                     list(UnderlyingProblem(p.data).findCounterexamples(s))
                 ss = []
             elif parameters['task'] == 'ransac':
-                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug).\
+                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
                     solve(numberOfWorkers = parameters['cores'],
                           numberOfSamples = parameters['samples'])
                 assert False
@@ -254,6 +254,8 @@ if __name__ == '__main__':
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')
+    parser.add_argument('--dummy', default = False, action = 'store_true',
+                        help = 'Dont actually run the solver to ransac')
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = None, type = str)
@@ -310,7 +312,8 @@ if __name__ == '__main__':
                    'timeout': arguments.timeout,
                    'pickleDirectory': arguments.pickleDirectory,
                    'serial': arguments.serial,
-                   'samples': arguments.samples
+                   'samples': arguments.samples,
+                   'dummy':                      arguments.dummy,
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(','))
