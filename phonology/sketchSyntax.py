@@ -32,6 +32,7 @@ class FunctionCall(Expression):
     def __init__(self, f, arguments):
         self.f = f
         self.x = arguments
+        assert all([isinstance(a,Expression) for a in arguments ])
     def sketch(self):
         return str(self.f) + "(" + ", ".join([a.sketch() for a in self.x ]) + ")"
 
@@ -57,44 +58,51 @@ class LessThan(Expression):
     def __init__(self,a,b):
         self.a = a
         self.b = b
+        assert isinstance(a,Expression)
+        assert isinstance(b,Expression)
     def sketch(self): return "((%s) < (%s))" % (self.a.sketch(), self.b.sketch())
-    def web(self): return "((%s) < (%s))" % (self.a.web(), self.b.web())
 
 class GreaterThan(Expression):
     def __init__(self,a,b):
         self.a = a
         self.b = b
+        assert isinstance(a,Expression)
+        assert isinstance(b,Expression)
     def sketch(self): return "((%s) > (%s))" % (self.a.sketch(), self.b.sketch())
-    def web(self): return "((%s) > (%s))" % (self.a.web(), self.b.web())
 
 class Equals(Expression):
     def __init__(self,a,b):
         self.a = a
         self.b = b
+        assert isinstance(a,Expression)
+        assert isinstance(b,Expression)
     def sketch(self): return "((%s) == (%s))" % (self.a.sketch(), self.b.sketch())
-    def web(self): return "((%s) == (%s))" % (self.a.web(), self.b.web())
 
 class Array(Expression):
-    def __init__(self,elements): self.elements = elements
+    def __init__(self,elements):
+        self.elements = elements
+        assert all([isinstance(x,Expression) for x in elements ])
     def sketch(self):
         return "{%s}" % ", ".join([ e.sketch() for e in self.elements ])
-    def web(self):
-        return "[%s]" % ", ".join([ e.web() for e in self.elements ])
+    
 
 class Minimize():
-    def __init__(self,n): self.n = n
+    def __init__(self,n):
+        self.n = n
+        assert isinstance(n,Expression)
     def sketch(self): return "minimize(%s);" % self.n.sketch()
-    def web(self): return "factor( - (%s))" % self.n.web()
 class Maximize():
-    def __init__(self,n): self.n = n
+    def __init__(self,n):
+        self.n = n
+        assert isinstance(n,Expression)
     def sketch(self): return "minimize(10 - (%s));" % self.n.sketch()
-    def web(self): return "factor(%s)" % self.n.web()
 
 class Definition():
     def __init__(self, ty, name, value):
         self.ty = ty
         self.name = name
         self.value = value
+        assert isinstance(value,Expression)
     def sketch(self):
         return "%s %s = %s;" % (self.ty,self.name,self.value.sketch())
     def web(self):
@@ -105,52 +113,53 @@ class Conditional(Expression):
         self.t = t
         self.y = y
         self.n = n
+        assert isinstance(t,Expression)
+        assert isinstance(y,Expression)
+        assert isinstance(n,Expression)
     def sketch(self):
         return "((%s) ? %s : %s)" % (self.t.sketch(),self.y.sketch(),self.n.sketch())
-    def web(self):
-        return "((%s) ? %s : %s)" % (self.t.web(),self.y.web(),self.n.web())
 
 class And(Expression):
     def __init__(self,clauses):
         self.clauses = clauses
+        assert all([isinstance(c,Expression) for c in clauses ])
     def sketch(self):
         return "(%s)" % (" && ".join([c.sketch() for c in self.clauses ]))
-    def web(self):
-        return "(%s)" % (" && ".join([c.web() for c in self.clauses ]))
 
 class Not(Expression):
     def __init__(self,clauses):
         self.clauses = clauses
+        assert all([isinstance(c,Expression) for c in clauses ])
     def sketch(self):
         return "(!(%s))" % (self.clauses.sketch())
 
 class Or(Expression):
     def __init__(self,clauses):
         self.clauses = clauses
+        assert all([isinstance(c,Expression) for c in clauses ])
     def sketch(self):
         return "(%s)" % (" || ".join([c.sketch() for c in self.clauses ]))
-    def web(self):
-        return "(%s)" % (" || ".join([c.web() for c in self.clauses ]))
 
 class Assertion():
-    def __init__(self,p): self.p = p
+    def __init__(self,p):
+        self.p = p
+        assert isinstance(p,Expression)
     def sketch(self): return "assert %s;" % self.p.sketch()
-    def web(self):
-        return "factor((%s) ? 0 : -Infinity)" % (self.p.web())
 
 class QuantifiedAssertion():
     def __init__(self,p,i):
         self.p = p
         self.i = i
+        assert isinstance(p,Expression)
     def sketch(self): return "if (__ASSERTIONCOUNT__ == %d) assert %s;" % (self.i, str(self.p))
-    def web(self):
-        return "factor((%s) ? 0 : -Infinity)" % (self.p.web())
 
     
 class Addition(Expression):
     def __init__(self,x,y):
         self.x = x
         self.y = y
+        assert isinstance(x,Expression)
+        assert isinstance(y,Expression)
     def sketch(self): return "((%s) + (%s))" % (self.x.sketch(),self.y.sketch())
 class Multiplication(Expression):
     def __init__(self,x,y):

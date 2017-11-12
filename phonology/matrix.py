@@ -422,7 +422,7 @@ class UnderlyingProblem(object):
         everythingCost = sum(descriptionLengths)
         invariantCost = sum([ len(u) for u in solution.underlyingForms ]) 
         return {'solution': solution,
-                'modelCost': solution.modelCost(),
+                'modelCost': solution.modelCost(self.UG),
                 'everythingCost': everythingCost,
                 'invariantCost': invariantCost}
 

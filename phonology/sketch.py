@@ -22,7 +22,7 @@ def applyRules(rules,d,b, doNothing = None):
         if doNothing == None or (not doNothing[j]):
             d = applyRule(r,d,b)
         else:
-            d = doNothingRule(r,d,b)
+            d = doNothingRule(r,d,Constant(b))
     return d
 @sketchImplementation("make_word")
 def makeWord(features): return features

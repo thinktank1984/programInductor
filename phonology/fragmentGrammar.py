@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from parseSPE import parseRule
 from rule import *
 from time import time
 from math import log
@@ -626,10 +625,14 @@ BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0.0, f)
                    for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
                    for f in k.BASEPRODUCTIONS]
 EMPTYFRAGMENTGRAMMAR = FragmentGrammar(BASEPRODUCTIONS)
+def getEmptyFragmentGrammar():
+    global EMPTYFRAGMENTGRAMMAR
+    return EMPTYFRAGMENTGRAMMAR
 baseType2fragmentType = dict((k.CONSTRUCTOR,k)\
                              for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment])
 
 if __name__ == '__main__':
+    from parseSPE import parseRule
     ruleSets = [[parseRule('e > a / # _ [ -voice ]* h #')],
                 [parseRule('e > 0 / # _ [ -voice ]* [ +vowel ]#')]]
     proposeFragments(ruleSets,verbose = True)

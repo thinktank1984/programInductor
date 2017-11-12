@@ -230,7 +230,7 @@ class IncrementalSolver(UnderlyingProblem):
                                       for s in solutions ]
                     print "Alternative solutions and their scores:"
                     for scoreDictionary in solutionScores:
-                        print "COST = %d + (%d everything, %d invariant) = (%d, %d). SOLUTION = \n%s\n"%(
+                        print "COST = %.2f + (%d everything, %d invariant) = (%.2f, %.2f). SOLUTION = \n%s\n"%(
                             scoreDictionary['modelCost'],
                             scoreDictionary['everythingCost'],
                             scoreDictionary['invariantCost'],

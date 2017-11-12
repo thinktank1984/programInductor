@@ -4,6 +4,9 @@ from utilities import *
 from rule import *
 from features import *
 from compileRuleToSketch import compileRuleToSketch
+from fragmentGrammar import getEmptyFragmentGrammar
+
+import math
 
 #pretty sure you do not actually need this
 #from Panini import *
@@ -37,13 +40,23 @@ class Solution():
         if p[-1] == u'\n': p = p[:-1]
         return p
 
-    def cost(self):
-        return sum([ r.cost() for r in self.rules ] +
-                   [ len(s) for s in (self.prefixes + self.suffixes + self.underlyingForms) ])
+    def cost(self, ug = None):
+        return self.modelCost(ug) + sum(len(s) for s in self.underlyingForms)
 
-    def modelCost(self):
-        return sum([ r.cost() for r in self.rules ] +
-                   [ len(s) for s in (self.prefixes + self.suffixes) ])
+    def modelCost(self, UG = None):
+        ruleCost = 0.0
+        for r in self.rules:
+            if UG == None: ruleCost += r.cost()
+            else:
+                k1 = UG.ruleLogLikelihood(r)[0]
+                k2 = getEmptyFragmentGrammar().ruleLogLikelihood(r)[0]
+                k = lse(k1 - math.log(2),k2 - math.log(2))
+                # change of logarithm base:
+                # 1 unit of cost is about log(20)
+                k = -k/math.log(20)
+                # print "Cost of",r,k
+                ruleCost += k
+        return ruleCost + sum([ len(s) for s in (self.prefixes + self.suffixes) ])
 
     def depth(self): return len(self.rules)
 
