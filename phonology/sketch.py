@@ -80,6 +80,10 @@ globalTimeoutCounter = None
 def setGlobalTimeout(seconds):
     global globalTimeoutCounter
     globalTimeoutCounter = seconds
+def exhaustedGlobalTimeout():
+    global globalTimeoutCounter
+    return globalTimeoutCounter != None and int(globalTimeoutCounter/60.0) < 1
+
 lastFailureOutput = None
 lastSketchOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None, timeout = None):
@@ -105,7 +109,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
 
     if timeout != None: timeout = ' --fe-timeout %d '%(int(timeout/60.0))
     elif globalTimeoutCounter != None:
-        if int(globalTimeoutCounter/60.0) < 1:
+        if exhaustedGlobalTimeout():
             print "Exhausted global timeout budget."
             raise SynthesisTimeout()
         timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))

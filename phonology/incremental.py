@@ -92,7 +92,7 @@ class IncrementalSolver(UnderlyingProblem):
 
         try:
             output = self.solveSketch()
-        except SynthesisFailure,SynthesisTimeout:
+        except SynthesisFailure:
             print "\t(no modification possible)"
             # Because these are executed in parallel, do not throw an exception
             return None
@@ -129,21 +129,24 @@ class IncrementalSolver(UnderlyingProblem):
         trainingData = random.sample(self.data[:-self.windowSize], n) + self.data[-self.windowSize:]
 
         newSolution = None
-        while True:
-            worker = self.restrict(trainingData)#, self.windowSize, self.bank)
-            newSolution = worker.sketchChangeToSolution(solution, rules, allTheData = self.data)
-            if newSolution == None: return []
-            print "CEGIS: About to find a counterexample to:\n",newSolution
-            ce = self.findCounterexample(newSolution, trainingData)
-            if ce == None:
-                print "No counterexample so I am just returning best solution"
-                newSolution.clearTransducers()
-                newSolution.underlyingForms = None
-                newSolution = self.solveUnderlyingForms(newSolution)
-                print "Final CEGIS solution:\n%s"%(newSolution)
-                return [newSolution]
-            trainingData = trainingData + [ce]
-        assert False
+        try: # catch timeout exception
+            
+            while True:
+                worker = self.restrict(trainingData)
+                newSolution = worker.sketchChangeToSolution(solution, rules, allTheData = self.data)
+                if newSolution == None: return None
+                print "CEGIS: About to find a counterexample to:\n",newSolution
+                ce = self.findCounterexample(newSolution, trainingData)
+                if ce == None:
+                    print "No counterexample so I am just returning best solution"
+                    newSolution.clearTransducers()
+                    newSolution.underlyingForms = None
+                    newSolution = self.solveUnderlyingForms(newSolution)
+                    print "Final CEGIS solution:\n%s"%(newSolution)
+                    return newSolution
+                trainingData = trainingData + [ce]
+                
+        except SynthesisTimeout: return None
 
     def sketchIncrementalChange(self, solution, radius = 1):
         # This is the actual sequence of radii that we go through
@@ -162,16 +165,13 @@ class IncrementalSolver(UnderlyingProblem):
         # Ensure output is nicely ordered
         flushEverything()
 
-        # parallel computation involves pushing the solution through a pickle
-        # so make sure you do not pickle any transducers
-        solution.clearTransducers()
-        Rule.clearSavedTransducers()
-        
         allSolutions = parallelMap(self.numberOfCPUs,
                                    lambda v: self.sketchCEGISChange(solution,v),
                                    ruleVectors)
-        allSolutions = [ s for ss in allSolutions for s in ss ]
-        if allSolutions == []: raise SynthesisFailure('incremental change')
+        allSolutions = [ s for s in allSolutions if s != None ]
+        if allSolutions == []:
+            if exhaustedGlobalTimeout(): raise SynthesisTimeout()
+            else: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
     
 

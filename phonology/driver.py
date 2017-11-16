@@ -255,7 +255,7 @@ if __name__ == '__main__':
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')
     parser.add_argument('--dummy', default = False, action = 'store_true',
-                        help = 'Dont actually run the solver to ransac')
+                        help = 'Dont actually run the solver for ransac')
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = None, type = str)
