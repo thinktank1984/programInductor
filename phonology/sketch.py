@@ -89,7 +89,7 @@ lastSketchOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None, timeout = None):
     global lastFailureOutput,lastSketchOutput,globalTimeoutCounter
 
-    #leavitt = True
+    # leavitt = True
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
@@ -117,8 +117,11 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
     else: timeout = ''
 
-    if os.uname()[1] == 'sketch2': temporaryOutput = " --fe-tempdir /scratch/ellisk --fe-output /scratch/ellisk "
-    else: temporaryOutput = " --fe-tempdir /tmp --fe-output /tmp "
+    
+    if os.uname()[1] == 'sketch2': temporaryOutputFolder = "~/.sketch/tmp" # alternatively I could try /scratch/ellisk
+    else: temporaryOutput = "~/.sketch/tmp"
+    temporaryOutput = " --fe-tempdir %s --fe-output %s "%(temporaryOutputFolder,temporaryOutputFolder)
+    
     command = "sketch %s %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (temporaryOutput,
                                                                                         timeout,
                                                                                         minimizeBound,
@@ -138,6 +141,10 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     if not leavitt:
         os.remove(temporarySketchFile)
         os.remove(outputFile)
+
+    # Cleanup of temporary files
+    if os.path.exists(temporaryOutput + "/" + temporarySketchFile):
+        os.system("rm -r " + temporaryOutput + "/" + temporarySketchFile)
 
     lastSketchOutput = output
     
