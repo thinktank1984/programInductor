@@ -114,13 +114,16 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
             raise SynthesisTimeout()
         timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
     else: timeout = ''
-    
-    command = "sketch --fe-tempdir /tmp --fe-output /tmp %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
-                                                                                     minimizeBound,
-                                                                                     unroll,
-                                                                                     temporarySketchFile,
-                                                                                     outputFile,
-                                                                                     outputFile)
+
+    if os.uname()[1] != 'sketch2': temporaryOutput = " --fe-tempdir /tmp --fe-output /tmp "
+    else: temporaryOutput = ""
+    command = "sketch %s %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (temporaryOutput,
+                                                                                        timeout,
+                                                                                        minimizeBound,
+                                                                                        unroll,
+                                                                                        temporarySketchFile,
+                                                                                        outputFile,
+                                                                                        outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
