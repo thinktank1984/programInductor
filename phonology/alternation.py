@@ -94,7 +94,7 @@ class AlternationProblem():
                        deep2)
             prediction = deep
             for r in rules:
-                prediction = applyRule(r, prediction, len(tokenize(self.surfaceForms[j])))
+                prediction = applyRule(r, prediction, Constant(0), len(tokenize(self.surfaceForms[j])))
 
             condition(wordEqual(surface, prediction))
 

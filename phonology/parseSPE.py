@@ -91,7 +91,8 @@ matrixParser = mapParserOutput(concatenate(concatenate(constantParser('['),
 phonemeParser = alternation(*[ constantParser(k,ConstantPhoneme(k)) for k in featureMap ])
 consonantParser = constantParser('C',FeatureMatrix([(False,'vowel')]))
 vowelParser = constantParser('V',FeatureMatrix([(True,'vowel')]))
-specificationParser = alternation(matrixParser,phonemeParser,vowelParser,consonantParser)
+boundaryParser = constantParser('+',BoundarySpecification())
+specificationParser = alternation(matrixParser,phonemeParser,boundaryParser,vowelParser,consonantParser)
 guardSpecificationParser = concatenate(specificationParser,
                                        optional(whitespaceDelimited(constantParser('*','*'))),
                                        lambda v1,v2: (v1,v2))
@@ -162,7 +163,6 @@ def parseSolution(s):
 if __name__ == '__main__':
     print parseRule(u'o > e / a [ ] _')
     print list(featuresParser(''))
-    assert False
     print parseRule('0 > -2 / #[-vowel][]* _ e #').pretty()
     print parseSolution(u''' + stem + 
  + stem + ə

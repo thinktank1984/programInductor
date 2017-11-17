@@ -65,7 +65,7 @@ depth = 3
 
 
 
-solution = SupervisedProblem([ (Morph(tokenize(x)), Morph(tokenize(y))) for x,y in examples ]).solve(depth)
+solution = SupervisedProblem([ (Morph(tokenize(x)), Constant(0), Morph(tokenize(y))) for x,y in examples ]).solve(depth)
 if solution == None:
     print "No solution."
 else:

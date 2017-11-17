@@ -59,7 +59,7 @@ class UnderlyingProblem(object):
             print "Debugging inflection %d, which has UR = %s"%(i + 1,x)
             usedRules = []
             for j,r in enumerate(s.rules):
-                y = self.applyRuleUsingSketch(r,x)
+                y = self.applyRuleUsingSketch(r,x,len(s.prefixes[i]) + len(u))
                 print "Rewrites to %s using rule\t%s"%(y,r)
                 if x != y: usedRules.append(j)
                 x = y
@@ -81,28 +81,26 @@ class UnderlyingProblem(object):
                 print "Use rules",list(sorted(used.keys()))
                 #self.debugSolution(solution,ur)
 
-    def applyRuleUsingSketch(self,r,u):
-        '''u: morph; r: rule'''
+    def applyRuleUsingSketch(self,r,u,untilSuffix):
+        '''u: morph; r: rule; untilSuffix: int'''
         Model.Global()
         result = Morph.sample()
         _r = r.makeDefinition(self.bank)
-        condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank), self.maximumObservationLength + 1)))
+        condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank),
+                                             Constant(untilSuffix), self.maximumObservationLength + 1)))
         try:
             output = self.solveSketch()
         except SynthesisFailure:
-            print "applyRuleUsingSketch: UNSATISFIABLE for %s %s"%(u,r)
+            print "applyRuleUsingSketch: UNSATISFIABLE for %s %s %s"%(u,r,untilSuffix)
             assert False
         except SynthesisTimeout:
-            print "applyRuleUsingSketch: TIMEOUT for %s %s"%(u,r)
+            print "applyRuleUsingSketch: TIMEOUT for %s %s %s"%(u,r,untilSuffix)
             assert False
         return Morph.parse(self.bank, output, result)
         
     
     def applyRule(self, r, u):
-        ruleOutput = runForward(r.fst(self.bank),u.fst(self.bank))
-        if ruleOutput == None: return None
-        return Morph.fromFST(self.bank, ruleOutput)
-                             
+        assert False,'UnderlyingProblem.applyRule: deprecated'
 
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
@@ -117,17 +115,13 @@ class UnderlyingProblem(object):
         """surfaces : list of numberOfInflections elements, each of which is a morph object"""
         assert self.numberOfInflections == len(surfaces)
         
-        def buildUnderlyingForm(prefix, suffix):
-            if isinstance(stem, Morph): # underlying form is fixed
-                assert False # deprecated
-                return (prefix + stem + suffix).makeConstant(self.bank)
-            else: # underlying form is unknown
-                return concatenate3(prefix, stem, suffix)
-        
         for i,surface in enumerate(surfaces):
             if surface == None: continue
             
-            prediction = applyRules(rules, buildUnderlyingForm(prefixes[i],suffixes[i]), len(surface) + 1)
+            prediction = applyRules(rules,
+                                    concatenate3(prefixes[i],stem,suffixes[i]),
+                                    wordLength(prefixes[i]) + wordLength(stem),
+                                    len(surface) + 1)
             predicate = wordEqual(surface.makeConstant(self.bank), prediction)
             if auxiliaryHarness: auxiliaryCondition(predicate)
             else: condition(predicate)
@@ -172,11 +166,14 @@ class UnderlyingProblem(object):
         xs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
                for j in range(len(self.data))
                for i in range(self.numberOfInflections) ]
+        untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[j]))
+                        for j in range(len(self.data))
+                        for i in range(self.numberOfInflections) ]
         frontiers = []
         for r in solution.rules:
-            ys = [ self.applyRuleUsingSketch(r,x)
-                   for x in xs ]
-            alternatives = SupervisedProblem(zip(xs,ys)).fastTopK(k, r)
+            ys = [ self.applyRuleUsingSketch(r,x,us)
+                   for x,us in zip(xs,untilSuffix) ]
+            alternatives = SupervisedProblem(zip(xs,untilSuffix,ys)).fastTopK(k, r)
             frontiers.append(alternatives)
             xs = ys
 

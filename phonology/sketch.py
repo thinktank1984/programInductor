@@ -14,15 +14,17 @@ import re
 @sketchImplementation("alternation_cost")
 def alternationCost(r): pass
 
-def applyRule(rule,i,unrollBound):
-    if callable(rule): return rule(i,Constant(unrollBound))
-    else: return FunctionCall("apply_rule", [rule,i,Constant(unrollBound)])
-def applyRules(rules,d,b, doNothing = None):
+def applyRule(rule,i,untilSuffix, unrollBound):
+    if callable(rule):
+        assert False, "deprecated: compiled rules"
+        return rule(i,Constant(unrollBound))
+    else: return FunctionCall("apply_rule", [rule,i, untilSuffix, Constant(unrollBound)])
+def applyRules(rules,d, untilSuffix, b, doNothing = None):
     for j,r in enumerate(rules):
         if doNothing == None or (not doNothing[j]):
-            d = applyRule(r,d,b)
+            d = applyRule(r,d, untilSuffix, b)
         else:
-            d = doNothingRule(r,d,Constant(b))
+            d = doNothingRule(r,d,untilSuffix,Constant(b))
     return d
 @sketchImplementation("make_word")
 def makeWord(features): return features
@@ -84,12 +86,17 @@ def exhaustedGlobalTimeout():
     global globalTimeoutCounter
     return globalTimeoutCounter != None and int(globalTimeoutCounter/60.0) < 1
 
+leaveSketches = False
+def leaveSketchOutput():
+    global leaveSketches
+    leaveSketches = True
+
 lastFailureOutput = None
 lastSketchOutput = None
-def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, leavitt = False, showSource = False, minimizeBound = None, timeout = None):
-    global lastFailureOutput,lastSketchOutput,globalTimeoutCounter
+def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, showSource = False, minimizeBound = None, timeout = None):
+    global lastFailureOutput,lastSketchOutput,globalTimeoutCounter,leaveSketches
 
-    # leavitt = True
+    leavitt = leaveSketches
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
 
@@ -156,7 +163,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         print "FATAL: Could not parse program"
         print source
         print output
-        assert False,"Sketch parse errorc"
+        assert False,"Sketch parse error"
     else:
         return output
 

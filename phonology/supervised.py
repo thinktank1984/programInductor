@@ -10,8 +10,8 @@ from sketch import *
 class SupervisedProblem():
     def __init__(self, examples):
         self.examples = examples
-        self.bank = FeatureBank([ w for x,y in self.examples for w in [x,y]  ])
-        self.maximumObservationLength = max([len(m) for e in examples for m in e ]) + 1
+        self.bank = FeatureBank([ w for x,us,y in self.examples for w in [x,y]  ])
+        self.maximumObservationLength = max([len(m) for x,us,y in examples for m in [x,y] ]) + 1
         self.maximumMorphLength = self.maximumObservationLength
 
 
@@ -25,8 +25,11 @@ class SupervisedProblem():
                 condition(ruleEqual(rule, other.makeConstant(self.bank)) == 0)
             minimize(ruleCost(rule))
 
-            for x,y in self.examples:
-                auxiliaryCondition(wordEqual(applyRule(rule, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
+            for x,us,y in self.examples:
+                auxiliaryCondition(wordEqual(applyRule(rule,
+                                                       x.makeConstant(self.bank),
+                                                       us,
+                                                       max(len(x),len(y)) + 1),
                                              y.makeConstant(self.bank)))
             output = solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength)
             if not output: break
@@ -39,8 +42,11 @@ class SupervisedProblem():
         rules = [ Rule.sample() for _ in range(d) ]
         minimize(sum([ ruleCost(r) for r in rules ]))
 
-        for x,y in self.examples:
-            auxiliaryCondition(wordEqual(applyRules(rules, x.makeConstant(self.bank), max(len(x),len(y)) + 1),
+        for x,us,y in self.examples:
+            auxiliaryCondition(wordEqual(applyRules(rules,
+                                                    x.makeConstant(self.bank),
+                                                    us,
+                                                    max(len(x),len(y)) + 1),
                                          y.makeConstant(self.bank)))
         try:
             output = solveSketch(self.bank, self.maximumObservationLength, self.maximumMorphLength)

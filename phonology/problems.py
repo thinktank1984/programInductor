@@ -1686,8 +1686,8 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
  + stem + ov^yi
  + stem + i
  + stem + ov^yi
-[-vowel] > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
-o > e / i C _ ;; i is the only thing that is [+vowel +high -back]
+C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
+o > e / i + _ ;; i is the only thing that is [+vowel +high -back]
 C > [-palletized] / _ e
 [+vowel -low -high] > i / _ C* C # ;; neutralize {e,o} if they are the last vowel
 ''']))

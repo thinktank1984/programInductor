@@ -85,6 +85,8 @@ struct Vector extends Specification{//@Immutable("")
 struct ConstantPhoneme extends Specification{//@Immutable("")
   Sound phoneme;
 }
+// It seems that I need the dummy...
+struct Boundary extends Specification{bit dummy;}
 
 bit specification_equal(Specification p, Specification q) {
   if (p == null || q == null) return p == null && q == null;
@@ -95,12 +97,21 @@ bit specification_equal(Specification p, Specification q) {
       return p.mask == q.mask && (p.preference&p.mask) == (q.preference&q.mask);
     }
     case ConstantPhoneme:{ return 0; }
+    case Boundary:{return 0;}
     }
   }
   case ConstantPhoneme:{
     switch (q) {
     case Vector:{ return 0; }
     case ConstantPhoneme:{ return p.phoneme == q.phoneme; }
+    case Boundary:{return 0;}
+    }
+  }
+  case Boundary:{
+    switch (q) {
+    case Vector:{ return 0; }
+    case ConstantPhoneme:{ return 0; }
+    case Boundary:{return 1;}
     }
   }
   }
@@ -113,8 +124,20 @@ bit empty_specification(Specification p) {
     return empty_vector(p.mask);
   }
   case ConstantPhoneme:{ return 0; }
+  case Boundary:{ return 0;}
   }
 }
+
+bit boundary_specification(Specification p) {
+  if (p == null) return 0;
+  switch (p) {
+  case Vector:{return 0;
+  }
+  case ConstantPhoneme:{ return 0; }
+  case Boundary:{ return 1;}
+  }
+}
+
 
 bit constant_specification(Specification p) {
   if (p == null) return 0;
@@ -122,8 +145,11 @@ bit constant_specification(Specification p) {
   case Vector:{return 0;
   }
   case ConstantPhoneme:{ return 1; }
+  case Boundary:{ return 0;}
   }
 }
+
+
 
 bit vector_specification(Specification p) {
   if (p == null) return 0;
@@ -131,6 +157,7 @@ bit vector_specification(Specification p) {
   case Vector:{return 1;
   }
   case ConstantPhoneme:{ return 0; }
+  case Boundary:{ return 0; }
   }
 }
 bit vector_unspecified(Specification p,int f) {
@@ -139,6 +166,7 @@ bit vector_unspecified(Specification p,int f) {
   case Vector:{return !p.mask[f];
   }
   case ConstantPhoneme:{ assert 0; }
+  case Boundary:{ assert 0;}
   }
 }
 bit vector_preference(Specification p,int f) {
@@ -147,12 +175,14 @@ bit vector_preference(Specification p,int f) {
   case Vector:{return p.preference[f];
   }
   case ConstantPhoneme:{ assert 0; }
+  case Boundary:{ assert 0;}
   }
 }
 Sound extract_constant_sound(Specification p) {
   if (p == null) return null;
   switch (p) {
   case Vector:{return null;}
+  case Boundary:{ return null; }
   case ConstantPhoneme:{ return p.phoneme; }
   }
 }
@@ -169,6 +199,7 @@ bit matches_specification(Sound sound, Specification specification) {
   case ConstantPhoneme: {
     return sound_equal(sound, specification.phoneme);
   }
+  case Boundary:{ assert 0; }
   }
 }
 
@@ -185,6 +216,7 @@ Sound apply_specification(Specification specification, Sound sound) {
   case ConstantPhoneme:{
     return specification.phoneme;
   }
+  case Boundary:{ assert 0; }
   }
 }
 
@@ -276,6 +308,7 @@ bit is_syllable_specification(Specification s) {
   if (s == null) { return 0; }
   switch(s){
   case Vector:{ return 0; }
+  case Boundary:{ return 0; }
   case ConstantPhoneme:{ return s.phoneme == SYLLABLEBOUNDARYPHONEME;}
   }
 }
@@ -286,6 +319,7 @@ bit has_syllable_feature(Specification s) {
     return s.mask[SYLLABLEBOUNDARYFEATURE];
   }
   case ConstantPhoneme:{ return 0;}
+  case Boundary:{ return 0; }
   }
 }
 #endif
@@ -297,6 +331,7 @@ int specification_cost(Specification s) {
   if (s == null) return 2;
   switch(s) {
   case ConstantPhoneme:{ return 1; }
+  case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
   case Vector:{
     int c = 1;
     repeat (f : NUMBEROFFEATURES) {
@@ -321,6 +356,7 @@ int guard_specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
   case ConstantPhoneme:{ return 1; }
+  case Boundary:{ return 3; }
   case Vector:{
     //    if (empty_vector(s.mask)) return 1;
     //    assert !empty_vector(s.mask);
@@ -368,6 +404,7 @@ bit is_valid_structural_change(Specification s) {
   if (s == null) return 1;
   switch (s){
   case ConstantPhoneme:{}
+  case Boundary:{assert 0;}
   case Vector:{
     // mutually exclude high middle and low
     MUTUALLYEXCLUDE(s)
@@ -394,17 +431,20 @@ bit alternation_equal(Rule p, Rule q) {
 }
 
 generator Guard unknown_guard() {
-  Specification s = unknown_specification();
-  Specification s2 = unknown_specification();
+  Specification s = unknown_guard_specification();
+  Specification s2 = unknown_guard_specification();
   return new Guard(endOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
-generator Specification unknown_specification() {
+generator Specification unknown_FC_specification() {
   return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
+}
+generator Specification unknown_guard_specification() {
+  return {| null | new Boundary(dummy = 0) | new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
 }
   
 generator Rule unknown_rule() {
-  return new Rule(focus = {| null | unknown_specification() |},
-		  structural_change = {| null | unknown_specification() |},
+  return new Rule(focus = unknown_FC_specification(),
+		  structural_change = unknown_FC_specification(),
 		  left_trigger = unknown_guard(),
 		  right_trigger = unknown_guard(),
 		  copyOffset = {| 0 | 1 | -1 | -2 | 2 |});
@@ -429,13 +469,24 @@ bit guard_does_something(Guard g){
   return g.endOfString || g.spec != null;
 }
 
-bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unrollBound){
+// apply_guard(u, g, 0)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
+// apply_guard(u, g, 1)[j] = g.* matches u[j],u[j+1],...,u[l-1], eg, from j onward
+bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix, bit R, int unrollBound){
+  int B = untilSuffix - 1;
+  
   // guard sanity checks
   if (g.spec == null) assert g.spec2 == null;
+  
+  // Cannot have two boundary markers. Also, +_ is identical to _+. wlog + occurs on the left.
+  if (R) assert !boundary_specification(g.spec);
+  assert !boundary_specification(g.spec2);
+  
   if (g.starred) { // * applies to the second specification
     assert g.spec != null && g.spec2 != null;
     // do not put a star on constant
     assert !constant_specification(g.spec);
+    assert !boundary_specification(g.spec);
+    assert !boundary_specification(g.spec2);
 #ifdef SYLLABLEBOUNDARYFEATURE
     // todo: allow star on and with syllable
     assert !is_syllable_specification(g.spec);
@@ -478,18 +529,27 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
     bit a1,a2;
     if (r1 == null) { // leftmost specification is epsilon
       a1 = j == 0 || !g.endOfString;
-    } else { // leftmost specification corresponds to a set of phonemes
+    } else { // leftmost specification corresponds to a set of phonemes or a boundary
+      
 #ifdef SYLLABLEBOUNDARYFEATURE
       if (is_syllable_specification(r1)) {
 	if (!R)
 	  a1 = is_syllable_ending_at(u, index2sound(j)) && (!g.endOfString || 0 == syllable_ending_at(u, index2sound(j)));
 	else
 	  a1 = is_syllable_starting_at(u, index2sound(j)) && (!g.endOfString || l - 1 == syllable_starting_at(u, index2sound(j)));
-      } else
+      } else {
 #endif
+
+	// This should hold because r1 = spec2
+	// assert !boundary_specification(r1);
+      
 	a1 = (j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 0 || !g.endOfString));
       /* if (0) // optional end of string: {#,r1} */
       /* 	a1 = a1 || (j == 0); */
+
+#ifdef SYLLABLEBOUNDARYFEATURE
+      }
+#endif     
 
     }
     if (r2 == null) { // all specifications are empty
@@ -508,11 +568,18 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
 	  if (e != -1) a2 = A1[l - e - 1];
 	  else a2 = 0;
 	}
-      } else
+      } else {
 #endif
-      a2 = j > 0 && matches_specification(u[index2sound(j)],g.spec) && a1old;
+	a2 = j > 0 && 
+	  (boundary_specification(r2) ?
+	   a1 && j == B :
+	   a1old && matches_specification(u[index2sound(j)],g.spec));
       /* if (0 && r1 == null) // optional end of string: {#,r2} */
       /* 	a2 = a2 || (j == 0); */
+#ifdef SYLLABLEBOUNDARYFEATURE
+      }
+#endif
+	
     }
     okay[index2okay(j)] = a2;
     a2old = a2;
@@ -524,110 +591,6 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, bit R, int unro
   return okay;
 }
 
-// apply_guard(u, g, 0)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
-// apply_guard(u, g, 1)[j] = g.* matches u[j],u[j+1],...,u[l-1], eg, from j onward
-bit[l+1] apply_guard([int l], Sound[l] u, Guard g, bit R, int unrollBound){
-  // guard sanity checks
-  if (g.spec == null) assert g.spec2 == null;
-  if (g.starred) { // * applies to the second specification
-    assert g.spec != null && g.spec2 != null;
-    // do not put a star on constant
-    assert !constant_specification(g.spec);
-#ifdef SYLLABLEBOUNDARYFEATURE
-    // todo: allow star on and with syllable
-    assert !is_syllable_specification(g.spec);
-    assert !is_syllable_specification(g.spec2);
-#endif
-  }
-#ifdef SYLLABLEBOUNDARYFEATURE
-  if (is_syllable_specification(g.spec2))
-    assert is_syllable_specification(g.spec);
-#endif
-
-
-  // The index counts how many sounds we have consumed from the input
-  // consider making these macros if it ends up being too slow
-  // not sure if that even matters
-/* #define index2okay(i) (R? (l - (i)) : i) */
-/* #define index2sound(o) (R? (l - 1 - o) : o) */
-  int index2okay(int i){
-    if (R) return l - i;
-    else return i;
-  }
-  int index2sound(int o){
-    if (R) return l - 1 - (o - 1);
-    else return (o - 1);
-  }
-
-  bit[l + 1] okay;
-  // the only way that the empty string can be matched by .*g is if g is either empty or #
-  // # by itself entails that both of the specifications are null
-  okay[index2okay(0)] = (g.spec == null && g.spec2 == null);
-
-  // State machine for starred: either in accepting or rejecting state
-  bit accepting = 0;
-  for (int j = 1; j <= l; j++) {
-    assert j <= unrollBound;
-    
-    // j counts how many sounds we have consumed from the input
-    Sound this_sound = u[index2sound(j)]; // R sounds: (l-1), (l-2), ..., 0
-    bit this_is_okay = 1;
-    if (g.starred) { // (#?)gg*
-      bit stay_in_accepting_state = accepting && matches_specification(this_sound, g.spec);
-      if (!g.endOfString) { // gg*_
-	accepting = matches_specification(this_sound, g.spec2) || stay_in_accepting_state;
-      } else { // #gg*_
-	accepting = matches_specification(u[index2sound(1)], g.spec2) &&
-	  (j == 1 || stay_in_accepting_state);
-      }
-      this_is_okay = accepting;
-    } else if (g.endOfString && g.spec == null) { // #_
-      this_is_okay = 0;
-    } else { // #?g?g?
-      this_is_okay = this_is_okay && (g.spec == null || (
-#ifdef SYLLABLEBOUNDARYFEATURE
-				      is_syllable_specification(g.spec)?
-				      (R? is_syllable_starting_at(u,index2sound(j)) : is_syllable_ending_at(u,index2sound(j))) :
-#endif
-				      matches_specification(this_sound, g.spec)));
-
-      // This is the index of whatever we were looking at in the previous loop iteration
-      int secondary_index = index2sound(j - 1); //R? (l + 1 - j):(j - 2);
-      this_is_okay = this_is_okay && (g.spec2 == null || (
-#ifdef SYLLABLEBOUNDARYFEATURE
-							  // FIXME: sigma [stuff]
-				      is_syllable_specification(g.spec2)?
-				      (R? are_two_syllables_starting_at(u,index2sound(j))
-				       : are_two_syllables_ending_at(u,index2sound(j))) :
-#endif
-				      (j > 1 && matches_specification(u[secondary_index], g.spec2))));
-
-      if (g.endOfString) { // is this off by one???
-	// #g _
-	if (g.spec2 == null) this_is_okay = this_is_okay && (
-#ifdef SYLLABLEBOUNDARYFEATURE
-			       is_syllable_specification(g.spec)?
-			       (R? syllable_starting_at(u,index2sound(j)) == l - 1
-				: syllable_ending_at(u,index2sound(j)) == 0) :
-#endif
-			       j == 1);
-
-	// #gg _
-	else                 this_is_okay = this_is_okay && (
-#ifdef SYLLABLEBOUNDARYFEATURE
-			       is_syllable_specification(g.spec2)?
-			       (R? syllable_starting_at(u,syllable_starting_at(u,index2sound(j))+1) == l - 1
-				: syllable_ending_at(u,syllable_ending_at(u,index2sound(j))-1) == 0) :
-#endif
-			       j == 2);
-      }
-    }
-
-    okay[index2okay(j)] = this_is_okay;
-  }
-
-  return okay;
-}
 
 int rule_cost(Rule r) {
   if (r.copyOffset == 0 && empty_specification(r.focus) && empty_specification(r.structural_change) &&
@@ -640,7 +603,7 @@ int rule_cost(Rule r) {
 		      (r.copyOffset == 0 ? 0 : 1));
 }
 
-Word apply_rule(Rule r, Word u, int unrollBound) {
+Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
   Specification focus = r.focus;
   Specification structural_change = r.structural_change;
   Guard left_trigger = r.left_trigger;
@@ -690,10 +653,10 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
   
   Sound[u.l + MAXIMALINCREASE] output;
 
-  bit[u.l + 1] right_okay = apply_guard_sophisticated(u.s,right_trigger,1, unrollBound);
+  bit[u.l + 1] right_okay = apply_guard_sophisticated(u.s,right_trigger, untilSuffix, 1, unrollBound);
   bit right_final_okay = right_okay[0];
   
-  bit[u.l + 1] left_okay = apply_guard_sophisticated(u.s,left_trigger,0, unrollBound);
+  bit[u.l + 1] left_okay = apply_guard_sophisticated(u.s,left_trigger, untilSuffix, 0, unrollBound);
   bit left_final_okay = left_okay[u.l];
 
 
@@ -817,16 +780,16 @@ Word apply_rule(Rule r, Word u, int unrollBound) {
 
 // Assert that r does nothing on u, and then return u
 // The idea is that you can plop this in as a replacement for apply_rule
-Word do_nothing_rule(Rule r, Word u, int unrollBound) {
+Word do_nothing_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
   Specification focus = r.focus;
   Specification structural_change = r.structural_change;
   Guard left_trigger = r.left_trigger;
   Guard right_trigger = r.right_trigger;
 
-  bit[u.l + 1] right_okay = apply_guard_sophisticated(u.s,right_trigger,1, unrollBound);
+  bit[u.l + 1] right_okay = apply_guard_sophisticated(u.s,right_trigger,untilSuffix, 1, unrollBound);
   bit right_final_okay = right_okay[0];
   
-  bit[u.l + 1] left_okay = apply_guard_sophisticated(u.s,left_trigger,0, unrollBound);
+  bit[u.l + 1] left_okay = apply_guard_sophisticated(u.s,left_trigger,untilSuffix, 0, unrollBound);
   bit left_final_okay = left_okay[u.l];
 
 

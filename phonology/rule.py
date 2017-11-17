@@ -160,6 +160,44 @@ class EmptySpecification(Specification,FC):
 
     def sketchEquals(self,v,_):
         return "((%s) == null)"%(v)
+
+class BoundarySpecification(Specification):
+    def __init__(self): pass
+    def __unicode__(self): return u"+"
+    def __str__(self): return unicode(self).encode('utf-8')
+
+    def doesNothing(self): return False
+    def skeleton(self): return "+"
+    def cost(self): return 3
+    def latex(self): return '$+$'
+    def mutate(self,_): return self
+
+    def share(self, table):
+        k = ('BOUNDARYSPECIFICATION',unicode(self))
+        if k in table: return table[k]
+        table[k] = self
+        return self
+
+    def merge(self, other):
+        if isinstance(other, BoundarySpecification): return self
+        return Braces(self, other)
+
+    @staticmethod
+    def parse(bank, output, variable):
+        pattern = " %s = new Boundary;" % variable
+        m = re.search(pattern, output)
+        if not m: raise Exception('Failure parsing boundary specification %s'%variable)
+        return BoundarySpecification()
+    def makeConstant(self, bank):
+        return "(new Boundary(dummy = 0))"
+
+    def matches(self, test):
+        return False
+    def apply(self, test):
+        raise Exception('cannot apply boundary specification')
+
+    def sketchEquals(self,v,_):
+        return "(boundary_specification(%s))"%(v)
     
 class FeatureMatrix(Specification,FC):
     def __init__(self, featuresAndPolarities):

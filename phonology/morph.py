@@ -2,7 +2,7 @@
 
 from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant
 from sketch import makeConstantWord, getGeneratorDefinition
-from features import FeatureBank,featureMap
+from features import FeatureBank,featureMap,tokenize
 from utilities import *
 
 from random import choice
@@ -10,6 +10,7 @@ import re
 
 class Morph():
     def __init__(self, phonemes):
+        if isinstance(phonemes,unicode): phonemes = tokenize(phonemes)
         self.phonemes = phonemes
     def __unicode__(self):
         return u"/ {} /".format(u" ".join(self.phonemes))
