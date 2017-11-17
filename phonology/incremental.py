@@ -10,9 +10,11 @@ import traceback
 
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None):
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 5):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG)
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else utilities.numberOfCPUs()/2
+
+        self.maximumNumberOfRules = maximumNumberOfRules
         self.windowSize = window
 
         self.fixedMorphologyThreshold = 10
@@ -158,7 +160,7 @@ class IncrementalSolver(UnderlyingProblem):
         ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius))
 
         # A cap the maximum number of rules that we are willing to consider
-        ruleVectors = [ ruleVector for ruleVector in ruleVectors if len(ruleVector) <= 6 ]
+        ruleVectors = [ ruleVector for ruleVector in ruleVectors if len(ruleVector) <= self.maximumNumberOfRules ]
 
         print "# parallel sketch jobs:",len(ruleVectors)
 
@@ -261,9 +263,9 @@ class IncrementalSolver(UnderlyingProblem):
                     print "No incremental modification within radius of size %d"%radius
                     radius += 1
                     print "Increasing search radius to %d"%radius
-                    if radius > 3:
+                    if radius > 1:
                         print "I refuse to use a radius this big."
-                        return None
+                        return [solution]
                     continue # retreat back to the loop over different radii
                 except SynthesisTimeout: return [solution]
 

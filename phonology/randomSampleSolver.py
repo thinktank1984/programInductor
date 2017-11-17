@@ -46,6 +46,7 @@ class RandomSampleSolver(IncrementalSolver):
                                       suffixes = [Morph([]),Morph([u'ə'])])
                 try:
                     worker = self.restrict(subset)
+                    worker.maximumNumberOfRules = 3
                     worker.fixedMorphology = morphology
                     if False:# do straight up CEGIS
                         solutions += worker.counterexampleSolution(initialTrainingSize = n0,
