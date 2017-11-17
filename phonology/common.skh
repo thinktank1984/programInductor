@@ -13,7 +13,7 @@ int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 @Native("{std::cout << stuff; }")
 void printNumber(int stuff) {}
 @Native("{std::cout << stuff; }")
-void printPhoneme(Sound stuff) {}
+Sound printPhoneme(Sound stuff) { return stuff; }
 
 struct Sound {//@Immutable("")
   bit[NUMBEROFFEATURES] f;
@@ -69,8 +69,9 @@ generator Word unknown_word() {
   
   Word w = new Word(l = l);
   repeat(j : MAXIMUMMORPHLENGTH) {
-    if (j < l)
+    if (j < l) {
       w.s[j] = UNKNOWNSOUND;
+    }
   }
   return w;
 }
