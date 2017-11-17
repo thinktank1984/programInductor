@@ -115,7 +115,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
     else: timeout = ''
     
-    command = "sketch %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
+    command = "sketch --fe-tempdir /tmp --fe-output /tmp %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
                                                                                      minimizeBound,
                                                                                      unroll,
                                                                                      temporarySketchFile,
