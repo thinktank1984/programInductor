@@ -115,6 +115,10 @@ def handleProblem(parameters):
         handle = io.open(redirectName,'w',encoding = 'utf-8')#.character_encoding)
         sys.stdout = handle
         #        sys.stderr = handle
+
+    if parameters['restrict'] != None:
+        print "(Restricting problem data to interval: %d -- %d)"%(parameters['restrict'][0],parameters['restrict'][1])
+        p.data = p.data[parameters['restrict'][0] : parameters['restrict'][1]]
     
     print p.description
     if problemIndex != 7:
@@ -296,6 +300,17 @@ if __name__ == '__main__':
     else:
         problems = map(int,arguments.problem.split(','))
 
+    if arguments.restrict != None:        
+        restriction = tuple(map(int,arguments.restrict.split(":")))
+        if len(restriction) == 1:
+            if arguments.restrict.startswith(":"):
+                restriction = [0,restriction[0]]
+            elif arguments.restrict.endswith(":"):
+                restriction = [restriction[0],99999]
+            else:
+                assert False, ("Invalid restriction expression:"+arguments.restrict)
+        arguments.restrict = restriction
+
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,
                    'testing': testing,
@@ -308,6 +323,7 @@ if __name__ == '__main__':
                    'debug': arguments.debug,
                    'save': arguments.save,
                    'restore': arguments.restore,
+                   "restrict": arguments.restrict,
                    'eager': arguments.eager,
                    'cores': arguments.cores,
                    'beam': arguments.beam,

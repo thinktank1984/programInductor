@@ -10,6 +10,9 @@ int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 #define True 1
 #define False 0
 
+@Native("{std::cout << stuff; }")
+void printNumber(int n) {}
+
 struct Sound {//@Immutable("")
   bit[NUMBEROFFEATURES] f;
 }
