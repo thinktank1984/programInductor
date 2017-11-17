@@ -118,17 +118,17 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     else: timeout = ''
 
     
-    if os.uname()[1] == 'sketch2': temporaryOutputFolder = "~/.sketch/tmp" # alternatively I could try /scratch/ellisk
-    else: temporaryOutput = "~/.sketch/tmp"
-    temporaryOutput = " --fe-tempdir %s --fe-output %s "%(temporaryOutputFolder,temporaryOutputFolder)
+    # if os.uname()[1] == 'sketch2': temporaryOutputFolder = "~/.sketch/tmp" # alternatively I could try /scratch/ellisk
+    # else: temporaryOutputFolder = "~/.sketch/tmp"
+    temporaryOutputFolder = "~/.sketch/tmp"
+    # temporaryOutput = " --fe-tempdir %s --fe-output %s "%(temporaryOutputFolder,temporaryOutputFolder)
     
-    command = "sketch %s %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (temporaryOutput,
-                                                                                        timeout,
-                                                                                        minimizeBound,
-                                                                                        unroll,
-                                                                                        temporarySketchFile,
-                                                                                        outputFile,
-                                                                                        outputFile)
+    command = "sketch %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
+                                                                                     minimizeBound,
+                                                                                     unroll,
+                                                                                     temporarySketchFile,
+                                                                                     outputFile,
+                                                                                     outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
@@ -143,8 +143,8 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         os.remove(outputFile)
 
     # Cleanup of temporary files
-    if os.path.exists(temporaryOutput + "/" + temporarySketchFile):
-        os.system("rm -r " + temporaryOutput + "/" + temporarySketchFile)
+    if os.path.exists(temporaryOutputFolder + "/" + temporarySketchFile):
+        os.system("rm -r " + temporaryOutputFolder + "/" + temporarySketchFile)
 
     lastSketchOutput = output
     
