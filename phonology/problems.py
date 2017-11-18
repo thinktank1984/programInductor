@@ -868,7 +868,7 @@ Final solution:
 	u"ŋabǰu"],#	‘50’
     parameters = [10,1,11,4,14,40,9,19,90,5,15,50],
     solutions = [u'''
-C > C/#_C''']))
+C > 0/#_C''']))
 
 underlyingProblems.append(Problem(
     u'''
@@ -1687,7 +1687,7 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
  + stem + i
  + stem + ov^yi
 C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
-o > e / i + _ ;; i is the only thing that is [+vowel +high -back]
+o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "vowel fronting"
 C > [-palletized] / _ e
 [+vowel -low -high] > i / _ C* C # ;; neutralize {e,o} if they are the last vowel
 ''']))

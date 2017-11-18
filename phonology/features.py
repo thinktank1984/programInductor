@@ -33,14 +33,12 @@ fricative = "fricative"
 labiodental = "labiodental"
 dental = "dental"
 alveolar = "alveolar"
-palatal = "palatal"
 labiovelar = "labiovelar"
 velar = "velar"
 nasal = "nasal"
 uvular = "uvular"
 laryngeal = "laryngeal"
 glide = "glide"
-palatal = "palatal"
 liquid = "liquid"
 lateral = "lateral"
 trill = "trill"
@@ -109,19 +107,19 @@ featureMap = {
     u"n̥": [alveolar,nasal,coronal,sonorant],
     u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
     u"š": [alveopalatal,fricative,coronal, sibilant],
-    u"c": [palatal,stop,coronal],
+    u"c": [palletized,stop,coronal],
     u"č": [alveopalatal,affricate,coronal,sibilant,stop],
     u"č|": [alveopalatal,stop,coronal],
     u"č^h": [alveopalatal,affricate,coronal,aspirated],
     u"k": [velar,stop],
     u"k|": [velar,stop,unreleased],
     u"k^h": [velar,stop,aspirated],
-    u"k^y": [velar,stop,palatal],
+    u"k^y": [velar,stop,palletized],
     u"x": [velar,fricative],
     u"X": [uvular,fricative], # χ
-    u"x^y": [velar,fricative,palatal],
+    u"x^y": [velar,fricative,palletized],
     u"g": [velar,stop,voice],
-    u"g^y": [velar,stop,voice,palatal],
+    u"g^y": [velar,stop,voice,palletized],
     u"ɣ": [velar,fricative,voice],
     u"ŋ": [velar,nasal,voice,sonorant],
     u"q": [uvular,stop],
@@ -133,7 +131,7 @@ featureMap = {
 
     # glides
     u"w": [glide,voice,bilabial,sonorant],
-    u"y": [glide,palatal,voice,sonorant],
+    u"y": [glide,palletized,voice,sonorant],
 
     # liquids
     u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],

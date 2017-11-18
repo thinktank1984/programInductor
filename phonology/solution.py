@@ -3,7 +3,6 @@ from sketch import *
 from utilities import *
 from rule import *
 from features import *
-from compileRuleToSketch import compileRuleToSketch
 from fragmentGrammar import getEmptyFragmentGrammar
 
 import math
@@ -137,75 +136,32 @@ class Solution():
 
     def transduceUnderlyingForm(self, bank, surfaces, getTrace = False):
         '''surfaces: list of morphs'''
-        if True: # do not use transducers until I can fix the bug
-            bound = max([len(s) for s in surfaces if s != None]) + 3
-            Model.Global()
-            rules = [r.makeDefinition(bank) for r in self.rules ]
-            prefixes = [p.makeConstant(bank) for p in self.prefixes ]
-            suffixes = [p.makeConstant(bank) for p in self.suffixes ]
-            stem = Morph.sample()
-            traces = []
-            for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
-                if s != None:
-                    ur = concatenate3(prefix,stem,suffix)
-                    condition(wordEqual(s.makeConstant(bank),
-                                        applyRules(rules,ur,bound)))
-                    if getTrace:
-                        trace = [ Morph.sample() for j in range(len(rules)) ]
-                        for j,t in enumerate(trace):
-                            condition(wordEqual(t, applyRules(rules[:j], ur, bound)))
-                        traces.append(trace)
-                elif getTrace: traces.append(None)
-            minimize(wordLength(stem))
-            
-            try: output = solveSketch(bank,bound,bound)
-            except SynthesisFailure: return None
-            
-            if not getTrace: return Morph.parse(bank,output,stem)
-            
-            traces = [ [ Morph.parse(bank, output, t) for t in trace ] if trace != None else None
-                       for trace in traces ]
-            return Morph.parse(bank,output,stem),traces
-        try:
-            transducers = self.inflectionTransducers(bank)
-        except InvalidRule as ex:
-            print "INVALIDRULE???"
-            print ex
-            return None
-
-        applicableTransducersAndSurfaces = [ (s.fst(bank),t)
-                                             for (t,s) in zip(transducers, surfaces) if s != None ]
-
-        ur = parallelInversion(applicableTransducersAndSurfaces,
-                               alphabet = bank.transducerAlphabet())
-        if ur == None: return None
-        return Morph([ bank.fst2phoneme(p) for p in ur ])
-
-    def verifyRuleCompilation(self, b, data):
+        bound = max([len(s) for s in surfaces if s != None]) + 3
         Model.Global()
+        rules = [r.makeDefinition(bank) for r in self.rules ]
+        prefixes = [p.makeConstant(bank) for p in self.prefixes ]
+        suffixes = [p.makeConstant(bank) for p in self.suffixes ]
+        stem = Morph.sample()
+        traces = []
+        for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
+            if s != None:
+                ur = concatenate3(prefix,stem,suffix)
+                condition(wordEqual(s.makeConstant(bank),
+                                    applyRules(rules,ur, wordLength(prefix) + wordLength(stem), bound)))
+                if getTrace:
+                    trace = [ Morph.sample() for j in range(len(rules)) ]
+                    for j,t in enumerate(trace):
+                        condition(wordEqual(t, applyRules(rules[:j], ur,
+                                                          wordLength(prefix) + wordLength(stem),bound)))
+                    traces.append(trace)
+            elif getTrace: traces.append(None)
+        minimize(wordLength(stem))
 
-        rules = [ compileRuleToSketch(b,r) for r in self.rules ]
+        try: output = solveSketch(bank,bound,bound)
+        except SynthesisFailure: return None
 
-        for i in range(len(self.prefixes)):
-            for j in range(len(data)):
-                if data[j][i] == None: continue
-                
-                ur = self.prefixes[i] + self.underlyingForms[j] + self.suffixes[i]
-                ur = ur.makeConstant(b)
-                bound = len(data[j][i]) + 1
-                condition(wordEqual(data[j][i].makeConstant(b),
-                                    applyRules(rules, ur, bound)))
-        solverOutput = solveSketch(b,unroll = 15,maximumMorphLength = 15)
-        if solverOutput == None:
-            print "Could not verify rule compilation:"
-            print self
-            printSketchFailure()
-            for o,u in zip(data,self.underlyingForms):
-                print o[0],'is underlyingly ',u
+        if not getTrace: return Morph.parse(bank,output,stem)
 
-            print makeSketch(b)
-            assert False
-        else:
-            print "\t(successfully verified solution using compiled rules)"
-            
-            
+        traces = [ [ Morph.parse(bank, output, t) for t in trace ] if trace != None else None
+                   for trace in traces ]
+        return Morph.parse(bank,output,stem),traces

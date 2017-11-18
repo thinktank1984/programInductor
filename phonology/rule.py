@@ -62,13 +62,17 @@ class Specification():
     
     @staticmethod
     def parse(bank, output, variable):
-        try:
-            return FeatureMatrix.parse(bank, output, variable)
-        except:
+        print "Parsing a specification"
+        print "variable",variable
+        print output
+        print 
+        parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse]
+        for parser in parsers:
             try:
-                return EmptySpecification.parse(bank, output, variable)
+                return parser(bank, output, variable)
             except:
-                return ConstantPhoneme.parse(bank, output, variable)
+                continue
+        assert False,"Parse failure for specification"
 
     @staticmethod
     def enumeration(b,cost):
@@ -171,6 +175,7 @@ class BoundarySpecification(Specification):
     def cost(self): return 3
     def latex(self): return '$+$'
     def mutate(self,_): return self
+    def extension(self,_): return "+"
 
     def share(self, table):
         k = ('BOUNDARYSPECIFICATION',unicode(self))
@@ -188,6 +193,7 @@ class BoundarySpecification(Specification):
         m = re.search(pattern, output)
         if not m: raise Exception('Failure parsing boundary specification %s'%variable)
         return BoundarySpecification()
+    
     def makeConstant(self, bank):
         return "(new Boundary(dummy = 0))"
 
@@ -464,7 +470,9 @@ class Guard():
         endOfString = m.group(1) == '1'
         starred = m.group(2) == '1'
         spec = None if m.group(3) == 'null' else Specification.parse(bank, output, m.group(3))
+        if isinstance(spec,EmptySpecification): spec = None
         spec2 = None if m.group(4) == 'null' else Specification.parse(bank, output, m.group(4))
+        if isinstance(spec2,EmptySpecification): spec2 = None
         return Guard(side, endOfString, starred, [spec,spec2])
     def makeConstant(self, bank):
         if len(self.specifications) == 2:

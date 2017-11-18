@@ -472,7 +472,7 @@ bit guard_does_something(Guard g){
 // apply_guard(u, g, 0)[j] = .*g matches u[0],u[1],...,u[j-1]. eg, the first j elements of u.
 // apply_guard(u, g, 1)[j] = g.* matches u[j],u[j+1],...,u[l-1], eg, from j onward
 bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix, bit R, int unrollBound){
-  int B = untilSuffix - 1;
+  int B = untilSuffix;
   
   // guard sanity checks
   if (g.spec == null) assert g.spec2 == null;
@@ -608,6 +608,9 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
   Specification structural_change = r.structural_change;
   Guard left_trigger = r.left_trigger;
   Guard right_trigger = r.right_trigger;
+
+  assert u.l <= unrollBound;
+  /* assert u.l >= unrollBound - 1; */
 
   // sanity check
   if (focus != null && structural_change != null) assert r.copyOffset == 0; // not inserting so don't copy

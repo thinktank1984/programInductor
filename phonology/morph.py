@@ -24,6 +24,10 @@ class Morph():
         return str(self) == str(other)
     def __ne__(self, other):
         return str(self) != str(other)
+    def __getitem__(self, sl):
+        if isinstance(sl,int): return self.phonemes[sl]
+        if isinstance(sl,slice):
+            return Morph(self.phonemes[sl.start:sl.stop:sl.step])
 
     def mutate(self,bank):
         # remove a phoneme

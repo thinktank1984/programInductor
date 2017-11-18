@@ -266,7 +266,7 @@ if __name__ == '__main__':
     parser.add_argument('--window', default = 2, type = int)
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
-    parser.add_argument('--debug', default = None, type = unicode)
+    parser.add_argument('--debug', default = None, type = lambda s: unicode(s,'utf8'))
     parser.add_argument('--restrict', default = None, type = str)
     parser.add_argument('--samples', default = 30, type = int)
     parser.add_argument('--eager', default = False, action = 'store_true')
