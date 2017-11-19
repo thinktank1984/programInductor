@@ -436,7 +436,7 @@ generator Guard unknown_guard() {
   return new Guard(endOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_FC_specification() {
-  return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
+  return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null |};
 }
 generator Specification unknown_guard_specification() {
   return {| null | new Boundary(dummy = 0) | new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};

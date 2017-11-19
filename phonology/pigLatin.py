@@ -54,11 +54,11 @@ data['Latin'] = [(u"pɩg", u"ɩgpe"),#pe"),
 # Ø ---> 1 /  _ σ
 # Ø ---> d /  _ #
 # Ø ---> ə /  _ #
-data['Chinese'] = [(u"xau-",u"xau-xau-də"),
-                   (u"man-",u"man-man-də"),
-#                   (u"kwaj-",u"kwajkwajdə"),
-#                   (u"çin-",u"çinçində"),
-                   (u"le-",u"le-le-də")]
+data['Chinese'] = [(u"xaw",u"xawxawdə"),
+                   (u"man",u"manmandə"),
+#                   (u"kwaj",u"kwajkwajdə"),
+#                   (u"çin",u"çinçində"),
+                   (u"le",u"leledə")]
 
 
 
@@ -75,7 +75,8 @@ if __name__ == "__main__":
     depth = arguments.depth
 
     leaveSketchOutput()
-    solution = SupervisedProblem([ (Morph(tokenize(x)), Constant(0), Morph(tokenize(y))) for x,y in examples ]).solve(depth)
+    solution = SupervisedProblem([ (Morph(tokenize(x)), Constant(0), Morph(tokenize(y))) for x,y in examples ],
+                                 syllables = True).solve(depth)
     
     if solution == None:
         print "No solution."

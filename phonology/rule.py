@@ -62,10 +62,10 @@ class Specification():
     
     @staticmethod
     def parse(bank, output, variable):
-        print "Parsing a specification"
-        print "variable",variable
-        print output
-        print 
+        # print "Parsing a specification"
+        # print "variable",variable
+        # print output
+        # print 
         parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse]
         for parser in parsers:
             try:

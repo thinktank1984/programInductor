@@ -8,9 +8,15 @@ from sketch import *
 
 
 class SupervisedProblem():
-    def __init__(self, examples):
+    def __init__(self, examples, bank = None, syllables = False):
+        '''examples: [(Morph, int|Expression, Morph)]
+        The inner int|Expression is the distance to the suffix'''
+
+        # Make it so that the distance to the suffix is always an expression
+        examples = [(x, Constant(us) if not isinstance(us,Expression) else us, y) for x,us,y in examples ]
         self.examples = examples
-        self.bank = FeatureBank([ w for x,us,y in self.examples for w in [x,y]  ])
+        self.bank = bank if bank != None else \
+                    FeatureBank([ w for x,us,y in self.examples for w in [x,y]  ] + ([] if not syllables else [u'-']))
         self.maximumObservationLength = max([len(m) for x,us,y in examples for m in [x,y] ]) + 1
         self.maximumMorphLength = self.maximumObservationLength
 
