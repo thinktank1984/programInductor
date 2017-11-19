@@ -18,22 +18,23 @@ Pig Latin rules:
    # > e / _
 '''
 
+data = {}
 # learn to delete the first character
-pigLatinExamples1 = [(u"pɩg", u"ɩg"),#pe"),
+data['Latin1'] = [(u"pɩg", u"ɩg"),#pe"),
                     (u"latɩn", u"atɩn"),#le"),
                     (u"no", u"o"),#ne"),
                     # (u"it", u"ite"),
                     # (u"ask", u"ask")
 ]
 # learn to append "e"
-pigLatinExamples2 = [(u"pɩg", u"pɩge"),#pe"),
+data['Latin2'] = [(u"pɩg", u"pɩge"),#pe"),
                     (u"latɩn", u"latɩne"),#le"),
                     (u"no", u"noe"),#ne"),
                     (u"it", u"ite"),
                      (u"ask", u"aske")
 ]
 # learn to copy the first letter only if it is a consonant
-pigLatinExamples3 = [(u"pɩg", u"pɩgp"),#pe"),
+data['Latin3'] = [(u"pɩg", u"pɩgp"),#pe"),
                     (u"latɩn", u"latɩnl"),#le"),
                     (u"no", u"non"),#ne"),
                     (u"it", u"it"),
@@ -43,7 +44,7 @@ pigLatinExamples3 = [(u"pɩg", u"pɩgp"),#pe"),
 # Ø ---> -2 / # [ -vowel ] [  ]* _ #
 # [ -vowel ] ---> Ø / # _ 
 # Ø ---> e /  _ #
-pigLatinExamples4 = [(u"pɩg", u"ɩgpe"),#pe"),
+data['Latin'] = [(u"pɩg", u"ɩgpe"),#pe"),
       (u"latɩn", u"atɩnle"),#le"),
       (u"no", u"one"),#ne"),
       (u"it", u"ite"),
@@ -53,20 +54,30 @@ pigLatinExamples4 = [(u"pɩg", u"ɩgpe"),#pe"),
 # Ø ---> 1 /  _ σ
 # Ø ---> d /  _ #
 # Ø ---> ə /  _ #
-chineseExamples = [(u"xau-",u"xau-xau-də"),
+data['Chinese'] = [(u"xau-",u"xau-xau-də"),
                    (u"man-",u"man-man-də"),
 #                   (u"kwaj-",u"kwajkwajdə"),
 #                   (u"çin-",u"çinçində"),
                    (u"le-",u"le-le-də")]
 
-examples = chineseExamples
-depth = 3
 
 
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description = "Learn pig Latin and Chinese")
+    parser.add_argument('task',
+                        choices = ["Chinese","Latin","Latin1","Latin2","Latin3"],
+                        default = "Latin")
+    parser.add_argument("-d","--depth",default = 1,type = int)
+    arguments = parser.parse_args()
 
+    examples = data[arguments.task]
+    depth = arguments.depth
 
-solution = SupervisedProblem([ (Morph(tokenize(x)), Constant(0), Morph(tokenize(y))) for x,y in examples ]).solve(depth)
-if solution == None:
-    print "No solution."
-else:
-    for r in solution: print r
+    leaveSketchOutput()
+    solution = SupervisedProblem([ (Morph(tokenize(x)), Constant(0), Morph(tokenize(y))) for x,y in examples ]).solve(depth)
+    
+    if solution == None:
+        print "No solution."
+    else:
+        for r in solution: print r
