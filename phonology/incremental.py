@@ -77,7 +77,9 @@ class IncrementalSolver(UnderlyingProblem):
                 if o == None: continue
                 phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
                 auxiliaryCondition(wordEqual(o.makeConstant(self.bank),
-                                             applyRules(rules, phonologicalInput, len(o) + 1,
+                                             applyRules(rules, phonologicalInput,
+                                                        wordLength(prefixes[i]) + wordLength(stem),
+                                                        len(o) + 1,
                                                         doNothing = isNewRule)))
         stems = [ Morph.sample() for observation in self.data
                   if not (observation in observationsWithFixedUnderlyingForms) ]
