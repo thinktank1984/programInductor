@@ -543,7 +543,7 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
 	// This should hold because r1 = spec2
 	// assert !boundary_specification(r1);
       
-	a1 = (j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 0 || !g.endOfString));
+	a1 = j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 1 || !g.endOfString);
       /* if (0) // optional end of string: {#,r1} */
       /* 	a1 = a1 || (j == 0); */
 

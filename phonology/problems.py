@@ -1688,8 +1688,10 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
  + stem + ov^yi
 C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
 o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "vowel fronting"
-C > [-palletized] / _ e
 [+vowel -low -high] > i / _ C* C # ;; neutralize {e,o} if they are the last vowel
+[-glide -vowel] > [-palletized] / _ e ;; depalletized anything except for y
+l > w/_# ;; l = [liquid,lateral,voice,alveolar,coronal,sonorant]
+v > w/_# ;; v = [labiodental,fricative,voice]
 ''']))
 
 sevenProblems.append(Problem('''3: Somali
