@@ -118,11 +118,12 @@ def handleProblem(parameters):
 
     if parameters['restrict'] != None:
         print "(Restricting problem data to interval: %d -- %d)"%(parameters['restrict'][0],parameters['restrict'][1])
-        p.data = p.data[parameters['restrict'][0] : parameters['restrict'][1]]
-    
+        restriction = p.data[parameters['restrict'][0] : parameters['restrict'][1]]
+    else: restriction = p.data
+        
     print p.description
     if problemIndex != 7:
-        print u"\n".join([ u"\t".join(map(unicode,inflections)) for inflections in p.data ])
+        print u"\n".join([ u"\t".join(map(unicode,inflections)) for inflections in restriction ])
     else:
         print CountingProblem(p.data, p.parameters).latex()
 
@@ -157,13 +158,14 @@ def handleProblem(parameters):
             sys.exit(0)
             
     else:
+        problem = UnderlyingProblem(p.data, UG = ug).restrict(restriction)
         if parameters['testing'] == 0.0:
             if parameters['task'] == 'stochastic':
-                UnderlyingProblem(p.data).stochasticSearch(20, parameters['beam'])
+                problem.stochasticSearch(20, parameters['beam'])
             elif parameters['task'] == 'debug':
                 for s in p.solutions:
                     s = parseSolution(s)
-                    UnderlyingProblem(p.data).debugSolution(s,Morph(tokenize(parameters['debug'])))
+                    problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
             elif parameters['task'] == 'verify':
                 for s in p.solutions:
                     s = parseSolution(s)
@@ -173,22 +175,24 @@ def handleProblem(parameters):
                     for r in s.rules:
                         print "Explaining rule: ",r
                         r.explain(b)
-                    UnderlyingProblem(p.data).illustrateSolution(s)
+                    problem.illustrateSolution(s)
                 ss = []
             elif parameters['task'] == 'ransac':
                 RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
+                    restrict(restriction).\
                     solve(numberOfWorkers = parameters['cores'],
                           numberOfSamples = parameters['samples'])
                 assert False
             elif parameters['task'] == 'incremental':
                 ss = IncrementalSolver(p.data,parameters['window'],UG = ug).\
+                     restrict(restriction).\
                      incrementallySolve(saveProgressTo = parameters['save'],
                                         loadProgressFrom = parameters['restore'])
             elif parameters['task'] == 'CEGIS':
-                ss = UnderlyingProblem(p.data, UG = ug).counterexampleSolution(k = parameters['top'],
-                                                                               threshold = parameters['threshold'])
+                ss = problem.counterexampleSolution(k = parameters['top'],
+                                                    threshold = parameters['threshold'])
             elif parameters['task'] == 'exact':
-                ss = UnderlyingProblem(p.data).sketchJointSolution(1, canAddNewRules = True)
+                ss = problem.sketchJointSolution(1, canAddNewRules = True)
             elif parameters['task'] == 'frontier':
                 f = str(problemIndex) + ".p"
                 seed = os.path.join(parameters['restore'], f)
@@ -198,7 +202,7 @@ def handleProblem(parameters):
                 seed = loadPickle(seed)
                 assert isinstance(seed,list)
                 assert len(seed) == 1
-                worker = UnderlyingProblem(p.data)
+                worker = problem
                 seed = worker.solveUnderlyingForms(seed[0])
                 frontier = worker.solveFrontiers(seed, k = parameters['top'])
                 dumpPickle(frontier, os.path.join(parameters['save'], f))
