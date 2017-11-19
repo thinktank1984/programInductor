@@ -556,7 +556,8 @@ class UnderlyingProblem(object):
     def restrict(self, newData):
         """Creates a new version of this object which is identical but has different training data"""
         restriction = copy.copy(self)
-        restriction.data = newData
+        restriction.data = [ [ None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
+                               for i in Lex] for Lex in newData ]
         return restriction
 
 
