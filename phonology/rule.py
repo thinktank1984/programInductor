@@ -560,6 +560,7 @@ class Rule():
         return table[k]
 
     def cost(self):
+        if self.doesNothing(): return 0
         return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost() + (0 if self.copyOffset == 0 else 1)
     def alternationCost(self):
         return self.leftTriggers.cost() + self.rightTriggers.cost()   

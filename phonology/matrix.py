@@ -515,9 +515,11 @@ class UnderlyingProblem(object):
             uc = sum([len(u) for u in s.underlyingForms ])
             print "Costs:",(rc,uc)
             actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
+            print "Actual costs:",actualCosts
+            if not (actualCosts == (rc,uc)):
+                print output
             assert actualCosts == (rc,uc)
             (rc,uc) = actualCosts
-            print "Actual costs:",actualCosts
             solutionCosts.append((rc,uc))
 
         print " pareto: got %d solutions of depth %d"%(len(solutions),depth)
