@@ -305,7 +305,7 @@ if __name__ == '__main__':
         problems = map(int,arguments.problem.split(','))
 
     if arguments.restrict != None:        
-        restriction = tuple(map(int,arguments.restrict.split(":")))
+        restriction = tuple(map(int,[offset for offset in arguments.restrict.split(":") if offset != '']))
         if len(restriction) == 1:
             if arguments.restrict.startswith(":"):
                 restriction = [0,restriction[0]]
