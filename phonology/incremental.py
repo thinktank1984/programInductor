@@ -337,6 +337,11 @@ class IncrementalSolver(UnderlyingProblem):
                     print "Increasing search radius to %d"%radius
                     if radius > 1:
                         print "I refuse to use a radius this big."
+                        self.windowSize -= 1
+                        if self.windowSize > 0:
+                            print "Decreased window size to"%self.windowSize
+                            continue
+                        print "Can't shrink the window anymore so I'm just going to return"
                         return [solution]
                     continue # retreat back to the loop over different radii
                 except SynthesisTimeout: return [solution]
