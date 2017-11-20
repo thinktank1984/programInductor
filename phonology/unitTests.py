@@ -46,6 +46,7 @@ def supervisedDeleteInitial():
                            (Morph("fat"),0,Morph("at")),
                            (Morph("rat"),0,Morph("at")),
                            (Morph("iat"),0,Morph("iat")),
+                           (Morph(u"ɩat"),0,Morph(u"ɩat")),
                            (Morph("oat"),0,Morph("oat"))])
     r = s.solve(1)[0]
     assert isinstance(r.structuralChange, EmptySpecification)
