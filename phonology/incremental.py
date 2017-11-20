@@ -340,7 +340,8 @@ class IncrementalSolver(UnderlyingProblem):
                         self.windowSize -= 1
                         if self.windowSize > 0:
                             print "Decreased window size to"%self.windowSize
-                            continue
+                            break # break out of the loop over different radius sizes
+                        
                         print "Can't shrink the window anymore so I'm just going to return"
                         return [solution]
                     continue # retreat back to the loop over different radii
