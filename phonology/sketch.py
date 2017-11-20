@@ -127,7 +127,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     
     # if os.uname()[1] == 'sketch2': temporaryOutputFolder = "~/.sketch/tmp" # alternatively I could try /scratch/ellisk
     # else: temporaryOutputFolder = "~/.sketch/tmp"
-    temporaryOutputFolder = "~/.sketch/tmp"
+    temporaryOutputFolder = os.path.expanduser("~/.sketch/tmp")
     # temporaryOutput = " --fe-tempdir %s --fe-output %s "%(temporaryOutputFolder,temporaryOutputFolder)
     
     command = "sketch %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
