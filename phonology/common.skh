@@ -26,6 +26,7 @@ struct Word {//@Immutable("")
 }
 
 int word_length(Word w) { return w.l; }
+Sound index_word(Word w,int j) {return w.s[j];}
 
 bit sound_equal(Sound x, Sound y) {
   return x == y;
@@ -330,7 +331,7 @@ int specification_cost(Specification s) {
 #endif
   if (s == null) return 2;
   switch(s) {
-  case ConstantPhoneme:{ return 1; }
+  case ConstantPhoneme:{ return 2; }
   case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
   case Vector:{
     int c = 1;

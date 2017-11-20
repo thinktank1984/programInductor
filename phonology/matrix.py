@@ -102,6 +102,32 @@ class UnderlyingProblem(object):
     def applyRule(self, r, u):
         assert False,'UnderlyingProblem.applyRule: deprecated'
 
+    def conditionPhoneme(self, expression, index, phoneme):
+        variables = self.bank.variablesOfWord(phoneme)
+        assert len(variables) == 1
+        phoneme = Constant(variables[0])
+        condition(phoneme == indexWord(expression, index))
+    def constrainUnderlyingRepresentation(self, stem, prefixes, suffixes, surfaces):
+        # Remove what we can
+        trimmed = []
+        for prefix, suffix, surface in zip(prefixes, suffixes, surfaces):
+            if surface == None: continue
+            trimmed.append(surface[len(prefix) : len(surface) - len(suffix)])
+        for j in range(99):
+            if any(j >= len(t) for t in trimmed): break
+            if all(trimmed[0][j] == t[j] for t in trimmed):
+                self.conditionPhoneme(stem, Constant(j), trimmed[0][j])
+            else: break
+        for j in range(99):
+            if any(j >= len(t) for t in trimmed): break
+            if all(trimmed[0][len(trimmed[0]) - j - 1] == t[len(t) - j - 1] for t in trimmed):
+                self.conditionPhoneme(stem,
+                                      wordLength(stem) - (j + 1),
+                                      trimmed[0][len(trimmed[0]) - j - 1])
+                                      
+            else: break
+            
+
     def sortDataByLength(self):
         # Sort the data by length. Break ties by remembering which one originally came first.
         dataTaggedWithLength = [ (sum([ len(w) if w != None else 0 for w in self.data[j]]),

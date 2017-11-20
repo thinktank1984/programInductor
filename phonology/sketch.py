@@ -49,6 +49,8 @@ def alternationEqual(p,q): return p == q
 def isDeletionRule(r): return r.structuralChange == None
 @sketchImplementation("do_nothing_rule")
 def doNothingRule(*a): pass
+@sketchImplementation("index_word")
+def indexWord(*a): pass
 
 def makeConstantVector(v):
     return Array(map(Constant,v))

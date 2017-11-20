@@ -7,7 +7,6 @@ from latex import latexWord
 from morph import Morph
 from utilities import *
 
-#from Panini import *
 
 import re
 from random import choice,random
@@ -82,11 +81,10 @@ class ConstantPhoneme(Specification,FC):
     def __init__(self, p): self.p = p
     def __unicode__(self):
         if self.p == '-': return u"σ"
-        else:
-            return self.p
+        else: return self.p
     def __str__(self): return unicode(self).encode('utf-8')
     def doesNothing(self): return False
-    def cost(self): return 1
+    def cost(self): return 2
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
     def fst(self,bank):
