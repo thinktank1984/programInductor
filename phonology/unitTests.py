@@ -1,16 +1,28 @@
 # -*- coding: utf-8 -*-
 
+from utilities import *
 from Marcus import *
 from supervised import SupervisedProblem
 from problems import *
 from matrix import *
 from parseSPE import *
+from incremental import *
 
 TESTS = []
 def test(f):
     TESTS.append(f)
     return f
 
+@test
+def editSequences():
+    assert len(everyEditSequence([0,1],[1,2],allowSubsumption = True)) > \
+        len(everyEditSequence([0,1],[1,2],allowSubsumption = False))
+    bounded = everyEditSequence([0,1],[1,2],allowSubsumption = False,maximumLength = 2)
+    unbounded = everyEditSequence([0,1],[1,2],allowSubsumption = False,maximumLength = None)
+    assert len(unbounded) > len(bounded)
+    assert len(bounded) == 1
+    assert len(everyEditSequence([0,1,2],[1,2],allowSubsumption = False)) == 19
+    
 @test
 def spread():
     s = UnderlyingProblem(sevenProblems[1].data)

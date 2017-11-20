@@ -8,6 +8,75 @@ import random
 from sketchSyntax import auxiliaryCondition
 import traceback
 
+def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = None):
+    '''Handy utility which is at the core of incremental solving.
+    The idea is that we want to enumerate every way that the original sequence could be edited.
+    Edits include adding new elements to the sequence, substituting existing elements with None, and exchanging existing elements of the sequence.
+    
+    radii: This is a list of how many edits we are allowed to make. example: [1,2] means we can make either one or two edits.
+    allowSubsumption: Are we allowed to have two edits which subsume each other? 
+    returns: a list of sequences, which might have None in them. None means a new unknown sequence element.'''
+    
+    def _everySequenceEdit(r):
+        # radius larger than sequence
+        if r > len(sequence): return [[None]*r]
+        # radius zero
+        if r < 1: return [list(range(len(sequence)))]
+
+        edits = []
+        for s in _everySequenceEdit(r - 1):
+            # Should we consider adding a new thing to the sequence?
+            if len(s) == len(sequence) and (maximumLength == None or len(sequence) < maximumLength):
+                edits += [ s[:j] + [None] + s[j:] for j in range(len(s) + 1) ]
+            # Consider doing over any one element of the sequence
+            edits += [ s[:j] + [None] + s[j+1:] for j in range(len(s)) ]
+            # Consider swapping elements
+            edits += [ [ (s[i] if k == j else (s[j] if k == i else s[k])) for k in range(len(s)) ]
+                       for j in range(len(s) - 1)
+                       for i in range(j,len(s)) ]
+        return edits
+
+    # remove duplicates
+    candidates = set([ tuple(s)
+                       for radius in radii
+                       for s in _everySequenceEdit(radius) ] )
+    # remove things that came from an earlier radius
+    for smallerRadius in range(min(radii)):
+        candidates -= set([ tuple(s) for s in _everySequenceEdit(smallerRadius) ])
+    # some of the edit sequences might subsume other ones, eg [None,1,None] subsumes [0,1,None]
+    # we want to not include things that are subsumed by other things
+
+    def subsumes(moreGeneral, moreSpecific):
+        # Does there exist a substitution of None's that converts general to specific?
+        # Importantly, we are allowed to substitute None for the empty sequence
+        if len(moreGeneral) == 0: return len(moreSpecific) == 0
+        if len(moreSpecific) == 0: return all(x == None for x in moreSpecific)
+        g = moreGeneral[0]
+        s = moreSpecific[0]
+        return (g == None and subsumes(moreGeneral[1:],moreSpecific)) or \
+            ((s == g or g == None) and subsumes(moreGeneral[1:],moreSpecific[1:]))
+        if not len(moreGeneral) == len(moreSpecific): return False
+        for g,s in zip(moreGeneral,moreSpecific):
+            if g != None and s != g: return False
+        #print "%s is strictly more general than %s"%(moreGeneral,moreSpecific)
+        return True
+
+    # disabling subsumption removal
+    if not allowSubsumption:
+        removedSubsumption = [ s
+                               for s in candidates 
+                               if not any([ subsumes(t,s) for t in candidates if t != s ]) ]
+    else: removedSubsumption = candidates
+
+    # Order them by expected difficulty
+    removedSubsumption = sorted(removedSubsumption,
+                                key = lambda x: (len([y for y in x if y == None]), # How many new things are there
+                                                 len(x),
+                                                 x))
+        
+    # reindex into the input sequence
+    return [ [ (None if j == None else sequence[j]) for j in s ]
+             for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
     def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 5):
@@ -79,8 +148,10 @@ class IncrementalSolver(UnderlyingProblem):
                 auxiliaryCondition(wordEqual(o.makeConstant(self.bank),
                                              applyRules(rules, phonologicalInput,
                                                         wordLength(prefixes[i]) + wordLength(stem),
-                                                        len(o) + 1,
-                                                        doNothing = isNewRule)))
+                                                        len(o) + 1)))
+                # SUBTLE: We can't actually assume that it does nothing if it is a "new" rule
+                # This is because sometimes we go back and revise old rules
+                # ,doNothing = isNewRule)))
         stems = [ Morph.sample() for observation in self.data
                   if not (observation in observationsWithFixedUnderlyingForms) ]
         dataToConditionOn = [ d for d in self.data
@@ -159,10 +230,9 @@ class IncrementalSolver(UnderlyingProblem):
             assert sequenceIndex > 0
             if sequenceIndex == 1: return [1,2]
             else: return [sequenceIndex + 1]
-        ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius))
-
-        # A cap the maximum number of rules that we are willing to consider
-        ruleVectors = [ ruleVector for ruleVector in ruleVectors if len(ruleVector) <= self.maximumNumberOfRules ]
+        ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius),
+                                        allowSubsumption = False,
+                                        maximumLength = self.maximumNumberOfRules)
 
         print "# parallel sketch jobs:",len(ruleVectors)
 
@@ -251,7 +321,7 @@ class IncrementalSolver(UnderlyingProblem):
                     newSolution = solutionScores[-1]
                     newJointScore = solutionScores[0]
                     
-                    print " [+] Best new solution (cost = %d):"%(newJointScore)
+                    print " [+] Best new solution (cost = %.2f):"%(newJointScore)
                     print newSolution
 
                     # Make sure that all of the previously explained data points are still explained
