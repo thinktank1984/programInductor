@@ -649,8 +649,8 @@ Phonological rules:
      (u"ɣokaya",),
      (u"koɣaya",)],
     solutions = [u'''
-ɣo + stem + a
-ɣ ---> k /  _ o [ -stop ]
+ko + stem + a
+    k ---> ɣ / # _ V [ -continuant ]
 ''']))
 
 underlyingProblems.append(Problem(
@@ -1482,7 +1482,7 @@ in between sonants voiced fricatives become stops
     solutions = [u''' + stem + 
  + stem + ə
     [-sonorant] > [-voice] / _ #
-    [+stop +voice] > [+fricative] / [+sonorant -nasal] _ [+sonorant]
+    [+voice] > [+continuant] / [+sonorant -nasal] _ [+sonorant]
     [+sonorant -lateral +coronal] > 0 / _ #
     [+coronal -sonorant] > 0 / [+coronal +sonorant] _ #
     k > 0 /  ŋ _ #

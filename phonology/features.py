@@ -27,9 +27,9 @@ back = "back"
 rounded = "rounded"
 #unrounded = "unrounded"
 bilabial = "bilabial"
-stop = "stop"
+#stop = "stop"
 voice = "voice"
-fricative = "fricative"
+#fricative = "fricative"
 labiodental = "labiodental"
 dental = "dental"
 alveolar = "alveolar"
@@ -43,7 +43,7 @@ liquid = "liquid"
 lateral = "lateral"
 trill = "trill"
 flap = "flap"
-affricate = "affricate"
+#affricate = "affricate"
 alveopalatal = "alveopalatal"
 aspirated = "aspirated"
 unreleased = "unreleased"
@@ -51,8 +51,9 @@ laryngeal = "laryngeal"
 pharyngeal = "pharyngeal"
 syllableBoundary = "syllableBoundary"
 wordBoundary = "wordBoundary"
-con = "continuant"
+continuant = "continuant"
 syllabic = "syllabic"
+delayedRelease = "delayedRelease"
 
 featureMap = {
     # unrounded vowels
@@ -75,77 +76,77 @@ featureMap = {
     #possibly missing are umlauts
 
     # consonance
-    u"p": [bilabial,stop],
-    u"p|": [bilabial,stop,unreleased],
-    u"p^h": [bilabial,stop,aspirated],
-    u"b": [bilabial,stop,voice],
-    u"f": [labiodental,fricative],
-    u"v": [labiodental,fricative,voice],
-    u"β": [bilabial,fricative,voice],
-    u"m": [bilabial,nasal,voice,sonorant],
-    u"m̥": [bilabial,nasal,sonorant],
-    u"θ": [dental,fricative,coronal],
-    u"d": [alveolar,stop,voice,coronal],
-    u"d̪": [dental,stop,voice,coronal],
-    u"d^z": [alveolar,affricate,coronal,voice],
-    u"t": [alveolar,stop,coronal],
-    u"t̪": [dental,stop,coronal],
-    u"t|": [alveolar,stop,coronal,unreleased],
-    u"t^s": [alveolar,affricate,coronal],
-    u"t^h": [alveolar,stop,aspirated,coronal],
-    u"ṭ": [retroflex,stop,coronal],
-    u"ḍ": [retroflex,stop,coronal,voice],
-    u"ṛ": [retroflex,coronal,voice,fricative],
-    u"ð": [dental,fricative,voice,coronal],
-    u"z": [alveolar,fricative,voice,coronal, sibilant],
-    u"ǰ": [alveopalatal,affricate,stop,voice,coronal,sibilant],
-    u"ǰ|": [alveopalatal,stop,voice,coronal],
-    u"ž": [alveopalatal,fricative,voice,coronal, sibilant],
-    u"s": [alveolar,fricative,coronal, sibilant],
-    u"n": [alveolar,nasal,voice,coronal,sonorant],
-    u"ṇ": [retroflex,nasal,voice,sonorant],
-    u"n̥": [alveolar,nasal,coronal,sonorant],
-    u"ñ": [alveopalatal,nasal,voice,coronal,sonorant],
-    u"š": [alveopalatal,fricative,coronal, sibilant],
-    u"c": [palletized,stop,coronal],
-    u"č": [alveopalatal,affricate,coronal,sibilant,stop],
-    u"č|": [alveopalatal,stop,coronal],
-    u"č^h": [alveopalatal,affricate,coronal,aspirated],
-    u"k": [velar,stop],
-    u"k|": [velar,stop,unreleased],
-    u"k^h": [velar,stop,aspirated],
-    u"k^y": [velar,stop,palletized],
-    u"x": [velar,fricative],
-    u"X": [uvular,fricative], # χ
-    u"x^y": [velar,fricative,palletized],
-    u"g": [velar,stop,voice],
-    u"g^y": [velar,stop,voice,palletized],
-    u"ɣ": [velar,fricative,voice],
-    u"ŋ": [velar,nasal,voice,sonorant],
-    u"q": [uvular,stop],
-    u"N": [uvular,nasal,voice],
-    u"G": [uvular,stop,voice],
-    u"ʔ": [laryngeal,stop,sonorant,low],
-    u"h": [laryngeal,fricative,sonorant,low],
-    u"ħ": [pharyngeal,fricative,sonorant],
+    u"p": [bilabial],
+    u"p|": [bilabial,unreleased],
+    u"p^h": [bilabial,aspirated],
+    u"b": [bilabial,voice],
+    u"f": [labiodental,continuant],
+    u"v": [labiodental,continuant,voice],
+    u"β": [bilabial,continuant,voice],
+    u"m": [bilabial,nasal,voice,sonorant,continuant],
+    u"m̥": [bilabial,nasal,sonorant,continuant],
+    u"θ": [dental,continuant,coronal],
+    u"d": [alveolar,voice,coronal],
+    u"d̪": [dental,voice,coronal],
+    u"d^z": [alveolar,coronal,voice,delayedRelease],
+    u"t": [alveolar,coronal],
+    u"t̪": [dental,coronal],
+    u"t|": [alveolar,coronal,unreleased],
+    u"t^s": [alveolar,coronal,delayedRelease],
+    u"t^h": [alveolar,aspirated,coronal],
+    u"ṭ": [retroflex,coronal],
+    u"ḍ": [retroflex,coronal,voice],
+    u"ṛ": [retroflex,coronal,voice,continuant],
+    u"ð": [dental,continuant,voice,coronal],
+    u"z": [alveolar,continuant,voice,coronal, sibilant],
+    u"ǰ": [alveopalatal,voice,coronal,sibilant],
+    u"ǰ|": [alveopalatal,voice,coronal],
+    u"ž": [alveopalatal,continuant,voice,coronal, sibilant],
+    u"s": [alveolar,continuant,coronal, sibilant],
+    u"n": [alveolar,nasal,voice,coronal,sonorant,continuant],
+    u"ṇ": [retroflex,nasal,voice,sonorant,continuant],
+    u"n̥": [alveolar,nasal,coronal,sonorant,continuant],
+    u"ñ": [alveopalatal,nasal,voice,coronal,sonorant,continuant],
+    u"š": [alveopalatal,continuant,coronal, sibilant],
+    u"c": [palletized,coronal],
+    u"č": [alveopalatal,coronal,sibilant],
+#    u"č|": [alveopalatal,coronal],
+    u"č^h": [alveopalatal,coronal,aspirated],
+    u"k": [velar],
+    u"k|": [velar,unreleased],
+    u"k^h": [velar,aspirated],
+    u"k^y": [velar,palletized],
+    u"x": [velar,continuant],
+    u"X": [uvular,continuant], # χ
+    u"x^y": [velar,continuant,palletized],
+    u"g": [velar,voice],
+    u"g^y": [velar,voice,palletized],
+    u"ɣ": [velar,continuant,voice],
+    u"ŋ": [velar,nasal,voice,sonorant,continuant],
+    u"q": [uvular],
+    u"N": [uvular,nasal,voice,continuant],
+    u"G": [uvular,voice],
+    u"ʔ": [laryngeal,sonorant,low],
+    u"h": [laryngeal,continuant,sonorant,low],
+    u"ħ": [pharyngeal,continuant,sonorant],
 
     # glides
-    u"w": [glide,voice,bilabial,sonorant],
-    u"y": [glide,palletized,voice,sonorant],
+    u"w": [glide,voice,bilabial,sonorant,continuant],
+    u"y": [glide,palletized,voice,sonorant,continuant],
 
     # liquids
-    u"r": [liquid,voice,approximate,alveolar,coronal,sonorant],
-    u"r̃": [liquid,trill,voice,coronal,sonorant],
-    u"r̥̃": [liquid,trill,coronal,sonorant],
-    u"ř": [liquid,flap,voice,coronal,sonorant],
-    u"l": [liquid,lateral,voice,alveolar,coronal,sonorant],
+    u"r": [liquid,voice,approximate,alveolar,coronal,sonorant,continuant],
+    u"r̃": [liquid,trill,voice,coronal,sonorant,continuant],
+    u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
+    u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
+    u"l": [liquid,lateral,voice,alveolar,coronal,sonorant,continuant],
 #    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA
     # u"ɲ": []
 
-    u"ʕ": [pharyngeal,voice,fricative],
+    u"ʕ": [pharyngeal,voice,continuant],
     u"-": [syllableBoundary],
     u"##": [wordBoundary],
 }
@@ -163,6 +164,7 @@ vs = [ k for k in featureMap if vowel in featureMap[k] ]
 cs = [ k for k in featureMap if not (vowel in featureMap[k]) ]
 for v in vs:
     featureMap[v] += [sonorant]
+    featureMap[v] += [continuant]
     featureMap[v + u"́"] = featureMap[v] + [highTone]
     featureMap[v + u"`"] = featureMap[v] + [lowTone]
     featureMap[v + u"¯"] = featureMap[v] + [middleTone]
@@ -208,7 +210,7 @@ class FeatureBank():
    
     """Builds a bank of features and sounds that are specialized to a particular data set.
     The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
-    mutuallyExclusiveClasses = [["stop","fricative","affricate"]]
+    mutuallyExclusiveClasses = []#["stop","fricative","affricate"]]
     
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))
@@ -313,9 +315,4 @@ class FeatureBank():
         h += self.defineFeaturesToSound()
         return h
 
-if __name__ == 'main':
-    for p in featureMap:
-        for q in featureMap:
-            if p == q: continue
-            if set(featureMap[p]) == set(featureMap[q]):
-                print p,q
+

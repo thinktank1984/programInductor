@@ -7,11 +7,20 @@ from problems import *
 from matrix import *
 from parseSPE import *
 from incremental import *
+from features import *
+
 
 TESTS = []
 def test(f):
     TESTS.append(f)
     return f
+
+@test
+def features():
+    for p in featureMap:
+        for q in featureMap:
+            if p == q: continue
+            assert set(featureMap[p]) != set(featureMap[q]), "Expected %s and %s to have different features"%(p,q)
 
 @test
 def editSequences():
