@@ -5,7 +5,7 @@ palletized = "palletized"
 sibilant = "sibilant"
 sonorant = "sonorant"
 coronal = "coronal"
-approximate = "approximate"
+# approximate = "approximate"
 # because stress and high tones are written the same we model stress as a high tone
 # stressed = "stressed"
 retroflex = "retroflex"
@@ -135,7 +135,7 @@ featureMap = {
     u"y": [glide,palletized,voice,sonorant,continuant],
 
     # liquids
-    u"r": [liquid,voice,approximate,alveolar,coronal,sonorant,continuant],
+    u"r": [liquid,voice,alveolar,coronal,sonorant,continuant],
     u"r̃": [liquid,trill,voice,coronal,sonorant,continuant],
     u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
     u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
