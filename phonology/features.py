@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
+palatal = "palatal"
 palletized = "palletized"
 sibilant = "sibilant"
 sonorant = "sonorant"
@@ -32,7 +32,7 @@ voice = "voice"
 #fricative = "fricative"
 labiodental = "labiodental"
 dental = "dental"
-alveolar = "alveolar"
+#alveolar = "alveolar"
 labiovelar = "labiovelar"
 velar = "velar"
 nasal = "nasal"
@@ -86,29 +86,29 @@ featureMap = {
     u"m": [bilabial,nasal,voice,sonorant,continuant],
     u"m̥": [bilabial,nasal,sonorant,continuant],
     u"θ": [dental,continuant,coronal],
-    u"d": [alveolar,voice,coronal],
+    u"d": [voice,coronal],
     u"d̪": [dental,voice,coronal],
-    u"d^z": [alveolar,coronal,voice,delayedRelease],
-    u"t": [alveolar,coronal],
+    u"d^z": [coronal,voice,delayedRelease],
+    u"t": [coronal],
     u"t̪": [dental,coronal],
-    u"t|": [alveolar,coronal,unreleased],
-    u"t^s": [alveolar,coronal,delayedRelease],
-    u"t^h": [alveolar,aspirated,coronal],
+    u"t|": [coronal,unreleased],
+    u"t^s": [coronal,delayedRelease],
+    u"t^h": [aspirated,coronal],
     u"ṭ": [retroflex,coronal],
     u"ḍ": [retroflex,coronal,voice],
     u"ṛ": [retroflex,coronal,voice,continuant],
     u"ð": [dental,continuant,voice,coronal],
-    u"z": [alveolar,continuant,voice,coronal, sibilant],
+    u"z": [continuant,voice,coronal, sibilant],
     u"ǰ": [alveopalatal,voice,coronal,sibilant],
     u"ǰ|": [alveopalatal,voice,coronal],
     u"ž": [alveopalatal,continuant,voice,coronal, sibilant],
-    u"s": [alveolar,continuant,coronal, sibilant],
-    u"n": [alveolar,nasal,voice,coronal,sonorant,continuant],
+    u"s": [continuant,coronal, sibilant],
+    u"n": [nasal,voice,coronal,sonorant,continuant],
     u"ṇ": [retroflex,nasal,voice,sonorant,continuant],
-    u"n̥": [alveolar,nasal,coronal,sonorant,continuant],
+    u"n̥": [nasal,coronal,sonorant,continuant],
     u"ñ": [alveopalatal,nasal,voice,coronal,sonorant,continuant],
     u"š": [alveopalatal,continuant,coronal, sibilant],
-    u"c": [palletized,coronal],
+    u"c": [palatal,coronal], # NOT the same thing as palletized
     u"č": [alveopalatal,coronal,sibilant],
 #    u"č|": [alveopalatal,coronal],
     u"č^h": [alveopalatal,coronal,aspirated],
@@ -135,12 +135,12 @@ featureMap = {
     u"y": [glide,palletized,voice,sonorant,continuant],
 
     # liquids
-    u"r": [liquid,voice,alveolar,coronal,sonorant,continuant],
+    u"r": [liquid,voice,coronal,sonorant,continuant],
     u"r̃": [liquid,trill,voice,coronal,sonorant,continuant],
     u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
     u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
-    u"l": [liquid,lateral,voice,alveolar,coronal,sonorant,continuant],
-#    u"̌l": [liquid,lateral,voice,alveolar,coronal,sonorant],
+    u"l": [liquid,lateral,voice,coronal,sonorant,continuant],
+#    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA
