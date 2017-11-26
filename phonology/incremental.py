@@ -27,13 +27,16 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
         for s in _everySequenceEdit(r - 1):
             # Should we consider adding a new thing to the sequence?
             if len(s) == len(sequence) and (maximumLength == None or len(sequence) < maximumLength):
-                edits += [ s[:j] + [None] + s[j:] for j in range(len(s) + 1) ]
+                # Consider either appending or prepending
+                edits += [ [None] + s, s + [None]]
+                #edits += [ s[:j] + [None] + s[j:] for j in range(len(s) + 1) ]
             # Consider doing over any one element of the sequence
             edits += [ s[:j] + [None] + s[j+1:] for j in range(len(s)) ]
             # Consider swapping elements
             edits += [ [ (s[i] if k == j else (s[j] if k == i else s[k])) for k in range(len(s)) ]
                        for j in range(len(s) - 1)
-                       for i in range(j,len(s)) ]
+                       for i in range(j,len(s))
+                       if s[j] != None and s[i] != None ]
         return edits
 
     # remove duplicates
