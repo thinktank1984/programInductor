@@ -88,6 +88,7 @@ struct ConstantPhoneme extends Specification{//@Immutable("")
 }
 // It seems that I need the dummy...
 struct Boundary extends Specification{bit dummy;}
+Specification global_boundary_specification = new Boundary(dummy = 0);
 
 bit specification_equal(Specification p, Specification q) {
   if (p == null || q == null) return p == null && q == null;
@@ -130,13 +131,7 @@ bit empty_specification(Specification p) {
 }
 
 bit boundary_specification(Specification p) {
-  if (p == null) return 0;
-  switch (p) {
-  case Vector:{return 0;
-  }
-  case ConstantPhoneme:{ return 0; }
-  case Boundary:{ return 1;}
-  }
+  return p == global_boundary_specification;
 }
 
 
@@ -356,7 +351,7 @@ int guard_specification_cost(Specification s) {
 
   if (s == null) return 0;
   switch(s) {
-  case ConstantPhoneme:{ return 1; }
+  case ConstantPhoneme:{ return 2; }
   case Boundary:{ return 3; }
   case Vector:{
     //    if (empty_vector(s.mask)) return 1;
@@ -440,7 +435,7 @@ generator Specification unknown_FC_specification() {
   return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null |};
 }
 generator Specification unknown_guard_specification() {
-  return {| null | new Boundary(dummy = 0) | new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
+  return {| global_boundary_specification | new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
 }
   
 generator Rule unknown_rule() {
@@ -449,6 +444,10 @@ generator Rule unknown_rule() {
 		  left_trigger = unknown_guard(),
 		  right_trigger = unknown_guard(),
 		  copyOffset = {| 0 | 1 | -1 | -2 | 2 |});
+}
+
+bit rule_uses_boundary(Rule r){
+  return r.left_trigger.spec == global_boundary_specification;
 }
 
 int alternation_cost(Rule r) {

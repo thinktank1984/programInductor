@@ -61,10 +61,6 @@ class Specification():
     
     @staticmethod
     def parse(bank, output, variable):
-        # print "Parsing a specification"
-        # print "variable",variable
-        # print output
-        # print 
         parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse]
         for parser in parsers:
             try:
@@ -187,13 +183,13 @@ class BoundarySpecification(Specification):
 
     @staticmethod
     def parse(bank, output, variable):
-        pattern = " %s = new Boundary;" % variable
-        m = re.search(pattern, output)
-        if not m: raise Exception('Failure parsing boundary specification %s'%variable)
-        return BoundarySpecification()
+        if "global_boundary_specification" in variable:
+            return BoundarySpecification()
+        else:
+            raise Exception('Failure parsing boundary specification %s'%variable)
     
     def makeConstant(self, bank):
-        return "(new Boundary(dummy = 0))"
+        return "global_boundary_specification"
 
     def matches(self, test):
         return False

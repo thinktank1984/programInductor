@@ -261,9 +261,8 @@ class UnderlyingProblem(object):
         If it can then it returns an underlying form consistent with the data.
         Otherwise it returns False.
         '''
-
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
-
+    
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
         if self.UG:
             self.UG.sketchUniversalGrammar(self.bank)

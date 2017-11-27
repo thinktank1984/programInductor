@@ -15,10 +15,7 @@ import re
 def alternationCost(r): pass
 
 def applyRule(rule,i,untilSuffix, unrollBound):
-    if callable(rule):
-        assert False, "deprecated: compiled rules"
-        return rule(i,Constant(unrollBound))
-    else: return FunctionCall("apply_rule", [rule,i, untilSuffix, Constant(unrollBound)])
+    return FunctionCall("apply_rule", [rule,i, untilSuffix, Constant(unrollBound)])
 def applyRules(rules,d, untilSuffix, b, doNothing = None):
     for j,r in enumerate(rules):
         if doNothing == None or (not doNothing[j]):

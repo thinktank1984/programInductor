@@ -30,7 +30,7 @@ def editSequences():
     unbounded = everyEditSequence([0,1],[1,2],allowSubsumption = False,maximumLength = None)
     assert len(unbounded) > len(bounded)
     assert len(bounded) == 1
-    assert len(everyEditSequence([0,1,2],[1,2],allowSubsumption = False)) == 19
+    assert len(everyEditSequence([0,1,2],[1,2],allowSubsumption = False)) == 16
     
 @test
 def spread():
@@ -78,6 +78,51 @@ def testMarcus():
                  for spec in s.rules[0].rightTriggers.specifications + s.rules[0].leftTriggers.specifications ])
     assert all([ len(u) == 4 for u in s.underlyingForms ])
     assert s.rules[0].copyOffset != 0
+@test
+def induceBoundary():
+    inventory = FeatureBank([u"utestadz"])
+    Model.Global()
+    r = Rule.sample()
+    condition(FunctionCall("rule_uses_boundary",[r]))
+    # stem = ute
+    # suffix = st
+    prefix = Morph([]).makeConstant(inventory)
+    stem = Morph(u"ute").makeConstant(inventory)
+    suffix = Morph(u"st").makeConstant(inventory)
+    x = concatenate3(prefix, stem, suffix)
+    y = Morph(u"utezt").makeConstant(inventory)
+    prediction = applyRules([r,r,r], x, wordLength(prefix) + wordLength(stem), 6)
+    auxiliaryCondition(wordEqual(prediction, y))
+
+    minimize(ruleCost(r))
+
+    output = solveSketch(inventory)
+    g = Rule.parse(inventory,output,r).leftTriggers.specifications
+    assert len(g) == 1
+    assert isinstance(g[0],BoundarySpecification)
+    
+@test
+def suffixBoundary():
+    data = sevenProblems[1].data[:3]
+    s = IncrementalSolver(sevenProblems[1].data,2).restrict(data)
+    solution = parseSolution(''' + stem + 
+ + stem + am
+ + stem + ov^yi
+ + stem + i
+ + stem + ov^yi
+C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
+o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "vowel fronting"
+[ -glide -vowel ] ---> [ -palletized ] /  _ e
+''')
+    s.fixedMorphology = solution
+    new = s.sketchChangeToSolution(solution, [solution.rules[0],None,solution.rules[2]], allTheData = data)
+    assert new != None, "Should be able to incrementally change to accommodate an example"
+    assert new.cost() <= solution.cost(), "Should have found an optimal solution"
+    for d in data:
+        assert s.verify(solution, [Morph(x) if x != None else None
+                                   for x in d]), "Could not verify ground truth solution"
+        assert s.verify(new, [Morph(x) if x != None else None
+                              for x in d]), "Could not verify learned solution"
 
     
 if __name__ == "__main__":

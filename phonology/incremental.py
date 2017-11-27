@@ -100,9 +100,9 @@ class IncrementalSolver(UnderlyingProblem):
 
         originalRules = list(rules) # save it for later
 
-        isNewRule = [ r == None for r in rules ]
         rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
                   for rule in rules ]
+
         prefixes = []
         suffixes = []
 
