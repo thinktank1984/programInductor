@@ -1763,12 +1763,12 @@ ḍ > ṛ / _o#
  + stem + 
  + stem + ta
  + stem + o
-[-sonorant +voice] > [+continuant] / _o#
+0 > -2/V[-vowel -glide]_C{#,C}
+[-sonorant +voice] > [+continuant] / V_V
+m > n/_{#,t}
+t > 0/[+coronal -sonorant -continuant]_a
 t > š/l_
 l > 0/_š
-m > n/_{#,t}
-;0 > -2/VC_C{#,C}
-t > 0/[+coronal -sonorant -continuant]_a
 ''']))
 
 sevenProblems.append(Problem('''4: Latin

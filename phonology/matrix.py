@@ -78,8 +78,10 @@ class UnderlyingProblem(object):
                     print trace
                     for j in range(len(solution.rules) - 1):
                         if trace[j] != trace[j + 1]: used[j] = True
-                print "Use rules",list(sorted(used.keys()))
-                #self.debugSolution(solution,ur)
+                print "Uses rules",list(sorted(used.keys())),":"
+                for j in sorted(used.keys()):
+                    print solution.rules[j].pretty()
+                print 
 
     def applyRuleUsingSketch(self,r,u,untilSuffix):
         '''u: morph; r: rule; untilSuffix: int'''
