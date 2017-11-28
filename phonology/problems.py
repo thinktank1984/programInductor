@@ -1767,7 +1767,7 @@ ḍ > ṛ / _o#
  + stem + nay
 0 > -2/V[-vowel -glide]_C{#,C}
 [-sonorant +voice] > [+continuant] / V_V
-m > n/_{#,t}
+m > n/_{#,C}
 t > 0/[+coronal -sonorant -continuant]_a
 n > l/l_
 t > š/l_
