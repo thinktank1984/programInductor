@@ -138,7 +138,15 @@ o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "
         assert s.verify(new, [Morph(x) if x != None else None
                               for x in d]), "Could not verify learned solution"
 
-    
+@test
+def verify():
+    for p in sevenProblems[:3] + [interactingProblems[4]] + interactingProblems[:3]:
+        solver = UnderlyingProblem(p.data)
+        for s in p.solutions:
+            s = parseSolution(s)
+            for x in solver.data:
+                assert solver.verify(s,x), "Could not verify %s"%(u" ~ ".join(map(unicode,x)))
+            
 if __name__ == "__main__":
     import sys
     A = sys.argv
