@@ -1708,65 +1708,69 @@ ḍ > ṛ / _o#
 [
 #	Singular	Sing. Definite	Plural	Gloss
     # illustrates morphology
-	(u"d̪aar",	u"d̪aarta",	u"d̪aaro"),#	house
-	(u"gees",	u"geesta",	u"geeso"),#	side
-	(u"laf",	u"lafta",	u"lafo"),#	bone
+	(u"d̪aar",	u"d̪aarta",	u"d̪aaro",None,None,None),#	house
+	(u"gees",	u"geesta",	u"geeso",None,None,None),#	side
+	(u"laf",	u"lafta",	u"lafo",None,None,None),#	bone
     # illustrate stop/fricative alternations
-	(u"lug",	u"lugta",  	u"luɣo"),#	leg
-	(u"naag",	u"naagta",	u"naaɣo"),#	woman
-	(u"tib",	u"tibta",    	u"tiβo"),#	pestle
-	(u"sab",	u"sabta",    	u"saβo"),#	outcast
+	(u"lug",	u"lugta",  	u"luɣo",None,None,None),#	leg
+	(u"naag",	u"naagta",	u"naaɣo",None,None,None),#	woman
+	(u"tib",	u"tibta",    	u"tiβo",None,None,None),#	pestle
+	(u"sab",	u"sabta",    	u"saβo",None,None,None),#	outcast
     # illustrates /t/ deletion
-	(u"bad̪",	u"bad̪a",	u"baðo"),#	sea
-	(u"šid̪",	u"šid̪a",	u"šiðo"),#	person
+	(u"bad̪",	u"bad̪a",	u"baðo",None,None,None),#	sea
+	(u"šid̪",	u"šid̪a",	u"šiðo",None,None,None),#	person
     # 
-	(u"feeḍ",	u"feeḍa",  	u"feeṛo"),#	rib
-	(u"ʕiir",	u"ʕiirta",	u"ʕiiro"),#	buttermilk
-	(u"ʔul",	u"ʔuša",	u"ʔulo"),#	stick
-	(u"bil",	u"biša",	u"bilo"),#	month
-	(u"meel",	u"meeša",	u"meelo"),#	place
-	(u"kaliil",	u"kaliiša",	u"kaliilo"),#	summer
-	(u"nayl",	u"nayša",	u"naylo"),#	female lamb
-	(u"sun",	u"sunta",	u"sumo"),#	poison
-	(u"laan",	u"laanta",	u"laamo"),#	branch
-	(u"sin",	u"sinta",	u"simo"),#	hip
-	(u"d̪an",	u"d̪anta",	u"d̪ano"),#	affair
-	(u"d̪aan",	u"d̪aanta",	u"d̪aano"),#	river bank
-	(u"saan",	u"saanta",	u"saano"),#	hide
-	(u"nirig",	u"nirigta",	u"nirgo"),#	baby female camel
-	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo"),#	girl
-	(u"hoɣol",	u"hoɣoša",	u"hoglo"),#	downpour
-	(u"baɣal",	u"baɣaša",	u"baglo"),#	mule
-	(u"waħar",	u"waħarta",	u"waħaro"),#	female kid
-	(u"irbad̪",	u"irbad̪a",	u"irbaðo"),#	needle
-	(u"kefed̪",	u"kefed̪a",	u"kefeðo"),#	pan
-	(u"šilin",	u"šilinta",	u"šilino"),#	female dwarf
-	(u"bohol",	u"bohoša",	u"boholo"),#	hole
+	(u"feeḍ",	u"feeḍa",  	u"feeṛo",None,None,None),#	rib
+	(u"ʕiir",	u"ʕiirta",	u"ʕiiro",None,None,None),#	buttermilk
+	(u"ʔul",	u"ʔuša",	u"ʔulo",None,None,None),#	stick
+	(u"bil",	u"biša",	u"bilo",None,None,None),#	month
+	(u"meel",	u"meeša",	u"meelo",None,None,None),#	place
+	(u"kaliil",	u"kaliiša",	u"kaliilo",None,None,None),#	summer
+	(u"nayl",	u"nayša",	u"naylo",None,None,None),#	female lamb
+	(u"sun",	u"sunta",	u"sumo",None,None,None),#	poison
+	(u"laan",	u"laanta",	u"laamo",None,None,None),#	branch
+	(u"sin",	u"sinta",	u"simo",None,None,None),#	hip
+	(u"d̪an",	u"d̪anta",	u"d̪ano",None,None,None),#	affair
+	(u"d̪aan",	u"d̪aanta",	u"d̪aano",None,None,None),#	river bank
+	(u"saan",	u"saanta",	u"saano",None,None,None),#	hide
+	(u"nirig",	u"nirigta",	u"nirgo",None,None,None),#	baby female camel
+	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo",None,None,None),#	girl
+	(u"hoɣol",	u"hoɣoša",	u"hoglo",None,None,None),#	downpour
+	(u"baɣal",	u"baɣaša",	u"baglo",None,None,None),#	mule
+	(u"waħar",	u"waħarta",	u"waħaro",None,None,None),#	female kid
+	(u"irbad̪",	u"irbad̪a",	u"irbaðo",None,None,None),#	needle
+	(u"kefed̪",	u"kefed̪a",	u"kefeðo",None,None,None),#	pan
+	(u"šilin",	u"šilinta",	u"šilino",None,None,None),#	female dwarf
+	(u"bohol",	u"bohoša",	u"boholo",None,None,None),#	hole
     # todo: figure out what /j/ is supposed to be
 	#(u"jirid",	u"jirida",	u"jirdo"),#	trunk
-	(u"ʔaayad̪",	u"ʔaayad̪a",	u"ʔaayaðo"),#	miracle
-	(u"gaʕan",	u"gaʕanta",	u"gaʕmo"),#	hand
-	(u"ʔinan",	u"ʔinanta",	u"ʔinano"),#	daughter
+	(u"ʔaayad̪",	u"ʔaayad̪a",	u"ʔaayaðo",None,None,None),#	miracle
+	(u"gaʕan",	u"gaʕanta",	u"gaʕmo",None,None,None),#	hand
+	(u"ʔinan",	u"ʔinanta",	u"ʔinano",None,None,None),#	daughter
 
 	# 3sg msc. pst	3sg fem. past	1pl past	Gloss
-	# suɣay	sugtay	sugnay	wait
-	# kaβay	kabtay	kabnay	fix
-	# siðay	sid̪ay	sid̪nay	carry
-	# d̪ilay	d̪išay	d̪illay	kill
-	# ganay	gantay	gannay	aim
-	# tumay	tuntay	tunnay	hammer
-	# argay	aragtay	aragnay	see
-	# gud̪bay	guðubtay	guðubnay	cross a river
-	# qoslay	qosošay	qosollay	laugh
-	# had̪lay	haðašay	haðallay	talk
+	(None,None,None, u"suɣay",	u"sugtay",	u"sugnay"),#	wait
+	(None,None,None, u"kaβay",	u"kabtay",	u"kabnay"),#	fix
+	(None,None,None, u"siðay",	u"sid̪ay",	u"sid̪nay"),#	carry
+	(None,None,None, u"d̪ilay",	u"d̪išay",	u"d̪illay"),#	kill
+	(None,None,None, u"ganay",	u"gantay",	u"gannay"),#	aim
+	(None,None,None, u"tumay",	u"tuntay",	u"tunnay"),#	hammer
+	(None,None,None, u"argay",	u"aragtay",	u"aragnay"),#	see
+	(None,None,None, u"gud̪bay",	u"guðubtay",	u"guðubnay"),#	cross a river
+	(None,None,None, u"qoslay",	u"qosošay",	u"qosollay"),#	laugh
+	(None,None,None, u"had̪lay",	u"haðašay",	u"haðallay"),#	talk
 ], solutions = [u'''
  + stem + 
  + stem + ta
  + stem + o
+ + stem + ay
+ + stem + tay
+ + stem + nay
 0 > -2/V[-vowel -glide]_C{#,C}
 [-sonorant +voice] > [+continuant] / V_V
 m > n/_{#,t}
 t > 0/[+coronal -sonorant -continuant]_a
+n > l/_l
 t > š/l_
 l > 0/_š
 ''']))
@@ -2035,7 +2039,18 @@ sevenProblems.append(Problem('''6: Kera
 	 # bal-l-a	‘you must want!’	ŋaf-l-a	‘you must meet!’
 	 
 	# ba	‘not’	pa	‘again’	bɨ-pa	‘no more’
-        ]))
+        ],
+                             solutions = [u'''
+ + stem + n
+ + stem + m
+ + stem + i
+ + stem + u
+ + stem + a
+ + stem + ŋ
+0 > -2/VC_C#
+V > [-long]/ _ C #
+V > [-low +high]/_C*[+high]
+''']))
 
 sevenProblems.append(Problem('''7: Keley-i
 	Account for the alternations in the following verbs. The different forms relate to whether the action is in the past or future, and which element in the sentence is emphasised (subject, object, instrument). Roots underlyingly have the shape CVC(C)VC, and certain forms such as the subject focus future require changes in the stem that result in a CVCCVC shape. This may be accomplished by reduplicating the initial CV- for stems whose first vowel is [e] (ʔum-bebhat – behat) or doubling the middle consonant (ʔum-buŋŋet – buŋet). The contrastive identification imperfective form conditions lengthening of the consonant in the middle of the stem, when the first vowel is not [e] (memayyuʔ – bayuʔ). These changes are part of the morphology, so do not attempt to write phonological rules to double consonants or reduplicate syllables. Be sure to explicitly state the underlying form of each root and affix. Understanding the status of [s] and [h] in this language is important in solving this problem. It is also important to consider exactly what underlying nasal consonant is present in these various prefixes and infixes – there is evidence in the data which shows that the underlying nature of the nasal explains certain observed differences in phonological behavior.

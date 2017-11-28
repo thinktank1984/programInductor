@@ -236,6 +236,9 @@ class IncrementalSolver(UnderlyingProblem):
         ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius),
                                         allowSubsumption = False,
                                         maximumLength = self.maximumNumberOfRules)
+        if False and len(solution.rules) == 1:
+            # This is generally tractable when there is only one rule
+            ruleVectors += [solution.rules[0],None,None]
 
         print "# parallel sketch jobs:",len(ruleVectors)
 
