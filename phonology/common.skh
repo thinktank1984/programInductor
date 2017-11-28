@@ -368,6 +368,7 @@ int guard_specification_cost(Specification s) {
 
 struct Guard {//@Immutable("")
   bit endOfString; // is it constrains to be at the end of string?
+  bit optionalEndOfString; // is the end of string optionally alternating with the last specification?
   bit starred; // is it of the form spec*spec2
   Specification spec; // Primary specification - holds immediately adjacent
   Specification spec2; // Secondary specification - holds one apart from adjacent
@@ -375,6 +376,7 @@ struct Guard {//@Immutable("")
 
 bit guard_equal(Guard p, Guard q) {
   return p.endOfString == q.endOfString &&
+    p.optionalEndOfString == q.optionalEndOfString &&
     p.starred == q.starred &&
     specification_equal(p.spec, q.spec) &&
     specification_equal(p.spec2, q.spec2);
@@ -382,6 +384,7 @@ bit guard_equal(Guard p, Guard q) {
 
 struct Rule {//@Immutable("")
   Specification focus;
+  //Specification secondary_focus;
   Specification structural_change;
   Guard left_trigger;
   Guard right_trigger;
@@ -391,10 +394,6 @@ struct Rule {//@Immutable("")
   int copyOffset;
 }
 
-
-/* it's possible for structural changes to be redundant or make no sense
-for example : [+hi  +low] or [-middle] 
-this forces them into a canonical form. */
 
 bit is_valid_structural_change(Specification s) {
   if (s == null) return 1;
@@ -429,7 +428,7 @@ bit alternation_equal(Rule p, Rule q) {
 generator Guard unknown_guard() {
   Specification s = unknown_guard_specification();
   Specification s2 = unknown_guard_specification();
-  return new Guard(endOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
+  return new Guard(endOfString = ??, optionalEndOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_FC_specification() {
   return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null |};
@@ -462,6 +461,7 @@ int guard_cost(Guard g) {
   return validateCost(guard_specification_cost(g.spec) +
 		      guard_specification_cost(g.spec2) +
 		      g.endOfString +
+		      2*g.optionalEndOfString + 
 		      g.starred);
 }
 
@@ -476,6 +476,11 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
   
   // guard sanity checks
   if (g.spec == null) assert g.spec2 == null;
+  if (g.endOfString) assert !g.optionalEndOfString;
+  if (g.optionalEndOfString) {
+    assert !g.endOfString;
+    assert g.spec != null || g.spec2 != null;
+  }
   
   // Cannot have two boundary markers. Also, +_ is identical to _+. wlog + occurs on the left.
   if (R) assert !boundary_specification(g.spec);
@@ -516,6 +521,10 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
   Specification r1 = g.spec2;
   Specification r2 = g.spec;
 
+  // If we have an optional ending, which regular expression does it apply to?
+  bit optionalEnding1 = g.optionalEndOfString && r1 != null;
+  bit optionalEnding2 = g.optionalEndOfString && r2 != null && r1 == null;
+
 
   bit[l + 1] okay;
   bit a1old = 0,a2old = 0;
@@ -544,8 +553,8 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
 	// assert !boundary_specification(r1);
       
 	a1 = j > 0 && matches_specification(u[index2sound(j)], r1) && (j == 1 || !g.endOfString);
-      /* if (0) // optional end of string: {#,r1} */
-      /* 	a1 = a1 || (j == 0); */
+	if (optionalEnding1) // optional end of string: {#,r1}
+	  a1 = a1 || (j == 0);
 
 #ifdef SYLLABLEBOUNDARYFEATURE
       }
@@ -574,8 +583,8 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
 	  (boundary_specification(r2) ?
 	   a1 && j == B :
 	   a1old && matches_specification(u[index2sound(j)],g.spec));
-      /* if (0 && r1 == null) // optional end of string: {#,r2} */
-      /* 	a2 = a2 || (j == 0); */
+	if (optionalEnding2) // optional end of string: {#,r2}
+	  a2 = a2 || (j == 0);
 #ifdef SYLLABLEBOUNDARYFEATURE
       }
 #endif

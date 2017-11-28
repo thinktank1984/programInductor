@@ -8,7 +8,7 @@ from features import *
 from rule import *
 
 '''
-Why is there no good parser combination library for Python...
+Why is there no good parser combinator library for Python...
 A parser is a function from strings to a stream of tuples of (unconsumed suffix, value)
 '''
 
@@ -22,17 +22,30 @@ def constantParser(k,v = None):
             yield (s[len(k):],v)
     return p
 def whitespaceDelimited(p):
-    return concatenate(eatWhiteSpace,
-                       concatenate(p,eatWhiteSpace,lambda v1,v2: v1),
-                       lambda v1,v2: v2)
+    return concatenate(eatWhiteSpace,p,eatWhiteSpace,
+                       combiner = lambda v1,v2,v3: v2)
 
-noneCombiner = lambda v1,v2:  None
-def concatenate(p,q,combiner = noneCombiner):
+defaultCombiner = lambda *vs: tuple(vs)
+def concatenate2(p,q,combiner = defaultCombiner):
     def newParser(s):
         for suffix, first in p(s):
             for newSuffix, second in q(suffix):
                 yield (newSuffix, combiner(first, second))
     return newParser
+
+def concatenate(*components, **keywords):
+    combiner = keywords.get("combiner",defaultCombiner)
+    if len(components) < 2: raise Exception('concatenate: not enough components')
+    if len(components) == 2: return concatenate2(components[0],components[1],combiner = combiner)
+    suffixParser = concatenate(*components[1:])
+    def recursiveCombiner(hd,tl):
+        #print "concatenate_%d combiner called with %s\t%s"%(len(components),hd,tl)
+        fullArguments = [hd] + list(tl)
+        #print "\tfullArguments",fullArguments
+        return combiner(*fullArguments)
+    return concatenate2(components[0], suffixParser,
+                        combiner = recursiveCombiner)
+        
 
 def alternation(*alternatives):
     def newParser(s):
@@ -67,10 +80,8 @@ def optional(p):
 
 
 def whitespaceDelimitedSequence(*things):
-    if len(things) < 1:
-        return constantParser('',[])
-    return concatenate(whitespaceDelimited(things[0]), whitespaceDelimitedSequence(*things[1:]),
-                       lambda v1,v2: [v1] + v2)
+    things = map(whitespaceDelimited,things)
+    return concatenate(*things)
 
 def runParser(p,s):
     for suffix, result in p(s):
@@ -82,27 +93,32 @@ featureParser = alternation(*[ constantParser(p + f, (p == '+',f))
                                for p in ['-','+'] ])
 whitespaceFeatureParser = whitespaceDelimited(featureParser)
 featuresParser = repeat(whitespaceFeatureParser)
-matrixParser = mapParserOutput(concatenate(concatenate(constantParser('['),
-                                                       whitespaceDelimited(featuresParser),
-                                                       lambda v1,v2: v2),
-                                           constantParser(']'),
-                                           lambda v1,v2: v1),
-                               lambda fp: FeatureMatrix(fp))
+matrixParser = concatenate(constantParser('['),
+                           whitespaceDelimited(featuresParser),
+                           constantParser(']'),
+                           combiner = lambda l,fp,r: FeatureMatrix(fp))
 phonemeParser = alternation(*[ constantParser(k,ConstantPhoneme(k)) for k in featureMap ])
 consonantParser = constantParser('C',FeatureMatrix([(False,'vowel')]))
 vowelParser = constantParser('V',FeatureMatrix([(True,'vowel')]))
 boundaryParser = constantParser('+',BoundarySpecification())
 specificationParser = alternation(matrixParser,phonemeParser,boundaryParser,vowelParser,consonantParser)
-guardSpecificationParser = concatenate(specificationParser,
-                                       optional(whitespaceDelimited(constantParser('*','*'))),
-                                       lambda v1,v2: (v1,v2))
+
+optionalEndOfStringParser = concatenate(constantParser("{#,",None),
+                                        specificationParser,
+                                        constantParser("}",None),
+                                        combiner = lambda _1,spec,_2: ("{#,",spec))
+
+# yields ()
+guardSpecificationParser = concatenate(alternation(specificationParser,optionalEndOfStringParser),
+                                       optional(whitespaceDelimited(constantParser('*','*'))))
+                               
 nullParser = alternation(constantParser("0",EmptySpecification()),
                          constantParser(u"Ø",EmptySpecification()))
 
 focusChangeParser = alternation(*([ constantParser(str(n),n) for n in [-2,-1,1,2] ] + [specificationParser,nullParser]))
 
 rightGuardParser = whitespaceDelimitedSequence(repeat(whitespaceDelimited(guardSpecificationParser)),
-                                              optional(constantParser('#','#')))
+                                               optional(constantParser('#','#')))
 leftGuardParser = whitespaceDelimitedSequence(optional(constantParser('#','#')),
                                               repeat(whitespaceDelimited(guardSpecificationParser)))
 
@@ -117,19 +133,26 @@ ruleParser = whitespaceDelimitedSequence(focusChangeParser,
                                          rightGuardParser)
 
 def parseRule(s):
-    # remove any comments
-    if ';' in s: s = s[:s.index(';')].strip()
     p = runParser(ruleParser,s)
     if p == None: return None
-    [focus,_,change,_,l,_,r] = p
+    [focus,_,change,_,(le,ls),_,(rs,re)] = p
 
-    l = Guard(endOfString = '#' == l[0],
-              specifications = reversed([ s for s,_ in l[1] ]),
-              starred = any([ s == '*' for _,s in l[1] ]),
+    def unpackOptionalEndOfString(mayBeEndOfString):
+        if isinstance(mayBeEndOfString,tuple) and mayBeEndOfString[0] == "{#,":
+            return mayBeEndOfString[1]
+        return mayBeEndOfString
+    def hasOptionalEnding(mayBeEndOfString):
+        return isinstance(mayBeEndOfString,tuple) and mayBeEndOfString[0] == "{#,"
+
+    l = Guard(endOfString = '#' == le,
+              optionalEnding = any([ hasOptionalEnding(s) for s,_ in ls ]),
+              specifications = reversed([ unpackOptionalEndOfString(s) for s,_ in ls ]),
+              starred = any([ s == '*' for _,s in ls ]),
               side = 'L')
-    r = Guard(endOfString = '#' == r[1],
-              specifications = [s for s,_ in r[0] ],
-              starred = any([s == '*' for _,s in r[0] ]),
+    r = Guard(endOfString = '#' == re,
+              optionalEnding = any([ hasOptionalEnding(s) for s,_ in rs ]),
+              specifications = [unpackOptionalEndOfString(s) for s,_ in rs ],
+              starred = any([s == '*' for _,s in rs ]),
               side = 'R')
 
     copyOffset = 0
@@ -143,7 +166,10 @@ def parseRule(s):
     return Rule(focus, change, l,r,copyOffset)
 
 def parseSolution(s):
-    lines = [ x.strip() for x in s.split('\n') ]
+    def removeComment(y):
+        if ';' in y: return y[:y.index(';')].strip()
+        return y.strip()
+    lines = [ removeComment(x) for x in s.split('\n') ]
     prefixes = []
     suffixes = []
     rules = []
@@ -161,10 +187,8 @@ def parseSolution(s):
     return Solution(rules, prefixes, suffixes)
 
 if __name__ == '__main__':
-    print parseRule(u'o > e / a [ ] _')
-    print list(featuresParser(''))
+    print parseRule(u'o > e / a [ ] _ V {#,C}')
     print parseRule('0 > -2 / #[-vowel][]* _ e #').pretty()
     print parseSolution(u''' + stem + 
  + stem + ə
-    [-sonorant] > [-voice] / _ #
-    [+stop +voice] > [+fricative] / [+sonorant -nasal] _ [+sonorant]''')
+    [-sonorant] > [-voice] / _ #''')

@@ -59,7 +59,7 @@ class SupervisedProblem():
         except SynthesisFailure:
             #printLastSketchOutput()
             return None
-        
+
         return [ Rule.parse(self.bank, output, r)
                  for r in rules ] 
 

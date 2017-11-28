@@ -1716,6 +1716,7 @@ ḍ > ṛ / _o#
 	(u"naag",	u"naagta",	u"naaɣo"),#	woman
 	(u"tib",	u"tibta",    	u"tiβo"),#	pestle
 	(u"sab",	u"sabta",    	u"saβo"),#	outcast
+    # illustrates /t/ deletion
 	(u"bad̪",	u"bad̪a",	u"baðo"),#	sea
 	(u"šid̪",	u"šid̪a",	u"šiðo"),#	person
     # 
@@ -1762,14 +1763,12 @@ ḍ > ṛ / _o#
  + stem + 
  + stem + ta
  + stem + o
-[+stop +voice] > [+fricative] / V_V
+[-sonorant +voice] > [+continuant] / _o#
 t > š/l_
 l > 0/_š
-m > n/_t
-m > n/_#
-0 > -2/VC_C#
-0 > -2/VC_CC
-t > 0/[+coronal +stop]_a
+m > n/_{#,t}
+;0 > -2/VC_C{#,C}
+t > 0/[+coronal -sonorant -continuant]_a
 ''']))
 
 sevenProblems.append(Problem('''4: Latin

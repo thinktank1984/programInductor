@@ -342,9 +342,11 @@ class FeatureMatrix(Specification,FC):
         return e + ")"                        
 
 class Guard():
-    def __init__(self, side, endOfString, starred, specifications):
+    def __init__(self, side, endOfString, optionalEnding, starred, specifications):
         self.side = side
         self.endOfString = endOfString
+        self.optionalEnding = optionalEnding
+        assert not (optionalEnding and endOfString)
         self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
         self.representation = None # Unicode representation
@@ -380,7 +382,7 @@ class Guard():
         return not self.endOfString and len(self.specifications) == 0
 
     def cost(self):
-        return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ])
+        return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ]) + 2*int(self.optionalEnding)
     
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
@@ -389,6 +391,7 @@ class Guard():
             parts += map(unicode,self.specifications)
             if self.starred: parts[-2] += u'*'
             if self.endOfString: parts += [u'#']
+            if self.optionalEnding: parts[-1] = u"{#,%s}"%parts[-1]
             if self.side == 'L': parts.reverse()
             self.representation = u" ".join(parts)
         return self.representation
@@ -396,6 +399,7 @@ class Guard():
         parts = []
         parts += map(unicode,self.specifications)
         if self.starred: parts[-2] += u'*'
+        if self.optionalEnding: parts[-1] = u"{#,%s}"%parts[-1]
         if copyOffset != 0:
             if copyOffset < 0 and self.side == 'L': parts[-copyOffset - 1] += u'ᵢ'
             if copyOffset > 0 and self.side == 'R': parts[copyOffset - 1] += u'ᵢ'
@@ -423,6 +427,7 @@ class Guard():
         parts += map(lambda spec: spec.latex(),self.specifications)
         if self.starred: parts[-2] += '*'
         if self.endOfString: parts += ['#']
+        if self.optionalEnding: parts[-1] = "\{%s,#\}"%(parts[-1])
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
 
@@ -442,7 +447,7 @@ class Guard():
     def share(self, table):
         k = ('GUARD',self.side,unicode(self))
         if k in table: return table[k]
-        table[k] = Guard(self.side, self.endOfString, self.starred,
+        table[k] = Guard(self.side, self.endOfString, self.optionalEnding, self.starred,
                          [s.share(table) for s in self.specifications ])
         return table[k]
 
@@ -457,17 +462,18 @@ class Guard():
 
     @staticmethod
     def parse(bank, output, variable, side):
-        pattern = " %s = new Guard\(endOfString=([01]), starred=([01]), spec=([a-zA-Z0-9_]+), spec2=([a-zA-Z0-9_]+)"%variable
+        pattern = " %s = new Guard\(endOfString=([01]), optionalEndOfString=([01]), starred=([01]), spec=([a-zA-Z0-9_]+), spec2=([a-zA-Z0-9_]+)"%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Could not parse guard %s using pattern %s'%(variable,pattern))
 
         endOfString = m.group(1) == '1'
-        starred = m.group(2) == '1'
-        spec = None if m.group(3) == 'null' else Specification.parse(bank, output, m.group(3))
+        optionalEnding = m.group(2) == '1'
+        starred = m.group(3) == '1'
+        spec = None if m.group(4) == 'null' else Specification.parse(bank, output, m.group(4))
         if isinstance(spec,EmptySpecification): spec = None
-        spec2 = None if m.group(4) == 'null' else Specification.parse(bank, output, m.group(4))
+        spec2 = None if m.group(5) == 'null' else Specification.parse(bank, output, m.group(5))
         if isinstance(spec2,EmptySpecification): spec2 = None
-        return Guard(side, endOfString, starred, [spec,spec2])
+        return Guard(side, endOfString, optionalEnding, starred, [spec,spec2])
     def makeConstant(self, bank):
         if len(self.specifications) == 2:
             [spec1,spec2] = self.specifications
@@ -480,7 +486,8 @@ class Guard():
             spec1 = "null"
             spec2 = "null"
         
-        return "new Guard(endOfString = %d, starred = %d, spec = %s, spec2 = %s)" % (1 if self.endOfString else 0,
+        return "new Guard(endOfString = %d, optionalEndOfString = %d, starred = %d, spec = %s, spec2 = %s)" % (1 if self.endOfString else 0,
+                                                                                                               1 if self.optionalEnding else 0,
                                                                                      1 if self.starred else 0,
                                                                                      spec1,
                                                                                      spec2)
@@ -511,7 +518,8 @@ class Guard():
             spec2 = self.specifications[1].sketchEquals(v + '.spec',b)
         else: spec2 = '%s.spec2 == null'%v
         
-        return "(%s.endOfString == %d && %s.starred == %d && %s && %s)"%(v,int(self.endOfString),
+        return "(%s.endOfString == %d && %s.optionalEndOfString == %d && %s.starred == %d && %s && %s)"%(v,int(self.endOfString),
+                                                                                                         v,int(self.optionalEnding),
                                                                    v,int(self.starred),
                                                                    spec1,spec2)
         
@@ -602,6 +610,8 @@ class Rule():
         p += self.leftTriggers.pretty(self.copyOffset)
         p += u' _ '
         p += self.rightTriggers.pretty(self.copyOffset)
+        p = p.replace(u"[ +vowel ]","V")
+        p = p.replace(u"[ -vowel ]","C")
         return p
         
 
@@ -861,8 +871,8 @@ class Rule():
 
 EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  structuralChange = FeatureMatrix([]),
-                 leftTriggers = Guard('L',False,False,[]),
-                 rightTriggers = Guard('R',False,False,[]),
+                 leftTriggers = Guard('L',False,False,False,[]),
+                 rightTriggers = Guard('R',False,False,False,[]),
                  copyOffset = 0)
 assert EMPTYRULE.doesNothing()
 

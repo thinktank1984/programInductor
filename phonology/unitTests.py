@@ -62,6 +62,20 @@ def supervisedDeleteInitial():
     assert isinstance(r.focus, FeatureMatrix)
     assert str(r.focus) == "[ -vowel ]"
 @test
+def supervisedOptionalEndOfString():
+    # Intended rule: m > n/_{#,t}
+    s = SupervisedProblem([(Morph("man"),0,Morph("man")),
+                           (Morph("kamt"),0,Morph("kant")),
+                           (Morph("kamk"),0,Morph("kamk")),
+                           (Morph("kamd"),0,Morph("kamd")),
+                           (Morph("om"),0,Morph("on")),
+                           (Morph("mta"),0,Morph("nta")),
+                           (Morph("iatm"),0,Morph("iatn"))])
+    r = s.solve(1)[0]
+    assert unicode(r.rightTriggers) == u'{#,t}'
+    assert len(r.leftTriggers.specifications) == 0
+    assert not r.leftTriggers.endOfString
+@test
 def supervisedDuplicateSyllable():
     s = SupervisedProblem([(Morph("xa"),0,Morph("xaxa"))],
                           syllables = True)

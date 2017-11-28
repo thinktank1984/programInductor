@@ -7,9 +7,6 @@ from fragmentGrammar import getEmptyFragmentGrammar
 
 import math
 
-#pretty sure you do not actually need this
-#from Panini import *
-
 class Solution():
     def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
         assert len(prefixes) == len(suffixes)
