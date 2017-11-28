@@ -159,6 +159,6 @@ class Solution():
 
         if not getTrace: return Morph.parse(bank,output,stem)
 
-        traces = [ [ Morph.parse(bank, output, t) for t in trace ] if trace != None else None
-                   for trace in traces ]
+        traces = [ [ Morph.parse(bank, output, t) for t in trace ] + [surfaces[j]] if trace != None else None
+                   for j,trace in enumerate(traces) ]
         return Morph.parse(bank,output,stem),traces

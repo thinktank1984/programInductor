@@ -166,7 +166,7 @@ class BoundarySpecification(Specification):
 
     def doesNothing(self): return False
     def skeleton(self): return "+"
-    def cost(self): return 3
+    def cost(self): return 2
     def latex(self): return '$+$'
     def mutate(self,_): return self
     def extension(self,_): return "+"

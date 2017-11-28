@@ -352,7 +352,7 @@ int guard_specification_cost(Specification s) {
   if (s == null) return 0;
   switch(s) {
   case ConstantPhoneme:{ return 2; }
-  case Boundary:{ return 3; }
+  case Boundary:{ return 2; }
   case Vector:{
     //    if (empty_vector(s.mask)) return 1;
     //    assert !empty_vector(s.mask);

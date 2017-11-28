@@ -71,12 +71,13 @@ class UnderlyingProblem(object):
             u = solution.transduceUnderlyingForm(self.bank, x, getTrace = True)
             if u == None: print "COUNTEREXAMPLE:"," ~ ".join(map(str,x))
             else:
+                print "PASSES:"," ~ ".join(map(str,x))
                 (ur, traces) = u
                 used = {}
                 for trace in traces:
                     if trace == None: continue
                     print trace
-                    for j in range(len(solution.rules) - 1):
+                    for j in range(len(solution.rules)):
                         if trace[j] != trace[j + 1]: used[j] = True
                 print "Uses rules",list(sorted(used.keys())),":"
                 for j in sorted(used.keys()):

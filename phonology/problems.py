@@ -58,7 +58,6 @@ class Problem():
 
         # As a sanity check we try to tokenize all of the data
         # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features
-        
         for d in self.data:
             if isinstance(d,basestring):
                 tokenize(d)
@@ -1411,9 +1410,9 @@ interactingProblems.append(Problem(
 Give phonological rules which account for the following data, and indicate what ordering is necessary between these rules. For each adjective stem, state what the underlying form of the root is. Pay attention to the difference between surface [b,d,g] and [β,ð,ɣ], in terms of predictability.
 NOTE: This problem set had a bug in it that Tim discovered.
 /d/ is actually a dental in this language
-So I have replaced it with /d̪/
+So I have replaced it with /d/
 /t/ might actually also be a dental
-So I have replaced it with /t̪/
+So I have replaced it with /t/
 feminine suffix: ə
 word final devoicing
 in between sonants voiced fricatives become stops
@@ -1423,66 +1422,66 @@ in between sonants voiced fricatives become stops
 #ma	masc	fem		masc	fem	
 #	sing.	sing.		sing.	sing.
     [
-	(u"əkely",	u"əkelyə"),#	‘t̪hat̪’
+	(u"əkely",	u"əkelyə"),#	‘that’
 	(u"mal",	u"malə"),#	‘bad’
 	(u"siβil",	u"siβilə"),#	‘civil’
 	(u"əskerp",	u"əskerpə"),#	‘shy’
-	(u"šop",	u"šopə"),#	‘d̪renched̪’
-	(u"sɛk",	u"sɛkə"),#	‘d̪ry’
-	(u"əspɛs",	u"əspɛsə"),#	‘t̪hick’
+	(u"šop",	u"šopə"),#	‘drenched’
+	(u"sɛk",	u"sɛkə"),#	‘dry’
+	(u"əspɛs",	u"əspɛsə"),#	‘thick’
 	(u"gros",	u"grosə"),#	‘large’
-	(u"baš",	u"bašə"),#	‘short̪’
+	(u"baš",	u"bašə"),#	‘short’
 	(u"koš",	u"košə"),#	‘lame’
-	(u"t̪ot̪",	u"t̪ot̪ə"),#	‘all’
-	(u"brut̪",	u"brut̪ə"),#	‘d̪irt̪y’
-	(u"pɔk",	u"pɔkə"),#	‘lit̪t̪le’
+	(u"tot",	u"totə"),#	‘all’
+	(u"brut",	u"brutə"),#	‘dirty’
+	(u"pɔk",	u"pɔkə"),#	‘little’
 	(u"prəsis",	u"prəsizə"),#	‘precise’
 	(u"frənses",	u"frənsezə"),#	‘French’
 	(u"gris",	u"grizə"),#	‘grey’
-	(u"kəzat̪",	u"kəzaðə"),#	‘married̪’
-	(u"bwit̪",	u"bwiðə"),#	‘empt̪y’
-	(u"rɔč",	u"rɔžə"),#	‘red̪’
+	(u"kəzat",	u"kəzaðə"),#	‘married’
+	(u"bwit",	u"bwiðə"),#	‘empty’
+	(u"rɔč",	u"rɔžə"),#	‘red’
 	(u"boč",	u"božə"),#	‘crazy’
-	(u"orp",	u"orβə"),#	‘blind̪’
+	(u"orp",	u"orβə"),#	‘blind’
 	(u"lyark",	u"lyarɣə"),#	‘long’
-	(u"sek",	u"seɣə"),#	‘blind̪’
+	(u"sek",	u"seɣə"),#	‘blind’
 	(u"fəšuk",	u"fəšuɣə"),#	‘heavy’
 	(u"grok",	u"groɣə"),#	‘yellow’
 	(u"puruk",	u"puruɣə"),#	‘fearful’
-	(u"kand̪it̪",	u"kand̪iðə"),#	‘cand̪id̪’
-	(u"frɛt̪",	u"frɛðə"),#	‘cold̪’
+	(u"kandit",	u"kandiðə"),#	‘candid’
+	(u"frɛt",	u"frɛðə"),#	‘cold’
 	(u"səɣu",	u"səɣurə"),#	‘sure’
-	(u"d̪u",	u"d̪urə"),#	‘hard̪’
+	(u"du",	u"durə"),#	‘hard’
 	(u"səɣəðo",	u"səɣəðorə"),#	‘reaper’
 	(u"kla",	u"klarə"),#	‘clear’
-	(u"nu",	u"nuə"),#	‘nud̪e’
+	(u"nu",	u"nuə"),#	‘nude’
 	(u"kru",	u"kruə"),#	‘raw’
-	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft̪’
-	(u"d̪ropu",	u"d̪ropə"),#	‘lazy’
-	(u"əgzakt̪ə",	u"əgzakt̪ə"),#	‘exact̪’
+	(u"flɔñǰu",	u"flɔñǰə"),#	‘soft’
+	(u"dropu",	u"dropə"),#	‘lazy’
+	(u"əgzaktə",	u"əgzaktə"),#	‘exact’
 	(u"əlβi",	u"əlβinə"),#	‘albino’
-	(u"sa",	u"sanə"),#	‘healt̪hy’
+	(u"sa",	u"sanə"),#	‘healthy’
 	(u"pla",	u"planə"),#	‘level’
-	(u"bo",	u"bonə"),#	‘good̪’
+	(u"bo",	u"bonə"),#	‘good’
 	(u"sərɛ",	u"sərɛnə"),#	‘calm’
 	(u"suβlim",	u"suβlimə"),#	‘sublime’
-	(u"al",	u"alt̪ə"),#	‘t̪all’
-	(u"fɔr",	u"fɔrt̪ə"),#	‘st̪rong’
-	(u"kur",	u"kurt̪ə"),#	‘short̪’
-	(u"sor",	u"sorðə"),#	‘d̪eaf’
+	(u"al",	u"altə"),#	‘tall’
+	(u"fɔr",	u"fɔrtə"),#	‘strong’
+	(u"kur",	u"kurtə"),#	‘short’
+	(u"sor",	u"sorðə"),#	‘deaf’
 	(u"bɛr",	u"bɛrðə"),#	‘green’
-	(u"san",	u"sant̪ə"),#	‘saint̪’
-	(u"kəlɛn",	u"kəlɛnt̪ə"),#	‘hot̪’
-	(u"prufun",	u"prufund̪ə"),#	‘d̪eep’
-	(u"fəkun",	u"fəkund̪ə"),#	‘fert̪ile’
-	(u"d̪əsen",	u"d̪əsent̪ə"),#	‘d̪ecent̪’
-	(u"d̪ulen",	u"d̪ulent̪ə"),#	‘bad̪’
-	(u"əst̪uðian",	u"əst̪uðiant̪ə"),#	‘student’
+	(u"san",	u"santə"),#	‘saint’
+	(u"kəlɛn",	u"kəlɛntə"),#	‘hot’
+	(u"prufun",	u"prufundə"),#	‘deep’
+	(u"fəkun",	u"fəkundə"),#	‘fertile’
+	(u"dəsen",	u"dəsentə"),#	‘decent’
+	(u"dulen",	u"dulentə"),#	‘bad’
+	(u"əstuðian",	u"əstuðiantə"),#	‘student’
 	(u"blaŋ",	u"blaŋkə")],#	‘white’
     solutions = [u''' + stem + 
  + stem + ə
     [-sonorant] > [-voice] / _ #
-    [+voice] > [+continuant] / [+sonorant -nasal] _ [+sonorant]
+    [-sonorant +voice] > [+continuant] / [+sonorant -nasal] _ [+sonorant]
     [+sonorant -lateral +coronal] > 0 / _ #
     [+coronal -sonorant] > 0 / [+coronal +sonorant] _ #
     k > 0 /  ŋ _ #
@@ -1708,7 +1707,7 @@ ḍ > ṛ / _o#
 [
 #	Singular	Sing. Definite	Plural	Gloss
     # illustrates morphology
-	(u"d̪aar",	u"d̪aarta",	u"d̪aaro",None,None,None),#	house
+	(u"daar",	u"daarta",	u"daaro",None,None,None),#	house
 	(u"gees",	u"geesta",	u"geeso",None,None,None),#	side
 	(u"laf",	u"lafta",	u"lafo",None,None,None),#	bone
     # illustrate stop/fricative alternations
@@ -1717,8 +1716,8 @@ ḍ > ṛ / _o#
 	(u"tib",	u"tibta",    	u"tiβo",None,None,None),#	pestle
 	(u"sab",	u"sabta",    	u"saβo",None,None,None),#	outcast
     # illustrates /t/ deletion
-	(u"bad̪",	u"bad̪a",	u"baðo",None,None,None),#	sea
-	(u"šid̪",	u"šid̪a",	u"šiðo",None,None,None),#	person
+	(u"bad",	u"bada",	u"baðo",None,None,None),#	sea
+	(u"šid",	u"šida",	u"šiðo",None,None,None),#	person
     # 
 	(u"feeḍ",	u"feeḍa",  	u"feeṛo",None,None,None),#	rib
 	(u"ʕiir",	u"ʕiirta",	u"ʕiiro",None,None,None),#	buttermilk
@@ -1730,35 +1729,35 @@ ḍ > ṛ / _o#
 	(u"sun",	u"sunta",	u"sumo",None,None,None),#	poison
 	(u"laan",	u"laanta",	u"laamo",None,None,None),#	branch
 	(u"sin",	u"sinta",	u"simo",None,None,None),#	hip
-	(u"d̪an",	u"d̪anta",	u"d̪ano",None,None,None),#	affair
-	(u"d̪aan",	u"d̪aanta",	u"d̪aano",None,None,None),#	river bank
+	(u"dan",	u"danta",	u"dano",None,None,None),#	affair
+	(u"daan",	u"daanta",	u"daano",None,None,None),#	river bank
 	(u"saan",	u"saanta",	u"saano",None,None,None),#	hide
 	(u"nirig",	u"nirigta",	u"nirgo",None,None,None),#	baby female camel
 	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo",None,None,None),#	girl
 	(u"hoɣol",	u"hoɣoša",	u"hoglo",None,None,None),#	downpour
 	(u"baɣal",	u"baɣaša",	u"baglo",None,None,None),#	mule
 	(u"waħar",	u"waħarta",	u"waħaro",None,None,None),#	female kid
-	(u"irbad̪",	u"irbad̪a",	u"irbaðo",None,None,None),#	needle
-	(u"kefed̪",	u"kefed̪a",	u"kefeðo",None,None,None),#	pan
+	(u"irbad",	u"irbada",	u"irbaðo",None,None,None),#	needle
+	(u"kefed",	u"kefeda",	u"kefeðo",None,None,None),#	pan
 	(u"šilin",	u"šilinta",	u"šilino",None,None,None),#	female dwarf
 	(u"bohol",	u"bohoša",	u"boholo",None,None,None),#	hole
     # todo: figure out what /j/ is supposed to be
 	#(u"jirid",	u"jirida",	u"jirdo"),#	trunk
-	(u"ʔaayad̪",	u"ʔaayad̪a",	u"ʔaayaðo",None,None,None),#	miracle
+	(u"ʔaayad",	u"ʔaayada",	u"ʔaayaðo",None,None,None),#	miracle
 	(u"gaʕan",	u"gaʕanta",	u"gaʕmo",None,None,None),#	hand
 	(u"ʔinan",	u"ʔinanta",	u"ʔinano",None,None,None),#	daughter
 
 	# 3sg msc. pst	3sg fem. past	1pl past	Gloss
 	(None,None,None, u"suɣay",	u"sugtay",	u"sugnay"),#	wait
 	(None,None,None, u"kaβay",	u"kabtay",	u"kabnay"),#	fix
-	(None,None,None, u"siðay",	u"sid̪ay",	u"sid̪nay"),#	carry
-	(None,None,None, u"d̪ilay",	u"d̪išay",	u"d̪illay"),#	kill
+	(None,None,None, u"siðay",	u"siday",	u"sidnay"),#	carry
+	(None,None,None, u"dilay",	u"dišay",	u"dillay"),#	kill
 	(None,None,None, u"ganay",	u"gantay",	u"gannay"),#	aim
 	(None,None,None, u"tumay",	u"tuntay",	u"tunnay"),#	hammer
 	(None,None,None, u"argay",	u"aragtay",	u"aragnay"),#	see
-	(None,None,None, u"gud̪bay",	u"guðubtay",	u"guðubnay"),#	cross a river
+	(None,None,None, u"gudbay",	u"guðubtay",	u"guðubnay"),#	cross a river
 	(None,None,None, u"qoslay",	u"qosošay",	u"qosollay"),#	laugh
-	(None,None,None, u"had̪lay",	u"haðašay",	u"haðallay"),#	talk
+	(None,None,None, u"hadlay",	u"haðašay",	u"haðallay"),#	talk
 ], solutions = [u'''
  + stem + 
  + stem + ta
@@ -1770,7 +1769,7 @@ ḍ > ṛ / _o#
 [-sonorant +voice] > [+continuant] / V_V
 m > n/_{#,t}
 t > 0/[+coronal -sonorant -continuant]_a
-n > l/_l
+n > l/l_
 t > š/l_
 l > 0/_š
 ''']))
@@ -2185,7 +2184,7 @@ sevenProblems.append(Problem('''
 #	Bare N	Accusative	Nonfuture	Future	Gloss
 [                             
 	(u"kentapal",	u"kentapalin",	u"kentapalŋar",	u"kentapaluṛ"),#	dugong
-	(u"ket̪ar",	u"ket̪arin",	u"ket̪arŋar",	u"ket̪aruṛ"),#	river
+	(u"ketar",	u"ketarin",	u"ketarŋar",	u"ketaruṛ"),#	river
 	(u"miyaṛ",	u"miyaṛin",	u"miyaṛŋar",	u"miyaṛuṛ"),#	spear
 	(u"yupur",	u"yupurin",	u"yupurŋar",	u"yupuruṛ"),#	red rock cod
 	(u"taŋur",	u"taŋurin",	u"taŋurŋar",	u"taŋuruṛ"),#	crab sp.
@@ -2193,7 +2192,7 @@ sevenProblems.append(Problem('''
 	(u"maaṇ",	u"maaṇin",	u"maaṇar",	u"maaṇkuṛ"),#	spear
 	(u"pirŋen",	u"pirŋenin",	u"pirŋenar",	u"pirŋenkuṛ"),#	woman
 	(u"mela",	u"melan",	u"melaŋar",	u"melaṛ"),#	sea
-	(u"t̪awa",	u"t̪awan",	u"t̪awaŋar", u"t̪awaṛ"),#	rat
+	(u"tawa",	u"tawan",	u"tawaŋar", u"tawaṛ"),#	rat
 	(u"wanka",	u"wankan",	u"wankaŋar",	u"wankaṛ"),#	arm
 	(u"kuŋka",	u"kuŋkan",	u"kuŋkaŋar",	u"kuŋkaṛ"),#	groin
 	(u"tarŋka",	u"tarŋkan", u"tarŋkaŋar", u"tarŋkaṛ"),#	barracuda
@@ -2213,7 +2212,7 @@ sevenProblems.append(Problem('''
 	(u"makar",	u"makarkin",	u"makarkar",	u"makarkuṛ"),#	anthill
 	(u"yalul",	u"yalulun",	u"yaluluŋar",	u"yaluluṛ"),#	flame
 	(u"mayar",	u"mayaran",	u"mayaraŋar",	u"mayaraṛ"),#	rainbow
-	(u"t̪alkur",	u"t̪alkuran",	u"t̪alkuraŋar",	u"t̪alkuraṛ"),#	kookaburra
+	(u"talkur",	u"talkuran",	u"talkuraŋar",	u"talkuraṛ"),#	kookaburra
 	(u"wiwal",	u"wiwalan",	u"wiwalaŋar",	u"wiwalaṛ"),#	bush mango
 	(u"karikar",	u"karikarin",	u"karikariŋar",	u"karikariwuṛ"),#	butter-fish
 	(u"yiliyil",	u"yiliyilin",	u"yiliyiliŋar",	u"yiliyiliwuṛ"),#	oyster sp
@@ -2223,7 +2222,7 @@ sevenProblems.append(Problem('''
 	(u"wuṭal",	u"wuṭaltyin",	u"wuṭaltyiŋar",	u"wuṭaltyiwur"),#	meat
 	(u"kantukan",	u"kantukantun",	u"kantukantuŋar",	u"kantukantuṛ"),#	red
 	(u"karwakar",	u"karwakarwan",	u"karwakarwaŋar",	u"karwakarwaṛ"),#	wattle sp.
-	(u"t̪urara",	u"t̪uraraŋin",	u"t̪uraraŋar",	u"t̪uraraŋkuṛ"),#	shark
+	(u"turara",	u"turaraŋin",	u"turaraŋar",	u"turaraŋkuṛ"),#	shark
 	(u"ŋalu",	u"ŋalukin",	u"ŋalukar",	u"ŋalukuṛ"),#	story
 	(u"kurka",	u"kurkaŋin",	u"kurkaŋar",	u"kurkaŋkuṛ"),#	pandja
 	(u"taŋku",	u"taŋkuŋin",	u"taŋkuŋar",	u"taŋkuŋkuṛ"),#	oyster sp.
@@ -2235,7 +2234,7 @@ sevenProblems.append(Problem('''
 	(u"murkuni",	u"murkuniman",	u"murkunimaŋar",	u"murkunimaṛ"),#	nullah
 	(u"ŋawuŋa",	u"ŋawuŋawun",	u"ŋawuŋawuŋar",	u"ŋawuŋawuṛ"),#	termite
 	(u"tipiti",	u"tipitipin",	u"tipitipiŋar",	u"tipitipiwuṛ"),#	rock-cod sp.
-	(u"t̪apu",	u"t̪aputyin",	u"t̪aputyiŋar",	u"t̪aputyiwuṛ"),#	older brother
+	(u"tapu",	u"taputyin",	u"taputyiŋar",	u"taputyiwuṛ"),#	older brother
 	(u"muŋkumu",	u"muŋkumuŋkun",	u"muŋkumuŋkuŋar",	u"muŋkumuŋkuṛ"),#	wooden axe
 	(u"tyumputyu",	u"tyumputyumpun",	u"tyumputyumpuŋar",	u"tyumputyumpuṛ")#	dragonfly
     ]))
