@@ -1645,39 +1645,40 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
 #	Masculine nouns
 #	Nom. sg.	Dat. pl. 	 Dat. sg.	Loc. sg.	Gloss
 [
-	(u"zub",	u"zubam",	u"zubov^yi",	u"zub^yi",None),#	tooth
-	(u"sv^yit",	u"sv^yitam",	u"sv^yitov^yi",	u"sv^yit^yi",None),#	light
-	(u"z^yat^y",	u"z^yat^yam",	u"z^yatev^yi",	None,u"z^yatev^yi"),#	son-in-law
-	(u"koš^yil^y",	u"košel^yam",	u"košelev^yi",	u"košel^yi",None),#	basket
-	(u"zlod^yiy",	u"zlod^yiyam",	u"zlod^yiyev^yi",	None,u"zlod^yiyev^yi"),# 	thief
-	(u"m^yis^yat^s^y",	u"m^yis^yat^s^yam",	u"m^yis^yat^sev^yi",	u"m^yis^yat^s^yi",None),#	month
-	(u"korovay",	u"korovayam",	u"korovayev^yi",	u"korovayi",None),#	round loaf
-	(u"kam^yin^y",	u"kamen^yam",	u"kamenev^yi",	u"kamen^yi",None),#	stone
-	(u"m^yid^y",	u"m^yid^yam",	u"m^yidev^yi",	u"m^yid^yi",None),#	copper
-	(u"xl^yiw",	u"xl^yivam",	u"xl^yivov^yi",	u"xl^yiv^yi",None),#	stable
-	(u"holub",	u"holubam",	u"holubov^yi",	u"holub^yi",None),#	dove
-	(u"s^yin",	u"s^yinam",	u"s^yinov^yi",	u"s^yin^yi",None),#	son
-	(u"leb^yid^y",	u"lebed^yam",	u"lebedev^yi",	u"lebed^yi",None),#	swan
-	(u"sus^yid", 	u"sus^yidam", 	u"sus^yidov^yi", 	None,u"sus^yidov^yi"),#	neighbor
-	(u"čolov^yik", 	u"čolov^yikam", 	u"čolov^yikov^yi", 	None,u"čolov^yikov^yi"),#	man
-	(u"l^yid",	u"ledam",	u"ledov^yi",	u"led^yi",None),#	ice
-	(u"bil^y",	u"bol^yam",	u"bolev^yi",	u"bol^yi",None),#	ache
-	(u"riw",	u"rovam",	u"rovov^yi",	u"rov^yi",None),#	ditch
-	(u"stiw",	u"stolam",	u"stolov^yi",	u"stol^yi",None),#	table
-	(u"d^yid",	u"d^yidam",	u"d^yidov^yi",	None,u"d^yidov^yi"),#	grandfather
-	(u"l^yit",	u"l^yotam",	u"l^yotov^yi",	u"l^yot^yi",None),#	flight
-	(u"mist",	u"mostam",	u"mostov^yi",	u"most^yi",None),#	bridge
-	(u"večir",	u"večoram",	u"večorov^yi",	u"večor^yi",None),#	evening
+	(u"zub",	u"zubam",	u"zubov^yi",	u"zub^yi",None,None,None,None,None,None),#	tooth
+	(u"sv^yit",	u"sv^yitam",	u"sv^yitov^yi",	u"sv^yit^yi",None,None,None,None,None,None),#	light
+	(u"z^yat^y",	u"z^yat^yam",	u"z^yatev^yi",	None,u"z^yatev^yi",None,None,None,None,None),#	son-in-law
+	(u"koš^yil^y",	u"košel^yam",	u"košelev^yi",	u"košel^yi",None,None,None,None,None,None),#	basket
+	(u"zlod^yiy",	u"zlod^yiyam",	u"zlod^yiyev^yi",	None,u"zlod^yiyev^yi",None,None,None,None,None),# 	thief
+	(u"m^yis^yat^s^y",	u"m^yis^yat^s^yam",	u"m^yis^yat^sev^yi",	u"m^yis^yat^s^yi",None,None,None,None,None,None),#	month
+	(u"korovay",	u"korovayam",	u"korovayev^yi",	u"korovayi",None,None,None,None,None,None),#	round loaf
+	(u"kam^yin^y",	u"kamen^yam",	u"kamenev^yi",	u"kamen^yi",None,None,None,None,None,None),#	stone
+	(u"m^yid^y",	u"m^yid^yam",	u"m^yidev^yi",	u"m^yid^yi",None,None,None,None,None,None),#	copper
+	(u"xl^yiw",	u"xl^yivam",	u"xl^yivov^yi",	u"xl^yiv^yi",None,None,None,None,None,None),#	stable
+	(u"holub",	u"holubam",	u"holubov^yi",	u"holub^yi",None,None,None,None,None,None),#	dove
+	(u"s^yin",	u"s^yinam",	u"s^yinov^yi",	u"s^yin^yi",None,None,None,None,None,None),#	son
+	(u"leb^yid^y",	u"lebed^yam",	u"lebedev^yi",	u"lebed^yi",None,None,None,None,None,None),#	swan
+	(u"sus^yid", 	u"sus^yidam", 	u"sus^yidov^yi", 	None,u"sus^yidov^yi",None,None,None,None,None),#	neighbor
+	(u"čolov^yik", 	u"čolov^yikam", 	u"čolov^yikov^yi", 	None,u"čolov^yikov^yi",None,None,None,None,None),#	man
+	(u"l^yid",	u"ledam",	u"ledov^yi",	u"led^yi",None,None,None,None,None,None),#	ice
+	(u"bil^y",	u"bol^yam",	u"bolev^yi",	u"bol^yi",None,None,None,None,None,None),#	ache
+	(u"riw",	u"rovam",	u"rovov^yi",	u"rov^yi",None,None,None,None,None,None),#	ditch
+	(u"stiw",	u"stolam",	u"stolov^yi",	u"stol^yi",None,None,None,None,None,None),#	table
+	(u"d^yid",	u"d^yidam",	u"d^yidov^yi",	None,u"d^yidov^yi",None,None,None,None,None),#	grandfather
+	(u"l^yit",	u"l^yotam",	u"l^yotov^yi",	u"l^yot^yi",None,None,None,None,None,None),#	flight
+	(u"mist",	u"mostam",	u"mostov^yi",	u"most^yi",None,None,None,None,None,None),#	bridge
+	(u"večir",	u"večoram",	u"večorov^yi",	u"večor^yi",None,None,None,None,None,None),#	evening
 	
 	# Neuter nouns
 	# Nom. sg.	Gen. sg.	Dat. sg.	Loc. sg.	Gen. pl.	Gloss
-	# t^yilo	t^yila	t^yilu	t^yil^yi	t^yiw	body
-	# koleso	kolesa	kolesu	koles^yi	kol^yis	wheel
-	# ozero	ozera	ozeru	ozer^yi	oz^yir	lake
-	# selo	sela	selu	sel^yi	s^yiw	village
-	# pole	pol^ya	pol^yu	pol^yi	pil^y	field
-	# slovo	slova	slovu	slov^yi	sliw	word
-	# more	mor^ya	mor^yu	mor^yi	mir^y	sea
+    
+    (None,None,None,None,None,u"t^yilo",	u"t^yila",	u"t^yilu",	u"t^yil^yi",	u"t^yiw"),#	body
+    (None,None,None,None,None,u"koleso",	u"kolesa",	u"kolesu",	u"koles^yi",	u"kol^yis"),#	wheel
+    (None,None,None,None,None,u"ozero",	u"ozera",	u"ozeru",	u"ozer^yi",	u"oz^yir"), # lake
+    (None,None,None,None,None,u"selo",	u"sela",	u"selu",	u"sel^yi",	u"s^yiw"), # village
+    (None,None,None,None,None,u"pole",	u"pol^ya",	u"pol^yu",	u"pol^yi",	u"pil^y"), # field
+    (None,None,None,None,None,u"slovo",	u"slova",	u"slovu",	u"slov^yi",	u"sliw"), # word
+    (None,None,None,None,None,u"more",	u"mor^ya",	u"mor^yu",	u"mor^yi",	u"mir^y"), # sea
 ],
                              solutions = 
 [u''' + stem + 
@@ -1685,6 +1686,11 @@ sevenProblems.append(Problem('''2: Standard Ukrainian
  + stem + ov^yi
  + stem + i
  + stem + ov^yi
+ + stem + o
+ + stem + a
+ + stem + u
+ + stem + i
+ + stem + 
 C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
 o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "vowel fronting"
 [+vowel -low -high] > i / _ C* C # ;; neutralize {e,o} if they are the last vowel
