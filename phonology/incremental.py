@@ -238,7 +238,7 @@ class IncrementalSolver(UnderlyingProblem):
                                         maximumLength = self.maximumNumberOfRules)
         if len(solution.rules) <= 2:
             # This is generally tractable when there is  < 3 rules
-            ruleVectors += [solution.rules] + [None,None]
+            ruleVectors.append(solution.rules + [None,None])
 
         print "# parallel sketch jobs:",len(ruleVectors)
 
