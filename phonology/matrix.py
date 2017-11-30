@@ -281,14 +281,15 @@ class UnderlyingProblem(object):
             
         affixAdjustment = []
         for j in range(self.numberOfInflections):
-            if self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
+            adjustment = 0
+            if morphologicalCosts != None: adjustment = morphologicalCosts[j]                
+            elif self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
                 for Lex,stemSize in zip(self.data,approximateStemSize):
                     if Lex[j] != None:  # this lexeme was annotated for this inflection; use it as a guess
                         adjustment = len(Lex[j]) - stemSize
                         break
             else: adjustment = 0
             affixAdjustment.append(adjustment)
-        
                 
         affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) - affixAdjustment[j]
                           for j in range(self.numberOfInflections) ])
