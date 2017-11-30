@@ -164,6 +164,11 @@ def suffixBoundary():
  + stem + ov^yi
  + stem + i
  + stem + ov^yi
+ + stem + o
+ + stem + a
+ + stem + u
+ + stem + i
+ + stem + 
 C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back]
 o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "vowel fronting"
 [ -glide -vowel ] ---> [ -palletized ] /  _ e
