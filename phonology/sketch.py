@@ -90,10 +90,15 @@ def leaveSketchOutput():
     global leaveSketches
     leaveSketches = True
 
+globalSketchTime = 0.0
+def getGlobalSketchTime():
+    global globalSketchTime
+    return globalSketchTime
+
 lastFailureOutput = None
 lastSketchOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, showSource = False, minimizeBound = None, timeout = None):
-    global lastFailureOutput,lastSketchOutput,globalTimeoutCounter,leaveSketches
+    global lastFailureOutput,lastSketchOutput,globalTimeoutCounter,leaveSketches,globalSketchTime
 
     leavitt = leaveSketches
 
@@ -134,6 +139,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     flushEverything()
     os.system(command)
     print "Ran the solver in %02f sec"%(time() - startTime)
+    globalSketchTime += time() - startTime
     if globalTimeoutCounter != None: globalTimeoutCounter -= (time() - startTime)
     flushEverything()
     

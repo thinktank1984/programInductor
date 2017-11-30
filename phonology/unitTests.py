@@ -189,6 +189,8 @@ def verify():
             
 if __name__ == "__main__":
     import sys
+    import time
+    startTime = time.time()
     A = sys.argv
     if len(A) > 1:
         for f in A[1:]:
@@ -198,4 +200,6 @@ if __name__ == "__main__":
         for f in TESTS:
             print " [+] Running test",f.__name__
             f()
-            print 
+            print
+    print "\nTotal time taken by unit tests",time.time() - startTime
+    print "Total solver time taken by unit tests",getGlobalSketchTime()
