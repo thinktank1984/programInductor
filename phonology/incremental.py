@@ -217,7 +217,6 @@ class IncrementalSolver(UnderlyingProblem):
                 ce = self.findCounterexample(newSolution, trainingData)
                 if ce == None:
                     print "No counterexample so I am just returning best solution"
-                    newSolution.clearTransducers()
                     newSolution.underlyingForms = None
                     newSolution = self.solveUnderlyingForms(newSolution)
                     print "Final CEGIS solution:\n%s"%(newSolution)
@@ -364,6 +363,6 @@ class IncrementalSolver(UnderlyingProblem):
 
             if saveProgressTo != None:
                 print " [+] Saving progress to %s"%saveProgressTo
-                dumpPickle((j,None,solution.clearTransducers()),saveProgressTo)            
+                dumpPickle((j,None,solution),saveProgressTo)            
 
         return solution
