@@ -21,7 +21,7 @@ TEMPERATURE = 2.0
 def sampleVowel():
     return choice([u"i",u"ɩ",u"e",u"ə",u"ɛ",u"æ",u"a",u"u",u"ʊ",u"o",u"ɔ"])
 def sampleConsonant():
-    return choice([u"p",u"b",u"f",u"v",u"β",u"m",u"θ",u"d",u"t",u"ð",u"z",u"ǰ",u"s",u"n",u"š",u"k",u"g",u"ŋ",u"h",u"w",u"y",u"r",u"l"])
+    return choice([u"p",u"b",u"f",u"v",u"m",u"θ",u"d",u"t",u"ð",u"z",u"ǰ",u"s",u"n",u"š",u"k",u"g",u"ŋ",u"h",u"w",u"y",u"r",u"l"])
 def sampleSyllable():
     v = sampleVowel()
     k = sampleConsonant()

@@ -248,7 +248,7 @@ class FeatureBank():
         return d
 
     def defineSound(self):
-        h = "\nstruct Sound{@Immutable(\"\")\n"
+        h = "\nstruct Sound{//@Immutable(\"\")\n"
         for f in self.features:
             h += "  bit %s;\n"%(f)
         h += "}\n"
