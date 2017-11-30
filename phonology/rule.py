@@ -83,8 +83,6 @@ class ConstantPhoneme(Specification,FC):
     def cost(self): return 2
     def skeleton(self): return "K"
     def latex(self): return latexWord(self.p)
-    def fst(self,bank):
-        return [bank.phoneme2fst(self.p)]
     def mutate(self,bank): return ConstantPhoneme(choice(bank.phonemes))
 
     def share(self, table):
@@ -232,14 +230,6 @@ class FeatureMatrix(Specification,FC):
     def skeleton(self):
         if self.featuresAndPolarities == []: return "[ ]"
         else: return "[ +/-F ]"
-
-    def fst(self,bank):
-        # which phonemes in the bank does this refer to?
-        setOfPhonemes = [ bank.phoneme2fst(p)
-                          for p in bank.phonemes
-                          if self.matches(featureMap[p]) ]
-        if len(setOfPhonemes) == 0: raise InvalidRule('FeatureMatrix: %s'%str(self))
-        return setOfPhonemes
 
     def latex(self):
         if self.featuresAndPolarities == []: return '\\verb|[ ]|'
@@ -431,19 +421,7 @@ class Guard():
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
 
-    def fst(self,bank):
-        parts = [ unionTransducer(s.fst(bank)) for s in self.specifications ]
-        if self.starred: parts[-2] = parts[-2].closure()
-        if self.endOfString: parts += ['[EOS]' if self.side == 'R' else '[BOS]']
-        if self.side == 'L': parts.reverse()
-        if parts == []: return ""
-        t = parts[0]
-        parts = parts[1:]
-        while parts != []:
-            t = t + parts[0]
-            parts = parts[1:]
-        return t
-
+    
     def share(self, table):
         k = ('GUARD',self.side,unicode(self))
         if k in table: return table[k]
@@ -526,11 +504,6 @@ class Guard():
         
     
 class Rule():
-    SAVEDTRANSDUCERS = {}
-
-    @staticmethod
-    def clearSavedTransducers(): Rule.SAVEDTRANSDUCERS = {}
-    
     def __init__(self, focus, structuralChange, leftTriggers, rightTriggers, copyOffset):
         self.focus = focus
         self.structuralChange = structuralChange
@@ -667,48 +640,7 @@ class Rule():
 
         return dict([ (i,o) for (i,o) in zip(inputs, outputs) ])
 
-    def fst(self,bank):
-        if unicode(self) in Rule.SAVEDTRANSDUCERS: return Rule.SAVEDTRANSDUCERS[unicode(self)]
-
-        insertion = isinstance(self.focus,EmptySpecification)
-        deletion = isinstance(self.structuralChange,EmptySpecification)
-        
-        mapping = self.calculateMapping(bank)
-        if getVerbosity() >= 5:
-            print "MAPPING"
-            print self
-            print "\n".join([ u'\t%s > %s\n'%(x,y) for (x,y) in mapping.iteritems() ])
-            print
-
-        if len(mapping) == 0: raise InvalidRule('mapping has length zero')
-
-        if self.isGeminiRule():
-            # ground out the variable
-            groundings = [ Rule(ConstantPhoneme(p), self.structuralChange, self.leftTriggers,
-                                self.rightTriggers.groundAdjacent(p),0)
-                           for p in mapping ]
-            if getVerbosity() >= 5:
-                print "GROUNDINGS (%s):"%self
-                for r in groundings: print r
-            regex = groundings[0].fst(bank)
-            for g in groundings[1:]: regex = regex*g.fst(bank)
-        else:
-            mapping = dict([ (i if insertion else bank.phoneme2fst(i),
-                              # '.' is magical error signal
-                              o if deletion  else ('.' if o == None else bank.phoneme2fst(o)))
-                             for i,o in mapping.iteritems() ])
-            if getVerbosity() >= 5:
-                print "mapping:"
-                print mapping
-                print
-            regex = transducerOfRule(mapping,
-                                     self.leftTriggers.fst(bank),
-                                     self.rightTriggers.fst(bank),
-                                     bank.transducerAlphabet())
-        
-        Rule.SAVEDTRANSDUCERS[unicode(self)] = regex
-        return regex        
-
+    
     # Produces sketch object
     def makeConstant(self, bank):
         return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s, copyOffset = %d)" % (self.focus.makeConstant(bank),
@@ -876,24 +808,6 @@ EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  copyOffset = 0)
 assert EMPTYRULE.doesNothing()
 
-def sketchUniversalGrammar(fragments, bank):
-    from sketchSyntax import definePreprocessor
-    
-    definitions = {}
-    for f in fragments:
-        if isinstance(f,FeatureMatrix):
-            if any([not (e in bank.features) for _,e in f.featuresAndPolarities ]): continue
-            definitions['UNIVERSALSPECIFICATIONGRAMMAR'] = definitions.get('UNIVERSALSPECIFICATIONGRAMMAR',"")
-            definitions['UNIVERSALSPECIFICATIONGRAMMAR'] += " if %s return 1; "%(f.sketchEquals('s',bank))
-        elif isinstance(f,Rule):
-            try:
-                predicate = f.sketchEquals('r',bank)
-                definitions['UNIVERSALRULEGRAMMAR'] = definitions.get('UNIVERSALRULEGRAMMAR','')
-                definitions['UNIVERSALRULEGRAMMAR'] += " if %s return 1; "%(f.sketchEquals('r',bank))
-            except: continue
-            
-    for k,v in definitions.iteritems():
-        definePreprocessor(k,v)
 
 if __name__ == '__main__':
     from problems import *
@@ -905,10 +819,6 @@ if __name__ == '__main__':
         candidates = Rule.enumeration(b,c)
         print "# rules of cost less than",c,"is",len(candidates)
         print "enumerated in %f sec"%(time() - startTime)
-        print "compiling rules into transducers..."
-        startTime = time()
-        for r in candidates: r.fst(b)
-        print "compiled in %f seconds"%(time() - startTime)
         for r in candidates[:10]:
             print "\t",r
 

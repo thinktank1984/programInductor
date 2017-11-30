@@ -1620,8 +1620,8 @@ sevenProblems.append(Problem(
 	# 1sg pres	masc. past	fem. past	neut. past	
 	    (None,None,None,None,u"tepém",	u"tépao",	u"teplá",	u"tepló"),#	wander
 	    (None,None,None,None,u"skubém",	u"skúbao",	u"skublá",	u"skubló"),#	tear
-	    (None,None,None,None,u"tresém",	u"trésao",	u"treslá",	u"tresló"),	#shake
-	    (None,None,None,None,u"vezém",	u"vézao",	u"vezlá",	u"vezló")],
+	    (None,None,None,None,u"tresém",	u"trésao",	u"treslá",	u"tresló"),#shake
+	    (None,None,None,None,u"vezém",	u"vézao",	u"vezlá",	u"vezló")],#	lead
     solutions = [u'''
  + stem + 
  + stem + a
@@ -1636,7 +1636,7 @@ V > [-highTone]/_C*[+highTone]
 0 > a/C_C#
 l > o/_#
 [-sonorant] > [-voice]/_[-voice]
-''']))#	lead
+''']))
 
 
 sevenProblems.append(Problem('''2: Standard Ukrainian

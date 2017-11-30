@@ -276,16 +276,6 @@ class FeatureBank():
         return u'FeatureBank({' + u','.join(self.phonemes) + u'})'
     def __str__(self): return unicode(self).encode('utf-8')
 
-    FSTSYMBOLS = [chr(ord('a') + j) for j in range(26) ] + [chr(ord('A') + j) for j in range(26) ] + [str(j) for j in range(1,10) ]
-    def phoneme2fst(self,p):
-        return FeatureBank.FSTSYMBOLS[self.phoneme2index[p]]
-    def surface2fst(self,s):
-        return ''.join([ self.phoneme2fst(p) for p in tokenize(s) ])
-    def fst2phoneme(self,s):
-        return self.phonemes[FeatureBank.FSTSYMBOLS.index(s)]
-    def transducerAlphabet(self):
-        return FeatureBank.FSTSYMBOLS[:len(self.phonemes)]
-
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""
         for p in self.featureVectorMap:

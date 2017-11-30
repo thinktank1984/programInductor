@@ -81,21 +81,6 @@ class RuleFragment(Fragment):
         return (fc + sc + rc + lc,
                 fe + se + le + re)
 
-    # if isinstance(VariableFragment,self.focus):
-    #         # focus is an additional expense
-    #         additionalExpenses.append('specification_cost(%s.focus)'%v)
-    #     else:
-    #         if isinstance(self.focus,MatrixFragment) or isinstance(self.focus.child,EmptySpecification):
-    #             checks.append(self.focus.child.sketchEquals('%s.focus'%v,b))
-    #         else: assert False
-    #     if isinstance(VariableFragment,self.structuralChange):
-    #         # focus is an additional expense
-    #         additionalExpenses.append('specification_cost(%s.structural_change)'%v)
-    #     else:
-    #         if isinstance(self.structuralChange,MatrixFragment) or isinstance(self.structuralChange.child,EmptySpecification):
-    #             checks.append(self.structuralChange.child.sketchEquals('%s.structural_change'%v,b))
-    #         else: assert False
-        
 RuleFragment.BASEPRODUCTIONS = [RuleFragment(VariableFragment(FC),VariableFragment(FC),
                                              VariableFragment(Guard),VariableFragment(Guard))]
 
@@ -222,6 +207,8 @@ class GuardFragment(Fragment):
         self.logPrior = sum([s.logPrior for s in specifications ])
         if starred: self.logPrior -= 1.0
         if endOfString: self.logPrior -= 1.0
+        # if optionalEndOfString: self.logPrior -= 1.0
+        # assert not (endOfString and optionalEndOfString
         assert isNumber(self.logPrior)
 
         self.specifications = specifications
@@ -267,6 +254,7 @@ class GuardFragment(Fragment):
             k,e = component.sketchCost('%s.%s'%(v,suffix),b)
             checks += k
             expenses += e
+        expenses += ['(%s.optionalEndOfString ? 2 : 0)'%v]
         if len(self.specifications) < 1: checks += ['(%s.spec == null)'%v]
         if len(self.specifications) < 2: checks += ['(%s.spec2 == null)'%v]
         return (checks, expenses)

@@ -8,7 +8,7 @@ from matrix import *
 from parseSPE import *
 from incremental import *
 from features import *
-
+from fragmentGrammar import *
 
 TESTS = []
 def test(f):
@@ -31,6 +31,11 @@ def editSequences():
     assert len(unbounded) > len(bounded)
     assert len(bounded) == 1
     assert len(everyEditSequence([0,1,2],[1,2],allowSubsumption = False)) == 16
+@test
+def useUniversal():
+    ug = FragmentGrammar.load('universalGrammars/groundTruth.p')
+    s = UnderlyingProblem(underlyingProblems[1].data, UG = ug).sketchJointSolution(1, canAddNewRules = False)
+    s.modelCost(ug)
     
 @test
 def spread():

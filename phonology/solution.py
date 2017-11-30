@@ -102,8 +102,6 @@ class Solution():
         newRules.insert(choice(range(len(self.rules)+1)), EMPTYRULE.mutate(bank).mutate(bank).mutate(bank).mutate(bank))
         return Solution(newRules,self.prefixes,self.suffixes)
         
-    def phonologyTransducer(self,bank):
-        return reduce(lambda p,q: p*q, [r.fst(bank) for r in self.rules])
 
     def withoutUselessRules(self):
         return Solution(prefixes = self.prefixes,
@@ -113,24 +111,7 @@ class Solution():
                                   if len(self.rules) == 1 or (not r.doesNothing()) ],
                         adjustedCost = self.adjustedCost)
 
-    def morphologyTransducers(self, bank):
-        def makeTransducer(prefix, suffix):
-            return\
-                transducerOfRule({'': suffix.fst(bank)}, '', '[EOS]', bank.transducerAlphabet())*\
-                transducerOfRule({'': prefix.fst(bank)}, '[BOS]', '', bank.transducerAlphabet())
-
-        return [ makeTransducer(prefix, suffix) for prefix, suffix in zip(self.prefixes, self.suffixes) ]
-
-    def inflectionTransducers(self, bank):
-        if not hasattr(self,'savedInflectionTransducers'):
-            phonology = self.phonologyTransducer(bank)
-            self.savedInflectionTransducers = [ m*phonology for m in self.morphologyTransducers(bank) ]
-        return self.savedInflectionTransducers
-
-    def clearTransducers(self):
-        if hasattr(self,'savedInflectionTransducers'): del self.savedInflectionTransducers
-        return self
-
+    
     def transduceUnderlyingForm(self, bank, surfaces, getTrace = False):
         '''surfaces: list of morphs'''
         bound = max([len(s) for s in surfaces if s != None]) + 3

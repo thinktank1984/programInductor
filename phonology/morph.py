@@ -50,13 +50,7 @@ class Morph():
     def makeDefinition(self, bank):
         return globalConstant("Word", self.makeConstant(bank))
 
-    def fst(self,bank):
-        return ''.join([bank.phoneme2fst(p) for p in self.phonemes ])
-
-    @staticmethod
-    def fromFST(bank,transducerOutput):
-        return Morph([ bank.fst2phoneme(o) for o in transducerOutput ])
-
+    
     @staticmethod
     def parse(bank, output, variable):
         if variable.definingFunction != None:
