@@ -2054,7 +2054,11 @@ sevenProblems.append(Problem('''6: Kera
  + stem + ŋ
 0 > -2/VC_C#
 V > [-long]/ _ C #
+ɨ > i/_C*i#
+ɨ > u/_C*u#
 V > [-low +high]/_C*[+high]
+V > [-low +high]/[+high]C*_
+a > ɨ/[-low]_Ca
 ''']))
 
 sevenProblems.append(Problem('''7: Keley-i

@@ -17,10 +17,45 @@ def test(f):
 
 @test
 def features():
+    collisions = []
     for p in featureMap:
         for q in featureMap:
             if p == q: continue
-            assert set(featureMap[p]) != set(featureMap[q]), "Expected %s and %s to have different features"%(p,q)
+            
+            if not (set(featureMap[p]) != set(featureMap[q])):
+                print "WARNING: %s and %s have the same features"%(p,q)
+                collisions.append((p,q))
+    for problem in alternationProblems + underlyingProblems + interactingProblems + sevenProblems:
+        if isinstance(problem,str): continue
+        
+        if not isinstance(problem.data[0],unicode):
+            words = set(w for x in problem.data for w in x if w != None)
+        else:
+            words = problem.data
+
+        inventory = set(p for w in words for p in tokenize(w))
+        for (p,q) in collisions:
+            if p in inventory and q in inventory:
+                print "In problem:"
+                print problem.description
+                print "We have the collision:"
+                print p,q
+                assert False
+
+    F = set(f for fs in featureMap.values() for f in fs)
+    for f in F:
+        canRemove = True
+        for p in featureMap:
+            if not canRemove: break
+            for q in featureMap:
+                if p == q: continue
+                if set(featureMap[p]) - set([f]) == set(featureMap[q]) - set([f]):
+                    canRemove = False
+                    break
+        if canRemove:
+            print "Looks like you can safely remove feature ",f
+                
+        
 
 @test
 def editSequences():

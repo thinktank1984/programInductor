@@ -26,12 +26,12 @@ low = "low"
 back = "back"
 rounded = "rounded"
 #unrounded = "unrounded"
-bilabial = "bilabial"
+#bilabial = "bilabial"
 #stop = "stop"
 voice = "voice"
 #fricative = "fricative"
-labiodental = "labiodental"
-dental = "dental"
+#labiodental = "labiodental"
+#dental = "dental"
 #alveolar = "alveolar"
 labiovelar = "labiovelar"
 velar = "velar"
@@ -76,15 +76,15 @@ featureMap = {
     #possibly missing are umlauts
 
     # consonance
-    u"p": [bilabial],
-    u"p|": [bilabial,unreleased],
-    u"p^h": [bilabial,aspirated],
-    u"b": [bilabial,voice],
-    u"f": [labiodental,continuant],
-    u"v": [labiodental,continuant,voice],
-    u"β": [bilabial,continuant,voice],
-    u"m": [bilabial,nasal,voice,sonorant],#continuant],
-    u"m̥": [bilabial,nasal,sonorant],#,continuant],
+    u"p": [],
+    u"p|": [unreleased],
+    u"p^h": [aspirated],
+    u"b": [voice],
+    u"f": [continuant],
+    u"v": [continuant,voice],
+    u"β": [continuant,voice],
+    u"m": [nasal,voice,sonorant],#continuant],
+    u"m̥": [nasal,sonorant],#,continuant],
     u"θ": [continuant,coronal],
     u"d": [voice,coronal],
     #u"d̪": [voice,coronal],
@@ -131,7 +131,7 @@ featureMap = {
     u"ħ": [pharyngeal,continuant,sonorant],
 
     # glides
-    u"w": [glide,voice,bilabial,sonorant,continuant],
+    u"w": [glide,voice,sonorant,continuant],
     u"y": [glide,palletized,voice,sonorant,continuant],
 
     # liquids
