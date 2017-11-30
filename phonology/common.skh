@@ -315,7 +315,7 @@ bit has_syllable_feature(Specification s) {
   if (s == null) { return 0; }
   switch(s){
   case Vector:{
-    return s.mask[SYLLABLEBOUNDARYFEATURE];
+    return s.syllableBoundary;
   }
   case ConstantPhoneme:{ return 0;}
   case Boundary:{ return 0; }
