@@ -15,12 +15,12 @@ void printNumber(int stuff) {}
 @Native("{std::cout << stuff; }")
 Sound printPhoneme(Sound stuff) { return stuff; }
 
-struct Sound {//@Immutable("")
-  bit[NUMBEROFFEATURES] f;
-}
+/* struct Sound {//@Immutable("") */
+/*   bit[NUMBEROFFEATURES] f; */
+/* } */
 
 
-struct Word {//@Immutable("")
+struct Word {@Immutable("")
   int l;
   Sound[l] s;
 }
@@ -44,50 +44,51 @@ Word concatenate3(Word a1,Word a2,Word a3) {
   if (a1.l == 0 && a3.l == 0) return a2;
   if (a1.l == 0) return concatenate(a2,a3);
   if (a3.l == 0) return concatenate(a1,a2);
-  Word a = new Word(l = a1.l + a2.l + a3.l, s = a1.s);
-  a.s[a1.l :: a2.l] = a2.s;
-  a.s[(a2.l + a1.l) :: a3.l] = a3.s;
-  return a;
+  int l = a1.l + a2.l + a3.l;
+  Sound[l] s = a1.s;
+  s[a1.l :: a2.l] = a2.s;
+  s[(a2.l + a1.l) :: a3.l] = a3.s;
+  return new Word(l = l, s = s);
 }
 
 Word concatenate(Word a1,Word a2) {
-  Word a = new Word(l = a1.l + a2.l,s = a1.s);
-  a.s[a1.l :: a2.l] = a2.s;
-  return a;
+  int l = a1.l + a2.l;
+  Sound[l] s = a1.s;
+  s[a1.l :: a2.l] = a2.s;
+  return new Word(l = l, s = s);
 }
 
 Word make_word([int l],Sound[l] s) {
-  Word w = new Word(l = l);
-  for (int j = 0; j < l; j++) {
-    if (j < l) w.s[j] = s[j];
-  }  
-  return w;  
+  return new Word(l = l, s = s);
 }
 
 generator Word unknown_word() {
   int l = ??;
   assert l >= 0 && l <= MAXIMUMMORPHLENGTH;
-  
-  Word w = new Word(l = l);
+
+  Sound[l] s;
   repeat(j : MAXIMUMMORPHLENGTH) {
     if (j < l) {
-      w.s[j] = UNKNOWNSOUND;
+      s[j] = UNKNOWNSOUND;
     }
   }
-  return w;
+  return new Word(l = l, s = s);
 }
 
-struct Specification{//@Immutable("")
+struct Specification{@Immutable("")
 }
-struct Vector extends Specification{//@Immutable("")
-  bit[NUMBEROFFEATURES] mask;
-  bit[NUMBEROFFEATURES] preference;
-}
-struct ConstantPhoneme extends Specification{//@Immutable("")
+DEFINEVECTOR
+/* struct Vector extends Specification{//@Immutable("") */
+/*   bit[NUMBEROFFEATURES] mask; */
+/*   bit[NUMBEROFFEATURES] preference; */
+/* } */
+struct ConstantPhoneme extends Specification{@Immutable("")
   Sound phoneme;
 }
 // It seems that I need the dummy...
-struct Boundary extends Specification{bit dummy;}
+struct Boundary extends Specification{@Immutable("")
+    bit dummy;
+}
 Specification global_boundary_specification = new Boundary(dummy = 0);
 
 bit specification_equal(Specification p, Specification q) {
@@ -96,7 +97,7 @@ bit specification_equal(Specification p, Specification q) {
   case Vector:{
     switch (q) {
     case Vector:{
-      return p.mask == q.mask && (p.preference&p.mask) == (q.preference&q.mask);
+      return VECTOREQUAL(p,q);//p.mask == q.mask && (p.preference&p.mask) == (q.preference&q.mask);
     }
     case ConstantPhoneme:{ return 0; }
     case Boundary:{return 0;}
@@ -123,7 +124,7 @@ bit empty_specification(Specification p) {
   if (p == null) return 0;
   switch (p) {
   case Vector:{
-    return empty_vector(p.mask);
+    return EMPTYVECTOR(p);
   }
   case ConstantPhoneme:{ return 0; }
   case Boundary:{ return 0;}
@@ -156,24 +157,24 @@ bit vector_specification(Specification p) {
   case Boundary:{ return 0; }
   }
 }
-bit vector_unspecified(Specification p,int f) {
-  if (p == null) assert 0;
-  switch (p) {
-  case Vector:{return !p.mask[f];
-  }
-  case ConstantPhoneme:{ assert 0; }
-  case Boundary:{ assert 0;}
-  }
-}
-bit vector_preference(Specification p,int f) {
-  if (p == null) assert 0;
-  switch (p) {
-  case Vector:{return p.preference[f];
-  }
-  case ConstantPhoneme:{ assert 0; }
-  case Boundary:{ assert 0;}
-  }
-}
+/* bit vector_unspecified(Specification p,int f) { */
+/*   if (p == null) assert 0; */
+/*   switch (p) { */
+/*   case Vector:{return !p.mask[f]; */
+/*   } */
+/*   case ConstantPhoneme:{ assert 0; } */
+/*   case Boundary:{ assert 0;} */
+/*   } */
+/* } */
+/* bit vector_preference(Specification p,int f) { */
+/*   if (p == null) assert 0; */
+/*   switch (p) { */
+/*   case Vector:{return p.preference[f]; */
+/*   } */
+/*   case ConstantPhoneme:{ assert 0; } */
+/*   case Boundary:{ assert 0;} */
+/*   } */
+/* } */
 Sound extract_constant_sound(Specification p) {
   if (p == null) return null;
   switch (p) {
@@ -186,11 +187,12 @@ Sound extract_constant_sound(Specification p) {
 bit matches_specification(Sound sound, Specification specification) {
   switch (specification) {
   case Vector:{
-    bit[NUMBEROFFEATURES] mistakeVector = (sound.f^(specification.preference))&specification.mask;
-    repeat (f : NUMBEROFFEATURES) {
-      if (mistakeVector[f]) return 0;
-    }
-    return 1;
+    /* bit[NUMBEROFFEATURES] mistakeVector = (sound.f^(specification.preference))&specification.mask; */
+    /* repeat (f : NUMBEROFFEATURES) { */
+    /*   if (mistakeVector[f]) return 0; */
+    /* } */
+    /* return 1; */
+    return VECTORMATCHESSOUND(specification, sound);
   }
   case ConstantPhoneme: {
     return sound_equal(sound, specification.phoneme);
@@ -203,11 +205,12 @@ bit matches_specification(Sound sound, Specification specification) {
 Sound apply_specification(Specification specification, Sound sound) {
   switch (specification) {
   case Vector:{
-    return features2sound(
-			  // New positives induced by the specification
-			  (specification.mask & specification.preference) |
-			  // Old features minus the ones that were removed by the specification
-			  ((~specification.mask) & sound.f & (~ZEROFEATURES(specification.mask))));
+    PROJECTVECTOR(specification, sound);
+    /* return features2sound( */
+    /* 			  // New positives induced by the specification */
+    /* 			  (specification.mask & specification.preference) | */
+    /* 			  // Old features minus the ones that were removed by the specification */
+    /* 			  ((~specification.mask) & sound.f & (~ZEROFEATURES(specification.mask)))); */
   }
   case ConstantPhoneme:{
     return specification.phoneme;
@@ -216,12 +219,12 @@ Sound apply_specification(Specification specification, Sound sound) {
   }
 }
 
-bit empty_vector(bit[NUMBEROFFEATURES] v) {
-  repeat (j : NUMBEROFFEATURES){
-    if (v[j]) return 0;
-  }
-  return 1;
-}
+/* bit empty_vector(bit[NUMBEROFFEATURES] v) { */
+/*   repeat (j : NUMBEROFFEATURES){ */
+/*     if (v[j]) return 0; */
+/*   } */
+/*   return 1; */
+/* } */
 
 #ifdef SYLLABLEBOUNDARYFEATURE
 #define MAXIMUMONSET 2
@@ -230,8 +233,8 @@ int syllable_starting_at([int l],Sound[l] u, int e) {
   // returns a negative number if there is no syllable starting at e
   // returns the index of the end of the syllable otherwise
 
-  if (u[e].f[VOWELFEATURE]) return -1; // have to start out a consonant
-  if (e > 0 && !u[e - 1].f[VOWELFEATURE]) return -1; // thing before us has to be a vowel
+  if (u[e].vowel) return -1; // have to start out a consonant
+  if (e > 0 && !u[e - 1].vowel) return -1; // thing before us has to be a vowel
 
   int nucleus;
   bit have_nucleus = 0;
@@ -239,7 +242,7 @@ int syllable_starting_at([int l],Sound[l] u, int e) {
     int test_index = e + d;
     if (!have_nucleus) {
       if (test_index == l) return -1;
-      if (u[test_index].f[VOWELFEATURE]) {
+      if (u[test_index].vowel) {
 	nucleus = test_index;
 	have_nucleus = 1;
       }
@@ -253,7 +256,7 @@ int syllable_starting_at([int l],Sound[l] u, int e) {
   for (int d = 1; d < MAXIMUMONSET + 1; d++) {
     int test_index = nucleus + d;
     if (test_index == l) return l - 1;
-    if (u[test_index].f[VOWELFEATURE]) return nucleus;
+    if (u[test_index].vowel) return nucleus;
   }
   assert 0;
 }
@@ -272,24 +275,24 @@ int syllable_ending_at([int l],Sound[l] u, int e) {
   
   if (e == l - 1) {
     for (int d = 0; d < MAXIMUMONSET; d++) {
-      if (!have_nucleus && u[e - d].f[VOWELFEATURE]) {
+      if (!have_nucleus && u[e - d].vowel) {
 	nucleus = e - d;
 	have_nucleus = 1;
       }
     }
     assert have_nucleus;
   } else {
-    if (!u[e].f[VOWELFEATURE]) return -1;
+    if (!u[e].vowel) return -1;
     bit to_the_right = 0;
     for (int d = 1; d < MAXIMUMONSET + 1; d++) {
-      to_the_right = to_the_right || (e + d < l && u[e + d].f[VOWELFEATURE]);
+      to_the_right = to_the_right || (e + d < l && u[e + d].vowel);
     }
     if (!to_the_right) return -1;
     nucleus = e;
   }
   for (int d = 1; d < MAXIMUMONSET; d++) {
     if (nucleus - d < 0) return 0;
-    if (u[nucleus - d].f[VOWELFEATURE]) return nucleus - d + 1;
+    if (u[nucleus - d].vowel) return nucleus - d + 1;
   }
 	
   assert 0;
@@ -329,10 +332,10 @@ int specification_cost(Specification s) {
   case ConstantPhoneme:{ return 2; }
   case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
   case Vector:{
-    int c = 1;
-    repeat (f : NUMBEROFFEATURES) {
-      c = validateCost(c + s.mask[f]);
-    }
+    int c = 1 + VECTORCOST(s);
+    /* repeat (f : NUMBEROFFEATURES) { */
+    /*   c = validateCost(c + s.mask[f]); */
+    /* } */
     // Alternation problems basically have their specification already given
     // So don't limit it
 #ifndef ALTERNATIONPROBLEM    
@@ -354,19 +357,17 @@ int guard_specification_cost(Specification s) {
   case ConstantPhoneme:{ return 2; }
   case Boundary:{ return 2; }
   case Vector:{
-    //    if (empty_vector(s.mask)) return 1;
-    //    assert !empty_vector(s.mask);
-    int c = 1;
-    repeat (f : NUMBEROFFEATURES) {
-      c = validateCost(c + s.mask[f]);
-    }
-    assert c < 5; // at most 3 features mentioned
+    int c = 1 + VECTORCOST(s);
+    /* repeat (f : NUMBEROFFEATURES) { */
+    /*   c = validateCost(c + s.mask[f]); */
+    /* } */
+    assert c <= 4; // at most 3 features mentioned
     return c;
   }
   }
 }
 
-struct Guard {//@Immutable("")
+struct Guard {@Immutable("")
   bit endOfString; // is it constrains to be at the end of string?
   bit optionalEndOfString; // is the end of string optionally alternating with the last specification?
   bit starred; // is it of the form spec*spec2
@@ -382,7 +383,7 @@ bit guard_equal(Guard p, Guard q) {
     specification_equal(p.spec2, q.spec2);
 }
 
-struct Rule {//@Immutable("")
+struct Rule {@Immutable("")
   Specification focus;
   //Specification secondary_focus;
   Specification structural_change;
@@ -400,11 +401,7 @@ bit is_valid_structural_change(Specification s) {
   switch (s){
   case ConstantPhoneme:{}
   case Boundary:{assert 0;}
-  case Vector:{
-    // mutually exclude high middle and low
-    MUTUALLYEXCLUDE(s)
-      ;
-      }
+  case Vector:{}
   }
   return 1;
 }
@@ -431,10 +428,10 @@ generator Guard unknown_guard() {
   return new Guard(endOfString = ??, optionalEndOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_FC_specification() {
-  return {| new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null |};
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null |};
 }
 generator Specification unknown_guard_specification() {
-  return {| global_boundary_specification | new Vector(mask = ??, preference = ??) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
+  return {| global_boundary_specification | new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
 }
   
 generator Rule unknown_rule() {

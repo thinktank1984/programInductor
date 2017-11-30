@@ -138,7 +138,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     flushEverything()
     
     output = open(outputFile,'r').read()
-    if not leavitt:
+    if False and not leavitt:
         os.remove(temporarySketchFile)
         os.remove(outputFile)
 
@@ -148,8 +148,6 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     if os.path.exists(temporaryCleanupPath):
         #print "Removing temporary files ",temporaryCleanupPath
         os.system("rm -r " + temporaryCleanupPath)
-    else:
-        #print "Temporary files seem to be removed",temporaryCleanupPath
 
     lastSketchOutput = output
     

@@ -255,22 +255,28 @@ class FeatureMatrix(Specification,FC):
 
     @staticmethod
     def parse(bank, output, variable):
-        pattern = " %s = new Vector\(mask={([01,]+)}, preference={([01,]+)}"%variable
+        pattern = " %s = new Vector\(([^\)]+)\)"%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Failure parsing Vector %s'%variable)
-        preference = [ int(x) for x in m.group(2).split(",") ]
-        mask = [ int(x) for x in m.group(1).split(",") ]
-        fs = [ (preference[f] == 1, bank.features[f]) for f in range(len(bank.features)) if mask[f] ]
-        return FeatureMatrix(fs)
+        try:
+            bindings = m.group(1).split(", ")
+            bindings = dict( tuple(b.split("=")) for b in bindings)
+            return FeatureMatrix([ (bindings[f] == "1",f) for f in bank.features
+                                   if bindings[f + "_specified"] == "1"])
+        except:
+            print "Some kind of fatal parsing problem with feature matrix"
+            print output
+            print variable
+            print m.group(1)
+            assert False
+
     def makeConstant(self, bank):
-        mask = [0]*len(bank.features)
-        preference = [0]*len(bank.features)
-        for polarity,feature in self.featuresAndPolarities:
-            mask[bank.feature2index[feature]] = 1
-            preference[bank.feature2index[feature]] = 1 if polarity else 0
-        mask = " ,".join(map(str, mask))
-        preference = " ,".join(map(str, preference))
-        return "new Vector(mask = {%s}, preference = {%s})" % (mask, preference)
+        arguments = ", ".join([ "%s = %d, %s_specified = %d"%(f,
+                                                              int((True,f) in self.featuresAndPolarities),
+                                                              f,
+                                                              int((True,f) in self.featuresAndPolarities or (False,f) in self.featuresAndPolarities))
+                                for f in bank.features ])
+        return "new Vector(%s)"%arguments
 
     def matches(self, test):
         for p,f in self.featuresAndPolarities:
@@ -320,16 +326,7 @@ class FeatureMatrix(Specification,FC):
             return results.values()
 
     def sketchEquals(self,v,b):
-        e = "(vector_specification(%s) "%v
-        for j,f in enumerate(b.features):
-            if (True,f) in self.featuresAndPolarities:
-                e += " && !vector_unspecified(%s,%d) && vector_preference(%s,%d)"%(v,j,v,j) 
-            elif (False,f) in self.featuresAndPolarities:
-                e += " && !vector_unspecified(%s,%d) && !vector_preference(%s,%d)"%(v,j,v,j)
-            else:
-                e += " && vector_unspecified(%s,%d)"%(v,j)
-                
-        return e + ")"                        
+        return "specification_equal(%s, %s)"%(v,self.makeConstant(b))
 
 class Guard():
     def __init__(self, side, endOfString, optionalEnding, starred, specifications):

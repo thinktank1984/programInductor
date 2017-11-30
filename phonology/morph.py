@@ -58,14 +58,15 @@ class Morph():
             variable, output = getGeneratorDefinition(variable.definingFunction, output)
             return Morph.parse(bank, output, variable)
         
-        pattern = 'Word.* %s.* = new Word\(l=([0-9]+)\);'%variable
+        pattern = 'Word.* %s.* = new Word\(l=([0-9]+), s=([0-9a-zA-Z_]+)\);'%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Could not find word %s in:\n%s'%(variable,output))
 
         l = int(m.group(1))
+        s = m.group(2)
         phones = []
         for p in range(l):
-            pattern = '%s.*\.s\[%d\] = phoneme_([0-9]+)_'%(variable,p)
+            pattern = '%s\[%d\] = phoneme_([0-9]+)_'%(s,p)
             m = re.search(pattern, output)
             if not m:
                 print output
@@ -73,11 +74,3 @@ class Morph():
                 raise Exception('Could not find %dth phoneme of %s'%(p,variable))
             phones.append(bank.phonemes[int(m.group(1))])
         return Morph(phones)
-
-    @staticmethod
-    def fromMatrix(m):
-        def process(p):
-            for s in featureMap:
-                if set(featureMap[s]) == set(p): return s
-            raise Exception('could not find a phoneme for the matrix: %s'%str(p))
-        return Morph(map(process,m))

@@ -247,6 +247,44 @@ class FeatureBank():
         d += "assert 0;}\n"
         return d
 
+    def defineSound(self):
+        h = "\nstruct Sound{@Immutable(\"\")\n"
+        for f in self.features:
+            h += "  bit %s;\n"%(f)
+        h += "}\n"
+        return h
+    def defineVector(self):
+        h = "\n#define DEFINEVECTOR struct Vector extends Specification{@Immutable(\"\")\\\n"
+        for f in self.features:
+            h += "  bit %s_specified; bit %s;\\\n"%(f,f)
+        h += "}\n\n"
+        h += "\n#define VECTOREQUAL(p,q) (%s)\n"%(" && ".join([ "p.%s_specified == q.%s_specified"%(f,f)
+                                                                for f in self.features] + \
+                                                              ["(p.%s_specified && p.%s) == (q.%s_specified && q.%s)"%(f,f,f,f)
+                                                                for f in self.features]))
+        h += "\n#define EMPTYVECTOR(v) (%s)\n"%(" && ".join("v.%s_specified == 0"%f
+                                                            for f in self.features))
+        h += "\n#define VECTORCOST(v) "
+        c = "0"
+        for f in self.features:
+            c = "validateCost(v.%s_specified + %s)"%(f,c)
+        h += c + "\n"
+
+        h += "\n#define VECTORMATCHESSOUND(vector, sound) (%s)\n"%(" && ".join("(!vector.%s_specified || vector.%s == sound.%s)"%(f,f,f)
+                                                                               for f in self.features))
+        h += "\n#define PROJECTVECTOR(vector, sound)\\\n"
+        for f in self.features:
+            h += "  bit %s = (!vector.%s_specified && sound.%s) || (vector.%s_specified && vector.%s);\\\n"%(f,f,f,f,f)
+        for p in self.phonemes:
+            condition = " && ".join("%s%s"%("" if f in featureMap[p] else "!", f)
+                                    for f in self.features)
+            h += "  if (%s) return phoneme_%d;\\\n"%(condition, self.phoneme2index[p])
+        h += "assert 0;\\\n\n"
+
+        h += "\n#define UNKNOWNVECTOR %s\n"%(", ".join( "%s = ??, %s_specified = ??"%(f,f)
+                                                        for f in self.features))        
+        return h
+
     def defineZeroFeatures(self):
         z = "#define ZEROFEATURES(m) ({"
         m = "#define MUTUALLYEXCLUDE(s) "
@@ -286,23 +324,23 @@ class FeatureBank():
                     assert False
         
         h = ""
+        h += self.defineSound()
+        h += self.defineVector()
         if self.hasSyllables:
             h += "#define SYLLABLEBOUNDARYPHONEME phoneme_%d\n"%(self.phoneme2index[u"-"])
             h += "#define SYLLABLEBOUNDARYFEATURE %d\n"%(self.feature2index[syllableBoundary])
 
         for j in range(len(self.phonemes)):
-            features = ",".join(map(str,self.featureVectorMap[self.phonemes[j]]))
-            h += "Sound phoneme_%d = new Sound(f = {%s});\n" % (j,features)
+            features = ",".join("%s = %d"%(f, int(f in featureMap[self.phonemes[j]]))
+                for f in self.features)
+            h += "Sound phoneme_%d = new Sound(%s);\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes))
                                                             if self.phonemes[j] != u'-' ]))
-        h += "\n#define UNKNOWNCONSTANTSPECIFICATION {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
+        h += "\n#define UNKNOWNCONSTANTSPECIFICATION {| %s |}\n" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
         
-        # This is more for debugging than anything else - common shouldn't use it
-        for featureName in self.features:
-            h += "\n#define %sFEATURE %d\n" % (featureName.upper(), self.feature2index[featureName])
-        h += self.defineZeroFeatures()
+        #h += self.defineZeroFeatures()
         h += "\n"
-        h += self.defineFeaturesToSound()
+        # h += self.defineFeaturesToSound()
         return h
 
 
