@@ -269,7 +269,7 @@ class UnderlyingProblem(object):
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
         if self.UG:
             self.UG.sketchUniversalGrammar(self.bank)
-
+            
         # guess the size of each stem to be its corresponding smallest observation length
         if morphologicalCosts == None:
             approximateStemSize = [ min([ len(w) for w in i if w != None ])
@@ -282,7 +282,7 @@ class UnderlyingProblem(object):
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             adjustment = 0
-            if morphologicalCosts != None: adjustment = morphologicalCosts[j]                
+            if morphologicalCosts != None and morphologicalCosts[j] != None: adjustment = morphologicalCosts[j]                
             elif self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
                 for Lex,stemSize in zip(self.data,approximateStemSize):
                     if Lex[j] != None:  # this lexeme was annotated for this inflection; use it as a guess
