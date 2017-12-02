@@ -10,6 +10,7 @@ def stripConsonants(matrix):
         canonical = []
         for p in tokenize(x):
             if p == u'##': canonical.append(p)
+            #elif 'vowel' in featureMap[p]: canonical.append(p)
             elif 'vowel' in featureMap[p] and not 'highTone' in featureMap[p]: canonical.append(u'a')
             elif 'vowel' in featureMap[p] and 'highTone' in featureMap[p]: canonical.append(u'á')
         return u''.join(canonical)
@@ -1549,7 +1550,16 @@ Propose rules which will account for the following alternations. It would be bes
 	(u"sillan",	u"silta",	u"sillat",	u"sillalta",	u"siltana"),#	bridge
 	(u"kullan",	u"kulta",	u"kullat ",	u"kullalta ",	u"kultana "),#	gold
 	(u"virran",	u"virta",	u"virrat",	u"virralta",	u"virtana"),#	stream
-	(u"parran",	u"parta",	u"parrat",	u"parralta",	u"partana")]))#	beard
+	(u"parran",	u"parta",	u"parrat",	u"parralta",	u"partana")],#	beard
+    solutions = [u'''
+ + stem + n
+ + stem + 
+ + stem + t
+ + stem + lta
+ + stem + na
+a > æ / æ C* _
+k > 0 / []_V[-lateral] 
+''']))
 
 interactingProblems.append(Problem(
     '''7: Korean

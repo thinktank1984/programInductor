@@ -378,9 +378,7 @@ class UnderlyingProblem(object):
 
         while True:
             print "CEGIS: Training data:"
-            for r in trainingData:
-                for i in r: print i,
-                print ""
+            print formatTable([ map(unicode,r) for r in trainingData ], separation = 1)
 
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data

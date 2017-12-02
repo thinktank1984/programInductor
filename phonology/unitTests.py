@@ -43,17 +43,12 @@ def features():
                 assert False
 
     F = set(f for fs in featureMap.values() for f in fs)
+    P = featureMap.keys()
     for f in F:
-        canRemove = True
-        for p in featureMap:
-            if not canRemove: break
-            for q in featureMap:
-                if p == q: continue
-                if set(featureMap[p]) - set([f]) == set(featureMap[q]) - set([f]):
-                    canRemove = False
-                    break
-        if canRemove:
-            print "Looks like you can safely remove feature ",f
+        collision = any([ (set(featureMap[q]) - set([f])) == (set(featureMap[p]) - set([f]))
+                          for j,p in enumerate(P[:-1])
+                          for q in P[j+1:] ])
+        if not collision: print "Looks like you can safely remove feature ",f
                 
         
 
@@ -157,7 +152,7 @@ def induceBoundary():
     
 @test
 def suffixBoundary():
-    data = sevenProblems[1].data[:3]
+    data = sevenProblems[1].data[:3] + sevenProblems[1].data[5:6]
     s = IncrementalSolver(sevenProblems[1].data,2).restrict(data)
     solution = parseSolution(''' + stem + 
  + stem + am
