@@ -1579,7 +1579,23 @@ transposeInflections([
     (u"papɨn",	u"sup^hɨn",	u"pamɨn", u"pathɨn",	u"nasɨn",	u"načɨn", u"nač^hɨn",	u"panɨn"),#	N (topic)
     (u"pape",	u"sup^he",	u"pame", u"pathe",	u"nase",	u"nače", u"nač^he",	u"pane"),#	to N
     (u"papita",	u"sup^hita",	u"pamita", u"pač^hita",	u"nasita",	u"načita", u"nač^hita",	u"panita"),#	it is N
-    (u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")])))#	using N
+    (u"papɨro",	u"sup^hɨro",	u"pamɨro", u"pathɨro",	u"nasɨro",	u"načɨro", u"nač^hɨro",	u"panɨro")]),#	using N
+    solutions = [u'''
+ + stem + man
+ + stem + maŋk^hɨm
+ + stem + narɨm
+ + stem + 
+ + stem + tero
+ + stem + kwa
+ + stem + pota
+ + stem + kači
+ + stem + i
+ + stem + ɨn
+ + stem + e
+ + stem + ita
+ + stem + ɨro
+    C > [-aspirated]/_{#,C}
+    p > m/_[+nasal]''']))
 
 
 

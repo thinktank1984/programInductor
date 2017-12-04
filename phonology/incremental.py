@@ -87,6 +87,14 @@ class IncrementalSolver(UnderlyingProblem):
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else utilities.numberOfCPUs()/2
 
         self.maximumNumberOfRules = maximumNumberOfRules
+        if window == None:
+            # Adaptively set the window size
+            totalNumberOfWords = len([ x for i in self.data for x in i if x != None ])
+            wordsPerDataPoint = float(totalNumberOfWords)/len(self.data)
+            if wordsPerDataPoint <= 3.0: window = 4
+            elif wordsPerDataPoint <= 4.0: window = 2
+            else: window = 1
+            print "Incremental solver has adaptively set the window size to",window
         self.windowSize = window
 
         self.fixedMorphologyThreshold = 10

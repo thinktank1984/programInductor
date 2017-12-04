@@ -267,7 +267,7 @@ if __name__ == '__main__':
     parser.add_argument('-s','--seed', default = '0', type = str)
     parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = None, type = str)
-    parser.add_argument('--window', default = 2, type = int)
+    parser.add_argument('--window', default = None, type = int)
     parser.add_argument('--save', default = None, type = str)
     parser.add_argument('--restore', default = None, type = str)
     parser.add_argument('--debug', default = None, type = lambda s: unicode(s,'utf8'))

@@ -109,7 +109,7 @@ featureMap = {
     u"š": [continuant,coronal, sibilant],#alveopalatal,
     u"c": [palatal,coronal], # NOT the same thing as palletized
     u"č": [coronal,sibilant],#alveopalatal,
-    u"č^h": [coronal,aspirated],#alveopalatal,
+    u"č^h": [coronal,sibilant,aspirated],#alveopalatal,
     u"k": [back,high],
     u"k|": [back,high,unreleased],
     u"k^h": [back,high,aspirated],
