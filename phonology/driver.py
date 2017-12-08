@@ -224,7 +224,7 @@ def handleProblem(parameters):
         handle.close()
 
     if parameters['pickleDirectory'] != None:
-        fullPath = os.path.join(parameters['pickleDirectory'], str(problemIndex) + ".p")
+        fullPath = os.path.join(parameters['pickleDirectory'], "matrix_" + str(problemIndex) + ".p")
         if not (ss != None and parameters['testing'] == 0.0):
             print "Exporting to %s, in spite of weird parameter settings"%fullPath
         if not os.path.exists(parameters['pickleDirectory']):

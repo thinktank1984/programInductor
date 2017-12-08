@@ -366,8 +366,6 @@ class UnderlyingProblem(object):
 
 
     def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, fixedMorphology = None, initialDepth = 1, maximumDepth = 3):
-        # Start out with the shortest examples
-        #self.sortDataByLength()
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]

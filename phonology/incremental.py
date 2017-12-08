@@ -126,7 +126,8 @@ class IncrementalSolver(UnderlyingProblem):
                 if self.fixedMorphology:
                     assert self.fixedMorphology.prefixes[j] == solution.prefixes[j]
                     assert self.fixedMorphology.suffixes[j] == solution.suffixes[j]
-                print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
+                if getVerbosity() > 5:
+                    print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
                 morphologicalCosts.append(len(solution.prefixes[j]) + \
                                           len(solution.suffixes[j]))
                 prefixes.append(solution.prefixes[j].makeDefinition(self.bank))
