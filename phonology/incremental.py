@@ -170,7 +170,7 @@ class IncrementalSolver(UnderlyingProblem):
             # we need to also take into account the length of these auxiliary things because they aren't necessarily in self.data
             if max([ len(o) for o in observation if o != None ]) > self.maximumObservationLength: continue
             
-            stem = self.fixedUnderlyingForms.makeConstant(self.bank)
+            stem = self.fixedUnderlyingForms[j].makeConstant(self.bank)
             for i,o in enumerate(observation):
                 if o == None: continue
                 phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
