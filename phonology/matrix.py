@@ -27,9 +27,11 @@ def sampleMorphWithLength(l):
         
 
 class UnderlyingProblem(object):
-    def __init__(self, data, bank = None, useSyllables = False, UG = None):
+    def __init__(self, data, bank = None, useSyllables = False, UG = None,
+                 fixedMorphology = None):
         self.UG = UG
-        
+
+      
         if bank != None: self.bank = bank
         else:
             self.bank = FeatureBank([ w for l in data for w in l if w != None ] + ([u'-'] if useSyllables else []))
@@ -44,6 +46,12 @@ class UnderlyingProblem(object):
         self.maximumObservationLength = max([ len(w) for l in self.data for w in l if w != None ])
 
         self.wordBoundaries = any([ (u'##' in w.phonemes) for l in self.data for w in l if w ])
+
+        # fixedMorphology : list of morphologies, one for each inflection
+        # Each morphology is either None (don't fix it) or a pair of (prefix, suffix)
+        if fixedMorphology == None: fixedMorphology = [None]*self.numberOfInflections
+        self.fixedMorphology = fixedMorphology
+        assert len(self.fixedMorphology) == self.numberOfInflections
 
     def solveSketch(self, minimizeBound = 31):
         return solveSketch(self.bank,
@@ -267,6 +275,9 @@ class UnderlyingProblem(object):
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
     
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
+        '''morphologicalCosts: a list of integers. Each integer is a guess as
+to the total size of the morphology for that inflection. If instead
+the integer is None then we have no guess for that one.'''
         if self.UG:
             self.UG.sketchUniversalGrammar(self.bank)
             
@@ -312,7 +323,7 @@ class UnderlyingProblem(object):
         return totalCost
 
     def sketchJointSolution(self, depth, canAddNewRules = False, costUpperBound = None,
-                            fixedRules = None, fixedMorphology = None, auxiliaryHarness = False):
+                            fixedRules = None, auxiliaryHarness = False):
         try:
             Model.Global()
             if fixedRules == None:
@@ -323,19 +334,17 @@ class UnderlyingProblem(object):
             prefixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
             suffixes = [ Morph.sample() for _ in range(self.numberOfInflections) ]
 
-            if fixedMorphology != None:
-                for p,k in zip(prefixes,fixedMorphology.prefixes):
-                    condition(wordEqual(p,k.makeConstant(self.bank)))
-                for s,k in zip(suffixes,fixedMorphology.suffixes):
-                    condition(wordEqual(s,k.makeConstant(self.bank)))
+            for j,m in enumerate(self.fixedMorphology):
+                if m != None:
+                    (p,s) = m
+                    condition(wordEqual(prefixes[j],p.makeConstant(self.bank)))
+                    condition(wordEqual(suffixes[j],s.makeConstant(self.bank)))
             if self.wordBoundaries:
                 for prefix, suffix in zip(prefixes, suffixes):
                     condition(Or([wordLength(prefix) == 0, wordLength(suffix) == 0]))
 
-            morphologicalCosts = None
-            if fixedMorphology: morphologicalCosts = [ len(prefix) + len(suffix)
-                                                       for prefix, suffix in zip(fixedMorphology.prefixes,
-                                                                                 fixedMorphology.suffixes) ]
+            morphologicalCosts = [ None if m == None else len(m[0]) + len(m[1])
+                                   for m in self.fixedMorphology ]
 
             self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound, morphologicalCosts)
 
@@ -365,7 +374,7 @@ class UnderlyingProblem(object):
         #except SynthesisTimeout:
 
 
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, fixedMorphology = None, initialDepth = 1, maximumDepth = 3):
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3):
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]
@@ -381,7 +390,7 @@ class UnderlyingProblem(object):
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             try:
-                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, fixedMorphology = fixedMorphology, auxiliaryHarness = True)            
+                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, auxiliaryHarness = True)            
                 depth = solution.depth() # update depth because it might have grown
                 solverTime = time() - solverTime
 
@@ -397,11 +406,10 @@ class UnderlyingProblem(object):
 
             # When we expect it to be tractable, we should try doing a little bit deeper
             if depth < maximumDepth and self.numberOfInflections < 3:
-                slave = self.restrict(trainingData)
+                worker = self.restrict(trainingData)
                 try:
-                    expandedSolution = slave.sketchJointSolution(depth + 1,
-                                                                 fixedMorphology = fixedMorphology,
-                                                                 auxiliaryHarness = True)
+                    expandedSolution = worker.sketchJointSolution(depth + 1,
+                                                                  auxiliaryHarness = True)
                 except SynthesisTimeout: return [solution]
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution

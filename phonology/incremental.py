@@ -82,8 +82,8 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
              for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6):
-        UnderlyingProblem.__init__(self, data, bank = bank, UG = UG)
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None):
+        UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else utilities.numberOfCPUs()/2
 
         self.maximumNumberOfRules = maximumNumberOfRules
@@ -99,7 +99,31 @@ class IncrementalSolver(UnderlyingProblem):
 
         self.fixedMorphologyThreshold = 10
         self.fixedUnderlyingFormThreshold = 10
-        self.fixedMorphology = None
+
+        self.fixedUnderlyingForms = []
+
+    def updateFixedMorphology(self, solution, trainingData):
+        fixed = []
+        for j in range(self.numberOfInflections):
+            # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
+            inflectionExamples = len([ None for l in trainingData if l[j] != None ])            
+            if inflectionExamples >= self.fixedMorphologyThreshold:
+                fixed.append((solution.prefixes[j], solution.suffixes[j]))
+                print "Fixing morphology of inflection %d to %s + stem + %s"%(j,
+                                                                              solution.prefixes[j],
+                                                                              solution.suffixes[j])
+                if self.fixedMorphology[j] != None:
+                    assert self.fixedMorphology[j][0] == solution.prefixes[j]
+                    assert self.fixedMorphology[j][1] == solution.suffixes[j]
+            # Otherwise was it already fixed?
+            elif self.fixedMorphology[j] != None: fixed.append(self.fixedMorphology[j])
+            else: fixed.append(None)
+        self.fixedMorphology = fixed
+
+    def updateFixedUnderlyingForms(self, solution):
+        self.fixedUnderlyingForms = solution.underlyingForms[:-self.fixedUnderlyingFormThreshold]
+        for x,ur in zip(self.data, self.fixedUnderlyingForms):
+            print "\t\t(clamping UR for observation %s to %s)"%(x,ur)
 
     def sketchChangeToSolution(self, solution, rules, allTheData = None):
         assert allTheData != None
@@ -119,15 +143,10 @@ class IncrementalSolver(UnderlyingProblem):
         
         morphologicalCosts = []
         for j in range(self.numberOfInflections):
-            # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
-            inflectionExamples = len([ None for l in allTheData if l[j] != None ])
-            
-            if inflectionExamples >= self.fixedMorphologyThreshold or self.fixedMorphology != None:
-                if self.fixedMorphology:
-                    assert self.fixedMorphology.prefixes[j] == solution.prefixes[j]
-                    assert self.fixedMorphology.suffixes[j] == solution.suffixes[j]
-                if getVerbosity() > 5:
-                    print "Fixing morphology of inflection %d to %s + %s"%(j,solution.prefixes[j],solution.suffixes[j])
+            if self.fixedMorphology[j] != None:
+                assert self.fixedMorphology[j][0] == solution.prefixes[j]
+                assert self.fixedMorphology[j][1] == solution.suffixes[j]
+                
                 morphologicalCosts.append(len(solution.prefixes[j]) + \
                                           len(solution.suffixes[j]))
                 prefixes.append(solution.prefixes[j].makeDefinition(self.bank))
@@ -136,7 +155,7 @@ class IncrementalSolver(UnderlyingProblem):
                 morphologicalCosts.append(None)
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
-            if inflectionExamples == 0:
+            if all(l[j] == None for l in allTheData):
                 # Never seen this inflection: give it the empty morphology
                 print "Clamping the morphology of inflection %d to be empty"%j
                 condition(wordLength(prefixes[j]) == 0)
@@ -146,14 +165,12 @@ class IncrementalSolver(UnderlyingProblem):
         # After fixedUnderlyingFormThreshold examples passed an observation, we stop trying to modify the underlying form.
         # Set fixedUnderlyingFormThreshold = infinity to disable this heuristic.
         observationsWithFixedUnderlyingForms = [ o for j,o in enumerate(allTheData)
-                                                 if j < len(allTheData) - self.fixedUnderlyingFormThreshold \
-                                                 and j < len(solution.underlyingForms) ]
+                                                 if j < len(self.fixedUnderlyingForms) ]
         for j,observation in enumerate(observationsWithFixedUnderlyingForms):
             # we need to also take into account the length of these auxiliary things because they aren't necessarily in self.data
             if max([ len(o) for o in observation if o != None ]) > self.maximumObservationLength: continue
             
-            print "\t\t(clamping UR for observation %s to %s)"%(observation,solution.underlyingForms[j])
-            stem = solution.underlyingForms[j].makeConstant(self.bank)
+            stem = self.fixedUnderlyingForms.makeConstant(self.bank)
             for i,o in enumerate(observation):
                 if o == None: continue
                 phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
@@ -161,9 +178,6 @@ class IncrementalSolver(UnderlyingProblem):
                                              applyRules(rules, phonologicalInput,
                                                         wordLength(prefixes[i]) + wordLength(stem),
                                                         len(o) + 1)))
-                # SUBTLE: We can't actually assume that it does nothing if it is a "new" rule
-                # This is because sometimes we go back and revise old rules
-                # ,doNothing = isNewRule)))
         stems = [ Morph.sample() for observation in self.data
                   if not (observation in observationsWithFixedUnderlyingForms) ]
         dataToConditionOn = [ d for d in self.data
@@ -263,15 +277,14 @@ class IncrementalSolver(UnderlyingProblem):
         return sorted(allSolutions,key = lambda s: s.cost())
     
 
-    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None,fixedMorphology = None):
+    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None):
         if loadProgressFrom == None:        
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
             worker = self.restrict(trainingData)#, self.bank)
             solution = worker.sketchJointSolution(1,canAddNewRules = True,
-                                                  auxiliaryHarness = True,
-                                                  fixedMorphology = fixedMorphology)
+                                                  auxiliaryHarness = True)
             j = initialTrainingSize
         else:
             (j,trainingData,solution) = loadPickle(loadProgressFrom)
@@ -290,7 +303,7 @@ class IncrementalSolver(UnderlyingProblem):
         while j < len(self.data):
             # Can we explain the jth example?
             try:
-                if self.verify(solution, self.data[j]):
+                if self.verify(solution,self.data[j]):
                     j += 1
                     continue
             except SynthesisTimeout: return [solution]
@@ -301,11 +314,12 @@ class IncrementalSolver(UnderlyingProblem):
             window = self.data[j:j + self.windowSize]
             print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ]) 
 
+            # Fix the morphology/stems that we are certain about
+            self.updateFixedMorphology(solution, trainingData)
+            self.updateFixedUnderlyingForms(solution)
+
             radius = 1
             while True:
-                # Prevent the accumulation of a large number of temporary files
-                # These can easily grow into the gigabytes and I have disk quotas
-                # deleteTemporarySketchFiles()
                 try:
                     worker = self.restrict(trainingData + window)
                     solutions = worker.sketchIncrementalChange(solution, radius)
