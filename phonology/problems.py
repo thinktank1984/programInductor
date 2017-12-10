@@ -657,21 +657,6 @@ underlyingProblems.append(Problem(
     u'''
 3: Korean
 	Give the underlying representations of each of the verb stems found below; state what phonological rule applies to these data. [Note: there is a vowel harmony rule which explains the variation between final a and ə in the imperative, which you do not need to be concerned with]
-    My analysis:
-    Aspirated/un- aspirated distinction exists underlying
-    However aspirated consonants become unaspirated followed by k - probably the rule is something like:
-           [+aspirated] > [-aspirated] / _ {[-vowel],[-stop],[-son],k}
-    There is also a harmony rule something like:
-    ə > a / a[-v]*_#
-    but you don't need kleene star in this data
-    
-Final solution:
-Morphological analysis:
-Inflection 0:	/  / + stem + / ə /
-Inflection 1:	/  / + stem + / k o /
-Phonological rules:
-[  ] ---> [ -aspirated ] /  _ [ -central ]
-[  ] ---> a / [ +low ] [  ] _ #
     ''',
     [(u"ipə",		u"ipko"),
      (u"kupə",		u"kupko"),
@@ -696,34 +681,6 @@ underlyingProblems.append(Problem(
     u'''
 4: Hungarian
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
-    
-    My analysis:
-    b seems to voice all of the consonants to the left:
-    [ ] > [+voice] / _ C* b
-    t seems to devoice all of the consonant to the left:
-    [ ] > [-voice] / _ C* t
-    
-    {a,o:} > {e,ö:} / {e,i,ü,ö} [ ]* _ [ ] [ ] #
-    o: > ö: is [-back]
-    a > e is [-back -low]
-    so it's becoming a front middle tense vowel
-    the rule that it learns is needlessly verbose because it doesn't understand that some features are mutually exclusive
-Morphological analysis:
-Inflection 0:	/  / + stem + /  /
-Inflection 1:	/  / + stem + / b a n /
-Inflection 2:	/  / + stem + / t o: l /
-Inflection 3:	/  / + stem + / n a k /
-Phonological rules:
-[ +vowel ] ---> [ -back +middle -low +tense +front -central ] / [ +front ] [  ]* _ 
-[  ] ---> [ +voice ] /  _ [ +bilabial ]
-[ -sonorant ] ---> [ -voice ] /  _ [ -voice ]
-
-If it understood the certain features are mutually exclusive, the spreading rule would be:
-    [ +vowel ] ---> [ +front +tense +middle ] / [ +front ] [  ]* _ 
-    +front implies [-Central -back]
-    +middle implies [-low -high]
-
-
     ''',
 #	noun	in N	from N	to N	gloss
     [
@@ -763,16 +720,6 @@ underlyingProblems.append(Problem(
     u'''
 5: Kikuria
 	Provide appropriate underlying representations and phonological rules which will account for the following data.
-    i > e / _ [ ]* e
-    u > o / _ [ ]* e
-    My analysis:
-    [+hi] > [-hi,+mid] / _ [-back]* e
-    System discovers:
-Morphological analysis:
-Inflection 0:	/  / + stem + / a /
-Inflection 1:	/  / + stem + / e r a /
-Phonological rules:
-[ +high ] ---> [ +middle ] /  _ [ -low ]* [ +middle ]
     ''',
 	#verb	verb for
 	[
@@ -802,28 +749,6 @@ underlyingProblems.append(Problem(
     u'''
 6: Farsi
 Give the underlying forms for the following nouns, and say what phonological rule is necessary to explain the following data.
-    
-    Final solutions:
-Morphological analysis:
-Inflection 0:	/  / + stem + /  /
-Inflection 1:	/  / + stem + / a n /
-Phonological rules:
-[  ] ---> Ø / [ +middle ] _ #
-
-My analysis:
-    +gan occurs only after /e/
-    but not after every one:
-     mæleke-an
-     valede-an
-     kæbire-an
-     hamele-an
-    contrast with:
-     bačče-gan
-     setare-gan
-     bænde-gan
-     azade-gan
-     divane-gan
-
     ''',
 	#singular	plural	gloss
     [
@@ -874,25 +799,6 @@ underlyingProblems.append(Problem(
     u'''
 8: Makonde
 Explain what phonological rules apply in the following examples (the acute accent in these example marks stress, whose position is predictable).
-    My analysis:
-    Second to last vowel is always stressed:
-    V > [+stress] / _C*V#
-    There's some kind of vowel harmony:
-    o~a
-    e~a
-    {i,u} are unaffected
-    Probably {o,e} exist underlying
-    [+mid,-stress] > a
-    So the stress rule applies first, and then if {o,e} was unstressed then it gets neutralized to [a]
-    The system learns:
-    Final solution:
-Morphological analysis:
-Inflection 0:	/  / + stem + / á ŋ g a /
-Inflection 1:	/  / + stem + / í l e /
-Inflection 2:	/  / + stem + / a /
-Phonological rules:
-[  ] ---> [ -highTone ] /  _ [  ]* [ +highTone ]
-[ +middle -highTone ] ---> a /  _ [  ]
     ''',
 	#repeated	past		imperative	gloss
 	#imperative
@@ -916,7 +822,14 @@ Phonological rules:
 	(u"iváŋga",		u"ivíle",		u"íva"),#		steal
 	(u"pitáŋga",		u"pitíle",		u"píta"),#		pass
 	(u"imbáŋga",	u"imbíle",		u"ímba"),#		dig
-	(u"limáŋga",	u"limíle",		u"líma")]))#		cultivate
+	(u"limáŋga",	u"limíle",		u"líma")],#		cultivate
+    solutions = [u'''
+ + stem + á ŋ g a
+ + stem + í l e
+ + stem + a
+[ +vowel ] ---> [ +highTone ] /  _ C* a
+[ +highTone ] ---> a /  _ [  ] [ +highTone ]
+''']))
 
 underlyingProblems.append(Problem(
     u'''
