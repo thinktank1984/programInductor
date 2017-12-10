@@ -102,6 +102,19 @@ class IncrementalSolver(UnderlyingProblem):
 
         self.fixedUnderlyingForms = []
 
+    def solveUnderlyingForms(self, solution):
+        '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms.
+        Unlike the implementation in Matrix, reuses fixed underlying forms to be more time efficient'''
+        if solution.underlyingForms != [] and getVerbosity() > 0:
+            print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
+
+        return Solution(rules = solution.rules,
+                        prefixes = solution.prefixes,
+                        suffixes = solution.suffixes,
+                        underlyingForms = self.fixedUnderlyingForms + \
+                        [ solution.transduceUnderlyingForm(self.bank, inflections)
+                          for inflections in self.data[len(self.fixedUnderlyingForms):] ])
+
     def updateFixedMorphology(self, solution, trainingData):
         fixed = []
         for j in range(self.numberOfInflections):
@@ -222,7 +235,7 @@ class IncrementalSolver(UnderlyingProblem):
         flushEverything()
         return newSolution.withoutUselessRules()
 
-    def sketchCEGISChange(self,solution, rules):
+    def sketchCEGISChange(self, solution, rules):
         n = len(self.data)/5
         if n < 4: n = 4
         if n > 10: n = 10
@@ -282,7 +295,7 @@ class IncrementalSolver(UnderlyingProblem):
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
-            worker = self.restrict(trainingData)#, self.bank)
+            worker = self.restrict(trainingData)
             solution = worker.sketchJointSolution(1,canAddNewRules = True,
                                                   auxiliaryHarness = True)
             j = initialTrainingSize
