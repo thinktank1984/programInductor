@@ -766,17 +766,15 @@ Give the underlying forms for the following nouns, and say what phonological rul
 	(u"setare",	u"setaregan"), #	star
 	(u"bænde",	u"bændegan"), #	slave
 	(u"azade",	u"azadegan"), #	freeborn
-	(u"divane",	u"divanegan")],
+	(u"divane",	u"divanegan")], #	insane
     solutions = [u'''
  + stem + 
  + stem + an
-g ---> 0 / e _ #'''])) #	insane
+g ---> 0 / e _ #''']))
 
 underlyingProblems.append(Problem(
     u'''7: Tibetan
 Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
-Final solution:
-[ -nasal ] ---> Ø / # _ 
     ''',
     [
 	u"ǰu",#	‘10’

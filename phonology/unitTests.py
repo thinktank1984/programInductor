@@ -180,12 +180,18 @@ o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "
 
 @test
 def verify():
-    for p in sevenProblems[:3] + [interactingProblems[4]] + interactingProblems[:3] + underlyingProblems[:13]:
+    for p in sevenProblems[:3] + [interactingProblems[4]] + interactingProblems[:3] + underlyingProblems[:6] + underlyingProblems[7:]:
         solver = UnderlyingProblem(p.data)
         for s in p.solutions:
             s = parseSolution(s)
             for x in solver.data:
-                assert solver.verify(s,x), "Could not verify %s"%(u" ~ ".join(map(unicode,x)))
+                if not solver.verify(s,x):
+                    print "Error in verifying solution:"
+                    print s
+                    print "To problem:"
+                    print p.description
+                    print "Could not verify %s"%(u" ~ ".join(map(unicode,x)))
+                    assert False
             
 if __name__ == "__main__":
     import sys

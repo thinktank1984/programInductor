@@ -413,8 +413,8 @@ class Guard():
         parts = []
         parts += map(lambda spec: spec.latex(),self.specifications)
         if self.starred: parts[-2] += '*'
-        if self.endOfString: parts += ['#']
-        if self.optionalEnding: parts[-1] = "\{%s,#\}"%(parts[-1])
+        if self.endOfString: parts += ['\\#']
+        if self.optionalEnding: parts[-1] = "\\{%s,\\#\\}"%(parts[-1])
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
 

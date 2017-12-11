@@ -139,6 +139,7 @@ LATEXEPILOGUE = '''
 def exportLatexDocument(source, path):
     with open(path,'w') as handle:
         handle.write(LATEXPRELUDE + source + LATEXEPILOGUE)
+    os.system('pdflatex %s'%path)
 
 if __name__ == "__main__":
     exportLatexDocument(latexSolutionAndProblem("pickles/matrix_55.p"),"../../phonologyPaper/test.tex")
