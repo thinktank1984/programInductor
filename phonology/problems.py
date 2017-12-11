@@ -875,7 +875,7 @@ Posit appropriate underlying forms and any rules needed to explain the following
  + stem + 
  + stem + in
 m > n/_#
-[ -alveolar -alveopalatal ] ---> t /  _ #
+[-sibilant -nasal -liquid] ---> t /  _ #
 ǰ ---> š /  _ #''']))
 
 underlyingProblems.append(Problem(

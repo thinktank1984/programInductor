@@ -93,13 +93,16 @@ class IncrementalSolver(UnderlyingProblem):
         
         if window == None:
             # Adaptively set the window size
-            if wordsPerDataPoint <= 3.0: window = 4
+            if wordsPerDataPoint <= 3.0: window = 3
             elif wordsPerDataPoint <= 4.0: window = 2
             else: window = 1
             print "Incremental solver has adaptively set the window size to",window
         self.windowSize = window
 
-        self.fixedMorphologyThreshold = 10
+        if wordsPerDataPoint >= 12:
+            self.fixedMorphologyThreshold = 1
+        else:
+            self.fixedMorphologyThreshold = 10
         self.fixedUnderlyingFormThreshold = 10
 
         self.fixedUnderlyingForms = []
@@ -238,11 +241,12 @@ class IncrementalSolver(UnderlyingProblem):
         return newSolution.withoutUselessRules()
 
     def sketchCEGISChange(self, solution, rules):
-        n = len(self.data)/5
-        if n < 4: n = 4
-        if n > 10: n = 10
-        if n > len(self.data) - self.windowSize: n = len(self.data) - self.windowSize
-        trainingData = random.sample(self.data[:-self.windowSize], n) + self.data[-self.windowSize:]
+        windowData = self.data[-self.windowSize:]
+        fixedData = self.data[:len(self.fixedUnderlyingForms)]
+        remainingData = self.data[len(self.fixedUnderlyingForms):-self.windowSize]
+        print "# data points not in window or fixed:",len(remainingData)
+        n = min(10,len(remainingData))
+        trainingData = random.sample(remainingData, n) + windowData
 
         newSolution = None
         try: # catch timeout exception
@@ -297,6 +301,7 @@ class IncrementalSolver(UnderlyingProblem):
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
+            print u"\n".join(u"\t~\t".join(map(unicode,w)) for w in trainingData)
             worker = self.restrict(trainingData)
             solution = worker.sketchJointSolution(1,canAddNewRules = True,
                                                   auxiliaryHarness = True)
