@@ -637,7 +637,8 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
   if (left_trigger.starred) assert !right_trigger.starred;
   if (right_trigger.starred) assert !left_trigger.starred;
   // K > [features] is always equivalent to K > K at a cost which is no greater
-  if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;
+  // ACTUALLY, this is not true with universal grammar!
+  // if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;
   // K > K / _ is always over fitting
   if (constant_specification(focus) && constant_specification(structural_change))
     assert guard_does_something(left_trigger) || guard_does_something(right_trigger);

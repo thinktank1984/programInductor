@@ -180,7 +180,7 @@ o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "
 
 @test
 def verify():
-    for p in sevenProblems[:3] + [interactingProblems[4]] + interactingProblems[:3]:
+    for p in sevenProblems[:3] + [interactingProblems[4]] + interactingProblems[:3] + underlyingProblems[:13]:
         solver = UnderlyingProblem(p.data)
         for s in p.solutions:
             s = parseSolution(s)

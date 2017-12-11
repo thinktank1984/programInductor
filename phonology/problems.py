@@ -870,13 +870,13 @@ Posit appropriate underlying forms and any rules needed to explain the following
 	(u"laðas",	u"laðasin"),#	“something jointed”
 	(u"heaiyusmielat",	u"heaiyusmielagin"),#	“unhappy”
 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
-	(u"yaman",	u"yamanin")],
+	(u"yaman",	u"yamanin")],#	“something that makes noise”
     solutions = [u'''
  + stem + 
  + stem + in
 m > n/_#
 [ -alveolar -alveopalatal ] ---> t /  _ #
-ǰ ---> š /  _ #''']))#	“something that makes noise”
+ǰ ---> š /  _ #''']))
 
 underlyingProblems.append(Problem(
     '''
@@ -936,16 +936,25 @@ underlyingProblems.append(Problem(
 (problem 12)
     ''',
     [(u"ro",u"rod",u"roz"),
-     (u"lʊk",u"lʊkt",u"lʊks"),
-     (u"æsk",u"æskt",u"æsks"),
-     (u"wɛrk",u"wɛrkt",u"wɛrks"),
+     (u"græb",u"græbd",u"græbz"),
      (u"sim",u"simd",u"simz"),
      (u"liv",u"livd",u"livz"),
      (u"həg",u"həgd",u"həgz"),
+     (u"lʊk",u"lʊkt",u"lʊks"),
+     (u"æsk",u"æskt",u"æsks"),
+     (u"wɛrk",u"wɛrkt",u"wɛrks"),
      (u"kɩs",u"kɩst",u"kɩsəz"),
      (u"fɩš",u"fɩšt",u"fɩšəz"),
      (u"wet",u"wetəd",u"wets"),
-     (u"græb",u"græbd",u"græbz")]))
+     ],
+    solutions = [u'''
+ + stem + 
+ + stem + d
+ + stem + z
+    0 > ə / [-continuant -sonorant +coronal] _ d#
+    0 > ə / [+sibilant] _ z#
+    d > t / [-voice]_#
+    z > s / [-voice]_#''']))
 
 underlyingProblems.append(Problem(
     '''

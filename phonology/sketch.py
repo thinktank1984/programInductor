@@ -144,7 +144,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     flushEverything()
     
     output = open(outputFile,'r').read()
-    if not leavitt:
+    if False and not leavitt:
         os.remove(temporarySketchFile)
         os.remove(outputFile)
 
