@@ -393,7 +393,7 @@ def pickFragments(problems, fragments, maximumGrammarSize):
     print "Search time:",(time() - startTime),"seconds"
     return chosenFragments
 
-def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 20, smoothing = 1.0):
+def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0):
     fragments = proposeFragments(ruleEquivalenceClasses, verbose = True)
 
     currentGrammar = EMPTYFRAGMENTGRAMMAR
@@ -410,7 +410,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 20, smoot
         if bestScore <= previousDescriptionLength:
             previousDescriptionLength = bestScore
             currentGrammar = bestGrammar
-            print "Updated grammar to:"
+            print "Updated grammar to (overall score = %.2f):"%(bestScore)
             print bestGrammar
         else:
             print "No improvement possible"
@@ -598,8 +598,8 @@ class FragmentGrammar():
         return sum([ f.logPrior for _,_,f in self.fragments ])
     def frontiersLogJoint(self,frontiers, priorWeight = 0.05):
         return self.frontiersLikelihood(frontiers) + priorWeight*self.logPrior()
-    def AIC(self, frontiers):
-        return len(self.fragments) - self.frontiersLogJoint(frontiers)
+    def AIC(self, frontiers, alpha = 0.1):
+        return alpha*len(self.fragments) - self.frontiersLogJoint(frontiers)
 
     def export(self,f):
         dumpPickle(self.fragments, f)

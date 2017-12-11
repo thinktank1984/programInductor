@@ -133,6 +133,9 @@ ruleParser = whitespaceDelimitedSequence(focusChangeParser,
                                          rightGuardParser)
 
 def parseRule(s):
+    if u'+stop' in s:
+        # This is shorthand
+        s = s.replace(u'+stop',u'-sonorant -continuant')
     p = runParser(ruleParser,s)
     if p == None: return None
     [focus,_,change,_,(le,ls),_,(rs,re)] = p

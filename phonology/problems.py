@@ -1035,7 +1035,7 @@ todo: not enough data for it to get this one
 k + stem + am
 a > e/i_
     [-sonorant] > [+voice]/_[+voice -vowel]
-    0 > ə / [+velar +stop]_C
+    0 > ə / [-anterior +stop]_C
 ''']))
 
 underlyingProblems.append(Problem(

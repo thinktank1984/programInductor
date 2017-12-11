@@ -23,6 +23,7 @@ latexMap = {
     #possibly missing are umlauts
 
     # consonance
+    u"y": 'j',
     u"p|": 'p\\textcorner',
     u"p^h": 'p\\super h',
     u"β": 'B',
@@ -35,71 +36,20 @@ latexMap = {
     u"ṭ": '\\.*t',
     u"ḍ": '\\.*d',
     u"ð": 'D',
-    u"ǰ": '\\v{j}',
-    u"ž": '\\v{z}',
+    u"ǰ": 'd\\super Z',#'\\v{j}',
+    u"ž": 'Z',#'\\v{z}',
     u"n̥": '\\r*n',
     u"ñ": '\\~n',
-    u"š": '\\v{s}',
-    u"č": '\\v{c}',
-    u"č^h": '\\v{c}\\super h',
+    u"š": 'S',#'\\v{s}',
+    u"č": 't\\super S',#'\\v{c}',
+    u"č^h": 't\\super S\\super h',#'\\v{c}\\super h',
     u"k|": 'k\\textcorner',
     u"k^h": 'k\\super h',
-    u"k^y": 'k\\super y',
+    u"k^y": 'k\\super j',
     u"x": 'x',
     u"χ": 'x',
-    u"x^y": 'x\\super y',
-    u"g^y": 'g\\super y',
-    u"ɣ": 'G',
-    u"ŋ": 'N',
-    u"N": '\\;N',
-    u"G": '\\;G',
-    u"ʔ": 'P',
-    u"r̃": '\\~r',
-    u"r̥̃": '\\r*{\\~r}',
-    u"ř": '\\v{r}'
-}
-
-latexIPAMap = {
-    u"ɨ": '1',
-    u"ɯ": 'W',
-    u"ɩ": '\\textiota',
-    u"ə": '@',
-    u"ɛ": 'E',
-    u"æ": '\\ae',
-    # rounded vowels
-    u"ü": '\\"u',
-    u"ʊ": 'U',
-    u"ö": '\\"o',
-    u"ɔ": 'O',
-    #possibly missing are umlauts
-
-    # consonance
-    u"p|": 'p\\textcorner',
-    u"p^h": 'p\\super h',
-    u"β": 'B',
-    u"m̥": '\\r*m',
-    u"θ": 'T',
-    u"d^z": 'd\\super z',
-    u"t|": 't\\textcorner',
-    u"t^s": 't\\super s',
-    u"t^h": 't\\super h',
-    u"ṭ": '\\.*t',
-    u"ḍ": '\\.*d',
-    u"ð": 'D',
-    u"ǰ": '\\v{j}',
-    u"ž": '\\v{z}',
-    u"n̥": '\\r*n',
-    u"ñ": '\\~n',
-    u"š": '\\v{s}',
-    u"č": '\\v{c}',
-    u"č^h": '\\v{c}\\super h',
-    u"k|": 'k\\textcorner',
-    u"k^h": 'k\\super h',
-    u"k^y": 'k\\super y',
-    u"x": 'x',
-    u"χ": 'x',
-    u"x^y": 'x\\super y',
-    u"g^y": 'g\\super y',
+    u"x^y": 'x\\super j',
+    u"g^y": 'g\\super j',
     u"ɣ": 'G',
     u"ŋ": 'N',
     u"N": '\\;N',
@@ -137,7 +87,6 @@ def latexMatrix(m):
 def latexSolutionAndProblem(path):
     with open(path,'rb') as handle: solution = pickle.load(handle)
     if isinstance(solution,list): solution = solution[0]
-    print solution
 
     # figure out which problem it corresponds to
     problem = None
@@ -154,8 +103,8 @@ def latexSolutionAndProblem(path):
         assert False
 
     if problem.parameters == None:
-        r = "\\begin{tabular}{%s}\\toprule\\\\\n"%("l"*len(solution.prefixes) + "|l")
-        r += " & ".join([ ("$\varempty$" if len(p) == 0 else latexWord(p)) + " $+$stem+$+$" + ("$\varempty$" if len(s) == 0 else latexWord(s))
+        r = "\\begin{longtable}{%s}\\toprule\\\\\n"%("l"*len(solution.prefixes) + "|l")
+        r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + "$+$stem$+$" + ("$\\varnothing$$" if len(s) == 0 else latexWord(s))
                           for p,s in zip(solution.prefixes, solution.suffixes) ] + ["UR"])
         r += "\n\\\\ \\midrule\n"
         for j in range(len(problem.data)):
@@ -163,18 +112,36 @@ def latexSolutionAndProblem(path):
             else: ur = None
             r += " & ".join([ latexWord(x) for x in problem.data[j] ] + [latexWord(ur)])
             r += "\\\\\n"
-        r += "\\bottomrule\\end{tabular}"
+        r += "\\bottomrule\\end{longtable}"
 
     else: assert False
 
     r += '''\n\\begin{tabular}{l}\\emph{Rules: }\\\\
 %s
 \\end{tabular}'''%("\\\\".join([ r.latex() for r in solution.rules ]))
+    return r
 
+LATEXPRELUDE = '''
+\\documentclass{article}
+\\usepackage{tipa}
+\\usepackage{booktabs}
+\\usepackage{amssymb}
+\\usepackage{longtable}
+\\begin{document}
 
+'''
+
+LATEXEPILOGUE = '''
+
+\\end{document}
+'''
+
+def exportLatexDocument(source, path):
+    with open(path,'w') as handle:
+        handle.write(LATEXPRELUDE + source + LATEXEPILOGUE)
 
 if __name__ == "__main__":
-    print latexSolutionAndProblem("pickles/matrix_11.p")
+    exportLatexDocument(latexSolutionAndProblem("pickles/matrix_55.p"),"../../phonologyPaper/test.tex")
 
     
             
