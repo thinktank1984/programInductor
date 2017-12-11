@@ -87,6 +87,7 @@ def latexMatrix(m):
 def latexSolutionAndProblem(path):
     with open(path,'rb') as handle: solution = pickle.load(handle)
     if isinstance(solution,list): solution = solution[0]
+    if isinstance(solution, list): return "(invalid solution)"
 
     # figure out which problem it corresponds to
     problem = None
@@ -104,7 +105,7 @@ def latexSolutionAndProblem(path):
 
     if problem.parameters == None:
         r = "\\begin{longtable}{%s}\\toprule\\\\\n"%("l"*len(solution.prefixes) + "|l")
-        r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + "$+$stem$+$" + ("$\\varnothing$$" if len(s) == 0 else latexWord(s))
+        r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + " $+$stem$+$ " + ("$\\varnothing$" if len(s) == 0 else latexWord(s))
                           for p,s in zip(solution.prefixes, solution.suffixes) ] + ["UR"])
         r += "\n\\\\ \\midrule\n"
         for j in range(len(problem.data)):
@@ -114,7 +115,10 @@ def latexSolutionAndProblem(path):
             r += "\\\\\n"
         r += "\\bottomrule\\end{longtable}"
 
-    else: assert False
+    else:
+        print problem.description
+        print solution
+        return problem.description
 
     r += '''\n\\begin{tabular}{l}\\emph{Rules: }\\\\
 %s
@@ -139,10 +143,14 @@ LATEXEPILOGUE = '''
 def exportLatexDocument(source, path):
     with open(path,'w') as handle:
         handle.write(LATEXPRELUDE + source + LATEXEPILOGUE)
-    os.system('pdflatex %s'%path)
+    if '/' in path: directory = "/".join(path.split("/")[:-1])
+    else: directory = "."
+    #os.system('pdflatex %s -output-directory %s'%(path,directory))
 
 if __name__ == "__main__":
-    exportLatexDocument(latexSolutionAndProblem("pickles/matrix_55.p"),"../../phonologyPaper/test.tex")
+    source = "\n\n\\pagebreak\n\n".join([ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
+                                    for j in range(1,15) ])
+    exportLatexDocument(source,"../../phonologyPaper/test.tex")
 
     
             
