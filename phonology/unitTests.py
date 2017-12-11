@@ -168,7 +168,7 @@ C > [+palletized] / _ i ;; i is the only thing in the data which is [+high -back
 o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "vowel fronting"
 [ -glide -vowel ] ---> [ -palletized ] /  _ e
 ''')
-    s.fixedMorphology = solution
+    s.fixedMorphology = zip(solution.prefixes, solution.suffixes)
     new = s.sketchChangeToSolution(solution, [solution.rules[0],None,solution.rules[2]], allTheData = data)
     assert new != None, "Should be able to incrementally change to accommodate an example"
     assert new.cost() <= solution.cost(), "Should have found an optimal solution"
