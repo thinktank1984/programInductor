@@ -627,7 +627,7 @@ class Rule():
         p = p.replace(u'  ',u" ")
         return p
         
-    def calculateCopyOffset():
+    def calculateCopyOffset(self):
         if isinstance(self.focus,OffsetSpecification): return self.focus.offset
         if isinstance(self.structuralChange,OffsetSpecification): return self.structuralChange.offset
         return 0
