@@ -137,8 +137,9 @@ def supervisedDuplicateSyllable():
                           syllables = True)
     r = s.solve(1)[0]
     assert isinstance(r.focus, EmptySpecification)
-    assert r.copyOffset == 1 and unicode(r.rightTriggers.specifications[0]) == u'σ'\
-        or r.copyOffset == -1 and unicode(r.leftTriggers.specifications[0]) == u'σ'
+    assert isinstance(r.structuralChange,OffsetSpecification)
+    assert r.structuralChange.offset == 1 and unicode(r.rightTriggers.specifications[0]) == u'σ'\
+        or r.structuralChange.offset == -1 and unicode(r.leftTriggers.specifications[0]) == u'σ'
 @test
 def testMarcus():
     s = UnderlyingProblem([ (w,) for w in sampleABB(6) ],
@@ -147,7 +148,7 @@ def testMarcus():
     assert any([ unicode(spec) == u'σ'
                  for spec in s.rules[0].rightTriggers.specifications + s.rules[0].leftTriggers.specifications ])
     assert all([ len(u) == 4 for u in s.underlyingForms ])
-    assert s.rules[0].copyOffset != 0
+    assert isinstance(s.rules[0].structuralChange, OffsetSpecification)
 @test
 def induceBoundary():
     inventory = FeatureBank([u"utestadz"])

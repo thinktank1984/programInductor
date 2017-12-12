@@ -759,7 +759,8 @@ class Rule():
         return results
 
     def sketchEquals(self,v,b):
-        return "(%s.copyOffset == %d && %s && %s && %s && %s)"%(v,self.calculateCopyOffset(),
+        return "(%s.copyOffset == %d && %s && %s && %s && %s)"%(v,
+                                                                self.calculateCopyOffset(),
                                                                 self.focus.sketchEquals(v+'.focus',b),
                                                                 self.structuralChange.sketchEquals(v+'.structural_change',b),
                                                                 self.leftTriggers.sketchEquals(v+'.left_trigger',b),
