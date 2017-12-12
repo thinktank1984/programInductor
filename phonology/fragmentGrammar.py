@@ -84,6 +84,11 @@ class RuleFragment(Fragment):
 RuleFragment.BASEPRODUCTIONS = [RuleFragment(VariableFragment(FC),VariableFragment(FC),
                                              VariableFragment(Guard),VariableFragment(Guard))]
 
+'''
+This special value corresponds to the `copyOffset` of the rule
+'''
+COPYFC = u'ℤ'
+
 class FCFragment(Fragment):
     CONSTRUCTOR = FC
     def __init__(self, child, logPrior = None):
@@ -94,6 +99,8 @@ class FCFragment(Fragment):
     def __unicode__(self): return unicode(self.child)
 
     def match(self, program):
+        if self.child == COPYFC:
+            raise Exception('FCFragment: attempt to match against the copying fragment; should be handled by rulefragment')
         if isinstance(program, EmptySpecification):
             if isinstance(self.child, EmptySpecification):
                 return []
@@ -121,7 +128,9 @@ class FCFragment(Fragment):
             fragments += SpecificationFragment.abstract(p,q)
         return fragments
 
+
 FCFragment.BASEPRODUCTIONS = [FCFragment(EmptySpecification(),-1),
+                              FCFragment(COPYSPECIFICATION,-1)
                               FCFragment(VariableFragment(Specification))]
 
 class SpecificationFragment(Fragment):
@@ -327,71 +336,6 @@ def proposeFragments(ruleSets, verbose = False):
 
     return [ (t, f) for t in fragments for f in fragments[t] ] # if t != Rule ] #and t != 'GUARD' ]
 
-def fragmentLikelihood(parameters):
-    (problems, fragments, newFragment) = parameters
-    newGrammar = FragmentGrammar(fragments + [newFragment])
-    l = sum([ max([ sum([ newGrammar.ruleLogLikelihood(r) for r in s ]) for s in problem ])
-              for problem in problems ])
-    posterior = l + newFragment[1].logPrior
-    f = newFragment
-    print "Considering %s %s\n\t%f + %f = %f"%(f[0],f[1],l,f[1].logPrior,posterior)
-    return (f, l)
-    
-def pickFragments(problems, fragments, maximumGrammarSize):
-    chosenFragments = []
-
-    expressionTable = {}
-    problems = [ [ [ r.share(expressionTable) for r in s ] for s in p ]
-                 for p in problems ]
-
-    oldPosterior = None
-
-    def showMostLikelySolutions():
-        g = FragmentGrammar(chosenFragments)
-        for j,p in enumerate(problems):
-            bestLikelihood,bestSolution = max([ (sum([ g.ruleLogLikelihood(r) for r in s ]), s)
-                                                for s in p ])
-            print "Problem %d"%j
-            for r in bestSolution:print "\t%s"%(str(r))
-            print
-
-    showMostLikelySolutions()
-
-    typeOrdering = [Specification,Guard,Rule]
-
-    startTime = time()
-    while len(chosenFragments) < maximumGrammarSize:
-        candidateFragments = [ x for x in fragments if not x in chosenFragments and x[0] == typeOrdering[0] ]
-        parameters = [ (problems, chosenFragments, x) for x in candidateFragments ]
-        fragmentLikelihoods = map(fragmentLikelihood, parameters)
-
-        # What is the best fragment according to the likelihood, breaking ties by the prior?
-        priorWeight = 0.75
-        ((bestType,bestFragment),bestLikelihood) = max(fragmentLikelihoods, key = lambda (f,l): (l+priorWeight*f[1].logPrior))
-        print "The best fragment as measured by adjusted posterior is:"
-        bestPrior = bestFragment.logPrior
-        bestPosterior = bestPrior+bestLikelihood
-        print bestType,bestFragment,bestLikelihood,"+",bestPrior,"=",bestPosterior
-        
-        # but is it good enough to keep?
-        newPosterior = bestLikelihood # + sum([ f[1].logPrior for f in chosenFragments ]) + bestPrior
-        if oldPosterior != None and newPosterior < oldPosterior:
-            print "But, adding nothing is better than adding that fragment."
-            if typeOrdering == []:
-                break
-            else:
-                typeOrdering = typeOrdering[1:]
-                print "Moving onto fragments of type %s"%typeOrdering[0]
-                continue
-        
-        oldPosterior = newPosterior
-        print "New posterior w/ all priors accounted for:",newPosterior            
-        chosenFragments.append((bestType,bestFragment))
-        showMostLikelySolutions()
-    print "Final grammar:"
-    for t,f in chosenFragments: print t,f
-    print "Search time:",(time() - startTime),"seconds"
-    return chosenFragments
 
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0):
     fragments = proposeFragments(ruleEquivalenceClasses, verbose = True)
@@ -399,22 +343,35 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
     currentGrammar = EMPTYFRAGMENTGRAMMAR
     previousDescriptionLength = float('inf')
 
+    typeOrdering = [Specification,Guard,Rule]
+
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
         candidates = []
         for (t,f) in fragments:
+            if t != typeOrdering[0]: continue
+            if currentGrammar.hasFragment(f): continue
+            
             newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
                          estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
             newScore = newGrammar.AIC(ruleEquivalenceClasses)
             candidates.append((newScore,newGrammar))
-        (bestScore,bestGrammar) = min(candidates)
-        if bestScore <= previousDescriptionLength:
+        if candidates == []:
+            bestScore = float('inf')
+        else:
+            (bestScore,bestGrammar) = min(candidates)
+        if candidates != [] and bestScore <= previousDescriptionLength:
             previousDescriptionLength = bestScore
             currentGrammar = bestGrammar
             print "Updated grammar to (overall score = %.2f):"%(bestScore)
             print bestGrammar
         else:
-            print "No improvement possible"
-            break
+            print "No improvement possible using fragments of type",typeOrdering[0]
+            typeOrdering = typeOrdering[1:]
+            if typeOrdering == []:
+                print "Done inducing fragment grammar"            
+                break
+            else:
+                print "Moving on to fragments of type",typeOrdering[0]
         
     return currentGrammar
             
@@ -464,6 +421,9 @@ class FragmentGrammar():
             return n
         return formatTable([ map(makingNamingIntuitive, ["%f"%l,"%s"%t.__name__ + " ::= ", str(f) ])
                              for t,l,f in self.fragments])
+
+    def hasFragment(self,f):
+        return any(_f == f for _,_,_f in self.fragments)
 
     def fragmentLikelihood(self, program, fragments):
         '''returns (likelihood, {fragment: expected uses})'''

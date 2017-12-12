@@ -1,4 +1,4 @@
-from problems import underlyingProblems,interactingProblems,sevenProblems,nineProblems
+from problems import underlyingProblems,interactingProblems,sevenProblems,nineProblems,MATRIXPROBLEMS
 from countingProblems import CountingProblem
 from utilities import *
 from parseSPE import parseSolution
@@ -12,88 +12,6 @@ import argparse
 from multiprocessing import Pool
 import sys
 import io
-
-def heldOutSolution(data, k = 1, threshold = float('inf'), initialTrainingSize = 2, testing = 0.0, inductiveBiases = []):
-    numberOfInflections = len(data[0])
-    if numberOfInflections > 7: initialTrainingSize = 3
-    bank = UnderlyingProblem(data).bank
-
-    trainingData,testingData = randomTestSplit(data, testing)
-    slave = UnderlyingProblem(trainingData, bank = bank)
-    
-    solutions = slave.counterexampleSolution(k,threshold,initialTrainingSize)
-
-    accuracies, compressions = {}, {}
-    for bias in inductiveBiases:
-        print "Considering bias",bias
-        ug = str2ug(bias)
-        solution = max(solutions, key = lambda z: ug.logLikelihood(z.rules))
-        accuracy,compression = accuracyAndCompression(solution, testingData, bank)
-        print "Average held out accuracy: ",accuracy
-        print "Average held out compression:",compression
-        print "As a test, trying to calculate on the original training data also:"
-        print accuracyAndCompression(solution, trainingData)
-        accuracies[bias] = accuracy
-        compressions[bias] = compression
-    return solutions, accuracies, compressions
-
-def accuracyAndCompression(solution, testingData, bank):
-    accuracy,compression = 0,0
-    for inflections in testingData:
-        a,c = inflectionAccuracy(solution, inflections, bank)
-        compression += c
-        accuracy += a
-    return accuracy/len(testingData), compression/float(len(testingData))
-
-def inflectionAccuracy(solution, inflections, bank):
-    """inflections : list of APA strings. Returns (accuracy, descriptionLength)"""
-    correctPredictions = 0
-    encodingLength = sum([ len(Morph(i)) for i in inflections ])
-
-    for testingIndex in range(len(inflections) + 1):
-        # if testingIndex  = len(inflections), don't hold anything out
-        # we do this to check description length
-        trainingIndexes = [ j for j in range(len(inflections)) if j != testingIndex ]
-
-        if len(inflections) == 1 and testingIndex != len(inflections):
-            continue
-
-        Model.Global()
-
-        stem = Morph.sample()
-        minimize(wordLength(stem))
-
-        # Make the morphology/phonology be a global definition
-        prefixes = [ define("Word", p.makeConstant(bank)) for p in solution.prefixes ]
-        suffixes = [ define("Word", s.makeConstant(bank)) for s in solution.suffixes ]
-        rules = [ define("Rule", r.makeConstant(bank)) for r in solution.rules ]
-        for r in rules: condition(fixStructuralChange(r))
-
-        prediction = Morph.sample()
-        surfaces = [ (s if j in trainingIndexes else prediction) for j,s in enumerate(inflections) ]
-
-        worker = UnderlyingProblem([inflections], bank)
-        worker.conditionOnStem(rules, stem, prefixes, suffixes, surfaces)
-
-        # IMPORTANT!
-        # Because we are modeling the prediction as a morph,
-        # the maximum morph length most also be the maximum observation length
-        output = worker.solveSketch()
-        if not output or testingIndex == len(inflections):
-            prediction = None
-        else:
-            prediction = Morph.parse(bank, output, prediction)
-        if testingIndex < len(inflections): # testing ability to make new inflection
-            if prediction == Morph(tokenize(inflections[testingIndex])):
-                correctPredictions += 1
-            else:
-                print "I saw these inflections:","\t".join([s for j,s in enumerate(inflections)
-                                                            if j != testingIndex])
-                print "I predicted ", prediction,"instead of", Morph(tokenize(inflections[testingIndex]))
-        else: # checking compression
-            if output:
-                encodingLength = len(Morph.parse(bank, output, stem))
-    return correctPredictions/float(len(inflections)), encodingLength
 
 def handleProblem(parameters):
     problemIndex = parameters['problemIndex']
@@ -128,11 +46,18 @@ def handleProblem(parameters):
         print CountingProblem(p.data, p.parameters).latex()
 
     if parameters['universalGrammar'] != None:
-        if not os.path.exists(parameters['universalGrammar']):
-            print "Fatal error: Cannot find universal grammar",parameters['universalGrammar']
+        assert parameters['universalGrammar'].endswith('.p')
+        universalGrammarPath = parameters['universalGrammar']
+        if parameters['curriculum']:
+            index = MATRIXPROBLEMS.index(p)
+            universalGrammarPath = universalGrammarPath[:-2] + "_curriculum" + str(index) + ".p"
+            
+        if not os.path.exists(universalGrammarPath):
+            print "Fatal error: Cannot find universal grammar",universalGrammarPath
             assert False
-        ug = FragmentGrammar.load(parameters['universalGrammar'])
-        print "Loaded %s:\n%s"%(parameters['universalGrammar'],ug)
+            
+        ug = FragmentGrammar.load(universalGrammarPath)
+        print "Loaded %s:\n%s"%(universalGrammarPath,ug)
     else: ug = None
 
     startTime = time()
@@ -159,61 +84,54 @@ def handleProblem(parameters):
             
     else:
         problem = UnderlyingProblem(p.data, UG = ug).restrict(restriction)
-        if parameters['testing'] == 0.0:
-            if parameters['task'] == 'stochastic':
-                problem.stochasticSearch(20, parameters['beam'])
-            elif parameters['task'] == 'debug':
-                for s in p.solutions:
-                    s = parseSolution(s)
-                    problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
-            elif parameters['task'] == 'verify':
-                for s in p.solutions:
-                    s = parseSolution(s)
-                    print "verifying:"
-                    print s
-                    b = UnderlyingProblem(p.data).bank
-                    for r in s.rules:
-                        print "Explaining rule: ",r
-                        r.explain(b)
-                    problem.illustrateSolution(s)
-                ss = []
-            elif parameters['task'] == 'ransac':
-                RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
-                    restrict(restriction).\
-                    solve(numberOfWorkers = parameters['cores'],
-                          numberOfSamples = parameters['samples'])
-                assert False
-            elif parameters['task'] == 'incremental':
-                ss = IncrementalSolver(p.data,parameters['window'],UG = ug).\
-                     restrict(restriction).\
-                     incrementallySolve(saveProgressTo = parameters['save'],
-                                        loadProgressFrom = parameters['restore'])
-            elif parameters['task'] == 'CEGIS':
-                ss = problem.counterexampleSolution(k = parameters['top'],
-                                                    threshold = parameters['threshold'])
-            elif parameters['task'] == 'exact':
-                ss = problem.sketchJointSolution(1, canAddNewRules = True)
-            elif parameters['task'] == 'frontier':
-                f = str(problemIndex) + ".p"
-                seed = os.path.join(parameters['restore'], f)
-                if not os.path.exists(seed):
-                    print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
-                    sys.exit(0)
-                seed = loadPickle(seed)
-                assert isinstance(seed,list)
-                assert len(seed) == 1
-                worker = problem
-                seed = worker.solveUnderlyingForms(seed[0])
-                frontier = worker.solveFrontiers(seed, k = parameters['top'])
-                dumpPickle(frontier, os.path.join(parameters['save'], f))
+        if parameters['task'] == 'stochastic':
+            problem.stochasticSearch(20, parameters['beam'])
+        elif parameters['task'] == 'debug':
+            for s in p.solutions:
+                s = parseSolution(s)
+                problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
+        elif parameters['task'] == 'verify':
+            for s in p.solutions:
+                s = parseSolution(s)
+                print "verifying:"
+                print s
+                b = UnderlyingProblem(p.data).bank
+                for r in s.rules:
+                    print "Explaining rule: ",r
+                    r.explain(b)
+                problem.illustrateSolution(s)
+            ss = []
+        elif parameters['task'] == 'ransac':
+            RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
+                restrict(restriction).\
+                solve(numberOfWorkers = parameters['cores'],
+                      numberOfSamples = parameters['samples'])
+            assert False
+        elif parameters['task'] == 'incremental':
+            ss = IncrementalSolver(p.data,parameters['window'],UG = ug).\
+                 restrict(restriction).\
+                 incrementallySolve(saveProgressTo = parameters['save'],
+                                    loadProgressFrom = parameters['restore'])
+        elif parameters['task'] == 'CEGIS':
+            ss = problem.counterexampleSolution(k = parameters['top'],
+                                                threshold = parameters['threshold'])
+        elif parameters['task'] == 'exact':
+            ss = problem.sketchJointSolution(1, canAddNewRules = True)
+        elif parameters['task'] == 'frontier':
+            f = str(problemIndex) + ".p"
+            seed = os.path.join(parameters['restore'], f)
+            if not os.path.exists(seed):
+                print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
                 sys.exit(0)
-                
-        else:
-            ss, accuracy, compression = heldOutSolution(p.data,
-                                                        parameters['top'],
-                                                        parameters['threshold'],
-                                                        testing = parameters['testing'],
-                                                        inductiveBiases = parameters['universalGrammar'])
+            seed = loadPickle(seed)
+            assert isinstance(seed,list)
+            assert len(seed) == 1
+            worker = problem
+            seed = worker.solveUnderlyingForms(seed[0])
+            frontier = worker.solveFrontiers(seed, k = parameters['top'])
+            dumpPickle(frontier, os.path.join(parameters['save'], f))
+            sys.exit(0)
+
         if not isinstance(ss,list): ss = [ss]
         
 
@@ -230,16 +148,6 @@ def handleProblem(parameters):
         if not os.path.exists(parameters['pickleDirectory']):
             os.mkdir(parameters['pickleDirectory'])
         dumpPickle(ss, fullPath)
-    if accuracy != None and compression != None:
-        parameters['accuracy'] = accuracy
-        parameters['compression'] = compression
-        print parameters
-        name = "%d_%s_%f_%d_%d"%(parameters['problemIndex'],
-                                 "_".join(sorted(parameters['universalGrammar'])),
-                                 parameters['testing'],
-                                 parameters['top'],
-                                 parameters['seed'])
-        dumpPickle(parameters, "testingAccuracy/%s.p"%name)
         
                 
 
@@ -265,7 +173,6 @@ if __name__ == '__main__':
     parser.add_argument('--dummy', default = False, action = 'store_true',
                         help = 'Dont actually run the solver for ransac')
     parser.add_argument('-s','--seed', default = '0', type = str)
-    parser.add_argument('-H','--hold', default = '0.0', type = str)
     parser.add_argument('-u','--universal', default = None, type = str)
     parser.add_argument('--window', default = None, type = int)
     parser.add_argument('--save', default = None, type = str)
@@ -273,7 +180,8 @@ if __name__ == '__main__':
     parser.add_argument('--debug', default = None, type = lambda s: unicode(s,'utf8'))
     parser.add_argument('--restrict', default = None, type = str)
     parser.add_argument('--samples', default = 30, type = int)
-    parser.add_argument('--eager', default = False, action = 'store_true')
+    parser.add_argument('--curriculum', default = False, action = 'store_true',
+                        help = "Only use in conjunction with universal grammar. Specifies that the loaded UG should be the one calculated from previous problems. see the curriculum option in UG.py")
     parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('--pickleDirectory',default = None,type = str)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
@@ -317,9 +225,9 @@ if __name__ == '__main__':
 
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,
-                   'testing': testing,
                    'universalGrammar': arguments.universal,
                    'top': arguments.top,
+                   'curriculum': arguments.curriculum,
                    'task': arguments.task,
                    'threshold': arguments.threshold,
                    'redirect': False,
@@ -328,7 +236,6 @@ if __name__ == '__main__':
                    'save': arguments.save,
                    'restore': arguments.restore,
                    "restrict": arguments.restrict,
-                   'eager': arguments.eager,
                    'cores': arguments.cores,
                    'beam': arguments.beam,
                    'timeout': arguments.timeout,
@@ -338,8 +245,7 @@ if __name__ == '__main__':
                    'dummy': arguments.dummy,
                    }
                   for problemIndex in problems
-                  for seed in map(int,arguments.seed.split(','))
-                  for testing in map(float,arguments.hold.split(',')) ]
+                  for seed in map(int,arguments.seed.split(',')) ]
     print parameters
     
     if arguments.cores > 1 and arguments.problem == 'integration':

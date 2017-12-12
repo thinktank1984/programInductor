@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from problems import underlyingProblems, interactingProblems, alternationProblems
+from problems import underlyingProblems, interactingProblems, alternationProblems, MATRIXPROBLEMS, Problem
 from rule import *
 from utilities import *
 from fragmentGrammar import *
@@ -236,12 +236,12 @@ if __name__ == '__main__':
     
     arguments = parser.parse_args()
 
-    if not curriculum:
+    if not arguments.curriculum:
         toLearnFrom = [MATRIXPROBLEMS]
     else:
-        toLearnFrom = [MATRIXPROBLEMS[:j] for j in range(1,len(MATRIXPROBLEMS)) ]
+        toLearnFrom = [MATRIXPROBLEMS[:j] for j in range(0,len(MATRIXPROBLEMS)) ]
 
-    for problems in toLearnFrom:    
+    for problemsIndex,problems in enumerate(toLearnFrom):
         if arguments.task == 'fromGroundTruth':
             groundTruthSolutions = []
             for problem in problems:
@@ -262,6 +262,10 @@ if __name__ == '__main__':
             g = induceFragmentGrammar(frontiers)
 
         if arguments.export != None:
-            print "Exporting universal grammar to %s"%(arguments.export)
-            g.export(arguments.export)
+            exportPath = arguments.export
+            if arguments.curriculum:
+                assert arguments.export.endswith('.p')
+                exportPath = arguments.export[:-2] + "_curriculum" + str(problemsIndex) + ".p"
+            print "Exporting universal grammar to %s"%(exportPath)
+            g.export(exportPath)
 

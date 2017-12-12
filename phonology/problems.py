@@ -942,8 +942,13 @@ underlyingProblems.append(Problem(
      (u"æsk",u"æskt",u"æsks"),
      (u"wɛrk",u"wɛrkt",u"wɛrks"),
      (u"kɩs",u"kɩst",u"kɩsəz"),
+     (u"ǰʌǰ",u"ǰʌǰd",u"ǰʌǰəz"),
      (u"fɩš",u"fɩšt",u"fɩšəz"),
+     (u"kwɩz",u"kwɩzd",u"kwɩzəz"),
+     (u"bʌz",u"bʌzd",u"bʌzəz"),
      (u"wet",u"wetəd",u"wets"),
+     (u"wed",u"wedəd",u"weds"),     
+     (u"lɩft",u"lɩftəd",u"lɩfts"),
      ],
     solutions = [u'''
  + stem + 
@@ -1091,20 +1096,6 @@ interactingProblems.append(Problem(
     '''1: Kerewe
 
 What two tone rules are motivated by the following data; explain what order the rules apply in.
-    I think there is something special about having three examples that allows it to learn the full solution
-    Final solution:
-Morphological analysis:
-Inflection 0:	/ k u / + stem + / a /
-Inflection 1:	/ k u / + stem + / a n a /
-Inflection 2:	/ k u / + stem + / i l a /
-Inflection 3:	/ k u / + stem + / i l a n a /
-Inflection 4:	/ k u t ú / + stem + / a /
-Inflection 5:	/ k u k í / + stem + / a /
-Inflection 6:	/ k u t ú / + stem + / i l a /
-Inflection 7:	/ k u k í t ú / + stem + / i l a /
-Phonological rules:
-[  ] ---> [ -highTone ] / [ +highTone ] [  ] _ 
-[  ] ---> [ +highTone ] / [ +highTone ] [  ] _ [  ]
     ''',
     #to V	to V e.o	to V for	to V for e.o	to V us	to V it	to V for us	to V it for us
 	[
@@ -1114,21 +1105,25 @@ Phonological rules:
 	    (u"kubála",	u"kubálána",	u"kubálíla",	u"kubálílana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“kick”
 	    (u"kulúma",	u"kulúmána",	u"kulúmíla",	u"kulúmílana", u"kutúlúma",	u"kukílúma",	u"kutúlúmila",	u"kukítúlumila"),#	“bite” suffices to trigger the bug
 	    (u"kusúna",	u"kusúnána",	u"kusúníla",	u"kusúnílana", u"kutúsúna",	u"kukísúna",	u"kutúsúnila",	u"kukítúsunila"),#	“pinch”
-	    (u"kulába",	u"kulábána",	u"kulábíla",	u"kulábílana", u"kutúlába",	u"kukílába",	u"kutúlábila",	u"kukítúlabila")
-        ]))#	“pass”
+	    (u"kulába",	u"kulábána",	u"kulábíla",	u"kulábílana", u"kutúlába",	u"kukílába",	u"kutúlábila",	u"kukítúlabila")#	“pass”
+        ],
+    solutions = [u'''
+	 k u  + stem +  a 
+	 k u  + stem +  a n a 
+	 k u  + stem +  i l a 
+	 k u  + stem +  i l a n a 
+	 k u t ú  + stem +  a 
+	 k u k í  + stem +  a 
+	 k u t ú  + stem +  i l a 
+	 k u k í t ú  + stem +  i l a 
+[  ] ---> [ -highTone ] / [ +highTone ] [  ] _ 
+[  ] ---> [ +highTone ] / [ +highTone ] [  ] _ [  ]
+''']))
 
 interactingProblems.append(Problem(
     '''2: Polish
 
 What phonological rules are motivated by the following examples, and what order do those rules apply in?
-Discovered by the system:
-Final solution:
-Morphological analysis:
-Inflection 0:	/  / + stem + /  /
-Inflection 1:	/  / + stem + / i /
-Phonological rules:
-o ---> u /  _ [ -nasal +voice ] #
-[ -sonorant ] ---> [ -voice ] /  _ #
 ''',
     #singular	plural		singular	plural
 	[

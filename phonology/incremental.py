@@ -244,7 +244,6 @@ class IncrementalSolver(UnderlyingProblem):
         windowData = self.data[-self.windowSize:]
         fixedData = self.data[:len(self.fixedUnderlyingForms)]
         remainingData = self.data[len(self.fixedUnderlyingForms):-self.windowSize]
-        print "# data points not in window or fixed:",len(remainingData)
         n = min(10,len(remainingData))
         trainingData = random.sample(remainingData, n) + windowData
 
@@ -282,6 +281,7 @@ class IncrementalSolver(UnderlyingProblem):
             ruleVectors.append(solution.rules + [None,None])
 
         print "# parallel sketch jobs:",len(ruleVectors)
+        print "# data points not in window or fixed:",len(self.data) - self.window - len(self.fixedUnderlyingForms)
 
         # Ensure output is nicely ordered
         flushEverything()
