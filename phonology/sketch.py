@@ -48,6 +48,8 @@ def isDeletionRule(r): return r.structuralChange == None
 def doNothingRule(*a): pass
 @sketchImplementation("index_word")
 def indexWord(*a): pass
+@sketchImplementation("rule_does_nothing")
+def ruleDoesNothing(*a): pass
 
 def makeConstantVector(v):
     return Array(map(Constant,v))

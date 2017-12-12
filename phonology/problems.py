@@ -2581,3 +2581,6 @@ nineProblems = [
 # 	pla:tno	pla:ten	‘linen’
 # ''')]
 ]
+
+
+MATRIXPROBLEMS = underlyingProblems + interactingProblems + sevenProblems

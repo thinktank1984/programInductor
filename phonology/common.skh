@@ -3,7 +3,7 @@
 #ifndef ALTERNATIONPROBLEM
 #define MAXIMUMCOST 12
 #else
-#define MAXIMUMCOST 14
+#define MAXIMUMCOST 20
 #endif
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
@@ -14,11 +14,6 @@ int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 void printNumber(int stuff) {}
 @Native("{std::cout << stuff; }")
 Sound printPhoneme(Sound stuff) { return stuff; }
-
-/* struct Sound {//@Immutable("") */
-/*   bit[NUMBEROFFEATURES] f; */
-/* } */
-
 
 struct Word {@Immutable("")
   int l;
@@ -597,10 +592,13 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
   return okay;
 }
 
+bit rule_does_nothing(Rule r){
+  return r.copyOffset == 0 && empty_specification(r.focus) && empty_specification(r.structural_change) &&
+    !guard_does_something(r.right_trigger) && !guard_does_something(r.left_trigger);
+}
 
 int rule_cost(Rule r) {
-  if (r.copyOffset == 0 && empty_specification(r.focus) && empty_specification(r.structural_change) &&
-      !guard_does_something(r.right_trigger) && !guard_does_something(r.left_trigger)) return 0;
+  if (rule_does_nothing(r)) return 0;
 #ifdef UNIVERSALRULEGRAMMAR
   UNIVERSALRULEGRAMMAR
 #endif

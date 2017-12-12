@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import tempfile
 import sys
-import pickle
+import cPickle as pickle
 import math
 import random
 import itertools

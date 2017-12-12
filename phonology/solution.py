@@ -7,6 +7,18 @@ from fragmentGrammar import getEmptyFragmentGrammar
 
 import math
 
+class AlternationSolution():
+    def __init__(self, data, substitution, rules):
+        self.data = data
+        self.substitution = substitution
+        self.rules = rules
+
+    def underlyingForms(self):
+        return [self.applySubstitution(w) for w in self.data ]
+    def applySubstitution(self,w):
+        return Morph([self.substitution.get(x,x) for x in w.phonemes])
+
+
 class Solution():
     def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
         assert len(prefixes) == len(suffixes)

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from morph import *
 from features import FeatureBank, tokenize
 from rule import Rule
 from sketch import *
+from solution import *
 
 from problems import alternationProblems, toneProblems
 
@@ -20,13 +22,13 @@ class AlternationProblem():
         self.deepToSurface = dict([(self.surfaceToUnderlying[k],k) for k in self.surfaceToUnderlying ])
         
         # only extract the relevant parts of the corpus for the problem
-        corpus = [w for w in corpus
+        corpus = [Morph(w) for w in corpus
                   if [p for p in self.surfaceToUnderlying.values() + self.surfaceToUnderlying.keys()
                       if p in w ] ]
         self.bank = FeatureBank(corpus + alternation.keys() + alternation.values())
         self.surfaceForms = corpus
 
-        self.maximumObservationLength = max([ len(tokenize(w)) for w in corpus ])
+        self.maximumObservationLength = max([ len(w) for w in corpus ])
         
         def substitute(p):
             if p in self.surfaceToUnderlying:
@@ -37,14 +39,14 @@ class AlternationProblem():
                 if self.surfaceToUnderlying[k] == p: return k
             return p
         def applySubstitution(f, w):
-            return "".join([ f(p) for p in tokenize(w) ])
+            return Morph([ f(p) for p in w.phonemes ])
 
         self.deepAlternatives = [ (applySubstitution(substitute, w), applySubstitution(substituteBackwards, w))
                                   for w in corpus ]
 
         # if the conjectured underlying forms never occur in the surface data,
         # then we need to add a constraint saying that it has the expected orientation
-        surfacePhonemes = [ t for s in corpus for t in tokenize(s) ]
+        surfacePhonemes = [ t for s in corpus for t in s.phonemes ]
         self.forceExpected = not any([ (p in alternation.values()) for p in surfacePhonemes ])
         print "Force expected orientation?",self.forceExpected
 
@@ -69,7 +71,7 @@ class AlternationProblem():
         return solutions
 
     def sketchSolution(self, solutions):
-        depth = 1
+        depth = 2
 
         Model.Global()
 
@@ -77,29 +79,31 @@ class AlternationProblem():
         if self.forceExpected:
             condition(whichOrientation)
         rules = [ Rule.sample() for _ in range(depth)  ]
-        minimize(sum([ alternationCost(r) for r in rules ]))
+        minimize(sum([ alternationCost(r) for r in rules ] + \
+                     [ ite(ruleDoesNothing(r),Constant(0),Constant(1))
+                       for r in rules ]))
         for other in solutions:
             condition(Or([ alternationEqual(other[j].makeConstant(self.bank), rules[j]) == 0 for j in range(depth) ]))
 
         for r in rules:
             condition(isDeletionRule(r) == 0)
-            condition(fixStructuralChange(r))
 
         for j in range(len(self.surfaceForms)):
-            surface = makeConstantWord(self.bank, self.surfaceForms[j])
-            deep1 = makeConstantWord(self.bank, self.deepAlternatives[j][0])
-            deep2 = makeConstantWord(self.bank, self.deepAlternatives[j][1])
+            surface = self.surfaceForms[j].makeConstant(self.bank)
+            deep1 = self.deepAlternatives[j][0].makeConstant(self.bank)
+            deep2 = self.deepAlternatives[j][1].makeConstant(self.bank)
             deep = ite(whichOrientation,
                        deep1,
                        deep2)
             prediction = deep
             for r in rules:
-                prediction = applyRule(r, prediction, Constant(0), len(tokenize(self.surfaceForms[j])))
+                prediction = applyRule(r, prediction, Constant(0), len(self.surfaceForms[j]))
 
-            condition(wordEqual(surface, prediction))
+            auxiliaryCondition(wordEqual(self.surfaceForms[j].makeConstant(self.bank), prediction))
 
-        output = solveSketch(self.bank, self.maximumObservationLength, alternationProblem = True)
-        if not output:
+        try:
+            output = solveSketch(self.bank, self.maximumObservationLength + 1, alternationProblem = True)
+        except SynthesisFailure:
             print "Failed to find a solution"
             return None
 
@@ -108,12 +112,14 @@ class AlternationProblem():
         for r in rules:
             condition(alternationEqual(r, Rule.parse(self.bank, output, r).makeConstant(self.bank)))
         minimize(sum([ ruleCost(r) for r in rules ]))
-        output = solveSketch(self.bank, self.maximumObservationLength, alternationProblem = True)
-        if not output:
+        try:
+            output = solveSketch(self.bank, self.maximumObservationLength + 1, alternationProblem = True)
+        except SynthesisFailure:
             print "Failed to find a solution with minimal focus on structural change"
             return None   
         print "Solution found using constraint solving:"
-        print "With the expected orientation?",parseFlip(output, whichOrientation)
+        expectedOrientation = parseFlip(output, whichOrientation)
+        print "With the expected orientation?",expectedOrientation
         rules = [ Rule.parse(self.bank, output, r) for r in rules ]
         for r in rules: print r
         totalRuleCost = sum([r.cost() for r in rules ])
@@ -127,22 +133,33 @@ class AlternationProblem():
         # print "AlternationRule cost: %f"%(totalRuleCost)
         # print "(alternative) Threshold temperature for this alternation:", (totalRuleCost / self.descriptionLengthSavings)
 
-        
-        return rules
-
+        if expectedOrientation:
+            sub = list(self.surfaceToUnderlying.iteritems())
+        else:
+            sub = [ (v,k) for k,v in self.surfaceToUnderlying.iteritems() ]
+        return rules, sub
 
 def handleProblem(problemInfo):
     (problemIndex, arguments) = problemInfo
     data = toneProblems[0] if problemIndex == 'tone' else alternationProblems[problemIndex - 1]
     print data.description
+
+    compositeSubstitution = []
+    allTheRules = []
+    
     for j, alternation in enumerate(data.parameters["alternations"]):
         print "Analyzing alternation:"
         for k in alternation:
             print "\t",k,"\t",alternation[k]
         problem = AlternationProblem(alternation, data.data)
         solutions = problem.topSolutions(arguments.top)
-        if arguments.pickle and len(solutions) > 0:
-            pickle.dump(solutions, open("pickles/alternation_"+str(problemIndex)+"_"+str(j)+".p","wb"))
+        if solutions != []:
+            allTheRules += solutions[0][0]
+            compositeSubstitution += solutions[0][1]
+        
+    if arguments.pickle and len(solutions) > 0:
+        composite = AlternationSolution(map(Morph,data.data),dict(compositeSubstitution),allTheRules)
+        dumpPickle(composite, "pickles/alternation_"+str(problemIndex)+".p")
             
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Analyze an alternation to determine whether it is valid and how much it compresses the data.')
@@ -160,4 +177,4 @@ if __name__ == '__main__':
 
     # pack up the arguments and then invoke all of them in parallel
     problemInfo = [ (problemIndex,arguments) for problemIndex in problems ]
-    Pool(arguments.cores).map(handleProblem, problemInfo)
+    parallelMap(arguments.cores, handleProblem, problemInfo)
