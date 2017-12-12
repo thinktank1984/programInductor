@@ -56,9 +56,6 @@ class RuleFragment(Fragment):
                                               self.right)
     @staticmethod
     def abstract(p,q):
-        if p.copyOffset != 0 or q.copyOffset != 0:
-            raise Exception('abstractRuleFragments: copy offsets not yet supported')
-
         return [
             RuleFragment(focus,change,l,r)
             for focus in FCFragment.abstract(p.focus,q.focus)
@@ -84,10 +81,6 @@ class RuleFragment(Fragment):
 RuleFragment.BASEPRODUCTIONS = [RuleFragment(VariableFragment(FC),VariableFragment(FC),
                                              VariableFragment(Guard),VariableFragment(Guard))]
 
-'''
-This special value corresponds to the `copyOffset` of the rule
-'''
-COPYFC = u'ℤ'
 
 class FCFragment(Fragment):
     CONSTRUCTOR = FC
@@ -99,8 +92,6 @@ class FCFragment(Fragment):
     def __unicode__(self): return unicode(self.child)
 
     def match(self, program):
-        if self.child == COPYFC:
-            raise Exception('FCFragment: attempt to match against the copying fragment; should be handled by rulefragment')
         if isinstance(program, EmptySpecification):
             if isinstance(self.child, EmptySpecification):
                 return []
@@ -124,13 +115,14 @@ class FCFragment(Fragment):
         fragments = []
         if unicode(p) != unicode(q):
             fragments += [VariableFragment(FC)]
-        if (not isinstance(p,EmptySpecification)) and (not isinstance(q,EmptySpecification)):
+        if isinstance(p,OffsetSpecification) and isinstance(q,OffsetSpecification):
+            fragments += [VariableFragment(OffsetSpecification)]
+        if isinstance(p,Specification) and isinstance(q,Specification):
             fragments += SpecificationFragment.abstract(p,q)
         return fragments
 
-
 FCFragment.BASEPRODUCTIONS = [FCFragment(EmptySpecification(),-1),
-                              FCFragment(COPYSPECIFICATION,-1)
+                              FCFragment(VariableFragment(OffsetSpecification)),
                               FCFragment(VariableFragment(Specification))]
 
 class SpecificationFragment(Fragment):
@@ -162,6 +154,7 @@ class SpecificationFragment(Fragment):
     def sketchCost(self,v,b):
         assert False
 SpecificationFragment.BASEPRODUCTIONS = [SpecificationFragment(VariableFragment(FeatureMatrix)),
+                                         SpecificationFragment(VariableFragment(BoundarySpecification)),
                                          SpecificationFragment(VariableFragment(ConstantPhoneme))]
 
 class MatrixFragment(Fragment):
@@ -394,6 +387,8 @@ class FragmentGrammar():
         self.likelihoodCalculator[ConstantPhoneme] = lambda k: self.constantLogLikelihood(k)
         self.likelihoodCalculator[FeatureMatrix] = lambda m: self.matrixLogLikelihood(m)
         self.likelihoodCalculator[FC] = lambda fc:  self.fCLogLikelihood(fc)
+        self.likelihoodCalculator[BoundarySpecification] = lambda o: self.boundaryLogLikelihood(o)
+        self.likelihoodCalculator[OffsetSpecification] = lambda o: self.offsetLogLikelihood(o)
         
         # different types of fragments
         # fragments of type rule, etc
@@ -413,10 +408,12 @@ class FragmentGrammar():
 
     def __str__(self):
         def makingNamingIntuitive(n):
-            correspondence = {'Guard': 'Trigger',
-                              'Specification': 'PhonemeSet',
-                              'ConstantPhoneme': 'Phoneme'}
-            for k,v in correspondence.iteritems():
+            correspondence = [('Guard', 'Trigger'),
+                              ('BoundarySpecification', '+'),
+                              ('OffsetSpecification', 'ℤ'),
+                              ('Specification', 'PhonemeSet'),
+                              ('ConstantPhoneme', 'Phoneme')]
+            for k,v in correspondence:
                 n = n.replace(k,v)
             return n
         return formatTable([ map(makingNamingIntuitive, ["%f"%l,"%s"%t.__name__ + " ::= ", str(f) ])
@@ -478,6 +475,18 @@ class FragmentGrammar():
             return -log(float(self.numberOfPhonemes)), {}
         else:
             raise Exception('constantLogLikelihood: did not get a constant')
+
+    def offsetLogLikelihood(self, o):
+        if isinstance(o,OffsetSpecification):
+            return -log(4.0), {}
+        else:
+            raise Exception('offsetLogLikelihood: did not get offset')
+
+    def boundaryLogLikelihood(self, o):
+        if isinstance(o,BoundarySpecification):
+            return 0.0, {}
+        else:
+            raise Exception('boundaryLogLikelihood: did not get boundary')
 
     def matrixSizeLogLikelihood(self,l):
         if l == 0: return log(0.3)
@@ -589,7 +598,7 @@ if __name__ == '__main__':
     
     
     print str(EMPTYFRAGMENTGRAMMAR)
-    r = parseRule('e > f / # _ [ -voice ]* h #')
+    r = parseRule('0 > 1 / # _ [ -voice ]* h #')
     print r
     print EMPTYFRAGMENTGRAMMAR.ruleLogLikelihood(r)
     print EMPTYFRAGMENTGRAMMAR.insideOutside([[r]],smoothing = 0)

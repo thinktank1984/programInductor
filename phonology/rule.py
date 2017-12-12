@@ -119,7 +119,7 @@ class ConstantPhoneme(Specification,FC):
     def sketchEquals(self,v,b):
         return "(extract_constant_sound(%s) == phoneme_%d)"%(v,b.phoneme2index[self.p])
 
-class EmptySpecification(Specification,FC):
+class EmptySpecification(FC):
     def __init__(self): pass
     def __unicode__(self): return u"Ø"
     def __str__(self): return unicode(self).encode('utf-8')
@@ -156,6 +156,44 @@ class EmptySpecification(Specification,FC):
 
     def sketchEquals(self,v,_):
         return "((%s) == null)"%(v)
+
+class OffsetSpecification(FC):
+    def __init__(self,offset):
+        assert offset != 0
+        self.offset = offset
+    def __unicode__(self): return unicode(self.offset)
+    def __str__(self): return unicode(self).encode('utf-8')
+
+    def doesNothing(self): return False
+    def skeleton(self): return "Z"
+    def cost(self): return 1
+    def latex(self): return '$%d$'%self.offset
+    def mutate(self,_): return self
+
+    def share(self, table):
+        k = ('OFFSETSPECIFICATION',unicode(self))
+        if k in table: return table[k]
+        table[k] = self
+        return self
+
+    def merge(self, other):
+        if isinstance(other, OffsetSpecification) and self.offset == other.offset: return self
+        return Braces(self, other)
+
+    @staticmethod
+    def parse(bank, output, variable):
+        print "Fatal error: attempt to parse OffsetSpecification"
+        assert False
+    def makeConstant(self, bank):
+        return FeatureMatrix([]).makeConstant(bank)
+
+    def matches(self, test):
+        raise Exception('cannot match offset')
+    def apply(self, test):
+        raise Exception('cannot apply offset')
+
+    def sketchEquals(self,v,bank):
+        return FeatureMatrix([]).sketchEquals(v,bank)
 
 class BoundarySpecification(Specification):
     def __init__(self): pass
@@ -501,25 +539,28 @@ class Guard():
         
     
 class Rule():
-    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers, copyOffset):
+    def __init__(self, focus, structuralChange, leftTriggers, rightTriggers):
         self.focus = focus
         self.structuralChange = structuralChange
         self.leftTriggers = leftTriggers
         self.rightTriggers = rightTriggers
-        self.copyOffset = copyOffset
         self.representation = None # Unicode representation
+        if isinstance(self.focus,OffsetSpecification):
+            assert isinstance(self.structuralChange,EmptySpecification)
+            assert self.focus.offset == 1
+        if isinstance(self.structuralChange,OffsetSpecification):
+            assert isinstance(self.focus,EmptySpecification)
 
     def isGeminiRule(self):
-        return self.copyOffset == 1 and isinstance(self.structuralChange,EmptySpecification)
+        return isinstance(self.focus,OffsetSpecification) and self.focus.offset == 1 and isinstance(self.structuralChange,EmptySpecification)
     def isCopyRule(self):
-        return self.copyOffset != 0 and isinstance(self.focus,EmptySpecification)
+        return isinstance(self.structuralChange,OffsetSpecification) and isinstance(self.focus,EmptySpecification)
 
     def merge(self, other):
         return Rule(self.focus.merge(other.focus),
                     self.structuralChange.merge(other.structuralChange),
                     self.leftTriggers.merge(other.leftTriggers),
-                    self.rightTriggers.merge(other.rightTriggers),
-                    self.copyOffset if self.copyOffset == other.copyOffset else Braces(self.copyOffset,other.copyOffset))
+                    self.rightTriggers.merge(other.rightTriggers))
                     
     def share(self, table):
         k = ('RULE',unicode(self))
@@ -527,27 +568,25 @@ class Rule():
         table[k] = Rule(self.focus.share(table),
                         self.structuralChange.share(table),
                         self.leftTriggers.share(table),
-                        self.rightTriggers.share(table),
-                        self.copyOffset)
+                        self.rightTriggers.share(table))
         return table[k]
 
     def cost(self):
         if self.doesNothing(): return 0
-        return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost() + (0 if self.copyOffset == 0 else 1)
+        return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
     def alternationCost(self):
         return self.leftTriggers.cost() + self.rightTriggers.cost()   
 
     def doesNothing(self):
         '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''
-        return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing() and self.copyOffset == 0
+        return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing()
 
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         if not hasattr(self, 'representation') or self.representation == None:
-            if not hasattr(self, 'copyOffset'): self.copyOffset = 0
             # check this: should I be calling Unicode recursively?
-            self.representation = u"{} ---> {} / {} _ {}".format(unicode(self.focus) if not self.isGeminiRule() else self.copyOffset,
-                                                                 unicode(self.structuralChange) if not self.isCopyRule() else self.copyOffset,
+            self.representation = u"{} ---> {} / {} _ {}".format(unicode(self.focus),
+                                                                 unicode(self.structuralChange),
                                                                  unicode(self.leftTriggers),
                                                                  unicode(self.rightTriggers))
         return self.representation
@@ -559,7 +598,7 @@ class Rule():
                                              self.rightTriggers.skeleton())
     def latex(self):
         return "{} $\\to$ {} / {} \\verb|_| {}".format(self.focus.latex(),
-                                                       self.structuralChange.latex() if self.copyOffset == 0 else self.copyOffset,
+                                                       self.structuralChange.latex(),
                                                        self.leftTriggers.latex(),
                                                        self.rightTriggers.latex())
 
@@ -572,19 +611,26 @@ class Rule():
         p += u'⟶'
         # insertion and copying
         if self.isCopyRule():
-            if self.copyOffset > 0: p += unicode(self.rightTriggers.specifications[self.copyOffset - 1])
-            else: p += unicode(self.leftTriggers.specifications[-self.copyOffset - 1])
+            copyOffset = self.structuralChange.offset
+            if copyOffset > 0: p += unicode(self.rightTriggers.specifications[copyOffset - 1])
+            else: p += unicode(self.leftTriggers.specifications[-copyOffset - 1])
             p += u'ᵢ'
-        else: p += unicode(self.structuralChange)
+        else:
+            p += unicode(self.structuralChange)
+            copyOffset = 0
         p += u' / '
-        p += self.leftTriggers.pretty(self.copyOffset)
+        p += self.leftTriggers.pretty(copyOffset)
         p += u' _ '
-        p += self.rightTriggers.pretty(self.copyOffset)
+        p += self.rightTriggers.pretty(copyOffset)
         p = p.replace(u"[ +vowel ]","V")
         p = p.replace(u"[ -vowel ]","C")
+        p = p.replace(u'  ',u" ")
         return p
         
-
+    def calculateCopyOffset():
+        if isinstance(self.focus,OffsetSpecification): return self.focus.offset
+        if isinstance(self.structuralChange,OffsetSpecification): return self.structuralChange.offset
+        return 0
     
     def mutate(self,bank):
         f = self.focus
@@ -600,7 +646,7 @@ class Rule():
             l = l.mutate(bank) if random() < 0.8 else Guard.sample(bank,'L')
         if random() < 0.3:
             r = r.mutate(bank) if random() < 0.8 else Guard.sample(bank,'R')
-        return Rule(f,s,l,r,0)
+        return Rule(f,s,l,r)
 
     def calculateMapping(self,bank):
         insertion = False
@@ -644,7 +690,7 @@ class Rule():
                                                                                                                                   self.structuralChange.makeConstant(bank),
                                                                                                                                   self.leftTriggers.makeConstant(bank),
                                                                                                                                   self.rightTriggers.makeConstant(bank),
-                                                                                                                                  self.copyOffset))
+                                                                                                                                  self.calculateCopyOffset()))
 
     # Returns a variable that refers to a sketch object
     def makeDefinition(self, bank):
@@ -672,85 +718,16 @@ class Rule():
         leftTrigger = Guard.parse(bank, output, m.group(3), 'L')
         rightTrigger = Guard.parse(bank, output, m.group(4), 'R')
         copyOffset = int("".join([ c for c in m.group(5) if not c in [')','('] ]))
-        return Rule(focus, structuralChange, leftTrigger, rightTrigger, copyOffset)
-
-    def apply(self, u):
-        # First off we convert u to feature matrices if it is a morph
-        if isinstance(u,Morph):
-            u = [ featureMap[p] for p in u.phonemes ]
-            
-        middleOkay = [ self.focus.matches(p) for p in u ]
-
-        leftOkay = []
-        accepting = False
-        # check to see if the left matches
-        for j in range(len(u)):
-            okay = True
-            if self.leftTriggers.starred:
-                if j == 0:
-                    okay = False
-                    accepting = self.leftTriggers.specifications[1].matches(u[0])
-                else:
-                    okay = accepting
-                    accepting = ((not self.leftTriggers.endOfString) and self.leftTriggers.specifications[1].matches(u[j])) or (accepting and self.leftTriggers.specifications[0].matches(u[j]))
-            elif self.leftTriggers.endOfString and len(self.leftTriggers.specifications) == 0: # #_
-                okay = j == 0
-            elif self.leftTriggers.specifications != []:
-                okay = j > 0 and self.leftTriggers.specifications[0].matches(u[j - 1])
-                if len(self.leftTriggers.specifications) == 2: # (#?)gg_
-                    okay = okay and j > 1 and self.leftTriggers.specifications[1].matches(u[j - 2])
-
-                if self.leftTriggers.endOfString:
-                    if len(self.leftTriggers.specifications) == 1:
-                        okay = okay and j == 1
-                    else:
-                        okay = okay and j == 2
-            leftOkay.append(okay)
-
-        # do the same thing on the right but walk backwards
-        rightOkay = [None]*len(u)
-        accepting = False
-        for j in range(len(u) - 1, -1, -1):
-            okay = True
-            if self.rightTriggers.starred: # _g*g(#?)
-                if j == len(u) - 1:
-                    okay = False
-                    accepting = self.rightTriggers.specifications[1].matches(u[len(u) - 1])
-                else:
-                    okay = accepting
-                    accepting = ((not self.rightTriggers.endOfString) and self.rightTriggers.specifications[1].matches(u[j])) or (accepting and self.rightTriggers.specifications[0].matches(u[j]))
-            elif self.rightTriggers.endOfString and self.rightTriggers.specifications == []: # _#
-                okay = j == len(u) - 1
-            elif self.rightTriggers.specifications != []: # _gg?#?
-                okay = j < len(u) - 1 and self.rightTriggers.specifications[0].matches(u[j + 1])
-                if len(self.rightTriggers.specifications) == 2: # _gg#?
-                    okay = okay and j < len(u) - 2 and self.rightTriggers.specifications[1].matches(u[j + 2])
-
-                if self.rightTriggers.endOfString:
-                    if len(self.rightTriggers.specifications) == 1: # _g#
-                        okay = okay and j == len(u) - 2
-                    else: # _gg#
-                        okay = okay and j == len(u) - 3
-            rightOkay[j] = okay
-                
-            
-        triggered = [ middleOkay[j] and rightOkay[j] and leftOkay[j] for j in range(len(u)) ]
-
-        change = self.structuralChange
-        if isinstance(change,EmptySpecification):
-            return [ u[j] for j in range(len(u)) if not triggered[j] ]
-        elif isinstance(self.focus, EmptySpecification):
-            output = []
-            if self.rightTriggers.endOfString and self.rightTriggers.specifications == []: # l_#
-                pass
-            for j in range(len(u)):
-                if j > 0 and leftOkay[j] and rightOkay[j - 1]:
-                    output.append(change.apply(None))
-                output.append(u[j])
-            return output
-        else:
-            return [ (u[j] if not triggered[j] else change.apply(u[j])) for j in range(len(u)) ]
-
+        if copyOffset != 0:
+            if isinstance(focus,EmptySpecification):
+                structuralChange = OffsetSpecification(copyOffset)
+            elif isinstance(structuralChange,EmptySpecification):
+                focus = OffsetSpecification(copyOffset)
+            else:
+                print "Problem with copy offset in parsed rule:"
+                print output
+                assert False
+        return Rule(focus, structuralChange, leftTrigger, rightTrigger)
 
     @staticmethod
     def enumeration(b,cost):
@@ -782,14 +759,14 @@ class Rule():
         return results
 
     def sketchEquals(self,v,b):
-        return "(%s.copyOffset == %d && %s && %s && %s && %s)"%(v,self.copyOffset,
+        return "(%s.copyOffset == %d && %s && %s && %s && %s)"%(v,self.calculateCopyOffset(),
                                                                 self.focus.sketchEquals(v+'.focus',b),
                                                                 self.structuralChange.sketchEquals(v+'.structural_change',b),
                                                                 self.leftTriggers.sketchEquals(v+'.left_trigger',b),
                                                                 self.rightTriggers.sketchEquals(v+'.right_trigger',b))
 
     def explain(self,b):
-        if self.copyOffset == 0:
+        if self.calculateCopyOffset() == 0:
             print "\tMAPPING:",u"  ".join([ k + u'⟶' + unicode(v)
                                             for k,v in self.calculateMapping(b).iteritems()])
         else:
@@ -801,21 +778,8 @@ class Rule():
 EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  structuralChange = FeatureMatrix([]),
                  leftTriggers = Guard('L',False,False,False,[]),
-                 rightTriggers = Guard('R',False,False,False,[]),
-                 copyOffset = 0)
+                 rightTriggers = Guard('R',False,False,False,[]))
 assert EMPTYRULE.doesNothing()
 
 
-if __name__ == '__main__':
-    from problems import *
-    from time import time
-    b = FeatureBank([w
-                     for l in underlyingProblems[1].data[:1] for w in l ])
-    for c in range(9):
-        startTime = time()
-        candidates = Rule.enumeration(b,c)
-        print "# rules of cost less than",c,"is",len(candidates)
-        print "enumerated in %f sec"%(time() - startTime)
-        for r in candidates[:10]:
-            print "\t",r
 

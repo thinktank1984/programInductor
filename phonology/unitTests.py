@@ -66,6 +66,27 @@ def useUniversal():
     ug = FragmentGrammar.load('universalGrammars/groundTruth.p')
     s = UnderlyingProblem(underlyingProblems[1].data, UG = ug).sketchJointSolution(1, canAddNewRules = False)
     s.modelCost(ug)
+@test
+def learnUniversal():
+    ug = getEmptyFragmentGrammar()
+    for p in MATRIXPROBLEMS:
+        if isinstance(p,Problem) and p.solutions != []:
+            for s in p.solutions:
+                # See if we can evaluate the likelihood
+                s = parseSolution(s)
+                assert isFinite(s.modelCost(ug))
+
+                # See if we can learn the parameters
+                frontiers = [ [r] for r in s.rules ]
+                beforeLearning = ug.frontiersLikelihood(frontiers)
+                learnedGrammar = ug.estimateParameters(frontiers)
+                afterLearning = learnedGrammar.frontiersLikelihood(frontiers)
+                assert afterLearning > beforeLearning
+
+                # See if we can learn the structure
+                structure = induceFragmentGrammar(frontiers, smoothing = 0.0).estimateParameters(frontiers)
+                assert structure.frontiersLikelihood(frontiers) >= afterLearning
+                
     
 @test
 def spread():

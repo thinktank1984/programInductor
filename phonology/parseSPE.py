@@ -115,7 +115,7 @@ guardSpecificationParser = concatenate(alternation(specificationParser,optionalE
 nullParser = alternation(constantParser("0",EmptySpecification()),
                          constantParser(u"Ø",EmptySpecification()))
 
-focusChangeParser = alternation(*([ constantParser(str(n),n) for n in [-2,-1,1,2] ] + [specificationParser,nullParser]))
+focusChangeParser = alternation(*([ constantParser(str(n),OffsetSpecification(n)) for n in [-2,-1,1,2] ] + [specificationParser,nullParser]))
 
 rightGuardParser = whitespaceDelimitedSequence(repeat(whitespaceDelimited(guardSpecificationParser)),
                                                optional(constantParser('#','#')))
@@ -158,15 +158,7 @@ def parseRule(s):
               starred = any([s == '*' for _,s in rs ]),
               side = 'R')
 
-    copyOffset = 0
-    if focus in [-2,-1,1,2]:
-        copyOffset = focus
-        focus = FeatureMatrix([])
-    if change in [-2,-1,1,2]:
-        copyOffset = change
-        change = FeatureMatrix([])
-
-    return Rule(focus, change, l,r,copyOffset)
+    return Rule(focus, change, l,r)
 
 def parseSolution(s):
     def removeComment(y):
