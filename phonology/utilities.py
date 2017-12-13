@@ -86,18 +86,18 @@ def loadPickle(f):
         o = pickle.load(handle)
     return o
 
-def parallelMap(numberOfCPUs, f, xs):
+def parallelMap(numberOfCPUs, f, *xs):
     from pathos.multiprocessing import ProcessingPool as Pool
     
-    if numberOfCPUs == 1: return map(f,xs)
+    if numberOfCPUs == 1: return map(f,*xs)
     def safeCall(x):
         try:
-            y = f(x)
+            y = f(*x)
             return y
         except Exception as e:
             print "Exception in worker during parallel map:\n%s"%(traceback.format_exc())
             raise e
-    return Pool(numberOfCPUs).map(safeCall,xs)
+    return Pool(numberOfCPUs).map(safeCall,zip(*xs))
             
             
 

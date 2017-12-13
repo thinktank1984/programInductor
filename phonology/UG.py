@@ -223,7 +223,35 @@ def loadAllSolutions():
     print "Loaded all solutions in %d seconds"%(int(time() - startTime))
     return allSolutions, PICKLES
 
+def worker((problemsIndex, problems)):
+    if arguments.task == 'fromGroundTruth':
+        groundTruthSolutions = []
+        for problem in problems:
+            if isinstance(problem,Problem):
+                for s in problem.solutions:
+                    print s
+                    groundTruthSolutions.append(parseSolution(s))
+        print "Successfully loaded %s solutions"%(len(groundTruthSolutions))
+        groundTruthRules = [ [r] for s in groundTruthSolutions for r in s.rules ]
+        print "Going to induce a fragment grammar from %d rules"%(len(groundTruthRules))
+        g = induceFragmentGrammar(groundTruthRules)
+    elif arguments.task == 'fromFrontiers':
+        frontiers = []
+        fs = os.listdir('frontierPickles')
+        for f in fs:
+            frontiers += loadPickle('frontierPickles/' + f)
+        print "Successfully loaded %s frontiers from %s pickles."%(len(frontiers),len(fs))
+        g = induceFragmentGrammar(frontiers)
 
+    if arguments.export != None:
+        exportPath = arguments.export
+        if arguments.curriculum:
+            assert arguments.export.endswith('.p')
+            exportPath = arguments.export[:-2] + "_curriculum" + str(problemsIndex) + ".p"
+        print "Exporting universal grammar to %s"%(exportPath)
+        g.export(exportPath)
+
+    
 
 if __name__ == '__main__':
     import argparse
@@ -233,6 +261,7 @@ if __name__ == '__main__':
     parser.add_argument('task',choices = ['fromGroundTruth','fromFrontiers'])
     parser.add_argument('--export', type = str, default = None)
     parser.add_argument('--curriculum', default = False, action = 'store_true')
+    parser.add_argument('--CPUs', type = int, default = 1)
     
     arguments = parser.parse_args()
 
@@ -241,31 +270,4 @@ if __name__ == '__main__':
     else:
         toLearnFrom = [MATRIXPROBLEMS[:j] for j in range(0,len(MATRIXPROBLEMS)) ]
 
-    for problemsIndex,problems in enumerate(toLearnFrom):
-        if arguments.task == 'fromGroundTruth':
-            groundTruthSolutions = []
-            for problem in problems:
-                if isinstance(problem,Problem):
-                    for s in problem.solutions:
-                        print s
-                        groundTruthSolutions.append(parseSolution(s))
-            print "Successfully loaded %s solutions"%(len(groundTruthSolutions))
-            groundTruthRules = [ [r] for s in groundTruthSolutions for r in s.rules ]
-            print "Going to induce a fragment grammar from %d rules"%(len(groundTruthRules))
-            g = induceFragmentGrammar(groundTruthRules)
-        elif arguments.task == 'fromFrontiers':
-            frontiers = []
-            fs = os.listdir('frontierPickles')
-            for f in fs:
-                frontiers += loadPickle('frontierPickles/' + f)
-            print "Successfully loaded %s frontiers from %s pickles."%(len(frontiers),len(fs))
-            g = induceFragmentGrammar(frontiers)
-
-        if arguments.export != None:
-            exportPath = arguments.export
-            if arguments.curriculum:
-                assert arguments.export.endswith('.p')
-                exportPath = arguments.export[:-2] + "_curriculum" + str(problemsIndex) + ".p"
-            print "Exporting universal grammar to %s"%(exportPath)
-            g.export(exportPath)
-
+    parallelMap(arguments.CPUs, worker, list(enumerate(toLearnFrom)))
