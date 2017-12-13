@@ -622,18 +622,6 @@ underlyingProblems.append(Problem(
     u'''
 2. Kikuyu
 	What is the underlying form of the infinitive prefix in Kikuyu? Give a rule that explains the non-underlying pronunciation of the prefix.
-    ko in context:
-    {r,o,m,h,ɣ,i}
-    ɣo in context:
-    {t,k,č}
-
-    System discovers: (todo: bug? see the other solution below)
-    ɣ > k / # _ [ -affricate -stop ] o
-Final solution:
-Morphological analysis:
-Inflection 0:	/ ɣ o / + stem + / a /
-Phonological rules:
-[  ] ---> k / # _ [  ] [ -affricate -stop ]
     ''',
     [(u"ɣotɛŋɛra",),
      (u"ɣokuua",),
@@ -650,7 +638,7 @@ Phonological rules:
      (u"koɣaya",)],
     solutions = [u'''
 ko + stem + a
-    k ---> ɣ / # _ V [ -continuant ]
+    k ---> ɣ / # _ V [ -continuant -sonorant ]
 ''']))
 
 underlyingProblems.append(Problem(
