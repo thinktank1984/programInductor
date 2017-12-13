@@ -108,7 +108,8 @@ def handleProblem(parameters):
                       numberOfSamples = parameters['samples'])
             assert False
         elif parameters['task'] == 'incremental':
-            ss = IncrementalSolver(p.data,parameters['window'],UG = ug).\
+            ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
+                                   numberOfCPUs = 1 if parameters['serial'] else None).\
                  restrict(restriction).\
                  incrementallySolve(saveProgressTo = parameters['save'],
                                     loadProgressFrom = parameters['restore'])

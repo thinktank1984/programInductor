@@ -84,7 +84,8 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
 class IncrementalSolver(UnderlyingProblem):
     def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
-        self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else utilities.numberOfCPUs()/2
+        self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else \
+                            int(math.ceil(utilities.numberOfCPUs()*0.75))
 
         self.maximumNumberOfRules = maximumNumberOfRules
         
@@ -281,7 +282,7 @@ class IncrementalSolver(UnderlyingProblem):
             ruleVectors.append(solution.rules + [None,None])
 
         print "# parallel sketch jobs:",len(ruleVectors)
-        print "# data points not in window or fixed:",len(self.data) - self.window - len(self.fixedUnderlyingForms)
+        print "# data points not in window or fixed:",len(self.data) - self.windowSize - len(self.fixedUnderlyingForms)
 
         # Ensure output is nicely ordered
         flushEverything()
