@@ -930,12 +930,11 @@ underlyingProblems.append(Problem(
      (u"æsk",u"æskt",u"æsks"),
      (u"wɛrk",u"wɛrkt",u"wɛrks"),
      (u"kɩs",u"kɩst",u"kɩsəz"),
-     (u"ǰʌǰ",u"ǰʌǰd",u"ǰʌǰəz"),
      (u"fɩš",u"fɩšt",u"fɩšəz"),
      (u"kwɩz",u"kwɩzd",u"kwɩzəz"),
      (u"bʌz",u"bʌzd",u"bʌzəz"),
      (u"wet",u"wetəd",u"wets"),
-     (u"wed",u"wedəd",u"weds"),     
+     (u"wed",u"wedəd",u"wedz"),     
      (u"lɩft",u"lɩftəd",u"lɩfts"),
      ],
     solutions = [u'''
@@ -944,8 +943,8 @@ underlyingProblems.append(Problem(
  + stem + z
     0 > ə / [-continuant -sonorant +coronal] _ d#
     0 > ə / [+sibilant] _ z#
-    d > t / [-voice]_#
-    z > s / [-voice]_#''']))
+    d > [-voice] / [-voice]_#
+    z > [-voice] / [-voice]_#''']))
 
 underlyingProblems.append(Problem(
     '''
