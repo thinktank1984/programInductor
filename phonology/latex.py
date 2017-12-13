@@ -121,8 +121,10 @@ def latexSolutionAndProblem(path):
         print "Could not find the problem for path",path
         assert False
 
+    r = "\\emph{%s:}\\\\"%(problem.languageName.replace('-','--'))
+    
     if problem.parameters == None:
-        r = "\\begin{longtable}{%s}\\toprule\n"%("l"*len(solution.prefixes) + "|l")
+        r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(solution.prefixes) + "|l")
         r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + " $+$stem$+$ " + ("$\\varnothing$" if len(s) == 0 else latexWord(s))
                           for p,s in zip(solution.prefixes, solution.suffixes) ] + ["UR"])
         r += "\n\\\\ \\midrule\n"
@@ -136,7 +138,7 @@ def latexSolutionAndProblem(path):
         rules = solution.rules
 
     elif "Numbers between" in problem.description:
-        r = "\\begin{longtable}{%s}\\toprule\n"%("ll")
+        r += "\\begin{longtable}{%s}\\toprule\n"%("ll")
         r += " & ".join([ "Number","Surface form"])
         r += "\n\\\\ \\midrule\n"
         for j in range(len(problem.data)):
@@ -149,7 +151,7 @@ def latexSolutionAndProblem(path):
     elif "alternations" in problem.parameters:
         assert str(solution.__class__) == 'solution.AlternationSolution'
         
-        r = "\\begin{longtable}{%s}\\toprule\n"%("ll")
+        r += "\\begin{longtable}{%s}\\toprule\n"%("ll")
         r += " & ".join([ "Surface form","UR"])
         r += "\n\\\\ \\midrule\n"
         for x in problem.data:

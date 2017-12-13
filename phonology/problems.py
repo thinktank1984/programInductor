@@ -57,6 +57,14 @@ class Problem():
                                   for x in inflections ])
                           for inflections in data ]
 
+        for l in description.split("\n"):
+            l = l.strip().replace(':','')
+            if len(l) > 0:
+                if l[0] in '0123456789': l = ' '.join(l.split(' ')[1:])
+                self.languageName = l
+                break
+            
+
         # As a sanity check we try to tokenize all of the data
         # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features
         for d in self.data:
@@ -446,7 +454,7 @@ todo: incorporate optional rules
 
 alternationProblems.append(Problem(
     u'''
-'10: Quechua (Cuzco dialect)
+10: Quechua (Cuzco dialect)
 	Describe the distribution of the following four sets of segments: k, x, q, χ; ŋ, N; i, e; u, o. Some pairs of these segments are allophones (positional variants) of a single segment. You should state which contrasts are phonemic (unpredictable) and which could be predicted by a rule. For segments which you think are positional variants of a single phoneme, state which phoneme you think is the underlying variant, and explain why you think so; provide a rule which accounts for all occurrences of the predictable variant. (Reminder: N is a uvular nasal).
     [ +sonorant +velar ] ---> [ +uvular -low -sonorant -front -liquid -velar ] /  _ [ +uvular ]
     [ -middle +front -liquid +voice ] ---> [ -high +middle ] / [ -palatal -aspirated -nasal ] _ [ -fricative -bilabial ]* [ -glide -nasal -coronal ]
@@ -514,21 +522,6 @@ alternationProblems.append(Problem(
     u'''
 11: Lhasa Tibetan
 	There is no underlying contrast in this language between velars and uvulars, or between voiced or voiceless stops or fricatives (except /s/, which exists underlyingly). State what the underlying segments are, and give rules which account for the surface distribution of these consonant types. [Notational reminder: [G] represents a voiced uvular stop]
-    Cornel treated specially!
-    uvula context:
-    _ {a,o,ɔ,ã,G}
-    velar context:
-    _ {u,ṭ,ɨ,i,ɩ,ɛ,e,g,b}
-    
-    {a,o,ɔ} follows uvular [-hi,-front]
-    
-    voice(less) stop:
-    voice context:
-    {ŋ,N,m}_{u,a,o}
-    voiceless context:
-    {ŋ,u,a}
-
-[ -retroflex +velar ] ---> [ +uvular -sonorant -central -velar ] /  _ g* [ -high -stop -front ]    
     ''',
     [
 	u"aŋgu",	#"pigeon"
@@ -595,7 +588,7 @@ alternationProblems.append(Problem(
 # Chapter 4
 underlyingProblems = []
 underlyingProblems.append(Problem(
-    u'''"
+    u'''
 1. Axininca Campa
 	Provide underlying representations and a phonological rule which will account for the following alternations.
     Output of system:
@@ -866,7 +859,8 @@ ǰ ---> š /  _ #''']))
 
 underlyingProblems.append(Problem(
     '''
-    Samoan: example from the textbook.
+    Samoan
+example from the textbook.
 (problem 10)
     ''',
     [
@@ -891,7 +885,8 @@ i ---> Ø / [ +vowel -back ] _
 
 underlyingProblems.append(Problem(
     '''
-    Russian: devoicing of word final obscurant
+    Russian
+ devoicing of word final obscurant
 (problem 11)
     ''',
     [
@@ -918,7 +913,8 @@ underlyingProblems.append(Problem(
 
 underlyingProblems.append(Problem(
     '''
-    English verb inflections.
+    English 
+verb inflections.
 (problem 12)
     ''',
     [(u"ro",u"rod",u"roz"),
@@ -948,7 +944,8 @@ underlyingProblems.append(Problem(
 
 underlyingProblems.append(Problem(
     '''
-    Finnish nominative versus positive.
+    Finnish
+ nominative versus positive.
     Textbook solution:
     æ > a / [+back] [ ]* _ #
     e > i / _ #
@@ -982,7 +979,8 @@ underlyingProblems.append(Problem(
 
 underlyingProblems.append(Problem(
     '''
-    Lithuanian voicing assimilation & epenthesis
+    Lithuanian 
+voicing assimilation & epenthesis
 (problem 14)
 todo: not enough data for it to get this one
     ''',
@@ -1008,7 +1006,8 @@ at + stem + ti
 
 underlyingProblems.append(Problem(
     '''
-    Armenian voicing assimilation & epenthesis
+    Armenian 
+voicing assimilation & epenthesis
 (problem 15)
 todo: not enough data for it to get this one
     ''',
@@ -2313,7 +2312,8 @@ sevenProblems.append(Problem('''10: Sakha (Yakut)
 	# tiiŋ	tiiŋmit	squirrel	oron	orommut	bed
 	# kün	kümmüt	day
 sevenProblems.append(Problem('''	
-11: Sadžava Ukrainian
+11: Sadzava Ukrainian
+Sadžava Ukrainian
 	Give a phonological analysis of the following data. Assume that all surface occurrences of ky and gy in this language are derived by rule. Also assume that stress is located on the proper vowel in the underlying representation: the rules for shifting stress are too complex to be considered here. Nouns in declension II depalatalizes a consonant before the locative suffix, and nouns in declension III depalatalize in the genitive. The variation in the genitive and locative sg. suffix in declension I (-i or -a versus -u) is lexically governed: do not write rules which select between these suffixes. Concentrate on extablishing the correct underlying representations for the noun stem.
 ''',[
 #	Declension I
