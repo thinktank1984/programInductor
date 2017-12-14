@@ -125,7 +125,8 @@ class IncrementalSolver(UnderlyingProblem):
         fixed = []
         for j in range(self.numberOfInflections):
             # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
-            inflectionExamples = len([ None for l in trainingData if l[j] != None ])            
+            inflectionExamples = len([ None for l,_ in zip(trainingData,solution.underlyingForms)
+                                       if l[j] != None ])            
             if inflectionExamples >= self.fixedMorphologyThreshold:
                 fixed.append((solution.prefixes[j], solution.suffixes[j]))
                 print "Fixing morphology of inflection %d to %s + stem + %s"%(j,
