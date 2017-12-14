@@ -412,4 +412,4 @@ class IncrementalSolver(UnderlyingProblem):
                 print " [+] Saving progress to %s"%saveProgressTo
                 dumpPickle((j,None,solution),saveProgressTo)            
 
-        return solution.solveUnderlyingForms()
+        return self.solveUnderlyingForms(solution)
