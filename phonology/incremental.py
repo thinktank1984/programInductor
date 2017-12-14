@@ -82,12 +82,13 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
              for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None):
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None, maximumRadius = 2):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else \
                             int(math.ceil(utilities.numberOfCPUs()*0.75))
 
         self.maximumNumberOfRules = maximumNumberOfRules
+        self.maximumRadius = maximumRadius
         
         totalNumberOfWords = len([ x for i in self.data for x in i if x != None ])
         wordsPerDataPoint = float(totalNumberOfWords)/len(self.data)
@@ -385,7 +386,7 @@ class IncrementalSolver(UnderlyingProblem):
                     print "No incremental modification within radius of size %d"%radius
                     radius += 1
                     print "Increasing search radius to %d"%radius
-                    if radius > 1:
+                    if radius > self.maximumRadius:
                         print "I refuse to use a radius this big."
                         self.windowSize -= 1
                         if self.windowSize > 0:

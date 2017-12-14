@@ -61,7 +61,7 @@ class Specification():
     
     @staticmethod
     def parse(bank, output, variable):
-        parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse]
+        parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse,OffsetSpecification.parse]
         for parser in parsers:
             try:
                 return parser(bank, output, variable)
@@ -182,10 +182,12 @@ class OffsetSpecification(FC):
 
     @staticmethod
     def parse(bank, output, variable):
-        print "Fatal error: attempt to parse OffsetSpecification"
-        assert False
+        m = re.search("%s = new Offset\(offset=([0-9\-\(\)]+)\);"%variable, output)
+        if not m: raise Exception('Failure at parsing offset')
+        o = int(''.join(c for c in m.group(1) if not c in '()'))
+        return OffsetSpecification(o)
     def makeConstant(self, bank):
-        return FeatureMatrix([]).makeConstant(bank)
+        return Constant('(new Offset(offset = %d))'%self.offset)
 
     def matches(self, test):
         raise Exception('cannot match offset')
@@ -193,7 +195,7 @@ class OffsetSpecification(FC):
         raise Exception('cannot apply offset')
 
     def sketchEquals(self,v,bank):
-        return FeatureMatrix([]).sketchEquals(v,bank)
+        return '(is_offset(%s) && get_offset(%s) == %d)'%(v,v,self.offset)
 
 class BoundarySpecification(Specification):
     def __init__(self): pass
@@ -548,8 +550,6 @@ class Rule():
         if isinstance(self.focus,OffsetSpecification):
             assert isinstance(self.structuralChange,EmptySpecification)
             assert self.focus.offset == 1
-        if isinstance(self.structuralChange,OffsetSpecification):
-            assert isinstance(self.focus,EmptySpecification)
 
     def isGeminiRule(self):
         return isinstance(self.focus,OffsetSpecification) and self.focus.offset == 1 and isinstance(self.structuralChange,EmptySpecification)
@@ -686,11 +686,10 @@ class Rule():
     
     # Produces sketch object
     def makeConstant(self, bank):
-        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s, copyOffset = %d)" % (self.focus.makeConstant(bank),
+        return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s)" % (self.focus.makeConstant(bank),
                                                                                                                                   self.structuralChange.makeConstant(bank),
                                                                                                                                   self.leftTriggers.makeConstant(bank),
-                                                                                                                                  self.rightTriggers.makeConstant(bank),
-                                                                                                                                  self.calculateCopyOffset()))
+                                                                                                                                  self.rightTriggers.makeConstant(bank)))
 
     # Returns a variable that refers to a sketch object
     def makeDefinition(self, bank):
@@ -709,7 +708,7 @@ class Rule():
             variable, output = getGeneratorDefinition(variable.definingFunction, output)
             return Rule.parse(bank, output, variable)
         assert isinstance(variable, Variable)
-        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+), copyOffset=([0-9\-\(\)]+)\)' % str(variable)
+        pattern = 'Rule.*%s.* = new Rule\(focus=([a-zA-Z0-9_]+), structural_change=([a-zA-Z0-9_]+), left_trigger=([a-zA-Z0-9_]+), right_trigger=([a-zA-Z0-9_]+)\)' % str(variable)
         m = re.search(pattern, output)
         if not m:
             raise Exception('Failure parsing rule')
@@ -717,16 +716,6 @@ class Rule():
         structuralChange = Specification.parse(bank, output, m.group(2))
         leftTrigger = Guard.parse(bank, output, m.group(3), 'L')
         rightTrigger = Guard.parse(bank, output, m.group(4), 'R')
-        copyOffset = int("".join([ c for c in m.group(5) if not c in [')','('] ]))
-        if copyOffset != 0:
-            if isinstance(focus,EmptySpecification):
-                structuralChange = OffsetSpecification(copyOffset)
-            elif isinstance(structuralChange,EmptySpecification):
-                focus = OffsetSpecification(copyOffset)
-            else:
-                print "Problem with copy offset in parsed rule:"
-                print output
-                assert False
         return Rule(focus, structuralChange, leftTrigger, rightTrigger)
 
     @staticmethod
@@ -759,12 +748,11 @@ class Rule():
         return results
 
     def sketchEquals(self,v,b):
-        return "(%s.copyOffset == %d && %s && %s && %s && %s)"%(v,
-                                                                self.calculateCopyOffset(),
-                                                                self.focus.sketchEquals(v+'.focus',b),
-                                                                self.structuralChange.sketchEquals(v+'.structural_change',b),
-                                                                self.leftTriggers.sketchEquals(v+'.left_trigger',b),
-                                                                self.rightTriggers.sketchEquals(v+'.right_trigger',b))
+        return "(%s && %s && %s && %s)"%(
+            self.focus.sketchEquals(v+'.focus',b),
+            self.structuralChange.sketchEquals(v+'.structural_change',b),
+            self.leftTriggers.sketchEquals(v+'.left_trigger',b),
+            self.rightTriggers.sketchEquals(v+'.right_trigger',b))
 
     def explain(self,b):
         if self.calculateCopyOffset() == 0:

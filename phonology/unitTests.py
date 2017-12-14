@@ -142,8 +142,11 @@ def supervisedDuplicateSyllable():
         or r.structuralChange.offset == -1 and unicode(r.leftTriggers.specifications[0]) == u'σ'
 @test
 def testMarcus():
-    s = UnderlyingProblem([ (w,) for w in sampleABB(6) ],
-                          useSyllables = True).sketchJointSolution(1,canAddNewRules = True)
+    data = [ (w,) for w in sampleABB(6) ]
+    s = UnderlyingProblem(data,
+                          useSyllables = True)
+    s.fixedMorphology = [(Morph([]),Morph([]))]
+    s = s.sketchJointSolution(1,canAddNewRules = True)
     assert len(s.rules) == 1
     assert any([ unicode(spec) == u'σ'
                  for spec in s.rules[0].rightTriggers.specifications + s.rules[0].leftTriggers.specifications ])
