@@ -946,10 +946,6 @@ underlyingProblems.append(Problem(
     '''
     Finnish
  nominative versus positive.
-    Textbook solution:
-    æ > a / [+back] [ ]* _ #
-    e > i / _ #
-    This is also what the system recovers.
 (problem 13)
     ''',
     [(u"aamu",u"aamua"),
@@ -974,7 +970,7 @@ underlyingProblems.append(Problem(
     solutions = [u'''
  + stem + 
  + stem + æ
-æ > a / [+back] [ ]* _ #
+æ > a / [+back +vowel] [ ]* _ #
     e > i / _ #''']))
 
 underlyingProblems.append(Problem(
