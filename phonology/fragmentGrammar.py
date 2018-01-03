@@ -578,7 +578,10 @@ class FragmentGrammar():
         
 
 
-BASEPRODUCTIONS = [(k.CONSTRUCTOR, 0.0, f)
+BASEPRODUCTIONS = [(k.CONSTRUCTOR,
+                    # Penalize deletion/insertion/copying
+                    -math.log(50)*int(unicode(f) in [u"Ø",u"OffsetSpecification",u"BoundarySpecification"]),
+                    f)
                    for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
                    for f in k.BASEPRODUCTIONS]
 EMPTYFRAGMENTGRAMMAR = FragmentGrammar(BASEPRODUCTIONS)
@@ -594,8 +597,9 @@ if __name__ == '__main__':
                 [parseRule('e > 0 / # _ [ -voice ]* [ +vowel ]#')]]
     proposeFragments(ruleSets,verbose = True)
     
-    #BASEPRODUCTIONS += [(Specification, 0, MatrixFragment.fromFeatureMatrix(FeatureMatrix([(False,'voice')])))]
-    
+    print EMPTYFRAGMENTGRAMMAR.ruleLogLikelihood(parseRule('0 > a / _#'))[0]
+    print EMPTYFRAGMENTGRAMMAR.ruleLogLikelihood(parseRule('e > -1 / _#'))[0]
+    assert False
     
     print str(EMPTYFRAGMENTGRAMMAR)
     r = parseRule('0 > 1 / # _ [ -voice ]* h #')
