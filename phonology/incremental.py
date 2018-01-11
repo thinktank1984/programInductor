@@ -90,7 +90,7 @@ class IncrementalSolver(UnderlyingProblem):
         self.maximumNumberOfRules = maximumNumberOfRules
         self.maximumRadius = maximumRadius
         
-        totalNumberOfWords = len([ x for i in self.data for x in i if x != None ])
+        totalNumberOfWords = sum( x != None for i in self.data for x in i )
         wordsPerDataPoint = float(totalNumberOfWords)/len(self.data)
         
         if window == None:
@@ -108,27 +108,28 @@ class IncrementalSolver(UnderlyingProblem):
             self.fixedMorphologyThreshold = 10
         self.fixedUnderlyingFormThreshold = 10
 
-        self.fixedUnderlyingForms = []
+        # Map from (surface1, ..., surface_I) to ur
+        self.fixedUnderlyingForms = {}
 
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms.
         Unlike the implementation in Matrix, reuses fixed underlying forms to be more time efficient'''
-        if solution.underlyingForms != [] and getVerbosity() > 0:
+        if len(solution.underlyingForms) != 0 and getVerbosity() > 0:
             print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
 
         return Solution(rules = solution.rules,
                         prefixes = solution.prefixes,
                         suffixes = solution.suffixes,
-                        underlyingForms = self.fixedUnderlyingForms + \
-                        [ solution.transduceUnderlyingForm(self.bank, inflections)
-                          for inflections in self.data[len(self.fixedUnderlyingForms):] ])
+                        underlyingForms = \
+                        dict(self.fixedUnderlyingForms,
+                             **{ inflections: solution.transduceUnderlyingForm(self.bank, inflections)
+                                 for inflections in self.data if not (inflections in self.fixedUnderlyingForms) }))
 
     def updateFixedMorphology(self, solution, trainingData):
         fixed = []
         for j in range(self.numberOfInflections):
             # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
-            inflectionExamples = len([ None for l,_ in zip(trainingData,solution.underlyingForms)
-                                       if l[j] != None ])            
+            inflectionExamples = sum( ss[l] != None for ss in solution.underlyingForms.values() )
             if inflectionExamples >= self.fixedMorphologyThreshold:
                 fixed.append((solution.prefixes[j], solution.suffixes[j]))
                 print "Fixing morphology of inflection %d to %s + stem + %s"%(j,
@@ -143,13 +144,18 @@ class IncrementalSolver(UnderlyingProblem):
         self.fixedMorphology = fixed
 
     def updateFixedUnderlyingForms(self, solution):
-        self.fixedUnderlyingForms = solution.underlyingForms[:-self.fixedUnderlyingFormThreshold]
-        for x,ur in zip(self.data, self.fixedUnderlyingForms):
-            print "\t\t(clamping UR for observation %s to %s)"%(x,ur)
+        numberToFix = max(0, len(solution.underlyingForms) - self.fixedUnderlyingFormThreshold)
+        self.fixedUnderlyingForms = {x: solution.underlyingForms[x]
+                                     for x in self.data[:numberToFix]}
+        for x in self.data:
+            if x in self.fixedUnderlyingForms:
+                print "\t\t(clamping UR for observation %s to %s)"%(x,self.fixedUnderlyingForms[x])
 
-    def sketchChangeToSolution(self, solution, rules, allTheData = None):
-        assert allTheData != None
-        
+    def guessUnderlyingForms(self):
+        #    def constrainUnderlyingRepresentation(self, stem, prefixes, suffixes, surfaces):
+        pass
+
+    def sketchChangeToSolution(self, solution, rules):
         Model.Global()
 
         originalRules = list(rules) # save it for later
@@ -177,7 +183,8 @@ class IncrementalSolver(UnderlyingProblem):
                 morphologicalCosts.append(None)
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
-            if all(l[j] == None for l in allTheData):
+            if all(l[j] == None for l in self.data + self.fixedUnderlyingForms.values()) \
+               and self.fixMorphology[j] == None:
                 # Never seen this inflection: give it the empty morphology
                 print "Clamping the morphology of inflection %d to be empty"%j
                 condition(wordLength(prefixes[j]) == 0)
@@ -186,13 +193,11 @@ class IncrementalSolver(UnderlyingProblem):
         # Construct the random variables for the stems
         # After fixedUnderlyingFormThreshold examples passed an observation, we stop trying to modify the underlying form.
         # Set fixedUnderlyingFormThreshold = infinity to disable this heuristic.
-        observationsWithFixedUnderlyingForms = [ o for j,o in enumerate(allTheData)
-                                                 if j < len(self.fixedUnderlyingForms) ]
-        for j,observation in enumerate(observationsWithFixedUnderlyingForms):
+        for observation,stem in self.fixedUnderlyingForms.iteritems():
             # we need to also take into account the length of these auxiliary things because they aren't necessarily in self.data
-            if max([ len(o) for o in observation if o != None ]) > self.maximumObservationLength: continue
+            if max( len(o) for o in observation if o != None ) > self.maximumObservationLength: continue
             
-            stem = self.fixedUnderlyingForms[j].makeConstant(self.bank)
+            stem = stem.makeConstant(self.bank)
             for i,o in enumerate(observation):
                 if o == None: continue
                 phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
@@ -201,9 +206,9 @@ class IncrementalSolver(UnderlyingProblem):
                                                         wordLength(prefixes[i]) + wordLength(stem),
                                                         len(o) + 1)))
         stems = [ Morph.sample() for observation in self.data
-                  if not (observation in observationsWithFixedUnderlyingForms) ]
+                  if not (observation in self.fixedUnderlyingForms) ]
         dataToConditionOn = [ d for d in self.data
-                              if not (d in observationsWithFixedUnderlyingForms)]
+                              if not (d in self.fixedUnderlyingForms)]
             
         # Only add in the cost of the new rules that we are synthesizing
         self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None],
@@ -256,7 +261,7 @@ class IncrementalSolver(UnderlyingProblem):
             
             while True:
                 worker = self.restrict(trainingData)
-                newSolution = worker.sketchChangeToSolution(solution, rules, allTheData = self.data)
+                newSolution = worker.sketchChangeToSolution(solution, rules)
                 if newSolution == None: return None
                 print "CEGIS: About to find a counterexample to:\n",newSolution
                 ce = self.findCounterexample(newSolution, trainingData)

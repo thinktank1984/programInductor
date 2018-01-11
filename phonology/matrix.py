@@ -40,8 +40,9 @@ class UnderlyingProblem(object):
         for d in data: assert len(d) == self.numberOfInflections
         
         # wrap the data in Morph objects if it isn't already
-        self.data = [ [ None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
-                        for i in Lex] for Lex in data ]
+        self.data = [ tuple( None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
+                             for i in Lex)
+                      for Lex in data ]
 
         self.maximumObservationLength = max([ len(w) for l in self.data for w in l if w != None ])
 
@@ -145,7 +146,7 @@ class UnderlyingProblem(object):
                                   j,
                                   self.data[j])
                                  for j in range(len(self.data)) ]
-        self.data = [ d[2] for d in sorted(dataTaggedWithLength) ]
+        self.data = [ tuple(d[2]) for d in sorted(dataTaggedWithLength) ]
 
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces, auxiliaryHarness = False):
@@ -172,14 +173,14 @@ class UnderlyingProblem(object):
     
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
-        if solution.underlyingForms != [] and getVerbosity() > 0:
+        if len(solution.underlyingForms) != 0 and getVerbosity() > 0:
             print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
 
         return Solution(rules = solution.rules,
                         prefixes = solution.prefixes,
                         suffixes = solution.suffixes,
-                        underlyingForms = [ solution.transduceUnderlyingForm(self.bank, inflections)
-                                            for inflections in self.data ])
+                        underlyingForms = { inflections: solution.transduceUnderlyingForm(self.bank, inflections)
+                                            for inflections in self.data })
 
     def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
         if k == 1: return [solution]
@@ -200,11 +201,11 @@ class UnderlyingProblem(object):
         '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a list of len(solution.rules), each of which has k rules.'''
         if k == 1: return [[r] for r in solution.rules ]
         
-        xs = [ solution.prefixes[i] + solution.underlyingForms[j] + solution.suffixes[i]
-               for j in range(len(self.data))
+        xs = [ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
+               for x in self.data
                for i in range(self.numberOfInflections) ]
-        untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[j]))
-                        for j in range(len(self.data))
+        untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[x]))
+                        for x in self.data
                         for i in range(self.numberOfInflections) ]
         frontiers = []
         for r in solution.rules:
@@ -231,7 +232,7 @@ class UnderlyingProblem(object):
             # Keep morphology variable! Just ensure it has the same cost
             prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
             suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
-            stems = [ Morph.sample() for p in solution.underlyingForms ]
+            stems = [ Morph.sample() for _ in range(len(solution.underlyingForms)) ]
             
             self.conditionOnData(rules, stems, prefixes, suffixes)
             self.minimizeJointCost(rules, stems, prefixes, suffixes)
@@ -450,7 +451,7 @@ the integer is None then we have no guess for that one.'''
         descriptionLengths = parallelMap(degree,
                                          lambda x: self.inflectionsDescriptionLength(solution, x), self.data)
         everythingCost = sum(descriptionLengths)
-        invariantCost = sum([ len(u) for u in solution.underlyingForms ]) 
+        invariantCost = sum([ len(u) for u in solution.underlyingForms.values() ]) 
         return {'solution': solution,
                 'modelCost': solution.modelCost(self.UG),
                 'everythingCost': everythingCost,
@@ -545,7 +546,7 @@ the integer is None then we have no guess for that one.'''
             print s
 
             rc = sum([r.cost() for r in s.rules ] + [len(a)*morphologicalCoefficient for a in s.prefixes + s.suffixes ])
-            uc = sum([len(u) for u in s.underlyingForms ])
+            uc = sum([len(u) for u in s.underlyingForms.values() ])
             print "Costs:",(rc,uc)
             actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
             print "Actual costs:",actualCosts
@@ -589,8 +590,9 @@ the integer is None then we have no guess for that one.'''
     def restrict(self, newData):
         """Creates a new version of this object which is identical but has different training data"""
         restriction = copy.copy(self)
-        restriction.data = [ [ None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
-                               for i in Lex] for Lex in newData ]
+        restriction.data = [ tuple( None if i == None else (i if isinstance(i,Morph) else Morph(tokenize(i)))
+                               for i in Lex)
+                             for Lex in newData ]
         return restriction
 
 

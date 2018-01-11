@@ -20,7 +20,7 @@ class AlternationSolution():
 
 
 class Solution():
-    def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = [],adjustedCost = None):
+    def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = {},adjustedCost = None):
         assert len(prefixes) == len(suffixes)
         self.rules = rules
         self.prefixes = prefixes
@@ -32,8 +32,8 @@ class Solution():
         return "\n".join([ "rule: %s"%(str(r)) for r in self.rules ] +
                          [ "%s + stem + %s"%(str(self.prefixes[j]),str(self.suffixes[j]))
                            for j in range(len(self.prefixes)) ] +
-                         (["underlying form: %s"%str(u)
-                           for u in self.underlyingForms ]))
+                         (["underlying form: %s ; surfaces = %s"%(str(u),"  ".join(map(str,ss)))
+                           for ss,u in self.underlyingForms.iteritems() ]))
 
     def pretty(self):
         p = u''
@@ -49,7 +49,7 @@ class Solution():
         return p
 
     def cost(self, ug = None):
-        return self.modelCost(ug) + sum(len(s) for s in self.underlyingForms)
+        return self.modelCost(ug) + sum(len(s) for s in self.underlyingForms.values())
 
     def modelCost(self, UG = None):
         ruleCost = 0.0

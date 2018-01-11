@@ -22,6 +22,7 @@ class Morph():
     def __add__(self, other): return Morph(self.phonemes + other.phonemes)
     def __eq__(self, other):
         return str(self) == str(other)
+    def __hash__(self): return hash(tuple(self.phonemes))
     def __ne__(self, other):
         return str(self) != str(other)
     def __getitem__(self, sl):

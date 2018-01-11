@@ -150,7 +150,7 @@ def testMarcus():
     assert len(s.rules) == 1
     assert any([ unicode(spec) == u'σ'
                  for spec in s.rules[0].rightTriggers.specifications + s.rules[0].leftTriggers.specifications ])
-    assert all([ len(u) == 4 for u in s.underlyingForms ])
+    assert all([ len(u) == 4 for u in s.underlyingForms.values() ])
     assert isinstance(s.rules[0].structuralChange, OffsetSpecification)
 @test
 def induceBoundary():
