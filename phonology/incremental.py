@@ -151,9 +151,14 @@ class IncrementalSolver(UnderlyingProblem):
             if x in self.fixedUnderlyingForms:
                 print "\t\t(clamping UR for observation %s to %s)"%(x,self.fixedUnderlyingForms[x])
 
-    def guessUnderlyingForms(self):
-        #    def constrainUnderlyingRepresentation(self, stem, prefixes, suffixes, surfaces):
-        pass
+    def guessUnderlyingForms(self, stems):
+        dataToConditionOn = [ d for d in self.data
+                              if not (d in self.fixedUnderlyingForms)]
+        prefixes = [ prefix for prefix,_ in self.fixedMorphology ]
+        suffixes = [ suffix for _,suffix in self.fixedMorphology ]
+        assert len(dataToConditionOn) == len(stems)
+        for x,stem in zip(dataToConditionOn, stems):
+            self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x)
 
     def sketchChangeToSolution(self, solution, rules):
         Model.Global()
@@ -217,6 +222,7 @@ class IncrementalSolver(UnderlyingProblem):
         self.conditionOnData(rules, stems, prefixes, suffixes,
                              observations = dataToConditionOn,
                              auxiliaryHarness = True)
+        self.guessUnderlyingForms(stems)
 
         try:
             output = self.solveSketch()

@@ -120,11 +120,18 @@ class UnderlyingProblem(object):
         phoneme = Constant(variables[0])
         condition(phoneme == indexWord(expression, index))
     def constrainUnderlyingRepresentation(self, stem, prefixes, suffixes, surfaces):
+        '''stem: sketch variable
+        prefixes, suffixes, surfaces: Morph'''
         # Remove what we can
         trimmed = []
         for prefix, suffix, surface in zip(prefixes, suffixes, surfaces):
-            if surface == None: continue
+            if surface == None or suffix == None or prefix == None: continue
             trimmed.append(surface[len(prefix) : len(surface) - len(suffix)])
+        print "For the surfaces",surfaces,"the stem candidates are",trimmed
+        if len(trimmed) < 2:
+            print "But I expect at least two trends time candidates"
+            return
+        
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
             if all(trimmed[0][j] == t[j] for t in trimmed):
