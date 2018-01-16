@@ -19,21 +19,31 @@ class AlternationSolution():
         return Morph([self.substitution.get(x,x) for x in w.phonemes])
 
 
-class Solution():
-    def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = {},adjustedCost = None):
+class Solution(object):
+    def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = {}):
         assert len(prefixes) == len(suffixes)
         self.rules = rules
         self.prefixes = prefixes
         self.suffixes = suffixes
         self.underlyingForms = underlyingForms
-        self.adjustedCost = adjustedCost
 
-    def __str__(self):
-        return "\n".join([ "rule: %s"%(str(r)) for r in self.rules ] +
-                         [ "%s + stem + %s"%(str(self.prefixes[j]),str(self.suffixes[j]))
-                           for j in range(len(self.prefixes)) ] +
-                         (["underlying form: %s ; surfaces = %s"%(str(u),"  ".join(map(str,ss)))
+        assert isinstance(underlyingForms,dict)
+
+    def __unicode__(self):
+        return u"\n".join([ u"rule: %s"%r for r in self.rules ] +
+                         [self.showMorphology()] +
+                         ([u"underlying form: %s ; surfaces = %s"%(u, u" ~ ".join(map(unicode,ss)))
                            for ss,u in self.underlyingForms.iteritems() ]))
+    def __str__(self): return unicode(self).encode('utf-8')
+
+    def showMorphology(self):
+        lines = []
+        for p,s in zip(self.prefixes, self.suffixes):
+            x = u"stem"
+            if len(p) > 0: x = u"%s + %s"%(p,x)
+            if len(s) > 0: x = u"%s + %s"%(x,s)
+            lines.append(x)
+        return u"\n".join(lines)
 
     def pretty(self):
         p = u''
@@ -120,8 +130,7 @@ class Solution():
                         suffixes = self.suffixes,
                         underlyingForms = self.underlyingForms,
                         rules = [ r for r in self.rules
-                                  if len(self.rules) == 1 or (not r.doesNothing()) ],
-                        adjustedCost = self.adjustedCost)
+                                  if len(self.rules) == 1 or (not r.doesNothing()) ])
 
     
     def transduceUnderlyingForm(self, bank, surfaces, getTrace = False):

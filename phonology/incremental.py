@@ -129,7 +129,7 @@ class IncrementalSolver(UnderlyingProblem):
         fixed = []
         for j in range(self.numberOfInflections):
             # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
-            inflectionExamples = sum( ss[l] != None for ss in solution.underlyingForms.values() )
+            inflectionExamples = sum( ss[j] != None for ss in solution.underlyingForms.keys() )
             if inflectionExamples >= self.fixedMorphologyThreshold:
                 fixed.append((solution.prefixes[j], solution.suffixes[j]))
                 print "Fixing morphology of inflection %d to %s + stem + %s"%(j,
@@ -154,8 +154,8 @@ class IncrementalSolver(UnderlyingProblem):
     def guessUnderlyingForms(self, stems):
         dataToConditionOn = [ d for d in self.data
                               if not (d in self.fixedUnderlyingForms)]
-        prefixes = [ prefix for prefix,_ in self.fixedMorphology ]
-        suffixes = [ suffix for _,suffix in self.fixedMorphology ]
+        prefixes = [ None if inflection is None else inflection[0] for inflection in self.fixedMorphology ]
+        suffixes = [ None if inflection is None else inflection[1] for inflection in self.fixedMorphology ]
         assert len(dataToConditionOn) == len(stems)
         for x,stem in zip(dataToConditionOn, stems):
             self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x)
@@ -247,8 +247,7 @@ class IncrementalSolver(UnderlyingProblem):
                                             else solution.suffixes[j] \
                                             for j,s in enumerate(suffixes) ],
                                rules = [ Rule.parse(self.bank, output, r) if rp == None else rp
-                                         for r,rp in zip(rules,originalRules) ],
-                               adjustedCost = loss)
+                                         for r,rp in zip(rules,originalRules) ])
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
 
@@ -269,11 +268,17 @@ class IncrementalSolver(UnderlyingProblem):
                 worker = self.restrict(trainingData)
                 newSolution = worker.sketchChangeToSolution(solution, rules)
                 if newSolution == None: return None
+                print newSolution.rules
+                print newSolution.prefixes
+                print newSolution.suffixes
+                print newSolution.underlyingForms
+                dumpPickle(newSolution,'newSolution.pickle')
+                print newSolution
                 print "CEGIS: About to find a counterexample to:\n",newSolution
                 ce = self.findCounterexample(newSolution, trainingData)
                 if ce == None:
                     print "No counterexample so I am just returning best solution"
-                    newSolution.underlyingForms = None
+                    newSolution.underlyingForms = {}
                     newSolution = self.solveUnderlyingForms(newSolution)
                     print "Final CEGIS solution:\n%s"%(newSolution)
                     return newSolution

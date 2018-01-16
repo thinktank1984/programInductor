@@ -131,12 +131,13 @@ class UnderlyingProblem(object):
         if len(trimmed) < 2:
             print "But I expect at least two trends time candidates"
             return
-        
+
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
             if all(trimmed[0][j] == t[j] for t in trimmed):
                 self.conditionPhoneme(stem, Constant(j), trimmed[0][j])
             else: break
+        print "Common prefix:",trimmed[0][:j]
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
             if all(trimmed[0][len(trimmed[0]) - j - 1] == t[len(t) - j - 1] for t in trimmed):
@@ -145,6 +146,7 @@ class UnderlyingProblem(object):
                                       trimmed[0][len(trimmed[0]) - j - 1])
                                       
             else: break
+        print "Common suffix:",trimmed[0][::-1][:j][::-1]
             
 
     def sortDataByLength(self):
@@ -364,7 +366,8 @@ the integer is None then we have no guess for that one.'''
 
             solution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
                                 suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
-                                underlyingForms = [ Morph.parse(self.bank, output, s) for s in stems ],
+                                underlyingForms = {x: Morph.parse(self.bank, output, s)
+                                                   for x,s in zip(self.data, stems) },
                                 rules = [ Rule.parse(self.bank, output, r) for r in rules ] if fixedRules == None else fixedRules)
             solution.showMorphologicalAnalysis()
             solution.showRules()

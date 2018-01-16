@@ -128,10 +128,9 @@ def latexSolutionAndProblem(path):
         r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + " $+$stem$+$ " + ("$\\varnothing$" if len(s) == 0 else latexWord(s))
                           for p,s in zip(solution.prefixes, solution.suffixes) ] + ["UR"])
         r += "\n\\\\ \\midrule\n"
-        for j in range(len(problem.data)):
-            if j < len(solution.underlyingForms): ur = solution.underlyingForms[j]
-            else: ur = None
-            r += " & ".join([ latexWord(x) for x in problem.data[j] ] + [latexWord(ur)])
+        for observation in problem.data:
+            ur = solution.underlyingForms.get(observation,None)
+            r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur)])
             r += "\\\\\n"
         r += "\\bottomrule\\end{longtable}"
 

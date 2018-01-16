@@ -581,6 +581,7 @@ class Rule():
         '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''
         return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing()
 
+    def __repr__(self): return str(self)
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         if not hasattr(self, 'representation') or self.representation == None:
