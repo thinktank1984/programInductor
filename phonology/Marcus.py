@@ -11,6 +11,7 @@ from matrix import UnderlyingProblem
 from random import choice,seed
 import matplotlib.pyplot as plot
 import matplotlib.cm as cm
+from adjustText import adjust_text
 import numpy as np
 import argparse
 
@@ -86,6 +87,8 @@ if __name__ == '__main__':
                 'abx': sampleABX,
                 'aax': sampleAAX,
                 }
+    constantPrefix = arguments.problem.startswith('x')
+    constantSuffix = arguments.problem.endswith('x')
         
     trainingData = sampling[arguments.problem](arguments.number)
     print u"\n".join(trainingData)
@@ -99,7 +102,9 @@ if __name__ == '__main__':
         for d in range(0,arguments.depth + 1):
             worker = UnderlyingProblem([(w,) for w in trainingData ],
                                        useSyllables = not arguments.noSyllables)
-            solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE, useMorphology = True)
+            solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE,
+                                                  useMorphology = True,
+                                                  morphologicalCoefficient = 4)
             for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
 
     if arguments.save != None:
@@ -110,15 +115,15 @@ if __name__ == '__main__':
         
     colors = cm.rainbow(np.linspace(0, 1, 1))
     if not arguments.quiet:
-        plot.figure(figsize = (12,8))
+        plot.figure(figsize = (8,5))
         #plot.rc('text', usetex=True)
         #plot.rc('font', family='serif')
         if arguments.animationStage > 1:
             plot.scatter([ -p[0] for p in costToSolution],
                          [ -p[1]/float(arguments.number) for p in costToSolution],
-                         alpha = 1.0/(1+2), s = 100, color = colors, label = 'Programs')
-        plot.ylabel("Fit to data (-average UR size)",fontsize = 14)
-        plot.xlabel("Parsimony (-Program length)",fontsize = 14)
+                         alpha = 1.0/(1+2), s = 100, color = colors, label = 'Grammars')
+        plot.ylabel("Fit to data (-average stem size)",fontsize = 14)
+        plot.xlabel("Parsimony (-grammar size)",fontsize = 14)
         plot.title("Pareto front for %s, %d example%s%s"%(arguments.problem,
                                                           arguments.number,
                                                           '' if arguments.number == 1 else 's',
@@ -138,10 +143,11 @@ if __name__ == '__main__':
 
         # Decide which points to label with the corresponding program
         solutionsToLabel = list(front)
-        for c2 in set([ c2 for c1,c2 in costToSolution ]):
+        for c2 in { c2 for c1,c2 in costToSolution }:
             y = -c2/float(arguments.number)
+            # candidates that are not on the front
             candidates = [ -c1 for c1,_c2 in costToSolution if _c2 == c2 and not (-c1,y) in front ]
-            if candidates != []:
+            if candidates != [] and choice([False,True,False]):
                 chosen = choice(candidates)
                 solutionsToLabel.append((chosen,y))
 
@@ -150,6 +156,7 @@ if __name__ == '__main__':
         # illustrate the synthesized programs along the front
         dy = 0.5
         dx = 2
+        text = []
         for c1,c2 in sorted(costToSolution.keys(), key = lambda cs: (cs[1],cs[0])):
             solution = costToSolution[(c1,c2)]
             x1 = -c1
@@ -164,22 +171,43 @@ if __name__ == '__main__':
             ys += [y1,y2]
 
             if not (x1,y1) in solutionsToLabel: continue
-            #dy = -1*dy
-            #dx = -1*dx
 
-            if any([r.doesNothing() for r in solution.rules ]): continue
-            # don't show anything which is two big because it will take up too much space on the graph
-            if fronting == -1 and any([len(r.pretty()) > 30 for r in solution.rules ]): continue
+            assert not any( r.doesNothing() for r in solution.rules )
+            
+            #don't show anything which is two big because it will take up too much space on the graph
+            if fronting == -1 or True:
+                if any( len(r.pretty()) > 20 for r in solution.rules ): continue
+                if len(solution.pretty().split(u"\n")) > 3: continue
+                
             
             if arguments.animationStage > 3:
-                plot.text(x2,y2, solution.pretty(),
-                          fontsize=12, bbox=props,
-                          verticalalignment = 'bottom' if fronting == 1 else 'top',
-                          horizontalalignment = 'center')
+                color = "white"
+                if u"σ" in solution.pretty():
+                    color = "pink"
+                if len(solution.rules) == 1 and u"σ" in solution.pretty():
+                    if all( len(affix) == 2*constantPrefix for affix in solution.prefixes) and \
+                       all( len(affix) == 2*constantSuffix for affix in solution.suffixes):
+                        color = "red"
+                labelProperties = dict(boxstyle='round', facecolor=color, alpha=0.7)
+
+                # if color != 'red':
+                #     if 'surface' not in solution.pretty() and random() < 0.5: continue
+
+                text.append(plot.text(x2,y2, solution.pretty(),
+                                      fontsize=10,
+                                      bbox=labelProperties,
+                                      verticalalignment = 'bottom' if fronting == 1 else 'top',
+                                      horizontalalignment = 'center',
+                                      color = "k"))
+                
                 ax.annotate('',
                             xy = (x2,y2),xycoords = 'data',
                             xytext = (x1,y1),textcoords = 'data',
                             arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
+
+        # if arguments.animationStage > 3:
+        #     adjust_text(text, autoalign = 'xy',
+        #                 arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
 
 
         if arguments.animationStage > 0:
@@ -192,6 +220,9 @@ if __name__ == '__main__':
         plot.xlim([min(xs) - 1,max(xs) + 1])
         plot.ylim([min(ys) - 1,max(ys) + 1])
         plot.legend(loc = 'lower center',fontsize = 9)
-        #if arguments.export:
-        plot.savefig('paper/marcusAnimation%d.png'%arguments.animationStage,bbox_inches = 'tight')
-        plot.show()
+        if arguments.export:
+            export = '../../phonologyPaper/%s%d.png'%(arguments.problem,arguments.number)
+            plot.savefig(export)#,bbox_inches = 'tight')
+            os.system('feh %s'%export)
+        else:
+            plot.show()

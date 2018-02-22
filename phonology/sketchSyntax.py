@@ -127,11 +127,11 @@ class And(Expression):
         return "(%s)" % (" && ".join([c.sketch() for c in self.clauses ]))
 
 class Not(Expression):
-    def __init__(self,clauses):
-        self.clauses = clauses
-        assert all([isinstance(c,Expression) for c in clauses ])
+    def __init__(self,clause):
+        self.clause = clause
+        assert isinstance(clause,Expression)
     def sketch(self):
-        return "(!(%s))" % (self.clauses.sketch())
+        return "(!(%s))" % (self.clause.sketch())
 
 class Or(Expression):
     def __init__(self,clauses):

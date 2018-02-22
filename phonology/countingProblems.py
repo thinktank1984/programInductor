@@ -5,6 +5,7 @@ from latex import latexWord
 from rule import *
 from morph import Morph
 from sketch import *
+from solution import *
 from utilities import *
 
 class CountingProblem():
@@ -29,35 +30,25 @@ class CountingProblem():
         r += "\n\\end{tabular}\n"
         return r
 
-    # def heldOutSolution(self, k, testing, inductiveBiases):
-    #     if testing == 0.0:
-    #         return self.topSolutions(k),None,None
-
-    #     training,testing = randomTestSplit(list(range(len(self.data))), testing)
-    #     slave = CountingProblem([ d for j,d in enumerate(self.data) if j in training ],
-    #                             [ d for j,d in enumerate(self.count) if j in training ])
-    #     solution = slave.topSolutions(k)
-
-        
     def solveFrontiers(self, seed, k):
         # Ignore the seed because this problem is very easy to solve
         return [ [r] for r in self.topSolutions(k) ]
 
     def topSolutions(self, k = 10):
         solutions = []
-        oldMorphology = None
         for _ in range(k):
-            r,oldMorphology = self.sketchSolution(solutions,oldMorphology)
-            if r == None: break
-            solutions.append(r)
+            s = self.sketchSolution(solutions)
+            if s is None: break
+            solutions.append(s)
         return solutions
 
-    def sketchSolution(self, existingRules, existingMorphology = None):
+    def sketchSolution(self, existingSolutions):
         Model.Global()
 
         r = Rule.sample()
-        for o in existingRules:
-            condition(ruleEqual(r, o.makeConstant(self.bank)) == 0)
+        for o in existingSolutions:
+            for rp in existingSolutions:
+                condition(Not(ruleEqual(r, rp.makeConstant(self.bank))))
 
         morphs = {}
         morphs[1] = Morph.sample()
@@ -66,8 +57,8 @@ class CountingProblem():
         morphs[9] = Morph.sample()
         morphs[10] = Morph.sample()
 
-        if existingMorphology:
-            for k,v in existingMorphology.iteritems():
+        if existingSolutions:
+            for (k,),v in existingSolutions[0].underlyingForms.iteritems():
                 condition(wordEqual(v.makeConstant(self.bank),
                                     morphs[k]))
 
@@ -100,5 +91,7 @@ class CountingProblem():
 
         r = Rule.parse(self.bank, output, r)
         print r.pretty()
-        return r,dict([ (k,Morph.parse(self.bank, output, m)) for k,m in morphs.iteritems() ])
+        return Solution(rules = [r],
+                        prefixes = [], suffixes = [],                        
+                        underlyingForms = {(k,): Morph.parse(self.bank, output, m) for k,m in morphs.iteritems() })
 

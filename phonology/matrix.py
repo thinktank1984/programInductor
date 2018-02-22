@@ -127,17 +127,15 @@ class UnderlyingProblem(object):
         for prefix, suffix, surface in zip(prefixes, suffixes, surfaces):
             if surface == None or suffix == None or prefix == None: continue
             trimmed.append(surface[len(prefix) : len(surface) - len(suffix)])
-        print "For the surfaces",surfaces,"the stem candidates are",trimmed
-        if len(trimmed) < 2:
-            print "But I expect at least two trends time candidates"
-            return
+        if len(trimmed) < 2: return
 
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
             if all(trimmed[0][j] == t[j] for t in trimmed):
                 self.conditionPhoneme(stem, Constant(j), trimmed[0][j])
             else: break
-        print "Common prefix:",trimmed[0][:j]
+        print "Constraining underlying prefix for %s to %s"%(u" ~ ".join(map(str,surfaces)), trimmed[0][:j])
+        
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
             if all(trimmed[0][len(trimmed[0]) - j - 1] == t[len(t) - j - 1] for t in trimmed):
@@ -146,7 +144,8 @@ class UnderlyingProblem(object):
                                       trimmed[0][len(trimmed[0]) - j - 1])
                                       
             else: break
-        print "Common suffix:",trimmed[0][::-1][:j][::-1]
+        print "Constraining underlying suffix for %s to %s"%(u" ~ ".join(map(str,surfaces)),
+                                                             trimmed[0][::-1][:j][::-1])
             
 
     def sortDataByLength(self):
@@ -180,16 +179,12 @@ class UnderlyingProblem(object):
             self.conditionOnStem(rules, stem, prefixes, suffixes, observation,
                                  auxiliaryHarness = auxiliaryHarness)
     
-    def solveUnderlyingForms(self, solution):
+    def solveUnderlyingForms(self, solution, batchSize = 10):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
         if len(solution.underlyingForms) != 0 and getVerbosity() > 0:
             print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
 
-        return Solution(rules = solution.rules,
-                        prefixes = solution.prefixes,
-                        suffixes = solution.suffixes,
-                        underlyingForms = { inflections: solution.transduceUnderlyingForm(self.bank, inflections)
-                                            for inflections in self.data })
+        return solution.transduceManyStems(self.bank, self.data, batchSize = batchSize)
 
     def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
         if k == 1: return [solution]
@@ -492,7 +487,8 @@ the integer is None then we have no guess for that one.'''
                 return sum([ len(s) - subsequenceLength for s in inflections if s != None ])
     
 
-    def paretoFront(self, depth, k, temperature, useMorphology = False):
+    def paretoFront(self, depth, k, temperature, useMorphology = False,
+                    morphologicalCoefficient = 3):
         assert self.numberOfInflections == 1
         self.maximumObservationLength += 1
 
@@ -512,8 +508,8 @@ the integer is None then we have no guess for that one.'''
 
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
+        for r in rules: condition(Not(ruleDoesNothing(r)))
 
-        morphologicalCoefficient = 3
         stemCostExpression = sum([ wordLength(u) for u in stems ])
         stemCostVariable = unknownInteger(numberOfBits = 6)
         condition(stemCostVariable == stemCostExpression)
@@ -551,7 +547,8 @@ the integer is None then we have no guess for that one.'''
             s = Solution(suffixes = [ parseAffix(output, m) for m in suffixes ],
                          prefixes = [ parseAffix(output, m) for m in prefixes ],
                          rules = [ Rule.parse(self.bank, output, r) for r in rules ],
-                         underlyingForms = [ Morph.parse(self.bank, output, m) for m in stems ])
+                         underlyingForms = {x: Morph.parse(self.bank, output, m)
+                                            for x,m in zip(self.data, stems) }).withoutUselessRules()
             solutions.append(s)
             print s
 

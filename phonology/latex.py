@@ -219,7 +219,6 @@ if __name__ == "__main__":
                                           for j in range(1,15) ] + \
                                         [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
                                           for j in [51,52,53,55] ] + [])
-                                        #[ latexFeatures() ])
     exportLatexDocument(source,"../../phonologyPaper/test.tex")
 
     

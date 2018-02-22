@@ -164,3 +164,46 @@ class Solution(object):
         traces = [ [ Morph.parse(bank, output, t) for t in trace ] + [surfaces[j]] if trace != None else None
                    for j,trace in enumerate(traces) ]
         return Morph.parse(bank,output,stem),traces
+
+    def _transduceManyStems(self, bank, data):
+        
+        bound = max([len(s) for surfaces in data for s in surfaces if s != None]) + 3
+        
+        Model.Global()
+        rules = [r.makeDefinition(bank) for r in self.rules ]
+        prefixes = [p.makeConstant(bank) for p in self.prefixes ]
+        suffixes = [p.makeConstant(bank) for p in self.suffixes ]
+        stems = [ Morph.sample() for _ in data ]
+        for surfaces, stem in zip(data, stems):
+            minimize(wordLength(stem))
+            haveMainCondition = False
+            for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
+                if s != None:
+                    ur = concatenate3(prefix,stem,suffix)
+                    predicate = wordEqual(s.makeConstant(bank),
+                                          applyRules(rules,ur, wordLength(prefix) + wordLength(stem), bound))
+                    if haveMainCondition: auxiliaryCondition(predicate)                        
+                    else:
+                        condition(predicate)
+                        haveMainCondition = True
+                        
+
+        try: output = solveSketch(bank,bound,bound)
+        except SynthesisFailure: return None
+        return {surfaces: Morph.parse(bank, output, stem)
+                for surfaces, stem in zip(data, stems) }
+
+    def transduceManyStems(self, bank, data, batchSize = None):
+        if batchSize is None: batchSize = len(data)
+
+        stems = {}
+        completed = 0
+        while completed < len(data):
+            b = data[completed:completed+batchSize]
+            stems.update(self._transduceManyStems(bank, b))
+            completed += batchSize        
+
+        return Solution(rules = self.rules,
+                        prefixes = self.prefixes,
+                        suffixes = self.suffixes,
+                        underlyingForms = stems)

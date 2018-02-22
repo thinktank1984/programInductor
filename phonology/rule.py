@@ -67,6 +67,8 @@ class Specification():
                 return parser(bank, output, variable)
             except:
                 continue
+        print variable
+        print output
         assert False,"Parse failure for specification"
 
     @staticmethod
@@ -159,7 +161,8 @@ class EmptySpecification(FC):
 
 class OffsetSpecification(FC):
     def __init__(self,offset):
-        assert offset != 0
+        if offset == 0: print "WARNING: 0 offset. Not sure if this is a bug or not!"
+        #assert offset != 0
         self.offset = offset
     def __unicode__(self): return unicode(self.offset)
     def __str__(self): return unicode(self).encode('utf-8')
@@ -554,7 +557,7 @@ class Rule():
     def isGeminiRule(self):
         return isinstance(self.focus,OffsetSpecification) and self.focus.offset == 1 and isinstance(self.structuralChange,EmptySpecification)
     def isCopyRule(self):
-        return isinstance(self.structuralChange,OffsetSpecification) and isinstance(self.focus,EmptySpecification)
+        return isinstance(self.structuralChange,OffsetSpecification)
 
     def merge(self, other):
         return Rule(self.focus.merge(other.focus),
@@ -581,6 +584,8 @@ class Rule():
         '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''
         return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing()
 
+    def __eq__(self,o): return str(self) == str(o)
+    def __hash__(self): return hash(str(self))
     def __repr__(self): return str(self)
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):

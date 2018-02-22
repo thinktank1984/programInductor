@@ -111,6 +111,13 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from (surface1, ..., surface_I) to ur
         self.fixedUnderlyingForms = {}
 
+        # After we have seen a rule be around for at least 2 times in
+        # a row we keep it forever
+        self.ruleFreezingThreshold = 2
+        self.frozenRules = set([])
+        # Map from rule to how many times in a row we have seen it lately
+        self.ruleHistory = {}
+
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms.
         Unlike the implementation in Matrix, reuses fixed underlying forms to be more time efficient'''
@@ -150,6 +157,18 @@ class IncrementalSolver(UnderlyingProblem):
         for x in self.data:
             if x in self.fixedUnderlyingForms:
                 print "\t\t(clamping UR for observation %s to %s)"%(x,self.fixedUnderlyingForms[x])
+
+    def updateFrozenRules(self, newSolution):
+        for r in newSolution.rules:
+            self.ruleHistory[r] = self.ruleHistory.get(r,0) + 1
+        toRemove = [ r for r in self.ruleHistory.keys() if r not in newSolution.rules ]
+        for r in toRemove:
+            del self.ruleHistory[r]
+
+        for r,f in self.ruleHistory.iteritems():
+            if f >= self.ruleFreezingThreshold and r not in self.frozenRules:
+                print "Permanently freezing the rule",r
+                self.frozenRules.add(r)
 
     def guessUnderlyingForms(self, stems):
         dataToConditionOn = [ d for d in self.data
@@ -296,6 +315,10 @@ class IncrementalSolver(UnderlyingProblem):
         ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius),
                                         allowSubsumption = False,
                                         maximumLength = self.maximumNumberOfRules)
+        ruleVectors = [ vector
+                        for vector in ruleVectors
+                        if all(f in vector for f in self.frozenRules )]
+        
         if len(solution.rules) <= 2:
             # This is generally tractable when there is  < 3 rules
             ruleVectors.append(solution.rules + [None,None])
@@ -354,9 +377,10 @@ class IncrementalSolver(UnderlyingProblem):
             window = self.data[j:j + self.windowSize]
             print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ]) 
 
-            # Fix the morphology/stems that we are certain about
+            # Fix the morphology/stems/rules that we are certain about
             self.updateFixedMorphology(solution, trainingData)
             self.updateFixedUnderlyingForms(solution)
+            self.updateFrozenRules(solution)
 
             radius = 1
             while True:

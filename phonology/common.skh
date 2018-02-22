@@ -428,7 +428,7 @@ generator Guard unknown_guard() {
   return new Guard(endOfString = ??, optionalEndOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_FC_specification() {
-  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 0 | 1 | -1 | -2 | 2 |}) | null |};
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null |}; // FIXME: Should offset be able to be zero?
 }
 generator Specification unknown_guard_specification() {
   return {| global_boundary_specification | new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
