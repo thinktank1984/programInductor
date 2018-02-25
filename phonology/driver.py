@@ -1,4 +1,4 @@
-from problems import underlyingProblems,interactingProblems,sevenProblems,nineProblems,MATRIXPROBLEMS
+from problems import MATRIXPROBLEMS
 from countingProblems import CountingProblem
 from utilities import *
 from parseSPE import parseSolution
@@ -17,14 +17,7 @@ def handleProblem(parameters):
     problemIndex = parameters['problemIndex']
     random.seed(parameters['seed'] + problemIndex)
 
-    if problemIndex < 50:
-        p = underlyingProblems[problemIndex - 1]
-    elif str(problemIndex)[0] == '5':
-        p = interactingProblems[int(str(problemIndex)[1:]) - 1]
-    elif str(problemIndex)[0] == '7':
-        p = sevenProblems[int(str(problemIndex)[1:]) - 1]
-    elif str(problemIndex)[0] == '9':
-        p = nineProblems[int(str(problemIndex)[1:]) - 1]
+    p = MATRIXPROBLEMS[problemIndex]
 
     if parameters['restrict'] != None:
         print "(Restricting problem data to interval: %d -- %d)"%(parameters['restrict'][0],parameters['restrict'][1])
@@ -32,7 +25,9 @@ def handleProblem(parameters):
     else: restriction = p.data
         
     print p.description
-    if problemIndex != 7:
+    isCountingProblem = isinstance(p.parameters, list) \
+                        and all( isinstance(parameter,int) for parameter in p.parameters  )
+    if not isCountingProblem:
         print u"\n".join([ u"\t".join(map(unicode,inflections)) for inflections in restriction ])
     else:
         print CountingProblem(p.data, p.parameters).latex()
@@ -57,74 +52,64 @@ def handleProblem(parameters):
     ss = None # solutions to save out to the pickled file
     accuracy, compression = None, None
     
-    if problemIndex == 7:
-        if parameters['task'] != 'frontier':
-            ss = CountingProblem(p.data, p.parameters).topSolutions(parameters['top'])
-        else:
-            f = str(problemIndex) + ".p"
-            seed = os.path.join(parameters['restore'], f)
-            if not os.path.exists(seed):
-                print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
-                sys.exit(0)
-                
-            seed = loadPickle(seed)
-            assert isinstance(seed,list)
-            assert len(seed) == 1
-            frontier = CountingProblem(p.data, p.parameters).solveFrontiers(seed, k = parameters['top'])
-            dumpPickle(frontier, os.path.join(parameters['save'], f))
-            sys.exit(0)
-            
+    if isCountingProblem:
+        problem = CountingProblem(p.data, p.parameters)
+        parameters['task'] = 'exact'
     else:
         problem = UnderlyingProblem(p.data, UG = ug).restrict(restriction)
-        if parameters['task'] == 'debug':
-            for s in p.solutions:
-                s = parseSolution(s)
-                problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
-        elif parameters['task'] == 'verify':
-            for s in p.solutions:
-                s = parseSolution(s)
-                print "verifying:"
-                print s
-                b = UnderlyingProblem(p.data).bank
-                for r in s.rules:
-                    print "Explaining rule: ",r
-                    r.explain(b)
-                problem.illustrateSolution(s)
-            ss = []
-        elif parameters['task'] == 'ransac':
-            RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
-                restrict(restriction).\
-                solve(numberOfWorkers = parameters['cores'],
-                      numberOfSamples = parameters['samples'])
-            assert False
-        elif parameters['task'] == 'incremental':
-            ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
-                                   numberOfCPUs = 1 if parameters['serial'] else None).\
-                 restrict(restriction).\
-                 incrementallySolve(saveProgressTo = parameters['save'],
-                                    loadProgressFrom = parameters['restore'])
-        elif parameters['task'] == 'CEGIS':
-            ss = problem.counterexampleSolution(k = parameters['top'],
-                                                threshold = parameters['threshold'])
-        elif parameters['task'] == 'exact':
-            ss = problem.sketchJointSolution(1, canAddNewRules = True)
-        elif parameters['task'] == 'frontier':
-            f = str(problemIndex) + ".p"
-            seed = os.path.join(parameters['restore'], f)
-            if not os.path.exists(seed):
-                print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
-                sys.exit(0)
-            seed = loadPickle(seed)
-            assert isinstance(seed,list)
-            assert len(seed) == 1
-            worker = problem
-            seed = worker.solveUnderlyingForms(seed[0])
-            frontier = worker.solveFrontiers(seed, k = parameters['top'])
-            dumpPickle(frontier, os.path.join(parameters['save'], f))
-            sys.exit(0)
-
-        assert isinstance(ss,list)
+    
+    if parameters['task'] == 'debug':
+        for s in p.solutions:
+            s = parseSolution(s)
+            problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
+        sys.exit(0)
+    elif parameters['task'] == 'verify':
+        for s in p.solutions:
+            s = parseSolution(s)
+            print "verifying:"
+            print s
+            b = UnderlyingProblem(p.data).bank
+            for r in s.rules:
+                print "Explaining rule: ",r
+                r.explain(b)
+            problem.illustrateSolution(s)
+        sys.exit(0)
         
+    elif parameters['task'] == 'ransac':
+        RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
+            restrict(restriction).\
+            solve(numberOfWorkers = parameters['cores'],
+                  numberOfSamples = parameters['samples'])
+        sys.exit(0)
+        
+    elif parameters['task'] == 'incremental':
+        ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
+                               numberOfCPUs = 1 if parameters['serial'] else None).\
+             restrict(restriction).\
+             incrementallySolve(saveProgressTo = parameters['save'],
+                                loadProgressFrom = parameters['restore'],
+                                k = parameters['top'])
+    elif parameters['task'] == 'CEGIS':
+        ss = problem.counterexampleSolution(k = parameters['top'])
+    elif parameters['task'] == 'exact':
+        s = problem.sketchJointSolution(1, canAddNewRules = True)
+        ss = problem.expandFrontier(s, parameters['top'])
+    elif parameters['task'] == 'frontier':
+        f = str(problemIndex) + ".p"
+        seed = os.path.join(parameters['restore'], f)
+        if not os.path.exists(seed):
+            print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
+            sys.exit(0)
+        seed = loadPickle(seed)
+        assert isinstance(seed,Frontier)
+        worker = problem
+        seed = worker.solveUnderlyingForms(seed[0])
+        frontier = worker.solveFrontiers(seed, k = parameters['top'])
+        dumpPickle(frontier, os.path.join(parameters['save'], f))
+        sys.exit(0)
+
+    assert isinstance(ss,Frontier)
+    print ss
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
 
@@ -149,7 +134,6 @@ if __name__ == '__main__':
                         type = str,
                         help = "The task you are asking the driver to initiate.")
     parser.add_argument('-t','--top', default = 1, type = int)
-    parser.add_argument('-f','--threshold', default = float('inf'), type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
     parser.add_argument('--timeout', default = 1.0, type = float,
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
@@ -213,7 +197,6 @@ if __name__ == '__main__':
                    'top': arguments.top,
                    'curriculum': arguments.curriculum,
                    'task': arguments.task,
-                   'threshold': arguments.threshold,
                    'window': arguments.window,
                    'debug': arguments.debug,
                    'save': arguments.save,

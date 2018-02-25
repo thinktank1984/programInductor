@@ -30,25 +30,26 @@ class CountingProblem():
         r += "\n\\end{tabular}\n"
         return r
 
-    def solveFrontiers(self, seed, k):
-        # Ignore the seed because this problem is very easy to solve
-        return [ [r] for r in self.topSolutions(k) ]
+    def expandFrontier(self, s, k):
+        ss = [s]
+        for _ in range(k-1):
+            ss.append(self.sketchJointSolution(1, canAddNewRules = True, existingSolutions = ss))
+        return Frontier([ [solution.rules[0] for solution in ss ] ],
+                        prefixes = s.prefixes,
+                        suffixes = s.suffixes,
+                        underlyingForms = s.underlyingForms)
+        
 
-    def topSolutions(self, k = 10):
-        solutions = []
-        for _ in range(k):
-            s = self.sketchSolution(solutions)
-            if s is None: break
-            solutions.append(s)
-        return solutions
-
-    def sketchSolution(self, existingSolutions):
+    def sketchJointSolution(self, depth, canAddNewRules = True, existingSolutions = []):
+        assert depth == 1
+        assert canAddNewRules
+        
         Model.Global()
 
         r = Rule.sample()
         for o in existingSolutions:
-            for rp in existingSolutions:
-                condition(Not(ruleEqual(r, rp.makeConstant(self.bank))))
+            assert len(o.rules) == 1
+            condition(Not(ruleEqual(r, o.rules[0].makeConstant(self.bank))))
 
         morphs = {}
         morphs[1] = Morph.sample()

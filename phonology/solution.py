@@ -7,7 +7,7 @@ from fragmentGrammar import getEmptyFragmentGrammar
 
 import math
 
-class AlternationSolution():
+class AlternationSolution(object):
     def __init__(self, data, substitution, rules):
         self.data = data
         self.substitution = substitution
@@ -19,6 +19,35 @@ class AlternationSolution():
         return Morph([self.substitution.get(x,x) for x in w.phonemes])
 
 
+class Frontier(object):
+    def __init__(self, frontiers, prefixes, suffixes, underlyingForms):
+        self.frontiers = frontiers
+        assert len(prefixes) == len(suffixes)
+        self.prefixes = prefixes
+        self.suffixes = suffixes
+        self.underlyingForms = underlyingForms
+
+        assert isinstance(underlyingForms,dict)
+
+    def __unicode__(self):
+        rs = [ u"rule %d alternatives: \n\t%s"%(j+1,u"\n\t".join(map(unicode,f)))
+               for j,f in enumerate(self.frontiers) ]
+        return u"\n".join(rs +
+                         [self.showMorphology()] +
+                         ([u"underlying form: %s ; surfaces = %s"%(u, u" ~ ".join(map(unicode,ss)))
+                           for ss,u in self.underlyingForms.iteritems() ]))
+    def __str__(self): return unicode(self).encode('utf-8')
+    def showMorphology(self):
+        lines = []
+        for p,s in zip(self.prefixes, self.suffixes):
+            x = u"stem"
+            if len(p) > 0: x = u"%s + %s"%(p,x)
+            if len(s) > 0: x = u"%s + %s"%(x,s)
+            lines.append(x)
+        return u"\n".join(lines)
+
+        
+    
 class Solution(object):
     def __init__(self,rules = [],prefixes = [],suffixes = [],underlyingForms = {}):
         assert len(prefixes) == len(suffixes)
@@ -28,6 +57,12 @@ class Solution(object):
         self.underlyingForms = underlyingForms
 
         assert isinstance(underlyingForms,dict)
+
+    def toFrontier(self):
+        return Frontier([ [r] for r in self.rules ],
+                        prefixes = self.prefixes,
+                        suffixes = self.suffixes,
+                        underlyingForms = self.underlyingForms)
 
     def __unicode__(self):
         return u"\n".join([ u"rule: %s"%r for r in self.rules ] +

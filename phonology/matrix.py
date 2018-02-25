@@ -186,24 +186,9 @@ class UnderlyingProblem(object):
 
         return solution.transduceManyStems(self.bank, self.data, batchSize = batchSize)
 
-    def fastTopRules(self, solution, k, maximumNumberOfSolutions = None):
-        if k == 1: return [solution]
-        if maximumNumberOfSolutions != None:
-            # enforce k^d < maximumNumberOfSolutions
-            # k < maximumNumberOfSolutions**(1/d)
-            k = int(min(k,maximumNumberOfSolutions**(1.0/k)))
-
-        fs = self.solveFrontiers(solution,k)
-        
-        return [ Solution(underlyingForms = solution.underlyingForms,
-                          prefixes = solution.prefixes, suffixes = solution.suffixes,
-                          rules = list(rs))
-                 for rs in itertools.product(*fs) ]
-        
-
-    def solveFrontiers(self, solution, k):
+    def expandFrontier(self, solution, k):
         '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a list of len(solution.rules), each of which has k rules.'''
-        if k == 1: return [[r] for r in solution.rules ]
+        if k == 1: return solution.toFrontier()
         
         xs = [ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
                for x in self.data
@@ -219,7 +204,11 @@ class UnderlyingProblem(object):
             frontiers.append(alternatives)
             xs = ys
 
-        return frontiers
+        return Frontier(frontiers,
+                        prefixes = solution.prefixes,
+                        suffixes = solution.suffixes,
+                        underlyingForms = solution.underlyingForms)
+                        
 
     def solveTopRules(self, solution, k):
         '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
@@ -404,11 +393,9 @@ the integer is None then we have no guess for that one.'''
                 if counterexample != None:
                     trainingData.append(counterexample)
                     continue
-            except SynthesisTimeout: return [solution] if solution else []
+            except SynthesisTimeout: return solution.toFrontier() if solution else None
             
             # we found a solution that had no counterexamples
-            #print "Final set of counterexamples:"
-            #print latexMatrix(trainingData)
 
             # When we expect it to be tractable, we should try doing a little bit deeper
             if depth < maximumDepth and self.numberOfInflections < 3:
@@ -416,13 +403,13 @@ the integer is None then we have no guess for that one.'''
                 try:
                     expandedSolution = worker.sketchJointSolution(depth + 1,
                                                                   auxiliaryHarness = True)
-                except SynthesisTimeout: return [solution]
+                except SynthesisTimeout: return solution.toFrontier()
                 if expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(depth + 1)
                     depth += 1
                     try: counterexample = self.findCounterexample(expandedSolution, trainingData)
-                    except SynthesisTimeout: return [solution]
+                    except SynthesisTimeout: return solution.toFrontier()
                     
                     if counterexample != None:
                         trainingData.append(counterexample)
@@ -436,18 +423,9 @@ the integer is None then we have no guess for that one.'''
             print "Final solutions:"
             print solution
             try: solution = self.solveUnderlyingForms(solution)
-            except SynthesisTimeout: return [solution]
+            except SynthesisTimeout: return solution.toFrontier()
 
-            # Do we have enough time in our budget to not be fast?
-            try:
-                if solverTime*k < threshold:
-                    solutions = self.solveTopRules(solution, k)
-                else:
-                    print "Using the optimized top rules."
-                    solutions = self.fastTopRules(solution, k)
-            except SynthesisTimeout: return [solution]
-
-            return solutions
+            return self.expandFrontier(solution, k)
 
     def computeSolutionScores(self,solution,invariant):
         # Compute the description length of everything

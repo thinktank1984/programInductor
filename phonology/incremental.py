@@ -333,7 +333,7 @@ class IncrementalSolver(UnderlyingProblem):
         return sorted(allSolutions,key = lambda s: s.cost())
     
 
-    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None):
+    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None,k = 1):
         if loadProgressFrom == None:        
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
@@ -363,7 +363,7 @@ class IncrementalSolver(UnderlyingProblem):
                 if self.verify(solution,self.data[j]):
                     j += 1
                     continue
-            except SynthesisTimeout: return [solution]
+            except SynthesisTimeout: return solution.toFrontier()
 
             trainingData = self.data[:j]
 
@@ -430,9 +430,9 @@ class IncrementalSolver(UnderlyingProblem):
                             break # break out of the loop over different radius sizes
                         
                         print "Can't shrink the window anymore so I'm just going to return"
-                        return [solution]
+                        return solution.toFrontier()
                     continue # retreat back to the loop over different radii
-                except SynthesisTimeout: return [solution]
+                except SynthesisTimeout: return solution.toFrontier()
 
                 # Successfully explained a new data item
 
@@ -446,4 +446,4 @@ class IncrementalSolver(UnderlyingProblem):
                 print " [+] Saving progress to %s"%saveProgressTo
                 dumpPickle((j,None,solution),saveProgressTo)            
 
-        return self.solveUnderlyingForms(solution)
+        return self.expandFrontier(self.solveUnderlyingForms(solution), k)
