@@ -187,7 +187,7 @@ class UnderlyingProblem(object):
         return solution.transduceManyStems(self.bank, self.data, batchSize = batchSize)
 
     def expandFrontier(self, solution, k):
-        '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a list of len(solution.rules), each of which has k rules.'''
+        '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a Frontier object.'''
         if k == 1: return solution.toFrontier()
         
         xs = [ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
@@ -200,6 +200,10 @@ class UnderlyingProblem(object):
         for r in solution.rules:
             ys = [ self.applyRuleUsingSketch(r,x,us)
                    for x,us in zip(xs,untilSuffix) ]
+            # print "xs = "
+            # print xs
+            # print "ys = "
+            # print ys
             alternatives = SupervisedProblem(zip(xs,untilSuffix,ys)).fastTopK(k, r)
             frontiers.append(alternatives)
             xs = ys
