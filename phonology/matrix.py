@@ -134,7 +134,7 @@ class UnderlyingProblem(object):
             if all(trimmed[0][j] == t[j] for t in trimmed):
                 self.conditionPhoneme(stem, Constant(j), trimmed[0][j])
             else: break
-        print "Constraining underlying prefix for %s to %s"%(u" ~ ".join(map(str,surfaces)), trimmed[0][:j])
+        print "Constraining underlying prefix for %s to %s"%(u" ~ ".join(map(unicode,surfaces)), trimmed[0][:j])
         
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
@@ -144,7 +144,7 @@ class UnderlyingProblem(object):
                                       trimmed[0][len(trimmed[0]) - j - 1])
                                       
             else: break
-        print "Constraining underlying suffix for %s to %s"%(u" ~ ".join(map(str,surfaces)),
+        print "Constraining underlying suffix for %s to %s"%(u" ~ ".join(map(unicode,surfaces)),
                                                              trimmed[0][::-1][:j][::-1])
             
 
