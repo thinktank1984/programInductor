@@ -2562,3 +2562,10 @@ nineProblems = [
 
 
 MATRIXPROBLEMS = underlyingProblems + interactingProblems + sevenProblems
+
+if __name__ == "__main__":
+    for j,p in enumerate(MATRIXPROBLEMS):
+        print "Problem index",j
+        if isinstance(p,Problem):
+            print p.description
+        print 
