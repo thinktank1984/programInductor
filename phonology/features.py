@@ -131,6 +131,7 @@ featureMap = {
     # glides
     u"w": [glide,voice,sonorant,continuant],
     u"y": [glide,palletized,voice,sonorant,continuant],
+    u"j": [glide,palletized,voice,sonorant,continuant],
 
     # liquids
     u"r": [liquid,voice,coronal,sonorant,continuant],

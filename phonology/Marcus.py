@@ -19,6 +19,12 @@ seed(4)
 
 TEMPERATURE = 2.0
 
+stimuliFromLiterature = {
+    "aax": [u"leledi",u"wiwidi",u"jijidi",u"dededi"],
+    "aab": [u"leledi",u"wiwije",u"jijili",u"dedewe"],
+    "aba": [u"ledile",u"wijewi",u"jiliji",u"dewede"]
+    }
+
 def sampleVowel():
     return choice([u"i",u"ɩ",u"e",u"ə",u"ɛ",u"æ",u"a",u"u",u"ʊ",u"o",u"ɔ"])
 def sampleConsonant():
@@ -44,6 +50,12 @@ def sampleABB(n):
         s,d = sampleAB()
         l.append(d + s + s)
     return l
+def sampleAAB(n):
+    l = []
+    for _ in range(n):
+        s,d = sampleAB()
+        l.append(s + s + d)
+    return l
 def sampleABX(n):
     l = []
     x = sampleSyllable()
@@ -68,7 +80,7 @@ def removePointsNotOnFront(points):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Generate and analyze synthetic rule learning problems ala Gary Marcus ABA/ABB patterns')
     parser.add_argument('-p','--problem', default = 'abb',
-                        choices = ["aba","abb","abx","aax"],
+                        choices = ["aba","aab","abb","abx","aax"],
                         type = str)
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-d','--depth', default = 3, type = int)
@@ -89,8 +101,14 @@ if __name__ == '__main__':
                 }
     constantPrefix = arguments.problem.startswith('x')
     constantSuffix = arguments.problem.endswith('x')
-        
-    trainingData = sampling[arguments.problem](arguments.number)
+
+    if arguments.problem in stimuliFromLiterature:
+        trainingData = stimuliFromLiterature[arguments.problem][:arguments.number]
+        if len(trainingData) < arguments.number:
+            trainingData += sampling[arguments.problem](arguments.number - len(trainingData))
+    else:
+        trainingData = sampling[arguments.problem](arguments.number)
+    
     print u"\n".join(trainingData)
     surfaceLength = sum([len(tokenize(w)) for w in trainingData ])
 

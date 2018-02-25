@@ -208,7 +208,7 @@ class IncrementalSolver(UnderlyingProblem):
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
             if all(l[j] == None for l in self.data + self.fixedUnderlyingForms.values()) \
-               and self.fixMorphology[j] == None:
+               and self.fixedMorphology[j] == None:
                 # Never seen this inflection: give it the empty morphology
                 print "Clamping the morphology of inflection %d to be empty"%j
                 condition(wordLength(prefixes[j]) == 0)
