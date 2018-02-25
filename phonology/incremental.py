@@ -287,12 +287,6 @@ class IncrementalSolver(UnderlyingProblem):
                 worker = self.restrict(trainingData)
                 newSolution = worker.sketchChangeToSolution(solution, rules)
                 if newSolution == None: return None
-                print newSolution.rules
-                print newSolution.prefixes
-                print newSolution.suffixes
-                print newSolution.underlyingForms
-                dumpPickle(newSolution,'newSolution.pickle')
-                print newSolution
                 print "CEGIS: About to find a counterexample to:\n",newSolution
                 ce = self.findCounterexample(newSolution, trainingData)
                 if ce == None:

@@ -26,14 +26,6 @@ def handleProblem(parameters):
     elif str(problemIndex)[0] == '9':
         p = nineProblems[int(str(problemIndex)[1:]) - 1]
 
-    if parameters['redirect']:
-        redirectName = "multicore_output/%d"%problemIndex
-        print "Redirecting output for problem %d to %s"%(problemIndex,redirectName)
-        (oldOutput,oldErrors) = (sys.stdout,sys.stderr)
-        handle = io.open(redirectName,'w',encoding = 'utf-8')#.character_encoding)
-        sys.stdout = handle
-        #        sys.stderr = handle
-
     if parameters['restrict'] != None:
         print "(Restricting problem data to interval: %d -- %d)"%(parameters['restrict'][0],parameters['restrict'][1])
         restriction = p.data[parameters['restrict'][0] : parameters['restrict'][1]]
@@ -84,9 +76,7 @@ def handleProblem(parameters):
             
     else:
         problem = UnderlyingProblem(p.data, UG = ug).restrict(restriction)
-        if parameters['task'] == 'stochastic':
-            problem.stochasticSearch(20, parameters['beam'])
-        elif parameters['task'] == 'debug':
+        if parameters['task'] == 'debug':
             for s in p.solutions:
                 s = parseSolution(s)
                 problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
@@ -133,14 +123,10 @@ def handleProblem(parameters):
             dumpPickle(frontier, os.path.join(parameters['save'], f))
             sys.exit(0)
 
-        if not isinstance(ss,list): ss = [ss]
+        assert isinstance(ss,list)
         
 
     print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
-
-    if parameters['redirect']:
-        sys.stdout,sys.stderr = oldOutput,oldErrors
-        handle.close()
 
     if parameters['pickleDirectory'] != None:
         fullPath = os.path.join(parameters['pickleDirectory'], "matrix_" + str(problemIndex) + ".p")
@@ -157,7 +143,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
     parser.add_argument('problem')
     parser.add_argument('task',
-                        choices = ["CEGIS","incremental","ransac","stochastic","exact",
+                        choices = ["CEGIS","incremental","ransac","exact",
                                    "debug","verify","frontier"],
                         default = "CEGIS",
                         type = str,
@@ -181,7 +167,6 @@ if __name__ == '__main__':
     parser.add_argument('--samples', default = 30, type = int)
     parser.add_argument('--curriculum', default = False, action = 'store_true',
                         help = "Only use in conjunction with universal grammar. Specifies that the loaded UG should be the one calculated from previous problems. see the curriculum option in UG.py")
-    parser.add_argument('--beam',default = 1,type = int)
     parser.add_argument('--pickleDirectory',default = None,type = str)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
@@ -229,14 +214,12 @@ if __name__ == '__main__':
                    'curriculum': arguments.curriculum,
                    'task': arguments.task,
                    'threshold': arguments.threshold,
-                   'redirect': False,
                    'window': arguments.window,
                    'debug': arguments.debug,
                    'save': arguments.save,
                    'restore': arguments.restore,
                    "restrict": arguments.restrict,
                    'cores': arguments.cores,
-                   'beam': arguments.beam,
                    'timeout': arguments.timeout,
                    'pickleDirectory': arguments.pickleDirectory,
                    'serial': arguments.serial,
