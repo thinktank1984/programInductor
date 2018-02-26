@@ -111,8 +111,8 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from (surface1, ..., surface_I) to ur
         self.fixedUnderlyingForms = {}
 
-        # After we have seen a rule be around for at least this many times in
-        # a row we keep it forever
+        # After we have seen a rule be around for at least this many
+        # times in a row we keep it forever
         self.ruleFreezingThreshold = 3
         self.frozenRules = set([])
         # Map from rule to how many times in a row we have seen it lately
@@ -207,7 +207,7 @@ class IncrementalSolver(UnderlyingProblem):
                 morphologicalCosts.append(None)
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
-            if all(l[j] == None for l in self.data + self.fixedUnderlyingForms.values()) \
+            if all(l[j] == None for l in self.data + self.fixedUnderlyingForms.keys()) \
                and self.fixedMorphology[j] == None:
                 # Never seen this inflection: give it the empty morphology
                 print "Clamping the morphology of inflection %d to be empty"%j
