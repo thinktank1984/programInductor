@@ -111,9 +111,9 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from (surface1, ..., surface_I) to ur
         self.fixedUnderlyingForms = {}
 
-        # After we have seen a rule be around for at least 2 times in
+        # After we have seen a rule be around for at least this many times in
         # a row we keep it forever
-        self.ruleFreezingThreshold = 2
+        self.ruleFreezingThreshold = 3
         self.frozenRules = set([])
         # Map from rule to how many times in a row we have seen it lately
         self.ruleHistory = {}
