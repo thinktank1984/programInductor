@@ -82,8 +82,9 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
              for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None, maximumRadius = 2):
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None, maximumRadius = 2, problemName = None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
+        self.problemName = problemName
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else \
                             int(math.ceil(utilities.numberOfCPUs()*0.75))
 
@@ -117,6 +118,8 @@ class IncrementalSolver(UnderlyingProblem):
         self.frozenRules = set([])
         # Map from rule to how many times in a row we have seen it lately
         self.ruleHistory = {}
+
+
 
     def solveUnderlyingForms(self, solution):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms.
@@ -331,10 +334,33 @@ class IncrementalSolver(UnderlyingProblem):
             if exhaustedGlobalTimeout(): raise SynthesisTimeout()
             else: raise SynthesisFailure('incremental change')
         return sorted(allSolutions,key = lambda s: s.cost())
+
+    @property
+    def checkpointPath(self):
+        return "checkpoints/%s.p"%(self.problemName)
+    def exportCheckpoint(self, solution, j):
+        package = {"fixedUnderlyingForms": self.fixedUnderlyingForms,
+                   "frozenRules": self.frozenRules,
+                   "ruleHistory": self.ruleHistory,
+                   "fixedMorphology": self.fixedMorphology,
+                   "solution": solution,
+                   "j": j}
+        dumpPickle(package, self.checkpointPath)                   
+        print " [+] Exported checkpoint to",self.checkpointPath
+    def restoreCheckpoint(self):
+        k = loadPickle(self.checkpointPath)
+        self.fixedUnderlyingForms = k["fixedUnderlyingForms"]
+        self.frozenRules = k["frozenRules"]
+        self.ruleHistory = k["ruleHistory"]
+        self.fixedMorphology = k["fixedMorphology"]
+        solution = k["solution"]
+        j = k["j"]
+        print " [+] Loaded checkpoint from",self.checkpointPath
+        return j,solution
     
 
-    def incrementallySolve(self, saveProgressTo = None,loadProgressFrom = None,k = 1):
-        if loadProgressFrom == None:        
+    def incrementallySolve(self, resume = False, k = 1):
+        if not resume:
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
             trainingData = self.data[:initialTrainingSize]
@@ -344,17 +370,8 @@ class IncrementalSolver(UnderlyingProblem):
                                                   auxiliaryHarness = True)
             j = initialTrainingSize
         else:
-            (j,trainingData,solution) = loadPickle(loadProgressFrom)
-            print " [+] Loaded progress from %s"%loadProgressFrom
+            j, solution = self.restoreCheckpoint()
             print "Solution =\n%s"%solution
-            if len(solution.prefixes) < len(self.data[0]):
-                print " [?] WARNING: Missing morphology for some inflections, padding with empty"
-                solution.prefixes += [Morph([])]*(len(self.data[0]) - len(solution.prefixes))
-                solution.suffixes += [Morph([])]*(len(self.data[0]) - len(solution.suffixes))
-                assert len(solution.prefixes) == len(solution.suffixes)
-            elif len(solution.prefixes) > len(self.data[0]):
-                print " [-] FATAL: Solution has more inflections and than data set???"
-                assert False
 
         # Maintain the invariant: the first j examples have been explained
         while j < len(self.data):
@@ -442,8 +459,6 @@ class IncrementalSolver(UnderlyingProblem):
                 
                 break # break out the loop over different radius sizes
 
-            if saveProgressTo != None:
-                print " [+] Saving progress to %s"%saveProgressTo
-                dumpPickle((j,None,solution),saveProgressTo)            
+            self.exportCheckpoint(solution, j)
 
         return self.expandFrontier(self.solveUnderlyingForms(solution), k)

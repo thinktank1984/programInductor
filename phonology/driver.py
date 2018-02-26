@@ -84,10 +84,10 @@ def handleProblem(parameters):
         
     elif parameters['task'] == 'incremental':
         ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
+                               problemName = str(problemIndex),
                                numberOfCPUs = 1 if parameters['serial'] else None).\
              restrict(restriction).\
-             incrementallySolve(saveProgressTo = parameters['save'],
-                                loadProgressFrom = parameters['restore'],
+             incrementallySolve(resume = parameters['resume'],                                
                                 k = parameters['top'])
     elif parameters['task'] == 'CEGIS':
         ss = problem.counterexampleSolution(k = parameters['top'])
@@ -139,6 +139,8 @@ if __name__ == '__main__':
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')
+    parser.add_argument('--resume', default = False, action = 'store_true',
+                        help = 'Resume the incremental solver from the last checkpoint')
     parser.add_argument('--dummy', default = False, action = 'store_true',
                         help = 'Dont actually run the solver for ransac')
     parser.add_argument('-s','--seed', default = '0', type = str)
@@ -198,6 +200,7 @@ if __name__ == '__main__':
                    'curriculum': arguments.curriculum,
                    'task': arguments.task,
                    'window': arguments.window,
+                   'resume': arguments.resume,
                    'debug': arguments.debug,
                    'save': arguments.save,
                    'restore': arguments.restore,
