@@ -186,27 +186,30 @@ class UnderlyingProblem(object):
 
         return solution.transduceManyStems(self.bank, self.data, batchSize = batchSize)
 
-    def expandFrontier(self, solution, k):
+    def expandFrontier(self, solution, k, CPUs = None):
         '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a Frontier object.'''
         if k == 1: return solution.toFrontier()
+
+        CPUs = CPUs or numberOfCPUs()
+
+        # Construct the training data for each rule
+        xs = []
+        ys = []
         
-        xs = [ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
-               for x in self.data
-               for i in range(self.numberOfInflections) ]
+        xs.append([ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
+                    for x in self.data
+                    for i in range(self.numberOfInflections) ])
         untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[x]))
                         for x in self.data
                         for i in range(self.numberOfInflections) ]
-        frontiers = []
         for r in solution.rules:
-            ys = [ self.applyRuleUsingSketch(r,x,us)
-                   for x,us in zip(xs,untilSuffix) ]
-            # print "xs = "
-            # print xs
-            # print "ys = "
-            # print ys
-            alternatives = SupervisedProblem(zip(xs,untilSuffix,ys)).fastTopK(k, r)
-            frontiers.append(alternatives)
-            xs = ys
+            ys.append(parallelMap(CPUs, lambda (x,us): self.applyRuleUsingSketch(r,x,us),
+                                  zip(xs[-1],untilSuffix) ))
+            xs.append(ys[-1])
+
+        # Now that we have the training data, we can solve for each of the rules' frontier
+        frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j])).fastTopK(k,r),
+                                enumerate(solution.rules))
 
         return Frontier(frontiers,
                         prefixes = solution.prefixes,
@@ -214,36 +217,36 @@ class UnderlyingProblem(object):
                         underlyingForms = solution.underlyingForms)
                         
 
-    def solveTopRules(self, solution, k):
-        '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
-        solutions = [solution]
+    # def solveTopRules(self, solution, k):
+    #     '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
+    #     solutions = [solution]
         
-        for _ in range(k - 1):
-            Model.Global()
+    #     for _ in range(k - 1):
+    #         Model.Global()
 
-            rules = [ Rule.sample() for _ in range(len(solution.rules)) ]
-            for other in solutions:
-                condition(And([ ruleEqual(r, o.makeConstant(self.bank))
-                                for r, o in zip(rules, other.rules) ]) == 0)
+    #         rules = [ Rule.sample() for _ in range(len(solution.rules)) ]
+    #         for other in solutions:
+    #             condition(And([ ruleEqual(r, o.makeConstant(self.bank))
+    #                             for r, o in zip(rules, other.rules) ]) == 0)
 
-            # Keep morphology variable! Just ensure it has the same cost
-            prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
-            suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
-            stems = [ Morph.sample() for _ in range(len(solution.underlyingForms)) ]
+    #         # Keep morphology variable! Just ensure it has the same cost
+    #         prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
+    #         suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
+    #         stems = [ Morph.sample() for _ in range(len(solution.underlyingForms)) ]
             
-            self.conditionOnData(rules, stems, prefixes, suffixes)
-            self.minimizeJointCost(rules, stems, prefixes, suffixes)
+    #         self.conditionOnData(rules, stems, prefixes, suffixes)
+    #         self.minimizeJointCost(rules, stems, prefixes, suffixes)
 
-            try:
-                output = self.solveSketch()
-            except SynthesisFailure,SynthesisTimeout:
-                if getVerbosity() > 0:
-                    print "Found %d/%d solutions."%(len(solutions),k)
-                break
-            solutions.append(Solution(suffixes = [ Morph.parse(self.bank, output, m) for m in suffixes ],
-                                      prefixes = [ Morph.parse(self.bank, output, m) for m in prefixes ],
-                                      rules = [ Rule.parse(self.bank, output, r) for r in rules ]))
-        return solutions
+    #         try:
+    #             output = self.solveSketch()
+    #         except SynthesisFailure,SynthesisTimeout:
+    #             if getVerbosity() > 0:
+    #                 print "Found %d/%d solutions."%(len(solutions),k)
+    #             break
+    #         solutions.append(Solution(suffixes = [ Morph.parse(self.bank, output, m) for m in suffixes ],
+    #                                   prefixes = [ Morph.parse(self.bank, output, m) for m in prefixes ],
+    #                                   rules = [ Rule.parse(self.bank, output, r) for r in rules ]))
+    #     return solutions
 
     def findCounterexamples(self, solution, trainingData = []):
         if getVerbosity() > 0:
