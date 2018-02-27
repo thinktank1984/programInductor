@@ -348,7 +348,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
         possibleNewFragments = [ (t,f) for (t,f) in fragments
                                  if t == typeOrdering[0] and not currentGrammar.hasFragment(f) ]
-        candidates = parallelMap(CPUs, scoreCandidate, possibleNewFragments)
+        candidates = lightweightParallelMap(CPUs, scoreCandidate, possibleNewFragments)
         if candidates == []:
             bestScore = float('inf')
         else:

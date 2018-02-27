@@ -86,6 +86,50 @@ def loadPickle(f):
         o = pickle.load(handle)
     return o
 
+PARALLELMAPDATA = None
+def lightweightParallelMap(numberOfCPUs, f, *xs, **keywordArguments):
+    global PARALLELMAPDATA
+
+    if numberOfCPUs == 1: return map(f,*xs)
+
+    n = len(xs[0])
+    for x in xs: assert len(x) == n
+    
+    assert PARALLELMAPDATA is None
+    PARALLELMAPDATA = (f,xs)
+
+    from multiprocessing import Pool
+
+    # Randomize the order in case easier ones come earlier or later
+    permutation = range(n)
+    random.shuffle(permutation)
+    inversePermutation = dict(zip(permutation, range(n)))
+
+    # Batch size of jobs as they are sent to processes
+    chunk = keywordArguments.get('chunk', max(1,int(n/(numberOfCPUs*2))))
+    
+    maxTasks = keywordArguments.get('maxTasks', None)
+    workers = Pool(numberOfCPUs, maxtasksperchild = maxTasks)
+
+    ys = workers.map(parallelMapCallBack, permutation,
+                     chunksize = chunk)
+    
+    workers.terminate()
+
+    PARALLELMAPDATA = None
+    return [ ys[inversePermutation[j]] for j in range(n) ]
+
+
+def parallelMapCallBack(j):
+    global PARALLELMAPDATA
+    f, xs = PARALLELMAPDATA
+    try:
+        return f(*[ x[j] for x in xs ])
+    except Exception as e:
+        eprint("Exception in worker during lightweight parallel map:\n%s"%(traceback.format_exc()))
+        raise e
+
+
 def parallelMap(numberOfCPUs, f, *xs):
     from pathos.multiprocessing import ProcessingPool as Pool
     
