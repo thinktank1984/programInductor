@@ -223,7 +223,7 @@ import cProfile
 #     print "Loaded all solutions in %d seconds"%(int(time() - startTime))
 #     return allSolutions, PICKLES
 
-def worker((problemsIndex, problems)):
+def worker(arguments):
     if arguments.task == 'fromGroundTruth':
         groundTruthSolutions = []
         for problem in problems:
@@ -234,23 +234,18 @@ def worker((problemsIndex, problems)):
         print "Successfully loaded %s solutions"%(len(groundTruthSolutions))
         groundTruthRules = [ [r] for s in groundTruthSolutions for r in s.rules ]
         print "Going to induce a fragment grammar from %d rules"%(len(groundTruthRules))
-        g = induceFragmentGrammar(groundTruthRules)
+        g = induceFragmentGrammar(groundTruthRules, CPUs = arguments.CPUs)
     elif arguments.task == 'fromFrontiers':
-        frontiers = []
-        fs = os.listdir('frontierPickles')
-        for f in fs:
-            frontiers.append(loadPickle('frontierPickles/' + f))
-        print "Successfully loaded %s frontiers from %s pickles."%(len(frontiers),len(fs))
+        frontiers = [ loadPickle('frontierPickles/matrix_%d.p'%j) for j in range(arguments.problems) ]
+        print "Successfully loaded %s frontiers."%(len(frontiers))
         # convert frontier objects to list of list of rules
         g = induceFragmentGrammar([ rs
                                     for frontier in frontiers
-                                    for rs in frontier.frontier ])
+                                    for rs in frontier.frontiers ],
+                                  CPUs = arguments.CPUs)
 
     if arguments.export != None:
         exportPath = arguments.export
-        if arguments.curriculum:
-            assert arguments.export.endswith('.p')
-            exportPath = arguments.export[:-2] + "_curriculum" + str(problemsIndex) + ".p"
         print "Exporting universal grammar to %s"%(exportPath)
         g.export(exportPath)
 
@@ -263,14 +258,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Infer universal grammars')
     parser.add_argument('task',choices = ['fromGroundTruth','fromFrontiers'])
     parser.add_argument('--export', type = str, default = None)
-    parser.add_argument('--curriculum', default = False, action = 'store_true')
-    parser.add_argument('--CPUs', type = int, default = 1)
+    parser.add_argument('--problems', type = int, default = 0)
+    parser.add_argument('--CPUs', type = int, default = numberOfCPUs())
     
     arguments = parser.parse_args()
 
-    if not arguments.curriculum:
-        toLearnFrom = [MATRIXPROBLEMS]
-    else:
-        toLearnFrom = [MATRIXPROBLEMS[:j] for j in range(0,len(MATRIXPROBLEMS)) ]
-
-    parallelMap(arguments.CPUs, worker, list(enumerate(toLearnFrom)))
+    worker(arguments)
+    

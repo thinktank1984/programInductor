@@ -330,7 +330,8 @@ def proposeFragments(ruleSets, verbose = False):
     return [ (t, f) for t in fragments for f in fragments[t] ] # if t != Rule ] #and t != 'GUARD' ]
 
 
-def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0):
+def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
+                          CPUs = 1):
     fragments = proposeFragments(ruleEquivalenceClasses, verbose = True)
 
     currentGrammar = EMPTYFRAGMENTGRAMMAR
@@ -338,16 +339,16 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
 
     typeOrdering = [Specification,Guard,Rule]
 
+    def scoreCandidate((t,f)):
+        newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
+                     estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
+        newScore = newGrammar.AIC(ruleEquivalenceClasses)
+        return newScore, newGrammar
+    
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
-        candidates = []
-        for (t,f) in fragments:
-            if t != typeOrdering[0]: continue
-            if currentGrammar.hasFragment(f): continue
-            
-            newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
-                         estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
-            newScore = newGrammar.AIC(ruleEquivalenceClasses)
-            candidates.append((newScore,newGrammar))
+        possibleNewFragments = [ (t,f) for (t,f) in fragments
+                                 if t == typeOrdering[0] and not currentGrammar.hasFragment(f) ]
+        candidates = parallelMap(CPUs, scoreCandidate, possibleNewFragments)
         if candidates == []:
             bestScore = float('inf')
         else:

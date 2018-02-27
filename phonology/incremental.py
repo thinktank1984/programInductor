@@ -418,7 +418,7 @@ class IncrementalSolver(UnderlyingProblem):
                     if eager: costRanking = ['everythingCost','invariantCost']
                     else:     costRanking = ['invariantCost','everythingCost']
                     print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)
-                    solutionScores = [ tuple([ scores[k] + scores['modelCost'] for k in costRanking ] + [scores['solution']])
+                    solutionScores = [ tuple([ scores[rk] + scores['modelCost'] for rk in costRanking ] + [scores['solution']])
                                       for scores in solutionScores ]
                     solutionScores = min(solutionScores)
                     newSolution = solutionScores[-1]

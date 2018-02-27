@@ -35,9 +35,6 @@ def handleProblem(parameters):
     if parameters['universalGrammar'] != None:
         assert parameters['universalGrammar'].endswith('.p')
         universalGrammarPath = parameters['universalGrammar']
-        if parameters['curriculum']:
-            index = MATRIXPROBLEMS.index(p)
-            universalGrammarPath = universalGrammarPath[:-2] + "_curriculum" + str(index) + ".p"
             
         if not os.path.exists(universalGrammarPath):
             print "Fatal error: Cannot find universal grammar",universalGrammarPath
@@ -118,6 +115,7 @@ def handleProblem(parameters):
         if not os.path.exists(parameters['pickleDirectory']):
             os.mkdir(parameters['pickleDirectory'])
         dumpPickle(ss, fullPath)
+        print "Exported frontier to",fullPath
         
                 
 
@@ -151,8 +149,6 @@ if __name__ == '__main__':
     parser.add_argument('--debug', default = None, type = lambda s: unicode(s,'utf8'))
     parser.add_argument('--restrict', default = None, type = str)
     parser.add_argument('--samples', default = 30, type = int)
-    parser.add_argument('--curriculum', default = False, action = 'store_true',
-                        help = "Only use in conjunction with universal grammar. Specifies that the loaded UG should be the one calculated from previous problems. see the curriculum option in UG.py")
     parser.add_argument('--pickleDirectory',default = None,type = str)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
@@ -197,7 +193,6 @@ if __name__ == '__main__':
                    'seed': seed,
                    'universalGrammar': arguments.universal,
                    'top': arguments.top,
-                   'curriculum': arguments.curriculum,
                    'task': arguments.task,
                    'window': arguments.window,
                    'resume': arguments.resume,
