@@ -21,7 +21,7 @@ class SupervisedProblem():
         self.maximumMorphLength = self.maximumObservationLength
 
 
-    def fastTopK(self, k, existingRule = None):
+    def topK(self, k, existingRule = None):
         solutions = [] if existingRule == None else [existingRule]
 
         for _ in range(k - (1 if existingRule else 0)):
@@ -40,7 +40,7 @@ class SupervisedProblem():
             try:
                 output = solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength)
             except SynthesisFailure:
-                print "fastTopK: Only got %d/%d rules."%(len(solutions),k)
+                print "SupervisedProblem.topK: Only got %d/%d rules."%(len(solutions),k)
                 break
 
             solutions.append(Rule.parse(self.bank, output, rule))
