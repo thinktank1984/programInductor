@@ -203,6 +203,7 @@ class UnderlyingProblem(object):
                         for x in self.data
                         for i in range(self.numberOfInflections) ]
         for r in solution.rules:
+            assert len(xs[-1]) == len(untilSuffix)
             ys.append(parallelMap(CPUs, lambda (x,us): self.applyRuleUsingSketch(r,x,us),
                                   zip(xs[-1],untilSuffix) ))
             xs.append(ys[-1])

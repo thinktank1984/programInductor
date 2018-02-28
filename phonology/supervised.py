@@ -37,8 +37,11 @@ class SupervisedProblem():
                                                        us,
                                                        max(len(x),len(y)) + 1),
                                              y.makeConstant(self.bank)))
-            output = solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength)
-            if not output: break
+            try:
+                output = solveSketch(self.bank, self.maximumObservationLength + 1, self.maximumMorphLength)
+            except SynthesisFailure:
+                print "fastTopK: Only got %d/%d rules."%(len(solutions),k)
+                break
 
             solutions.append(Rule.parse(self.bank, output, rule))
         return solutions
