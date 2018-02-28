@@ -356,6 +356,17 @@ class IncrementalSolver(UnderlyingProblem):
         solution = k["solution"]
         j = k["j"]
         print " [+] Loaded checkpoint from",self.checkpointPath
+        print "Loaded solution:"
+        print solution
+        print "Frozen rules:"
+        for r in self.frozenRules: print r
+        print "Fixed morphology:"
+        for j,(p,s) in enumerate(self.fixedMorphology):
+            if p is not None: print "Prefix %d:"%j, p
+            if s is not None: print "Suffix %d:"%j, s
+        print "Fixed underlying forms:"
+        for surfaces, stem in self.fixedUnderlyingForms.iteritems():
+            print "UR",stem,"for",u" ~ ".join(map(unicode, surfaces))
         return j,solution
     
 
@@ -371,7 +382,6 @@ class IncrementalSolver(UnderlyingProblem):
             j = initialTrainingSize
         else:
             j, solution = self.restoreCheckpoint()
-            print "Solution =\n%s"%solution
 
         # Maintain the invariant: the first j examples have been explained
         while j < len(self.data):
