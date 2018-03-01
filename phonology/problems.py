@@ -659,6 +659,91 @@ underlyingProblems.append(Problem(
 ''']))
 
 underlyingProblems.append(Problem(
+    '''
+    Samoan
+example from the textbook.
+(problem 10)
+    ''',
+    [
+        (u"olo", u"oloia"),
+        (u"lafo",u"lafoia"),
+        (u"usu",u"usuia"),
+        (u"tau",u"tauia"),
+        (u"taui",u"tauia"),
+        (u"lele",u"lelea"),
+        (u"tafe",u"tafea"),
+        (u"tau",u"taulia"),
+        (u"oso",u"osofia"),
+        (u"valu",u"valusia"),
+        (u"u:",u"u:tia")
+    ],
+    solutions = [u'''
+ + stem + 
+ + stem + ia
+[ -vowel ] ---> Ø /  _ #
+i ---> Ø / [ +vowel -back ] _ 
+''']))
+
+underlyingProblems.append(Problem(
+    '''
+    Russian
+ devoicing of word final obscurant
+(problem 11)
+    ''',
+    [
+        (u"vagon", u"vagona"),
+        (u"glas", u"glaza"),
+        (u"golos",u"golosa"),
+        (u"ras", u"raza"),
+        (u"les",u"lesa"),
+        (u"porok",u"poroga"),
+        (u"vrak",u"vraga"),
+        (u"urok",u"uroka"),
+        (u"tvet",u"tveta"),
+        (u"prut",u"pruda"),
+        (u"soldat",u"soldata"),
+        (u"zavot",u"zavoda"),
+        (u"xlep",u"xleba"),
+        (u"grip",u"griba"),
+        (u"trup",u"trupa")
+    ],
+    solutions = [u'''
+ + stem + 
+ + stem + a
+    [-sonorant] > [-voice] / _#''']))
+
+underlyingProblems.append(Problem(
+    '''
+    English 
+verb inflections.
+(problem 12)
+    ''',
+    [(u"ro",u"rod",u"roz",u"roɩŋ"),
+     (u"græb",u"græbd",u"græbz",u"græbɩŋ"),
+     (u"sim",u"simd",u"simz",u"simɩŋ"),
+     (u"liv",u"livd",u"livz",u"livɩŋ"),
+     (u"həg",u"həgd",u"həgz",u"həgɩŋ"),
+     (u"lʊk",u"lʊkt",u"lʊks",u"lʊkɩŋ"),
+     (u"æsk",u"æskt",u"æsks",u"æskɩŋ"),
+     (u"wɛrk",u"wɛrkt",u"wɛrks",u"wɛrkɩŋ"),
+     (u"kɩs",u"kɩst",u"kɩsəz",u"kɩsɩŋ"),
+     (u"fɩš",u"fɩšt",u"fɩšəz",u"fɩšɩŋ"),
+     (u"kwɩz",u"kwɩzd",u"kwɩzəz",u"kwɩzɩŋ"),
+     (u"bʌz",u"bʌzd",u"bʌzəz",u"bʌzɩŋ"),
+     (u"wet",u"wetəd",u"wets",u"wetɩŋ"),
+     (u"wed",u"wedəd",u"wedz",u"wedɩŋ"),     
+     (u"lɩft",u"lɩftəd",u"lɩfts",u"lɩftɩŋ")
+     ],
+    solutions = [u'''
+ + stem + 
+ + stem + d
+ + stem + z
+    0 > ə / [-continuant -sonorant +coronal] _ d#
+    0 > ə / [+sibilant] _ z#
+    d > [-voice] / [-voice]_#
+    z > [-voice] / [-voice]_#''']))
+
+underlyingProblems.append(Problem(
     u'''
 4: Hungarian
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
@@ -857,90 +942,7 @@ m > n/_#
 [-sibilant -nasal -liquid] ---> t /  _ #
 ǰ ---> š /  _ #''']))
 
-underlyingProblems.append(Problem(
-    '''
-    Samoan
-example from the textbook.
-(problem 10)
-    ''',
-    [
-        (u"olo", u"oloia"),
-        (u"lafo",u"lafoia"),
-        (u"usu",u"usuia"),
-        (u"tau",u"tauia"),
-        (u"taui",u"tauia"),
-        (u"lele",u"lelea"),
-        (u"tafe",u"tafea"),
-        (u"tau",u"taulia"),
-        (u"oso",u"osofia"),
-        (u"valu",u"valusia"),
-        (u"u:",u"u:tia")
-    ],
-    solutions = [u'''
- + stem + 
- + stem + ia
-[ -vowel ] ---> Ø /  _ #
-i ---> Ø / [ +vowel -back ] _ 
-''']))
 
-underlyingProblems.append(Problem(
-    '''
-    Russian
- devoicing of word final obscurant
-(problem 11)
-    ''',
-    [
-        (u"vagon", u"vagona"),
-        (u"glas", u"glaza"),
-        (u"golos",u"golosa"),
-        (u"ras", u"raza"),
-        (u"les",u"lesa"),
-        (u"porok",u"poroga"),
-        (u"vrak",u"vraga"),
-        (u"urok",u"uroka"),
-        (u"tvet",u"tveta"),
-        (u"prut",u"pruda"),
-        (u"soldat",u"soldata"),
-        (u"zavot",u"zavoda"),
-        (u"xlep",u"xleba"),
-        (u"grip",u"griba"),
-        (u"trup",u"trupa")
-    ],
-    solutions = [u'''
- + stem + 
- + stem + a
-    [-sonorant] > [-voice] / _#''']))
-
-underlyingProblems.append(Problem(
-    '''
-    English 
-verb inflections.
-(problem 12)
-    ''',
-    [(u"ro",u"rod",u"roz",u"roɩŋ"),
-     (u"græb",u"græbd",u"græbz",u"græbɩŋ"),
-     (u"sim",u"simd",u"simz",u"simɩŋ"),
-     (u"liv",u"livd",u"livz",u"livɩŋ"),
-     (u"həg",u"həgd",u"həgz",u"həgɩŋ"),
-     (u"lʊk",u"lʊkt",u"lʊks",u"lʊkɩŋ"),
-     (u"æsk",u"æskt",u"æsks",u"æskɩŋ"),
-     (u"wɛrk",u"wɛrkt",u"wɛrks",u"wɛrkɩŋ"),
-     (u"kɩs",u"kɩst",u"kɩsəz",u"kɩsɩŋ"),
-     (u"fɩš",u"fɩšt",u"fɩšəz",u"fɩšɩŋ"),
-     (u"kwɩz",u"kwɩzd",u"kwɩzəz",u"kwɩzɩŋ"),
-     (u"bʌz",u"bʌzd",u"bʌzəz",u"bʌzɩŋ"),
-     (u"wet",u"wetəd",u"wets",u"wetɩŋ"),
-     (u"wed",u"wedəd",u"wedz",u"wedɩŋ"),     
-     (u"lɩft",u"lɩftəd",u"lɩfts",u"lɩftɩŋ")
-     ],
-    solutions = [u'''
- + stem + 
- + stem + d
- + stem + z
-    0 > ə / [-continuant -sonorant +coronal] _ d#
-    0 > ə / [+sibilant] _ z#
-    d > [-voice] / [-voice]_#
-    z > [-voice] / [-voice]_#''']))
 
 underlyingProblems.append(Problem(
     '''
