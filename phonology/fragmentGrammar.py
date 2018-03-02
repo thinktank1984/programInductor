@@ -343,12 +343,14 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
         newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
                      estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
         newScore = newGrammar.AIC(ruleEquivalenceClasses)
+        newGrammar.clearCaches()
         return newScore, newGrammar
     
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
         possibleNewFragments = [ (t,f) for (t,f) in fragments
                                  if t == typeOrdering[0] and not currentGrammar.hasFragment(f) ]
         candidates = lightweightParallelMap(CPUs, scoreCandidate, possibleNewFragments)
+
         if candidates == []:
             bestScore = float('inf')
         else:
@@ -406,6 +408,14 @@ class FragmentGrammar():
         
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
+
+    def clearCaches(self):
+        self.ruleTable = {}
+        self.guardTable = {}
+        self.matrixTable = {}
+        self.specificationTable = {}
+        self.fCTable = {}
+
 
     def __str__(self):
         def makingNamingIntuitive(n):
