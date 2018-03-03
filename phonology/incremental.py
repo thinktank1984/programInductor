@@ -361,9 +361,11 @@ class IncrementalSolver(UnderlyingProblem):
         print "Frozen rules:"
         for r in self.frozenRules: print r
         print "Fixed morphology:"
-        for j,(p,s) in enumerate(self.fixedMorphology):
-            if p is not None: print "Prefix %d:"%j, p
-            if s is not None: print "Suffix %d:"%j, s
+        for j,m in enumerate(self.fixedMorphology):
+            if m is not None:
+                p,s = m
+                print "Prefix %d:"%j, p
+                print "Suffix %d:"%j, s
         print "Fixed underlying forms:"
         for surfaces, stem in self.fixedUnderlyingForms.iteritems():
             print "UR",stem,"for",u" ~ ".join(map(unicode, surfaces))
