@@ -378,4 +378,4 @@ def getGeneratorDefinition(generatorName, output):
                 m = re.search('_out = _(.*);',l)
                 assert m
                 return Variable('_' + m.group(1)), "\n".join(body)
-
+    raise Exception('getGeneratorDefinition: %s\n%s'%(generatorName, output))
