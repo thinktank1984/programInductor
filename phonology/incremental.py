@@ -476,4 +476,5 @@ class IncrementalSolver(UnderlyingProblem):
         print "Converges to the final solution:"
         print solution
         print "Expanding to a frontier of size",k
-        return self.expandFrontier(self.solveUnderlyingForms(solution), k)
+        return self.expandFrontier(self.solveUnderlyingForms(solution), k,
+                                   CPUs = self.numberOfCPUs)
