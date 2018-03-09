@@ -40,6 +40,7 @@ class VariableFragment(Fragment):
         return ([], ['%s(%s)'%(calculator[self.ty],v)])
     def numberOfVariables(self): return 1
     def hasConstants(self): return False
+    def isDegenerate(self): return False
 
 class RuleFragment(Fragment):
     CONSTRUCTOR = Rule
@@ -54,6 +55,9 @@ class RuleFragment(Fragment):
                                               self.change,
                                               self.left,
                                               self.right)
+    def isDegenerate(self):
+        return any( f.isDegenerate for f in [self.focus, self.change, self.left, self.right] )
+    
     @staticmethod
     def abstract(p,q):
         return [
@@ -90,6 +94,9 @@ class FCFragment(Fragment):
         assert isNumber(self.logPrior)
 
     def __unicode__(self): return unicode(self.child)
+
+    def isDegenerate(self):
+        return self.child.isDegenerate()
 
     def match(self, program):
         if isinstance(program, EmptySpecification):
@@ -140,6 +147,8 @@ class SpecificationFragment(Fragment):
     def numberOfVariables(self): return self.child.numberOfVariables()
     def hasConstants(self): return self.child.hasConstants()
 
+    def isDegenerate(self): return self.child.isDegenerate()
+
     @staticmethod
     def abstract(p,q):
         fragments = []
@@ -173,6 +182,7 @@ class MatrixFragment(Fragment):
 
     def numberOfVariables(self): return 0
     def hasConstants(self): return True
+    def isDegenerate(self): return self.child.isDegenerate()
 
     @staticmethod
     def fromFeatureMatrix(m):
@@ -216,6 +226,9 @@ class GuardFragment(Fragment):
         self.specifications = specifications
         self.starred = starred
         self.endOfString = endOfString
+
+    def isDegenerate(self):
+        return any( s.isDegenerate() for s in self.specifications )
 
     def __unicode__(self):
         parts = map(unicode, self.specifications)
@@ -309,7 +322,7 @@ def proposeFragments(ruleSets, verbose = False):
                             if pt != qt: continue
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             newFragments = [ f for f in abstractFragments[pt](pf,qf)
-                                             if not (f in badFragments[pt]) ]
+                                             if (f not in badFragments[pt]) and (not f.isDegenerate()) ]
                             # if [ f for f in newFragments if "instance at" in str(f) ]:
                             #     print pt,pf
                             #     print qt,qf
@@ -332,7 +345,9 @@ def proposeFragments(ruleSets, verbose = False):
 
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
                           CPUs = 1):
-    fragments = proposeFragments(ruleEquivalenceClasses, verbose = True)
+    startTime = time()
+    
+    fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
 
     currentGrammar = EMPTYFRAGMENTGRAMMAR
     previousDescriptionLength = float('inf')
@@ -368,7 +383,8 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
                 break
             else:
                 print "Moving on to fragments of type",typeOrdering[0]
-        
+
+    print "Total grammar induction time:", time() - startTime
     return currentGrammar
             
 

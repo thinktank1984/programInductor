@@ -44,6 +44,10 @@ class FC():
 class Specification():
     def __init__(self): pass
 
+    def isDegenerate(self):
+        """Whether this specification can be equivalently represented using fewer features"""
+        assert False, "isDegenerate: not implemented"
+
     @staticmethod
     def sample(bank, canBeEmpty = False):
         import numpy as np
@@ -87,6 +91,8 @@ class ConstantPhoneme(Specification,FC):
     def latex(self): return latexWord(self.p)
     def mutate(self,bank): return ConstantPhoneme(choice(bank.phonemes))
 
+    def isDegenerate(self,):
+
     def share(self, table):
         k = ('CONSTANT',unicode(self))
         if k in table: return table[k]
@@ -118,6 +124,8 @@ class ConstantPhoneme(Specification,FC):
 
     def extension(self,b): return [self.p]
 
+    def isDegenerate(self): return False        
+
     def sketchEquals(self,v,b):
         return "(extract_constant_sound(%s) == phoneme_%d)"%(v,b.phoneme2index[self.p])
 
@@ -131,6 +139,8 @@ class EmptySpecification(FC):
     def cost(self): return 2
     def latex(self): return '$\\varnothing$'
     def mutate(self,_): return self
+
+    def isDegenerate(self): return False
 
     def share(self, table):
         k = ('EMPTYSPECIFICATION',unicode(self))
@@ -173,6 +183,8 @@ class OffsetSpecification(FC):
     def latex(self): return '$%d$'%self.offset
     def mutate(self,_): return self
 
+    def isDegenerate(self): return False
+
     def share(self, table):
         k = ('OFFSETSPECIFICATION',unicode(self))
         if k in table: return table[k]
@@ -211,6 +223,8 @@ class BoundarySpecification(Specification):
     def latex(self): return '$+$'
     def mutate(self,_): return self
     def extension(self,_): return "+"
+
+    def isDegenerate(self): return False
 
     def share(self, table):
         k = ('BOUNDARYSPECIFICATION',unicode(self))
@@ -253,7 +267,14 @@ class FeatureMatrix(Specification,FC):
         else:
             fp = (choice([True,False]),choice(bank.features))
             return FeatureMatrix(list(set(self.featuresAndPolarities + [fp])))
-            
+
+    def isDegenerate(self):
+        if self.doesNothing: return False
+        e = frozenset(self.extension(FeatureBank.GLOBAL))
+        simplifications = [ FeatureMatrix([ fpp for fpp in self.featuresAndPolarities if fpp != fp])
+                            for fp in self.featuresAndPolarities ]
+        return any( e == frozenset(s.extension(FeatureBank.GLOBAL))
+                    for s in simplifications )
         
     @staticmethod
     def strPolarity(p): return '+' if p == True else ('-' if p == False else p)
@@ -399,6 +420,9 @@ class Guard():
         if len(specifications) < 2: starred = False
 
         return Guard(self.side, endOfString, starred, specifications)
+
+    def isDegenerate(self):
+        return any( s.isDegenerate() for s in self.specifications )
 
     @staticmethod
     def sample(bank,side):
@@ -553,6 +577,10 @@ class Rule():
         if isinstance(self.focus,OffsetSpecification):
             assert isinstance(self.structuralChange,EmptySpecification)
             assert self.focus.offset == 1
+
+    def isDegenerate(self):
+        return self.focus.isDegenerate() or self.structuralChange.isDegenerate() or \
+            self.leftTriggers.isDegenerate() or self.rightTriggers.isDegenerate()
 
     def isGeminiRule(self):
         return isinstance(self.focus,OffsetSpecification) and self.focus.offset == 1 and isinstance(self.structuralChange,EmptySpecification)

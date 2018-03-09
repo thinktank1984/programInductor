@@ -342,4 +342,4 @@ class FeatureBank():
         # h += self.defineFeaturesToSound()
         return h
 
-
+FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
