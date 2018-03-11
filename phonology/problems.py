@@ -1182,7 +1182,7 @@ it also looks like coronal is deleted in certain contexts.
 ''']))
 
 #interactingProblems.append(
-    Problem(
+Problem(
 '''4: Shona
 	Acute accent indicates H tone and unaccented vowels have L tone. Given the two sets of data immediately below, what tone rule do the following data motivate? There are alternations in the form of adjectives, e.g. kurefú, karefú, marefú all meaning “long”. Adjectives have an agreement prefix, hence ku-refú marks the form of the adjective in one grammatical class, and so on. In some cases, the agreement is realized purely as a change in the initial consonant of the adjective, i.e. gúrú ~ kúrú ~ húrú which need not be explained.
 ''',
