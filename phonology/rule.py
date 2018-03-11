@@ -91,7 +91,7 @@ class ConstantPhoneme(Specification,FC):
     def latex(self): return latexWord(self.p)
     def mutate(self,bank): return ConstantPhoneme(choice(bank.phonemes))
 
-    def isDegenerate(self,):
+    def isDegenerate(self): return False
 
     def share(self, table):
         k = ('CONSTANT',unicode(self))
