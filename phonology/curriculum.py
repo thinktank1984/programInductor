@@ -27,7 +27,7 @@ for j in range(starting, ending):
     flushEverything()
     os.system(command)
 
-    command = "pypy UG.py fromFrontiers --problems %d --export universalGrammars/empirical_%d.p"%(j+1, j+1)
+    command = "pypy UG.py fromFrontiers --CPUs 20 --problems %d --export universalGrammars/empirical_%d.p"%(j+1, j+1)
     print 
     print "\tCURRICULUM: Reestimating a universal grammar by issuing the command:"
     print "\t\t",command
