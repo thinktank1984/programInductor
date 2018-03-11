@@ -241,6 +241,7 @@ class IncrementalSolver(UnderlyingProblem):
         self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None],
                                stems, prefixes, suffixes,
                                morphologicalCosts = morphologicalCosts)
+        self.excludeBoundaryAndInsertions(rules)
         self.conditionOnData(rules, stems, prefixes, suffixes,
                              observations = dataToConditionOn,
                              auxiliaryHarness = True)

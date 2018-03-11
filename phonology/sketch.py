@@ -44,6 +44,10 @@ def ruleEqual(p,q): return p == q
 def alternationEqual(p,q): return p == q
 @sketchImplementation("is_deletion_rule")
 def isDeletionRule(r): return r.structuralChange == None
+@sketchImplementation("is_insertion_rule")
+def isInsertionRule(r): pass
+@sketchImplementation("rule_uses_boundary")
+def isBoundaryRule(r): pass
 @sketchImplementation("do_nothing_rule")
 def doNothingRule(*a): pass
 @sketchImplementation("index_word")

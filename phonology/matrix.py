@@ -156,6 +156,19 @@ class UnderlyingProblem(object):
                                  for j in range(len(self.data)) ]
         self.data = [ tuple(d[2]) for d in sorted(dataTaggedWithLength) ]
 
+    def excludeBoundaryAndInsertions(self, rules):
+        """
+        insertions/deletions can destroy context that would tell us where the morpheme boundaries are;
+        therefore you cannot have insertion/deletion and also have boundary rules
+        """
+        clauses = []
+        for r in rules:
+            clauses.append(isInsertionRule(r))
+            clauses.append(isDeletionRule(r))
+        anyInsertion = Or(clauses)
+        for r in rules:
+            condition(Not(And([anyInsertion, isBoundaryRule(r)])))
+
 
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces, auxiliaryHarness = False):
         """surfaces : list of numberOfInflections elements, each of which is a morph object"""
