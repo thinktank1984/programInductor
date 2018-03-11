@@ -5,7 +5,15 @@ def flushEverything():
     sys.stdout.flush()
     sys.stderr.flush()
 
-for j in range(10):
+
+starting = 0
+ending = 10
+if len(sys.argv) > 1:
+    starting = int(sys.argv[1])
+    if len(sys.argv) > 2:
+        ending = int(sys.argv[2])
+        
+for j in range(starting, ending):
     print "Solving problem #",j
     if j == 0:
         ug = ""
