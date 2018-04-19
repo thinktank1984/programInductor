@@ -107,10 +107,12 @@ class IncrementalSolver(UnderlyingProblem):
             self.fixedMorphologyThreshold = 1
         else:
             self.fixedMorphologyThreshold = 10
-        self.fixedUnderlyingFormThreshold = 10
+        self.fixedUnderlyingFormThreshold = 2
 
         # Map from (surface1, ..., surface_I) to ur
         self.fixedUnderlyingForms = {}
+        # Map from (surface1, ..., surface_I) to (ur, count)
+        self.underlyingFormHistory = {}
 
         # After we have seen a rule be around for at least this many
         # times in a row we keep it forever
@@ -154,9 +156,19 @@ class IncrementalSolver(UnderlyingProblem):
         self.fixedMorphology = fixed
 
     def updateFixedUnderlyingForms(self, solution):
-        numberToFix = max(0, len(solution.underlyingForms) - self.fixedUnderlyingFormThreshold)
-        self.fixedUnderlyingForms = {x: solution.underlyingForms[x]
-                                     for x in self.data[:numberToFix]}
+        for surfaces,ur in solution.underlyingForms.iteritems():
+            if surfaces in self.underlyingFormHistory:
+                oldUnderlying, count = self.underlyingFormHistory[surfaces]
+                if ur == oldUnderlying:
+                    self.underlyingFormHistory[surfaces] = (ur, count)
+                else:
+                    self.underlyingFormHistory[surfaces] = (ur, 1)
+            else:
+                self.underlyingFormHistory[surfaces] = (ur, 1)
+                    
+        self.fixedUnderlyingForms = {x: ur
+                                     for x, (ur, c) in self.underlyingFormHistory.iteritems()
+                                     if c >= self.fixedUnderlyingFormThreshold}
         for x in self.data:
             if x in self.fixedUnderlyingForms:
                 print "\t\t(clamping UR for observation %s to %s)"%(x,self.fixedUnderlyingForms[x])
