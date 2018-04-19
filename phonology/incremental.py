@@ -271,11 +271,12 @@ class IncrementalSolver(UnderlyingProblem):
                                             for j,s in enumerate(suffixes) ],
                                rules = [ Rule.parse(self.bank, output, r) if rp == None else rp
                                          for r,rp in zip(rules,originalRules) ])
+        newSolution = self.lesionMorphologicalRules(newSolution.withoutUselessRules())
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
 
         flushEverything()
-        return newSolution.withoutUselessRules()
+        return newSolution
 
     def sketchCEGISChange(self, solution, rules):
         windowData = self.data[-self.windowSize:]

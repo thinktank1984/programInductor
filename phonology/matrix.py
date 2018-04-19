@@ -231,36 +231,6 @@ class UnderlyingProblem(object):
                         underlyingForms = solution.underlyingForms)
                         
 
-    # def solveTopRules(self, solution, k):
-    #     '''Takes as input a "seed" solution, and expands it to k solutions with the same morphological cost'''
-    #     solutions = [solution]
-        
-    #     for _ in range(k - 1):
-    #         Model.Global()
-
-    #         rules = [ Rule.sample() for _ in range(len(solution.rules)) ]
-    #         for other in solutions:
-    #             condition(And([ ruleEqual(r, o.makeConstant(self.bank))
-    #                             for r, o in zip(rules, other.rules) ]) == 0)
-
-    #         # Keep morphology variable! Just ensure it has the same cost
-    #         prefixes = [ sampleMorphWithLength(len(p)) for p in solution.prefixes ]
-    #         suffixes = [ sampleMorphWithLength(len(p)) for p in solution.suffixes ]
-    #         stems = [ Morph.sample() for _ in range(len(solution.underlyingForms)) ]
-            
-    #         self.conditionOnData(rules, stems, prefixes, suffixes)
-    #         self.minimizeJointCost(rules, stems, prefixes, suffixes)
-
-    #         try:
-    #             output = self.solveSketch()
-    #         except SynthesisFailure,SynthesisTimeout:
-    #             if getVerbosity() > 0:
-    #                 print "Found %d/%d solutions."%(len(solutions),k)
-    #             break
-    #         solutions.append(Solution(suffixes = [ Morph.parse(self.bank, output, m) for m in suffixes ],
-    #                                   prefixes = [ Morph.parse(self.bank, output, m) for m in prefixes ],
-    #                                   rules = [ Rule.parse(self.bank, output, r) for r in rules ]))
-    #     return solutions
 
     def findCounterexamples(self, solution, trainingData = []):
         if getVerbosity() > 0:
@@ -572,6 +542,39 @@ the integer is None then we have no guess for that one.'''
             print "Optimal cost:",optimalCost
 
         return solutions, solutionCosts
+
+    def lesionMorphologicalRules(self, solution):
+        """Sometimes we end up learning to put the morphology into the rewrite
+        rules, e.g. 0 > k/#_ or something like that. This will take a
+        solution and try removing insertion/deletion rules whenever
+        possible, keeping the underlying forms constant but being
+        willing to modify the morphology.
+        """
+        rules = list(solution.rules)
+        for r in list(solution.rules):
+            if isinstance(r.focus, EmptySpecification) and isinstance(r.structuralChange, ConstantPhoneme) and \
+               u'#' in unicode(r):
+                candidateRules = [ r_ for r_ in rules if r_ != r ]
+                Model.Global()
+                prefixes = [ Morph.sample() for _ in xrange(self.numberOfInflections) ]
+                suffixes = [ Morph.sample() for _ in xrange(self.numberOfInflections) ]
+                self.conditionOnData([ r_.makeConstant(self.bank) for r_ in candidateRules ],
+                                     [ solution.underlyingForms[x].makeConstant(self.bank)
+                                       for x in self.data ],
+                                     prefixes, suffixes)
+                minimize(sum(wordLength(m) for m in prefixes+suffixes ))
+                try:
+                    output = self.solveSketch()
+                    print "Lesioning morphological rule", r
+                    solution = Solution(prefixes = [ Morph.parse(self.bank, output, p) for p in prefixes ],
+                                        suffixes = [ Morph.parse(self.bank, output, s) for s in suffixes ],
+                                        underlyingForms = solution.underlyingForms,
+                                        rules = candidateRules)
+                    rules = solution.rules
+                except SynthesisFailure: pass
+        return solution
+            
+        
 
     def stochasticSearch(self, iterations, width):
         population = [Solution([EMPTYRULE],
