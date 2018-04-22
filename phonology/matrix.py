@@ -554,15 +554,18 @@ the integer is None then we have no guess for that one.'''
         for r in list(solution.rules):
             if isinstance(r.focus, EmptySpecification) and isinstance(r.structuralChange, ConstantPhoneme) and \
                u'#' in unicode(r):
+                print "Candidate for lesion",r
                 candidateRules = [ r_ for r_ in rules if r_ != r ]
+                print "the new rules would be",candidateRules
                 Model.Global()
                 prefixes = [ Morph.sample() for _ in xrange(self.numberOfInflections) ]
                 suffixes = [ Morph.sample() for _ in xrange(self.numberOfInflections) ]
                 self.conditionOnData([ r_.makeConstant(self.bank) for r_ in candidateRules ],
                                      [ solution.underlyingForms[x].makeConstant(self.bank)
                                        for x in self.data ],
-                                     prefixes, suffixes)
-                minimize(sum(wordLength(m) for m in prefixes+suffixes ))
+                                     prefixes, suffixes,
+                                     auxiliaryHarness=True)
+                #minimize(sum(wordLength(m) for m in prefixes+suffixes ))
                 try:
                     output = self.solveSketch()
                     print "Lesioning morphological rule", r
@@ -571,7 +574,8 @@ the integer is None then we have no guess for that one.'''
                                         underlyingForms = solution.underlyingForms,
                                         rules = candidateRules)
                     rules = solution.rules
-                except SynthesisFailure: pass
+                except SynthesisFailure:
+                    print "Turns out that you cannot lesion",r
         return solution
             
         

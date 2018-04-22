@@ -160,7 +160,7 @@ class IncrementalSolver(UnderlyingProblem):
             if surfaces in self.underlyingFormHistory:
                 oldUnderlying, count = self.underlyingFormHistory[surfaces]
                 if ur == oldUnderlying:
-                    self.underlyingFormHistory[surfaces] = (ur, count)
+                    self.underlyingFormHistory[surfaces] = (ur, count + 1)
                 else:
                     self.underlyingFormHistory[surfaces] = (ur, 1)
             else:
@@ -283,12 +283,11 @@ class IncrementalSolver(UnderlyingProblem):
                                             for j,s in enumerate(suffixes) ],
                                rules = [ Rule.parse(self.bank, output, r) if rp == None else rp
                                          for r,rp in zip(rules,originalRules) ])
-        newSolution = self.lesionMorphologicalRules(newSolution.withoutUselessRules())
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
 
         flushEverything()
-        return newSolution
+        return newSolution.withoutUselessRules()
 
     def sketchCEGISChange(self, solution, rules):
         windowData = self.data[-self.windowSize:]
@@ -310,6 +309,7 @@ class IncrementalSolver(UnderlyingProblem):
                     print "No counterexample so I am just returning best solution"
                     newSolution.underlyingForms = {}
                     newSolution = self.solveUnderlyingForms(newSolution)
+                    newSolution = self.lesionMorphologicalRules(newSolution)
                     print "Final CEGIS solution:\n%s"%(newSolution)
                     return newSolution
                 trainingData = trainingData + [ce]
@@ -359,8 +359,12 @@ class IncrementalSolver(UnderlyingProblem):
                    "fixedMorphology": self.fixedMorphology,
                    "solution": solution,
                    "j": j}
-        dumpPickle(package, self.checkpointPath)                   
-        print " [+] Exported checkpoint to",self.checkpointPath
+        dumpPickle(package, self.checkpointPath)
+
+        # export a checkpoint that we will not overwrite later
+        persistentName = makeTemporaryFile('.p', d='checkpoints')
+        os.system("cp %s %s"%(self.checkpointPath, persistentName))
+        print " [+] Exported checkpoint to",self.checkpointPath," (persistent backup %s.p)"%persistentName
     def restoreCheckpoint(self):
         k = loadPickle(self.checkpointPath)
         self.fixedUnderlyingForms = k["fixedUnderlyingForms"]
@@ -486,6 +490,7 @@ class IncrementalSolver(UnderlyingProblem):
                 break # break out the loop over different radius sizes
 
             self.exportCheckpoint(solution, j)
+            
 
         print "Converges to the final solution:"
         print solution
