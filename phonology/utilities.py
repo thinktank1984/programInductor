@@ -64,6 +64,11 @@ def everyBinaryVector(l,w):
         for v in everyBinaryVector(l - 1,w - 1):
             yield [True] + v
 
+def randomPermutation(l):
+    l = list(l)
+    random.shuffle(l)
+    return l
+
 def everyPermutation(l,r):
     # every permutation of 0 -- (l-1)
     # each permutation is constrained to exchange exactly r elements

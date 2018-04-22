@@ -450,7 +450,7 @@ class IncrementalSolver(UnderlyingProblem):
                     print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)
                     solutionScores = [ tuple([ scores[rk] + scores['modelCost'] for rk in costRanking ] + [scores['solution']])
                                       for scores in solutionScores ]
-                    solutionScores = min(solutionScores)
+                    solutionScores = min(randomPermutation(solutionScores))
                     newSolution = solutionScores[-1]
                     newJointScore = solutionScores[0]
                     
