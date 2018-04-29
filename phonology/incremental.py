@@ -82,7 +82,7 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
              for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 6, fixedMorphology = None, maximumRadius = 2, problemName = None):
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 7, fixedMorphology = None, maximumRadius = 3, problemName = None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
         self.problemName = problemName
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else \
@@ -106,7 +106,10 @@ class IncrementalSolver(UnderlyingProblem):
         if wordsPerDataPoint >= 12:
             self.fixedMorphologyThreshold = 1
         else:
-            self.fixedMorphologyThreshold = 10
+            self.fixedMorphologyThreshold = 2
+        # Map from inflection_index to Maybe (prefix, suffix, count)
+        self.morphologyHistory = [None for _ in xrange(self.numberOfInflections) ]
+        
         self.fixedUnderlyingFormThreshold = 2
 
         # Map from (surface1, ..., surface_I) to ur
@@ -138,22 +141,26 @@ class IncrementalSolver(UnderlyingProblem):
                                  for inflections in self.data if not (inflections in self.fixedUnderlyingForms) }))
 
     def updateFixedMorphology(self, solution, trainingData):
-        fixed = []
+        fixed = {}
         for j in range(self.numberOfInflections):
-            # Do we have at least fixedMorphologyThreshold examples for this particular inflection?
-            inflectionExamples = sum( ss[j] != None for ss in solution.underlyingForms.keys() )
-            if inflectionExamples >= self.fixedMorphologyThreshold:
-                fixed.append((solution.prefixes[j], solution.suffixes[j]))
-                print "Fixing morphology of inflection %d to %s + stem + %s"%(j,
-                                                                              solution.prefixes[j],
-                                                                              solution.suffixes[j])
-                if self.fixedMorphology[j] != None:
-                    assert self.fixedMorphology[j][0] == solution.prefixes[j]
-                    assert self.fixedMorphology[j][1] == solution.suffixes[j]
-            # Otherwise was it already fixed?
-            elif self.fixedMorphology[j] != None: fixed.append(self.fixedMorphology[j])
-            else: fixed.append(None)
-        self.fixedMorphology = fixed
+            # Have we not seen anything for this inflection?
+            if not any( ss[j] != None for ss in solution.underlyingForms.keys() ):
+                continue
+            prefix, suffix = solution.prefixes[j], solution.suffixes[j]
+            if self.morphologyHistory[j] is None:
+                self.morphologyHistory[j] = (prefix, suffix, 1)
+            else:
+                oldPrefix, oldSuffix, count = self.morphologyHistory[j]
+                if oldPrefix == prefix and oldSuffix == suffix:
+                    count += 1
+                else:
+                    count = 1
+                self.morphologyHistory[j] = (prefix, suffix, count)
+                if count >= self.fixedMorphologyThreshold:
+                    fixed[j] = (prefix, suffix)
+                    print "Fixing morphology of inflection %d to %s + stem + %s"%(j, prefix, suffix)
+        
+        self.fixedMorphology = [fixed.get(n,None) for n in xrange(self.numberOfInflections) ] 
 
     def updateFixedUnderlyingForms(self, solution):
         for surfaces,ur in solution.underlyingForms.iteritems():
@@ -185,16 +192,16 @@ class IncrementalSolver(UnderlyingProblem):
                 print "Permanently freezing the rule",r
                 self.frozenRules.add(r)
 
-    def guessUnderlyingForms(self, stems):
+    def guessUnderlyingForms(self, stems, verbose=True):
         dataToConditionOn = [ d for d in self.data
                               if not (d in self.fixedUnderlyingForms)]
         prefixes = [ None if inflection is None else inflection[0] for inflection in self.fixedMorphology ]
         suffixes = [ None if inflection is None else inflection[1] for inflection in self.fixedMorphology ]
         assert len(dataToConditionOn) == len(stems)
         for x,stem in zip(dataToConditionOn, stems):
-            self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x)
+            self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x, verbose=verbose)
 
-    def sketchChangeToSolution(self, solution, rules):
+    def sketchChangeToSolution(self, solution, rules, verbose=True):
         Model.Global()
 
         originalRules = list(rules) # save it for later
@@ -257,7 +264,7 @@ class IncrementalSolver(UnderlyingProblem):
         self.conditionOnData(rules, stems, prefixes, suffixes,
                              observations = dataToConditionOn,
                              auxiliaryHarness = True)
-        self.guessUnderlyingForms(stems)
+        self.guessUnderlyingForms(stems, verbose=verbose)
 
         try:
             output = self.solveSketch()
@@ -289,7 +296,7 @@ class IncrementalSolver(UnderlyingProblem):
         flushEverything()
         return newSolution.withoutUselessRules()
 
-    def sketchCEGISChange(self, solution, rules):
+    def sketchCEGISChange(self, solution, rules, verbose=True):
         windowData = self.data[-self.windowSize:]
         fixedData = self.data[:len(self.fixedUnderlyingForms)]
         remainingData = self.data[len(self.fixedUnderlyingForms):-self.windowSize]
@@ -301,7 +308,8 @@ class IncrementalSolver(UnderlyingProblem):
             
             while True:
                 worker = self.restrict(trainingData)
-                newSolution = worker.sketchChangeToSolution(solution, rules)
+                newSolution = worker.sketchChangeToSolution(solution, rules, verbose=verbose)
+                verbose = False
                 if newSolution == None: return None
                 print "CEGIS: About to find a counterexample to:\n",newSolution
                 ce = self.findCounterexample(newSolution, trainingData)
@@ -341,8 +349,8 @@ class IncrementalSolver(UnderlyingProblem):
         flushEverything()
 
         allSolutions = parallelMap(self.numberOfCPUs,
-                                   lambda v: self.sketchCEGISChange(solution,v),
-                                   ruleVectors)
+                                   lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
+                                   enumerate(ruleVectors))
         allSolutions = [ s for s in allSolutions if s != None ]
         if allSolutions == []:
             if exhaustedGlobalTimeout(): raise SynthesisTimeout()
@@ -400,8 +408,10 @@ class IncrementalSolver(UnderlyingProblem):
             solution = worker.sketchJointSolution(1,canAddNewRules = True,
                                                   auxiliaryHarness = True)
             j = initialTrainingSize
+            firstCounterexample = True
         else:
             j, solution = self.restoreCheckpoint()
+            firstCounterexample = False
 
         # Maintain the invariant: the first j examples have been explained
         while j < len(self.data):
@@ -421,7 +431,9 @@ class IncrementalSolver(UnderlyingProblem):
             # Fix the morphology/stems/rules that we are certain about
             self.updateFixedMorphology(solution, trainingData)
             self.updateFixedUnderlyingForms(solution)
-            self.updateFrozenRules(solution)
+            if not firstCounterexample:
+                self.updateFrozenRules(solution)
+            firstCounterexample = False
 
             radius = 1
             while True:
@@ -448,9 +460,12 @@ class IncrementalSolver(UnderlyingProblem):
                     if eager: costRanking = ['everythingCost','invariantCost']
                     else:     costRanking = ['invariantCost','everythingCost']
                     print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)
-                    solutionScores = [ tuple([ scores[rk] + scores['modelCost'] for rk in costRanking ] + [scores['solution']])
+                    solutionScores = [ tuple([ scores[rk] + scores['modelCost'] for rk in costRanking ] + \
+                                             # Inject random tie-breaking
+                                             [ random.random() ] + \
+                                             [scores['solution']])
                                       for scores in solutionScores ]
-                    solutionScores = min(randomPermutation(solutionScores))
+                    solutionScores = min(solutionScores)
                     newSolution = solutionScores[-1]
                     newJointScore = solutionScores[0]
                     

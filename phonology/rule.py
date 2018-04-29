@@ -436,7 +436,7 @@ class Guard():
         return not self.endOfString and len(self.specifications) == 0
 
     def cost(self):
-        return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ]) + 2*int(self.optionalEnding)
+        return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ]) + 1.9*int(self.optionalEnding)
     
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):

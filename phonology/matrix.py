@@ -54,12 +54,13 @@ class UnderlyingProblem(object):
         self.fixedMorphology = fixedMorphology
         assert len(self.fixedMorphology) == self.numberOfInflections
 
-    def solveSketch(self, minimizeBound = 31):
+    def solveSketch(self, minimizeBound = 31, maximumMorphLength=None):
+        if maximumMorphLength is None: maximumMorphLength = self.maximumObservationLength
         return solveSketch(self.bank,
                            # unroll: +1 for extra UR size, +1 for guard buffer
                            self.maximumObservationLength + 2,
                            # maximum morpheme size
-                           self.maximumObservationLength,
+                           maximumMorphLength,
                            showSource = False, minimizeBound = minimizeBound)
 
     def debugSolution(self,s,u):
@@ -99,11 +100,12 @@ class UnderlyingProblem(object):
         result = Morph.sample()
         _r = r.makeDefinition(self.bank)
         condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank),
-                                             Constant(untilSuffix), self.maximumObservationLength + 1)))
+                                             Constant(untilSuffix), len(u) + 2)))
         try:
-            output = self.solveSketch()
+            output = self.solveSketch(maximumMorphLength=len(u) + 2)
         except SynthesisFailure:
             print "applyRuleUsingSketch: UNSATISFIABLE for %s %s %s"%(u,r,untilSuffix)
+            printSketchFailure()
             assert False
         except SynthesisTimeout:
             print "applyRuleUsingSketch: TIMEOUT for %s %s %s"%(u,r,untilSuffix)
@@ -119,7 +121,7 @@ class UnderlyingProblem(object):
         assert len(variables) == 1
         phoneme = Constant(variables[0])
         condition(phoneme == indexWord(expression, index))
-    def constrainUnderlyingRepresentation(self, stem, prefixes, suffixes, surfaces):
+    def constrainUnderlyingRepresentation(self, stem, prefixes, suffixes, surfaces, verbose=True):
         '''stem: sketch variable
         prefixes, suffixes, surfaces: Morph'''
         # Remove what we can
@@ -134,7 +136,8 @@ class UnderlyingProblem(object):
             if all(trimmed[0][j] == t[j] for t in trimmed):
                 self.conditionPhoneme(stem, Constant(j), trimmed[0][j])
             else: break
-        print "Constraining underlying prefix for %s to %s"%(u" ~ ".join(map(unicode,surfaces)), trimmed[0][:j])
+        if verbose:
+            print "Constraining underlying prefix for %s to %s"%(u" ~ ".join(map(unicode,surfaces)), trimmed[0][:j])
         
         for j in range(99):
             if any(j >= len(t) for t in trimmed): break
@@ -144,8 +147,9 @@ class UnderlyingProblem(object):
                                       trimmed[0][len(trimmed[0]) - j - 1])
                                       
             else: break
-        print "Constraining underlying suffix for %s to %s"%(u" ~ ".join(map(unicode,surfaces)),
-                                                             trimmed[0][::-1][:j][::-1])
+        if verbose:
+            print "Constraining underlying suffix for %s to %s"%(u" ~ ".join(map(unicode,surfaces)),
+                                                                 trimmed[0][::-1][:j][::-1])
             
 
     def sortDataByLength(self):
