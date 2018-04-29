@@ -15,6 +15,8 @@ from adjustText import adjust_text
 import numpy as np
 import argparse
 
+from command_server import start_server
+
 seed(4)
 
 TEMPERATURE = 2.0
@@ -78,6 +80,7 @@ def removePointsNotOnFront(points):
 
 
 if __name__ == '__main__':
+    start_server(1)
     parser = argparse.ArgumentParser(description = 'Generate and analyze synthetic rule learning problems ala Gary Marcus ABA/ABB patterns')
     parser.add_argument('-p','--problem', default = 'abb',
                         choices = ["aba","aab","abb","abx","aax"],

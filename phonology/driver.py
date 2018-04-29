@@ -13,6 +13,8 @@ from multiprocessing import Pool
 import sys
 import io
 
+from command_server import start_server
+
 def handleProblem(parameters):
     problemIndex = parameters['problemIndex']
     random.seed(parameters['seed'] + problemIndex)
@@ -188,6 +190,8 @@ if __name__ == '__main__':
             else:
                 assert False, ("Invalid restriction expression:"+arguments.restrict)
         arguments.restrict = restriction
+
+    start_server(arguments.cores)
 
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,

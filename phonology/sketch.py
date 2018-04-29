@@ -11,6 +11,8 @@ from time import time
 import re
 
 
+from command_server import send_to_command_server
+
 @sketchImplementation("alternation_cost")
 def alternationCost(r): pass
 
@@ -143,10 +145,11 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
-    os.system(command)
-    print "Ran the solver in %02f sec"%(time() - startTime)
-    globalSketchTime += time() - startTime
-    if globalTimeoutCounter != None: globalTimeoutCounter -= (time() - startTime)
+    actualTime = send_to_command_server(command)
+    #os.system(command)
+    print "Ran the solver in %02f sec (%02f wall clock, includes blocking)"%(actualTime, time() - startTime)
+    globalSketchTime += actualTime
+    if globalTimeoutCounter != None: globalTimeoutCounter -= actualTime
     flushEverything()
     
     output = open(outputFile,'r').read()
