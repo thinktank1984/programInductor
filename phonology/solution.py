@@ -46,6 +46,12 @@ class Frontier(object):
             lines.append(x)
         return u"\n".join(lines)
 
+    def MAP(self):
+        return Solution(rules = [ min(f,key = lambda r: r.cost())
+                                  for f in self.frontiers ],
+                        prefixes = self.prefixes, suffixes = self.suffixes,
+                        underlyingForms = self.underlyingForms)
+
         
     
 class Solution(object):

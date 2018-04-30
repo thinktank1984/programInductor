@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from solution import *
 from features import featureMap,tokenize
 
 #from solution import *
@@ -107,6 +108,9 @@ def latexSolutionAndProblem(path):
     if isinstance(solution,list): solution = solution[0]
     if isinstance(solution, list): return "(invalid solution)"
 
+    print "From",path
+    print solution
+
     # figure out which problem it corresponds to
     problem = None
     f = path.split('/')[-1][:-2]
@@ -114,9 +118,7 @@ def latexSolutionAndProblem(path):
         problem = alternationProblems[int(f.split('_')[-1]) - 1]
     elif f.startswith('matrix'):
         problemNumber = int(f.split('_')[-1])
-        if problemNumber < 50: problem = underlyingProblems[problemNumber - 1]
-        elif problemNumber < 70: problem = interactingProblems[problemNumber - 50 - 1]
-        elif problemNumber < 80: problem = sevenProblems[problemNumber - 70 - 1]
+        problem = MATRIXPROBLEMS[problemNumber]
     if problem == None:
         print "Could not find the problem for path",path
         assert False
@@ -134,6 +136,7 @@ def latexSolutionAndProblem(path):
             r += "\\\\\n"
         r += "\\bottomrule\\end{longtable}"
 
+        if isinstance(solution,Frontier): solution = solution.MAP()
         rules = solution.rules
 
     elif "Numbers between" in problem.description:
@@ -213,13 +216,13 @@ def exportLatexDocument(source, path):
     #os.system('pdflatex %s -output-directory %s'%(path,directory))
 
 if __name__ == "__main__":
-    source = "\n\n\\pagebreak\n\n".join([ latexSolutionAndProblem("pickles/alternation_%d.p"%j)
-                                          for j in range(1,11+1) ] + \
+    source = "\n\n\\pagebreak\n\n".join(# [ latexSolutionAndProblem("pickles/alternation_%d.p"%j)
+                                        #   for j in range(1,11+1) ] + \
+                                        # [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
+                                        #   for j in range(1,15) ] + \
                                         [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
-                                          for j in range(1,15) ] + \
-                                        [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
-                                          for j in [51,52,53,55] ] + [])
-    exportLatexDocument(source,"../../phonologyPaper/test.tex")
+                                          for j in [22,24] ] + [])
+    exportLatexDocument(source,"../../phonologyPaper/allTheSolutions.tex")
 
     
             
