@@ -54,6 +54,8 @@ class UnderlyingProblem(object):
         self.fixedMorphology = fixedMorphology
         assert len(self.fixedMorphology) == self.numberOfInflections
 
+        self.pervasiveTimeout = None
+
     def solveSketch(self, minimizeBound = 31, maximumMorphLength=None):
         if maximumMorphLength is None: maximumMorphLength = self.maximumObservationLength
         return solveSketch(self.bank,
@@ -61,7 +63,8 @@ class UnderlyingProblem(object):
                            self.maximumObservationLength + 2,
                            # maximum morpheme size
                            maximumMorphLength,
-                           showSource = False, minimizeBound = minimizeBound)
+                           showSource = False, minimizeBound = minimizeBound,
+                           timeout=self.pervasiveTimeout)
 
     def debugSolution(self,s,u):
         for i in range(self.numberOfInflections):

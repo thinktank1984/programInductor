@@ -119,10 +119,12 @@ class IncrementalSolver(UnderlyingProblem):
 
         # After we have seen a rule be around for at least this many
         # times in a row we keep it forever
-        self.ruleFreezingThreshold = 3
+        self.ruleFreezingThreshold = 10
         self.frozenRules = set([])
         # Map from rule to how many times in a row we have seen it lately
         self.ruleHistory = {}
+
+        self.pervasiveTimeout = 60*60 # let's not try and run the solver more than an hour
 
 
 

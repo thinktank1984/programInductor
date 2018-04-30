@@ -3,7 +3,6 @@
 from problems import interactingProblems
 from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
 from features import FeatureBank,featureMap,tokenize
-from latex import latexWord
 from morph import Morph
 from utilities import *
 
@@ -88,7 +87,9 @@ class ConstantPhoneme(Specification,FC):
     def doesNothing(self): return False
     def cost(self): return 2
     def skeleton(self): return "K"
-    def latex(self): return latexWord(self.p)
+    def latex(self):
+        from latex import latexWord
+        return latexWord(self.p)
     def mutate(self,bank): return ConstantPhoneme(choice(bank.phonemes))
 
     def isDegenerate(self): return False

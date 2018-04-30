@@ -136,12 +136,12 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
     else: timeout = ''
 
-    command = "sketch %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
-                                                                                     minimizeBound,
-                                                                                     unroll,
-                                                                                     temporarySketchFile,
-                                                                                     outputFile,
-                                                                                     outputFile)
+    command = "sketch --slv-p-cpus 1 %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
+                                                                                                    minimizeBound,
+                                                                                                    unroll,
+                                                                                                    temporarySketchFile,
+                                                                                                    outputFile,
+                                                                                                    outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
