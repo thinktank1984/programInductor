@@ -111,7 +111,7 @@ def lightweightParallelMap(numberOfCPUs, f, *xs, **keywordArguments):
     inversePermutation = dict(zip(permutation, range(n)))
 
     # Batch size of jobs as they are sent to processes
-    chunk = keywordArguments.get('chunk', max(1,int(n/(numberOfCPUs*2))))
+    chunk = keywordArguments.get('chunk', 1)
     
     maxTasks = keywordArguments.get('maxTasks', None)
     workers = Pool(numberOfCPUs, maxtasksperchild = maxTasks)
