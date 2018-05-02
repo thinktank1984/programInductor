@@ -123,14 +123,24 @@ def handleProblem(parameters):
                 
 
 
-
-
+def paretoFrontier(problemIndex):
+    p = MATRIXPROBLEMS[problemIndex]
+    print p.description
+    data = randomlyPermute(p.data)[:len(p.data)/2]
+    p = UnderlyingProblem(p.data)
+    paretoFront = p.paretoFront(3, 20, 1,
+                                useMorphology=True)
+    if arguments.pickleDirectory is not None:
+       path = arguments.pickleDirectory + "/" + str(problemIndex) + "_paretoFrontier.p"
+       dumpPickle(paretoFront, path)
+       print "Exported Pareto frontier to",path
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
     parser.add_argument('problem')
     parser.add_argument('task',
                         choices = ["CEGIS","incremental","ransac","exact",
-                                   "debug","verify","frontier"],
+                                   "debug","verify","frontier","pareto"],
                         default = "CEGIS",
                         type = str,
                         help = "The task you are asking the driver to initiate.")
@@ -204,6 +214,13 @@ if __name__ == '__main__':
         arguments.restrict = restriction
 
     start_server(arguments.cores)
+
+    if arguments.task == "pareto":
+        # a quick hack
+        assert len(problems) == 1
+        paretoFrontier(problems[0])
+        sys.exit(0)
+        
 
     parameters = [{'problemIndex': problemIndex,
                    'seed': seed,

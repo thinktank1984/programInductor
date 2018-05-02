@@ -465,7 +465,6 @@ the integer is None then we have no guess for that one.'''
 
     def paretoFront(self, depth, k, temperature, useMorphology = False,
                     morphologicalCoefficient = 3):
-        assert self.numberOfInflections == 1
         self.maximumObservationLength += 1
 
         def affix():

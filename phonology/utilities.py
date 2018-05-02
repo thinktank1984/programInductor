@@ -54,6 +54,10 @@ def flatten(xss):
 def randomlyRemoveOne(x):
     t = random.choice(x)
     return [ y for y in x if t != y ]
+def randomlyPermute(l):
+    l = list(l)
+    random.shuffle(l)
+    return l
 
 def everyBinaryVector(l,w):
     if l == 0:
