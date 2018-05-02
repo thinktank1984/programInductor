@@ -72,11 +72,9 @@ generator Word unknown_word() {
 
 struct Specification{@Immutable("")
 }
+
 DEFINEVECTOR
-/* struct Vector extends Specification{//@Immutable("") */
-/*   bit[NUMBEROFFEATURES] mask; */
-/*   bit[NUMBEROFFEATURES] preference; */
-/* } */
+
 struct ConstantPhoneme extends Specification{@Immutable("")
   Sound phoneme;
 }
@@ -485,7 +483,9 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
   if (g.starred) { // * applies to the second specification
     assert g.spec != null && g.spec2 != null;
     // do not put a star on constant
+#ifndef DISABLEFEATURES
     assert !constant_specification(g.spec);
+#endif
     assert !boundary_specification(g.spec);
     assert !boundary_specification(g.spec2);
 #ifdef SYLLABLEBOUNDARYFEATURE
@@ -610,6 +610,31 @@ int rule_cost(Rule r) {
 		      specification_cost(r.focus) + specification_cost(r.structural_change));
 }
 
+bit uses_features(Rule r){
+  return specification_uses_features(r.focus) || specification_uses_features(r.structural_change) ||
+    guard_uses_features(r.left_trigger) || guard_uses_features(r.right_trigger);
+}
+bit specification_uses_features(Specification p){
+  if (p == null) return 0;
+  switch (p) {
+  case Vector:{
+    return !EMPTYVECTOR(p);
+  }
+  case ConstantPhoneme:{ return 0; }
+  case Boundary:{ return 0;}
+  case Offset:{return 0;}
+  }
+}
+bit guard_uses_features(Guard g){
+  return specification_uses_features(g.spec) || specification_uses_features(g.spec2);
+}
+bit guard_uses_clean(Guard g){
+  return g.starred;
+}
+bit rule_uses_clean(Rule r){
+  return guard_uses_clean(r.left_trigger) || guard_uses_clean(r.right_trigger);
+}
+
 Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
   Specification focus = r.focus;
   Specification structural_change = r.structural_change;
@@ -618,7 +643,13 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
 
   assert u.l <= unrollBound;
   /* assert u.l >= unrollBound - 1; */
-
+#ifdef DISABLEFEATURES
+  assert !uses_features(r);
+#endif
+#ifdef DISABLECLEAN
+  assert !rule_uses_clean(r);
+#endif
+  
   // sanity checks
   assert !(is_offset(focus) && is_offset(structural_change));
   if (is_offset(focus)) {
@@ -640,8 +671,10 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
   }
   
   // HEURISTIC: long-distance dependencies tend to only occur on one side
+#ifndef DISABLEFEATURES  
   if (left_trigger.starred) assert !right_trigger.starred;
   if (right_trigger.starred) assert !left_trigger.starred;
+#endif  
   // K > [features] is always equivalent to K > K at a cost which is no greater
   // ACTUALLY, this is not true with universal grammar!
   // if (constant_specification(focus)) assert constant_specification(structural_change) || structural_change == null;

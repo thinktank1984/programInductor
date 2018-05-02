@@ -1,3 +1,4 @@
+from sketch import disableFeatures, disableClean
 from problems import MATRIXPROBLEMS
 from countingProblems import CountingProblem
 from utilities import *
@@ -133,12 +134,19 @@ if __name__ == '__main__':
                         default = "CEGIS",
                         type = str,
                         help = "The task you are asking the driver to initiate.")
+    parser.add_argument('--features',
+                        choices = ["none","sophisticated","simple"],
+                        default = "sophisticated",
+                        type = str,
+                        help = "What features the solver allowed to use")
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
     parser.add_argument('--timeout', default = 1.0, type = float,
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')
+    parser.add_argument('--disableClean', default = False, action = 'store_true',
+                        help = 'disable kleene star')
     parser.add_argument('--resume', default = False, action = 'store_true',
                         help = 'Resume the incremental solver from the last checkpoint')
     parser.add_argument('--dummy', default = False, action = 'store_true',
@@ -156,6 +164,10 @@ if __name__ == '__main__':
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
+    if arguments.features == "none":
+        disableFeatures()
+    if arguments.disableClean:
+        disableClean()
     
     if arguments.problem == 'integration':
         problems = [1,

@@ -2,6 +2,7 @@
 
 from solution import *
 from features import featureMap,tokenize
+from parseSPE import *
 
 #from solution import *
 from morph import *
@@ -176,6 +177,11 @@ def latexSolutionAndProblem(path):
     r += '''\n\\begin{tabular}{l}\\emph{Rules: }\\\\
 %s
 \\end{tabular}'''%("\\\\".join([ r.latex() for r in rules if not r.doesNothing() ]))
+    for ts in problem.solutions:
+        rules = parseSolution(ts).rules
+        r += '''\n\\begin{tabular}{l}\\emph{Textbook solution rules: }\\\\
+%s
+\\end{tabular}'''%("\\\\".join([ r.latex() for r in rules ]))
     return r
 
 def latexFeatures():
@@ -221,7 +227,7 @@ if __name__ == "__main__":
                                         # [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
                                         #   for j in range(1,15) ] + \
                                         [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
-                                          for j in [22,24] ] + [])
+                                          for j in [21,22,24] ] + [])
     exportLatexDocument(source,"../../phonologyPaper/allTheSolutions.tex")
 
     

@@ -67,9 +67,15 @@ def makeConstantWord(bank, w):
     
 
 def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
+    global featuresAreDisabled
+    global cleanIsDisabled
     h = ""
     if alternationProblem:
         h += "#define ALTERNATIONPROBLEM\n"
+    if featuresAreDisabled:
+        h += "#define DISABLEFEATURES\n"
+    if cleanIsDisabled:
+        h += "#define DISABLECLEAN\n"
     h += "#define MAXIMUMMORPHLENGTH %d\n"%maximumMorphLength
     h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
     h += "#define True 1\n#define False 0\n"
@@ -102,6 +108,15 @@ globalSketchTime = 0.0
 def getGlobalSketchTime():
     global globalSketchTime
     return globalSketchTime
+
+cleanIsDisabled = False
+featuresAreDisabled = False
+def disableFeatures():
+    global featuresAreDisabled
+    featuresAreDisabled = True
+def disableClean():
+    global cleanIsDisabled
+    cleanIsDisabled = True
 
 lastFailureOutput = None
 lastSketchOutput = None
