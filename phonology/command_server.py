@@ -11,6 +11,7 @@ import SocketServer
 COMMANDSERVERPORT = 1540
 PASSWORD = "superduper ultra-secure amazingly cryptographic password"
 COMMANDSERVERSEMAPHORE = None
+MAXIMUMNUMBEROFCONNECTIONS = None
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
@@ -23,12 +24,15 @@ class CommandHandler(SocketServer.StreamRequestHandler):
             return
         
         k = self.rfile.readline()
-        COMMANDSERVERSEMAPHORE.acquire()
-        startTime = time.time()
-        os.system(k)
-        dt = time.time() - startTime
-        self.wfile.write(str(dt))
-        COMMANDSERVERSEMAPHORE.release()
+        if k.strip() == "?":
+            self.wfile.write(str(MAXIMUMNUMBEROFCONNECTIONS))
+        else:
+            COMMANDSERVERSEMAPHORE.acquire()
+            startTime = time.time()
+            os.system(k)
+            dt = time.time() - startTime
+            self.wfile.write(str(dt))
+            COMMANDSERVERSEMAPHORE.release()
 
 def command_server_running():
     for p in psutil.process_iter(attrs=['name','cmdline']):
@@ -38,12 +42,12 @@ def command_server_running():
 
 def start_server(CPUs):
     if command_server_running():
-        print " [+] Found existing command server."
+        print " [+] Found existing command server:", int(send_to_command_server("?")), "CPUs"
         return
 
     time.sleep(0.2 + random.random())
     if command_server_running():
-        print " [+] Found existing command server."
+        print " [+] Found existing command server:", int(send_to_command_server("?")), "CPUs"
         return
     
     print " [+] Launching command server w/ %d CPUs"%CPUs
@@ -84,6 +88,7 @@ if __name__ == "__main__":
         sys.exit(0)
         
     CPUs = int(a)
+    MAXIMUMNUMBEROFCONNECTIONS = CPUs
 
     host = "localhost"
     COMMANDSERVERSEMAPHORE = threading.Semaphore(CPUs)
