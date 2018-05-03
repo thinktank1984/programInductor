@@ -177,8 +177,8 @@ simpleFeatureMap = {
     u"f": [labiodental,fricative],
     u"v": [labiodental,fricative,voice],
     u"β": [labiodental,fricative,voice],
-    u"m": [bilabial,nasal,voice,sonorant],
-    u"m̥": [bilabial,nasal,sonorant],#,continuant],
+    u"m": [bilabial,nasal,voice],
+    u"m̥": [bilabial,nasal],#,continuant],
     u"θ": [dental, fricative],
     u"d": [alveolar,stop,voice],
     #u"d̪": [voice,coronal],
@@ -276,7 +276,7 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
 
 # Let's give sonority to the simple features also
 for p,f in sophisticatedFeatureMap.iteritems():
-    if "sonorant" in f:
+    if "sonorant" in f and p in simpleFeatureMap:
         assert "sonorant" not in simpleFeatureMap[p]
         simpleFeatureMap[p].append("sonorant")
         
