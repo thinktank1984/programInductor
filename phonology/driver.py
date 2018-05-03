@@ -1,4 +1,5 @@
 from sketch import disableFeatures, disableClean
+from features import switchFeatures
 from problems import MATRIXPROBLEMS
 from countingProblems import CountingProblem
 from utilities import *
@@ -174,8 +175,12 @@ if __name__ == '__main__':
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
+    
     if arguments.features == "none":
         disableFeatures()
+    else:
+        switchFeatures(arguments.features)
+        
     if arguments.disableClean:
         disableClean()
     

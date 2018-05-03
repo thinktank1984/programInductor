@@ -21,41 +21,40 @@ lax = "lax"
 high = "high"
 middle = "middle"
 low = "low"
-#front = "front"
-#central = "central"
+front = "front"
+central = "central"
 back = "back"
 rounded = "rounded"
-#unrounded = "unrounded"
-#bilabial = "bilabial"
-#stop = "stop"
+bilabial = "bilabial"
+stop = "stop"
 voice = "voice"
-#fricative = "fricative"
-#labiodental = "labiodental"
-#dental = "dental"
-#alveolar = "alveolar"
+fricative = "fricative"
+labiodental = "labiodental"
+dental = "dental"
+alveolar = "alveolar"
 #labiovelar = "labiovelar"
-#velar = "velar"
+velar = "velar"
 nasal = "nasal"
-#uvular = "uvular"
+uvular = "uvular"
 glide = "glide"
 liquid = "liquid"
 lateral = "lateral"
 trill = "trill"
 flap = "flap"
-#affricate = "affricate"
-#alveopalatal = "alveopalatal"
+affricate = "affricate"
+alveopalatal = "alveopalatal"
 anterior = "anterior"
 aspirated = "aspirated"
 unreleased = "unreleased"
-#laryngeal = "laryngeal"
-#pharyngeal = "pharyngeal"
+laryngeal = "laryngeal"
+pharyngeal = "pharyngeal"
 syllableBoundary = "syllableBoundary"
 wordBoundary = "wordBoundary"
 continuant = "continuant"
 syllabic = "syllabic"
 delayedRelease = "delayedRelease"
 
-featureMap = {
+sophisticatedFeatureMap = {
     # unrounded vowels
     u"i": [voice,tense,high],
     u"ɨ": [voice,tense,high,back],
@@ -150,31 +149,137 @@ featureMap = {
     u"##": [wordBoundary],
 }
 
+simpleFeatureMap = {
+    # unrounded vowels
+    u"i": [voice,tense,high,front],
+    u"ɨ": [voice,tense,high,back,central],
+    u"ɩ": [voice,high,front],
+    u"e": [voice,tense,middle,front],
+    u"ə": [voice,tense,middle,central],
+    u"ɛ": [voice,middle,front],
+    u"æ": [voice,low,front,tense],
+    u"a": [voice,low,central,tense],
+    u"ʌ": [voice,middle,central],
+    # rounded vowels
+    u"u": [voice,tense,high,back,rounded],
+    u"ü": [voice,tense,high,front,rounded],
+    u"ʊ": [voice,high,back,rounded],
+    u"o": [voice,middle,tense,back,rounded],
+    u"ö": [voice,middle,tense,front,rounded],
+    u"ɔ": [voice,middle,back,rounded],
+    #possibly missing are umlauts
+
+    # consonance
+    u"p": [bilabial,stop],
+    u"p|": [bilabial,stop,unreleased],
+    u"p^h": [bilabial,stop,aspirated],
+    u"b": [bilabial, stop, voice],
+    u"f": [labiodental,fricative],
+    u"v": [labiodental,fricative,voice],
+    u"β": [labiodental,fricative,voice],
+    u"m": [bilabial,nasal,voice,sonorant],
+    u"m̥": [bilabial,nasal,sonorant],#,continuant],
+    u"θ": [dental, fricative],
+    u"d": [alveolar,stop,voice],
+    #u"d̪": [voice,coronal],
+    u"d^z": [alveolar,affricate,voice],
+    u"t": [alveolar, stop],
+    u"t|": [alveolar, stop, unreleased],
+    u"t^s": [alveolar, affricate],
+    u"t^h": [alveolar, stop,aspirated],
+    u"ṭ": [alveolar, stop,retroflex],
+    u"ḍ": [alveolar, stop,voice,retroflex],
+    u"ṛ": [alveolar, stop,retroflex,voice],
+    u"ð": [dental, fricative, voice],
+    u"z": [fricative, voice, alveolar],
+    u"ǰ": [voice,alveopalatal,affricate],
+    u"ž": [voice,alveopalatal,affricate,voice],
+    u"s": [fricative, alveolar],
+    u"n": [alveolar,nasal,voice],
+    u"ṇ": [retroflex,nasal,voice],
+    u"n̥": [alveolar,nasal],
+    u"ñ": [nasal,voice,alveopalatal],
+    u"š": [fricative, alveopalatal],
+    u"c": [palatal,stop], 
+    u"č": [alveopalatal,affricate],
+    u"č^h": [alveopalatal,affricate,aspirated],
+    u"k": [velar, stop],
+    u"k|": [velar, stop,unreleased],
+    u"k^h": [velar, stop,aspirated],
+    u"k^y": [velar, stop,palletized],
+    u"x": [velar, fricative],
+    u"X": [fricative, uvular], # χ
+    u"x^y": [velar, fricative,palletized],
+    u"g": [velar, stop, voice],
+    u"g^y": [velar,stop,voice,palletized],
+    u"ɣ": [velar,fricative,voice],
+    u"ŋ": [velar,nasal,voice],
+    u"q": [uvular, stop],
+    u"N": [uvular, nasal,voice],#continuant],
+    u"G": [uvular, stop,voice],
+    u"ʔ": [laryngeal,stop],
+    u"h": [laryngeal,fricative],
+    u"ħ": [pharyngeal,fricative],
+
+    # glides
+    u"w": [glide,voice,bilabial],
+    u"y": [glide,voice],
+#    u"j": [glide,palletized,voice,sonorant,continuant],
+
+    # liquids
+    u"r": [liquid,voice,retroflex],
+    u"r̃": [liquid,trill,voice,retroflex],
+    u"r̥̃": [liquid,trill,retroflex],
+    u"ř": [liquid,flap,voice,retroflex],
+    u"l": [liquid,lateral,voice],
+#    u"̌l": [liquid,lateral,voice,coronal,sonorant],
+
+    # I'm not sure what this is
+    # I think it is a mistranscription, as it is in IPA but not APA
+    # u"ɲ": []
+
+    u"ʕ": [affricate, pharyngeal, voice],
+    u"-": [syllableBoundary],
+    u"##": [wordBoundary],
+}
+
+featureMap = sophisticatedFeatureMap
+
 
 # Automatically annotate vowels
 vs = [u"i",u"ɨ",u"ɩ",u"e",u"ə",u"ɛ",u"æ",u"a",u"ʌ",u"u",u"ü",u"ʊ",u"o",u"ö",u"ɔ"]
-for k in featureMap:
-    features = featureMap[k]
-    if k in vs:
-        features.append(vowel)
+for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
+    for k in fm:
+        features = featureMap[k]
+        if k in vs:
+            features.append(vowel)
 
 # Include vowel/consonants diacritics
 vs = [ k for k in featureMap if vowel in featureMap[k] ]
 cs = [ k for k in featureMap if not (vowel in featureMap[k]) ]
-for v in vs:
-    featureMap[v] += [sonorant]
-    featureMap[v] += [continuant]
-    featureMap[v + u"́"] = featureMap[v] + [highTone]
-    featureMap[v + u"`"] = featureMap[v] + [lowTone]
-    featureMap[v + u"¯"] = featureMap[v] + [middleTone]
-    featureMap[v + u":"] = featureMap[v] + [longVowel]
-    featureMap[v + u"̌"] =  featureMap[v] + [risingTone]
-    featureMap[v + u"̃"] = featureMap[v] + [nasal]
+for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
+    for v in vs:
+        if fm == sophisticatedFeatureMap:
+            fm[v] += [sonorant]
+            fm[v] += [continuant]
+        fm[v + u"́"] = fm[v] + [highTone]
+        fm[v + u"`"] = fm[v] + [lowTone]
+        fm[v + u"¯"] = fm[v] + [middleTone]
+        fm[v + u":"] = fm[v] + [longVowel]
+        fm[v + u"̌"] =  fm[v] + [risingTone]
+        fm[v + u"̃"] = fm[v] + [nasal]
 
 # palletization
-for p in [u'v',u'b',u't',u'z',u'š',u'l',u'd',u'm',u's',u't^s',u'n',u'r']:
-    featureMap[p + u'^y'] = featureMap[p] + [palletized]
+for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
+    for p in [u'v',u'b',u't',u'z',u'š',u'l',u'd',u'm',u's',u't^s',u'n',u'r']:
+        fm[p + u'^y'] = fm[p] + [palletized]
 
+# Let's give sonority to the simple features also
+for p,f in sophisticatedFeatureMap.iteritems():
+    if "sonorant" in f:
+        assert "sonorant" not in simpleFeatureMap[p]
+        simpleFeatureMap[p].append("sonorant")
+        
 
 def tokenize(word):
     # š can be realized in two different ways
@@ -343,3 +448,12 @@ class FeatureBank():
         return h
 
 FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
+
+def switchFeatures(f):
+    assert f in ['sophisticated','simple']
+    if f == 'sophisticated':
+        featureMap = sophisticatedFeatureMap
+    elif f == 'simple':
+        featureMap = simpleFeatureMap
+    else: assert False
+    FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
