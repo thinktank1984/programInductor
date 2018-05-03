@@ -529,6 +529,7 @@ the integer is None then we have no guess for that one.'''
 
             rc = sum([r.cost() for r in s.rules ] + [len(a)*morphologicalCoefficient for a in s.prefixes + s.suffixes ])
             uc = sum([len(u) for u in s.underlyingForms.values() ])
+            rc = int(rc + 0.5)
             print "Costs:",(rc,uc)
             actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
             print "Actual costs:",actualCosts
