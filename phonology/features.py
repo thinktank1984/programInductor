@@ -224,7 +224,7 @@ simpleFeatureMap = {
     # glides
     u"w": [glide,voice,bilabial],
     u"y": [glide,voice],
-#    u"j": [glide,palletized,voice,sonorant,continuant],
+    u"j": [glide,palletized,voice],
 
     # liquids
     u"r": [liquid,voice,retroflex],
@@ -276,7 +276,7 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
 
 # Let's give sonority to the simple features also
 for p,f in sophisticatedFeatureMap.iteritems():
-    if "sonorant" in f and p in simpleFeatureMap:
+    if "sonorant" in f:
         assert "sonorant" not in simpleFeatureMap[p]
         simpleFeatureMap[p].append("sonorant")
         
