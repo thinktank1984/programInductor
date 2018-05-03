@@ -179,6 +179,7 @@ if __name__ == '__main__':
     if arguments.features == "none":
         disableFeatures()
     else:
+        print "Using the `%s` feature set"%(arguments.features)
         switchFeatures(arguments.features)
         
     if arguments.disableClean:
