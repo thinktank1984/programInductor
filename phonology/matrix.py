@@ -465,7 +465,8 @@ the integer is None then we have no guess for that one.'''
 
     def paretoFront(self, depth, k, temperature, useMorphology = False,
                     morphologicalCoefficient = 3):
-        self.maximumObservationLength += 1
+        # no idea why we want this
+        #self.maximumObservationLength += 1
 
         def affix():
             if useMorphology: return Morph.sample()
@@ -483,7 +484,8 @@ the integer is None then we have no guess for that one.'''
 
         for i in range(len(stems)):
             self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
-        for r in rules: condition(Not(ruleDoesNothing(r)))
+        # actually we want this
+        #for r in rules: condition(Not(ruleDoesNothing(r)))
 
         stemCostExpression = sum([ wordLength(u) for u in stems ])
         stemCostVariable = unknownInteger(numberOfBits = 6)
