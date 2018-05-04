@@ -117,6 +117,12 @@ def disableFeatures():
 def disableClean():
     global cleanIsDisabled
     cleanIsDisabled = True
+def isCleanDisabled():
+    global cleanIsDisabled
+    return cleanIsDisabled
+def areFeaturesDisabled():
+    global featuresAreDisabled
+    return featuresAreDisabled
 
 lastFailureOutput = None
 lastSketchOutput = None

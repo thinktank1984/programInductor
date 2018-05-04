@@ -266,7 +266,8 @@ class IncrementalSolver(UnderlyingProblem):
         self.conditionOnData(rules, stems, prefixes, suffixes,
                              observations = dataToConditionOn,
                              auxiliaryHarness = True)
-        self.guessUnderlyingForms(stems, verbose=verbose)
+        if (not isCleanDisabled()):
+            self.guessUnderlyingForms(stems, verbose=verbose)
 
         try:
             output = self.solveSketch()
