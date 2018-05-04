@@ -127,7 +127,14 @@ def handleProblem(parameters):
 def paretoFrontier(problemIndex):
     p = MATRIXPROBLEMS[problemIndex]
     print p.description
-    data = randomlyPermute(p.data)[:len(p.data)/4]
+    random.seed(0)
+    data = randomlyPermute(p.data)
+    print "\n".join(map(str,data))
+    if arguments.restrict:
+        print "(Restricting problem data to interval: %d -- %d)"%(arguments.restrict[0],
+                                                                  arguments.restrict[1])
+        data = data[arguments.restrict[0] : arguments.restrict[1]]
+        print "\n".join(map(str,data))
     p = UnderlyingProblem(data)
     paretoFront = p.paretoFront(3, 20, 1,
                                 useMorphology=True)
