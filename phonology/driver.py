@@ -128,7 +128,7 @@ def paretoFrontier(problemIndex):
     p = MATRIXPROBLEMS[problemIndex]
     print p.description
     data = randomlyPermute(p.data)[:len(p.data)/4]
-    p = UnderlyingProblem(p.data)
+    p = UnderlyingProblem(data)
     paretoFront = p.paretoFront(3, 20, 1,
                                 useMorphology=True)
     if arguments.pickleDirectory is not None:
