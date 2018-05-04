@@ -3,9 +3,11 @@ from latex import *
 from parseSPE import *
 
 
-import fileinput
+import sys
+import codecs
+f = codecs.open(sys.argv[1],encoding='utf-8')
 
-for l in fileinput.input():
+for l in f:
     if len(l.strip()) == 0:
         continue
     
