@@ -26,7 +26,7 @@ SPE-style brackets for rule alternatives.
         return u"{ " + unicode(self.r1) + u" || " + unicode(self.r2) + u" }"
     def __str__(self): return unicode(self).encode('utf-8')
     def latex(self):
-        return "\\verb|{ | %s \\verb| , | %s \\verb|}|"%(self.r1.latex(),self.r2.latex())
+        assert False
     def cost(self):
         k = self.r1.cost() + self.r2.cost()
         # do not incur cost of repeating exactly the same structure
@@ -297,8 +297,10 @@ class FeatureMatrix(Specification,FC):
         else: return "[ +/-F ]"
 
     def latex(self):
-        if self.featuresAndPolarities == []: return '\\verb|[ ]|'
-        return '\\verb|[%s]|'%(" ".join([ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]))
+        if self.featuresAndPolarities == []: return '[ ]'
+        if self.featuresAndPolarities == [(True,'vowel')]: return 'V'
+        if self.featuresAndPolarities == [(False,'vowel')]: return 'C'
+        return '[ %s ]'%(" ".join([ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]))
 
     def share(self, table):
         k = ('MATRIX',unicode(self))
@@ -477,13 +479,20 @@ class Guard():
         if self.endOfString: parts += ['#']
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
-    def latex(self):
+    def latex(self, index=None):
         parts = []
         parts += map(lambda spec: spec.latex(),self.specifications)
-        if self.starred: parts[-2] += '*'
+        if self.starred: parts[-2] += '\\textsubscript{*}'
         if self.endOfString: parts += ['\\#']
         if self.optionalEnding: parts[-1] = "\\{%s,\\#\\}"%(parts[-1])
         if self.side == 'L': parts.reverse()
+        if index is not None:
+            if self.side == 'L':
+                assert index < 0
+                parts[index] += "\\textsubscript{i}"
+            else:
+                assert index > 0
+                parts[index - 1] += "\\textsubscript{i}"
         return " ".join(parts)
 
     
@@ -632,10 +641,41 @@ class Rule():
                                              self.leftTriggers.skeleton(),
                                              self.rightTriggers.skeleton())
     def latex(self):
-        return "{} $\\to$ {} / {} \\verb|_| {}".format(self.focus.latex(),
-                                                       self.structuralChange.latex(),
-                                                       self.leftTriggers.latex(),
-                                                       self.rightTriggers.latex())
+
+        if self.leftTriggers.doesNothing():
+            l = None
+        else:
+            if self.isCopyRule() and self.structuralChange.offset < 0:
+                l = self.leftTriggers.latex(self.structuralChange.offset)
+            else:
+                l = self.leftTriggers.latex(None)
+        if self.rightTriggers.doesNothing():
+            r = None
+        else:
+            if self.isCopyRule() and self.structuralChange.offset > 0:
+                r = self.rightTriggers.latex(self.structuralChange.offset)
+            else:
+                r = self.rightTriggers.latex(None)
+        
+        if self.isCopyRule():
+            if self.structuralChange.offset < 0:
+                c = self.leftTriggers.specifications[::-1][self.structuralChange.offset].latex()
+            else:
+                c = self.rightTriggers.specifications[self.structuralChange.offset-1].latex()
+            c += "\\textsubscript{i}"
+        else:
+            c = self.structuralChange.latex()
+
+        f = self.focus.latex()
+
+        if r is None and l is None:
+            return "\\phon{%s}{%s}"%(f,c)
+        if r is None:
+            return "\\phonl{%s}{%s}{%s}"%(f,c,l)
+        if l is None:
+            return "\\phonr{%s}{%s}{%s}"%(f,c,r)
+        return "\\phonb{%s}{%s}{%s}{%s}"%(f,c,l,r)
+    
 
     def pretty(self):
         # deletion & deGemini
