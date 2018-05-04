@@ -89,7 +89,8 @@ def runParser(p,s):
     return None
 
 featureParser = alternation(*[ constantParser(p + f, (p == '+',f)) 
-                               for f in set([ f for fs in featureMap.values() for f in fs ])
+                               for f in set([ f for fs in sophisticatedFeatureMap.values() for f in fs ] + \
+                                            [ f for fs in simpleFeatureMap.values() for f in fs ])
                                for p in ['-','+'] ])
 whitespaceFeatureParser = whitespaceDelimited(featureParser)
 featuresParser = repeat(whitespaceFeatureParser)
