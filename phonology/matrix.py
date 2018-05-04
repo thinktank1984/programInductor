@@ -502,7 +502,7 @@ the integer is None then we have no guess for that one.'''
         for _ in range(k):
             # Excludes solutions we have already found
             for rc,uc in solutionCosts:
-                if len(solutions) < k/2:
+                if len(solutions) < k/2 and False:
                     # This condition just says that it has to be a
                     # different trade-off. Gets things a little bit off of
                     # the front

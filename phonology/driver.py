@@ -125,6 +125,8 @@ def handleProblem(parameters):
 
 
 def paretoFrontier(problemIndex):
+    from time import time
+    
     p = MATRIXPROBLEMS[problemIndex]
     print p.description
     random.seed(0)
@@ -136,12 +138,13 @@ def paretoFrontier(problemIndex):
         data = data[arguments.restrict[0] : arguments.restrict[1]]
         print "\n".join(map(str,data))
     p = UnderlyingProblem(data)
-    paretoFront = p.paretoFront(3, 20, 1,
+    paretoFront = p.paretoFront(3, 5, 1,
                                 useMorphology=True)
     if arguments.pickleDirectory is not None:
-       path = arguments.pickleDirectory + "/" + str(problemIndex) + "_paretoFrontier.p"
-       dumpPickle(paretoFront, path)
-       print "Exported Pareto frontier to",path
+        t = int(time())
+        path = arguments.pickleDirectory + "/" + str(problemIndex) + "_" + str(t) + "_paretoFrontier.p"
+        dumpPickle(paretoFront, path)
+        print "Exported Pareto frontier to",path
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
