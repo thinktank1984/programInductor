@@ -191,6 +191,24 @@ class UnderlyingProblem(object):
             predicate = wordEqual(surface.makeConstant(self.bank), prediction)
             if auxiliaryHarness: auxiliaryCondition(predicate)
             else: condition(predicate)
+    def conditionOnStem_1a(self, rules, stem, prefixes, suffixes, surfaces):
+        """Exactly one of the surface forms will be not an auxiliarycondition
+        surfaces : list of numberOfInflections elements, each of which is a morph object"""
+        assert self.numberOfInflections == len(surfaces)
+
+        conditions = [(surface, prefix, suffix)
+                      for surface, prefix, suffix in zip(surfaces, prefixes, suffixes)
+                      if surface is not None ]
+        conditions = randomlyPermute(conditions)
+        
+        for i,(surface,prefix,suffix) in enumerate(conditions):
+            prediction = applyRules(rules,
+                                    concatenate3(prefix,stem,suffix),
+                                    wordLength(prefix) + wordLength(stem),
+                                    len(surface) + 1)
+            predicate = wordEqual(surface.makeConstant(self.bank), prediction)
+            if i > 0: auxiliaryCondition(predicate)
+            else: condition(predicate)
     
     def conditionOnData(self, rules, stems, prefixes, suffixes, observations = None, auxiliaryHarness = False):
         '''Conditions on inflection matrix.'''
@@ -483,7 +501,7 @@ the integer is None then we have no guess for that one.'''
         suffixes = [ affix() for _ in range(self.numberOfInflections) ]
 
         for i in range(len(stems)):
-            self.conditionOnStem(rules, stems[i], prefixes, suffixes, self.data[i])
+            self.conditionOnStem_1a(rules, stems[i], prefixes, suffixes, self.data[i])
         # actually we want this
         #for r in rules: condition(Not(ruleDoesNothing(r)))
 
