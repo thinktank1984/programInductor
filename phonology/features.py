@@ -193,7 +193,7 @@ simpleFeatureMap = {
     u"ð": [dental, fricative, voice],
     u"z": [fricative, voice, alveolar],
     u"ǰ": [voice,alveopalatal,affricate],
-    u"ž": [voice,alveopalatal,affricate,voice],
+    u"ž": [voice,alveopalatal,fricative],
     u"s": [fricative, alveolar],
     u"n": [alveolar,nasal,voice],
     u"ṇ": [retroflex,nasal,voice],
@@ -425,6 +425,9 @@ class FeatureBank():
                 if p == q: continue
                 if self.featureVectorMap[p] == self.featureVectorMap[q]:
                     print "WARNING: these have the same feature vectors in the bank:",p,q
+                    print "The features are",self.featureVectorMap[p]
+                    print featureMap[p]
+                    print featureMap[q]
                     assert False
         
         h = ""
@@ -450,6 +453,7 @@ class FeatureBank():
 FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
 
 def switchFeatures(f):
+    global featureMap
     assert f in ['sophisticated','simple']
     if f == 'sophisticated':
         featureMap = sophisticatedFeatureMap
