@@ -2568,8 +2568,20 @@ nineProblems = [
 MATRIXPROBLEMS = underlyingProblems + interactingProblems + sevenProblems
 
 if __name__ == "__main__":
+    from utilities import *
     for j,p in enumerate(MATRIXPROBLEMS):
         print "Problem index",j
         if isinstance(p,Problem):
             print p.description
-        print 
+        else: continue
+        
+        print
+        if p.parameters is not None: continue
+        
+        for ss in p.data:
+            print u" ~ ".join(s for s in ss if s is not None)
+            try:
+                a = runWithTimeout(lambda: minimumCostAlignment([tokenize(s) for s in ss if s is not None ]),
+                                   1.)
+                print "\t",a[0].ur()
+            except RunWithTimeout: print("TIMEOUT")

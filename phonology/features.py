@@ -5,9 +5,6 @@ palletized = "palletized"
 sibilant = "sibilant"
 sonorant = "sonorant"
 coronal = "coronal"
-# approximate = "approximate"
-# because stress and high tones are written the same we model stress as a high tone
-# stressed = "stressed"
 retroflex = "retroflex"
 creaky = "creaky"
 risingTone = "risingTone"
@@ -53,6 +50,57 @@ wordBoundary = "wordBoundary"
 continuant = "continuant"
 syllabic = "syllabic"
 delayedRelease = "delayedRelease"
+
+featureAbbreviation = {
+palatal:"palatal",
+palletized:"pal",
+sibilant:"sib",
+sonorant:"son",
+coronal:"cor",
+retroflex:"retro",
+creaky:"creaky",
+risingTone:"riseTn",
+highTone:"hiTn",
+lowTone:"loTn",
+middleTone:"midTn",
+longVowel:"long",
+vowel:"vowel",
+tense:"tense",
+lax:"lax",
+high:"hi",
+middle:"mid",
+low:"lo",
+front:"front",
+central:"central",
+back:"bk",
+rounded:"rnd",
+bilabial:"bilabial",
+stop:"stop",
+voice:"voice",
+fricative:"fricative",
+labiodental:"labiodental",
+dental:"dental",
+alveolar:"alveolar",
+#labiovelar:"labiovelar",
+velar:"velar",
+nasal:"nasal",
+uvular:"uvular",
+glide:"glide",
+liquid:"liq",
+lateral:"lat",
+trill:"trill",
+flap:"flap",
+affricate:"affricate",
+alveopalatal:"alveopalatal",
+anterior:"ant",
+aspirated:"asp",
+unreleased:"unreleased",
+laryngeal:"laryngeal",
+pharyngeal:"pharyngeal",
+continuant:"cont",
+syllabic:"syl",
+delayedRelease:"delRelease"
+}
 
 sophisticatedFeatureMap = {
     # unrounded vowels
@@ -461,3 +509,143 @@ def switchFeatures(f):
         featureMap = simpleFeatureMap
     else: assert False
     FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
+
+
+def minimumCostAlignment(surfaces, N=1, table=None):
+    if table is None:
+        table = {}
+        surfaces = tuple(map(tuple,surfaces))
+    else:
+        if surfaces in table:
+            return table[surfaces]
+    
+    from utilities import PQ, isPowerOf
+    
+    INSERTIONCOST = 3
+    def alignmentCost(indexes, differences):
+        aligned = [surfaces[j][i]
+                   for j,i,d in zip(xrange(100),indexes,differences)
+                   if d == 1 ]
+        def phonemeCost(p1,p2):
+            return len(set(featureMap[p1])^set(featureMap[p2]))
+        c1 = min( sum( phonemeCost(p,q) for q in aligned )
+                  for p in aligned )
+        c2 = INSERTIONCOST*sum(d == 0 for d in differences )
+        return c1 + c2
+        
+    class State():
+        def __init__(self, indexes, cost, parent):
+            # indexes: how much of the surface we have consumed
+            self.parent = parent
+            self.indexes = indexes
+            self.cost = cost
+        def __eq__(self,o): return tuple(self.indexes) == tuple(o.indexes)
+        def __ne__(self,o): return not (self == o)
+        def __hash__(self): return hash(tuple(self.indexes))
+        
+        @property
+        def terminal(self):
+            return all( j == len(s) for j,s in zip(self.indexes,surfaces)  )
+        def ur(self):
+            if self.parent is None: return []
+            u = self.parent.ur()
+            advances = []
+            for j, (myIndex,parentIndex) in enumerate(zip(self.indexes, self.parent.indexes)):
+                if myIndex == parentIndex:
+                    advances.append(None)
+                else:
+                    assert myIndex == parentIndex + 1
+                    advances.append(surfaces[j][parentIndex])
+            advances = set(advances)
+            if len(advances) == 1:
+                return u + [list(advances)[0]]
+            else:
+                return u + [advances]
+
+        def showTrace(self):
+            if self.parent is None:
+                print("Initialize match")
+                return
+            self.parent.showTrace()
+            print("Next advances: (cost=%d)"%self.cost)
+            print(", ".join( str(myIndex - parentIndex) for myIndex,parentIndex in zip(self.indexes, self.parent.indexes) ))
+
+        def h(self):
+            """Heuristic: lower bound on the cost to go
+            Heuristic is to take the smallest alignment of any pair"""
+            if len(self.indexes) <= 2: return 0
+            return 0
+            return min( minimumCostAlignment( (surfaces[j][self.indexes[j]:],
+                                               surfaces[k][self.indexes[k]:]),
+                                              N=1,
+                                              table=table)[0].cost
+                        for j in xrange(len(self.indexes) - 1)
+                        for k in xrange(j + 1, len(self.indexes)) )
+        def g(self):
+            return self.h() + self.cost
+            
+            
+        def children(self):
+            if self.terminal: return
+
+            # Special case: everything is perfectly aligned
+            if all( i < len(s) for i,s in zip(self.indexes, surfaces) ) and \
+               all( s[i] == surfaces[0][self.indexes[0]] for i,s in zip(self.indexes, surfaces) ):
+                yield State([ 1 + i for i in self.indexes ],
+                            self.cost,
+                            self)
+                return 
+
+            def d(n):
+                if n == 0:
+                    yield []
+                    return
+                for j in [0,1]:
+                    for s in d(n - 1):
+                        yield [j] + s
+            for ds in d(len(surfaces)):
+                if sum(ds) > 0:
+                    if any( i+di > len(s) for s,i,di in zip(surfaces,self.indexes,ds)  ):
+                        continue
+                    
+                    dc = alignmentCost(self.indexes, ds)                    
+                    yield State([i + di for i,di in zip(self.indexes,ds) ],
+                                self.cost + dc,
+                                self)
+
+    frontier = PQ()
+    s0 = State([0]*len(surfaces),0,None)
+    frontier.push(-s0.cost, s0)
+    visited = {}
+
+    finished = []
+    while True:
+        s = frontier.popMaximum()
+        if s.terminal:
+            finished.append(s)
+            if len(finished) >= N:
+                table[surfaces] = finished
+                return finished
+        else:
+            for c in s.children():
+                if c not in visited:
+                    visited[c] = True
+                    frontier.push(-c.g(), c)
+
+    
+
+    
+if __name__ == "__main__":
+    ss = [u"kubala",u"kubalana",u"kubalila",u"kubalilana",u"kutúbála",u"kukíbála",u"kutúbálila",u"kukítúbalila"]
+    ss = [tokenize(s) for s in ss]
+    for s in ss:
+        print(len(s))
+    print(reduce(lambda a,b: a*b, map(len,ss)))
+    a = minimumCostAlignment(ss
+                             ,N=1)
+    for s in a:
+        print s.ur()
+        print s.cost
+        s.showTrace()
+        print
+        print 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import tempfile
 import sys
 import cPickle as pickle
@@ -6,6 +7,7 @@ import math
 import random
 import itertools
 import traceback
+import heapq
 
 def compose(f,g):
     return lambda x: f(g(x))
@@ -194,7 +196,23 @@ def multiLCS(xs):
     for f in fragments[1:]: fragmentsInCommon = fragmentsInCommon&f
     return max(map(len,list(fragmentsInCommon)))
 
+class PQ(object):
+    """why the fuck does Python not wrap this in a class"""
 
+    def __init__(self):
+        self.h = []
+
+    def push(self, priority, v):
+        heapq.heappush(self.h, (-priority, v))
+
+    def popMaximum(self):
+        return heapq.heappop(self.h)[1]
+
+    def __iter__(self):
+        for _, v in self.h:
+            yield v
+
+    def __len__(self): return len(self.h)
 
 def unique(xs):
     u = [xs[0]]
@@ -216,7 +234,34 @@ def formatTable(t, separation = 5):
                                    for c,x in enumerate(r) ]).strip())
     return "\n".join(formatted)
 
+class RunWithTimeout(Exception):
+    pass
 
+def runWithTimeout(k, timeout):
+    import signal
+    
+    if timeout is None: return k()
+    def timeoutCallBack(_1,_2):
+        raise RunWithTimeout()
+    signal.signal(signal.SIGPROF, timeoutCallBack)
+    signal.setitimer(signal.ITIMER_PROF, timeout)
+    
+    try:
+        result = k()
+        signal.signal(signal.SIGPROF, lambda *_:None)
+        signal.setitimer(signal.ITIMER_PROF, 0)
+        return result
+    except RunWithTimeout: raise RunWithTimeout()
+    except:
+        signal.signal(signal.SIGPROF, lambda *_:None)
+        signal.setitimer(signal.ITIMER_PROF, 0)
+        raise
             
         
         
+def isPowerOf(n,p):
+    q = 1
+    while q < n:
+        q = q*p
+        if q == n: return True
+    return False

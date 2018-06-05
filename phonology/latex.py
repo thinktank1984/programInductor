@@ -184,13 +184,19 @@ def latexSolutionAndProblem(path):
 \\end{tabular}'''%("\\\\".join([ r.latex() for r in rules ]))
     return r
 
-def latexFeatures():
-    features = list(set(f for _,v in featureMap.iteritems() for f in v))[:2]
-    n = len(featureMap)
+def latexFeatures(fm):
+    features = list({f for _,v in fm.iteritems() for f in v
+                    if not f in  ['syllableBoundary','wordBoundary']})
+    n = len(features)
     r = "\\begin{longtable}{%s}\\toprule\n"%("c|" + "l"*len(features))
-    r += "&".join([""] + features)
+    r += "&".join([""] + [featureAbbreviation.get(f,f) for f in features])
     r += "\n\\\\ \\midrule\n"
-    for p,fs in featureMap.iteritems():
+    for p,fs in fm.iteritems():
+        if latexWord(p) in ['\\textipa{\\~\\"u}','\\textipa{\\~\\"o}'] or \
+           p in ['syllableBoundary','wordBoundary']: continue
+        if '##' in latexWord(p): continue
+        
+        
         r += " & ".join([latexWord(p)] + \
                         [ "$+$" if f in fs else "$-$" for f in features ])
         r += "\\\\\n"
@@ -205,6 +211,7 @@ LATEXPRELUDE = '''
 \\usepackage{booktabs}
 \\usepackage{amssymb}
 \\usepackage{longtable}
+\\usepackage{phonrule}
 \\begin{document}
 
 '''
@@ -222,6 +229,8 @@ def exportLatexDocument(source, path):
     #os.system('pdflatex %s -output-directory %s'%(path,directory))
 
 if __name__ == "__main__":
+    latexFeatures(simpleFeatureMap)
+    assert False
     source = "\n\n\\pagebreak\n\n".join(# [ latexSolutionAndProblem("pickles/alternation_%d.p"%j)
                                         #   for j in range(1,11+1) ] + \
                                         # [ latexSolutionAndProblem("pickles/matrix_%d.p"%j)
