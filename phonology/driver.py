@@ -138,7 +138,8 @@ def paretoFrontier(problemIndex):
         data = data[arguments.restrict[0] : arguments.restrict[1]]
         print "\n".join(map(str,data))
     p = UnderlyingProblem(data)
-    paretoFront = p.paretoFront(3, 4, 1,
+    paretoFront = p.paretoFront(3, 10, 1,
+                                morphologicalCoefficient=1,
                                 useMorphology=True)
     if arguments.pickleDirectory is not None:
         t = int(time())

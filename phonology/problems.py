@@ -1709,13 +1709,6 @@ l > 0/_š
 
 sevenProblems.append(Problem('''4: Latin
 	Provide a complete account of the following phonological alternations in Latin, including underlying forms for nouns stems.
-My analysis:
-Nominative: stem + /s/
-Genitive 1: stem + /is/
-Genitive 2: stem + /i/
-Observation: ir is not attested
-ir > er
-
 ''',
 [
 #	Nominative		Genitive  		Gloss

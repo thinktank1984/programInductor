@@ -506,9 +506,9 @@ the integer is None then we have no guess for that one.'''
         #for r in rules: condition(Not(ruleDoesNothing(r)))
 
         stemCostExpression = sum([ wordLength(u) for u in stems ])
-        stemCostVariable = unknownInteger(numberOfBits = 6)
+        stemCostVariable = unknownInteger(numberOfBits = 7)
         condition(stemCostVariable == stemCostExpression)
-        minimize(stemCostExpression)
+        minimize(stemCostExpression - 50)
         ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])
         ruleCostVariable = unknownInteger()
         condition(ruleCostVariable == ruleCostExpression)
@@ -531,7 +531,7 @@ the integer is None then we have no guess for that one.'''
                     condition(Or([ruleCostVariable < rc, stemCostVariable < uc]))
 
             try:
-                output = self.solveSketch(minimizeBound = 64)
+                output = self.solveSketch(minimizeBound = 31)
             except SynthesisFailure:
                 print "Exiting Pareto procedure early due to unsatisfied"
                 break
