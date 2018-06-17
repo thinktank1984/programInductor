@@ -11,7 +11,6 @@ from matrix import UnderlyingProblem
 from random import choice,seed
 import matplotlib.pyplot as plot
 import matplotlib.cm as cm
-from adjustText import adjust_text
 import numpy as np
 import argparse
 
@@ -225,7 +224,8 @@ if __name__ == '__main__':
                             xy = (x2,y2),xycoords = 'data',
                             xytext = (x1,y1),textcoords = 'data',
                             arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))
-
+        
+        # from adjustText import adjust_text
         # if arguments.animationStage > 3:
         #     adjust_text(text, autoalign = 'xy',
         #                 arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3'))

@@ -9,6 +9,8 @@ from parseSPE import *
 from incremental import *
 from features import *
 from fragmentGrammar import *
+from command_server import start_server
+
 
 TESTS = []
 def test(f):
@@ -204,6 +206,21 @@ o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "
                               for x in d]), "Could not verify learned solution"
 
 @test
+def Gemini():
+    data = [(u"tes",u"tessi"),
+            (u"tes",u"tesi"),
+            (u"ak",u"akki"),
+            (u"lof",u"loffi"),
+            (u"pig",u"pigi")]
+    solver = UnderlyingProblem(data)
+    try:
+        solution = solver.sketchJointSolution(1)
+        assert len(solution.rules) == 1
+        assert solution.rules[0].isGeminiRule()
+    except SynthesisFailure:
+        assert False, "Could not solve Gemini test"
+
+@test
 def verify():
     for p in sevenProblems[:3] + [interactingProblems[4]] + interactingProblems[:3] + underlyingProblems[:6] + underlyingProblems[7:]:
         solver = UnderlyingProblem(p.data)
@@ -221,6 +238,8 @@ def verify():
 if __name__ == "__main__":
     import sys
     import time
+    start_server(1)
+    
     startTime = time.time()
     A = sys.argv
     if len(A) > 1:
