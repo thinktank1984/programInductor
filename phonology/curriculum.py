@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Curriculum solving of phonology problems. Calls out to UG.py and driver.py")
     parser.add_argument("startingIndex",
                         type=int,
-                        help="Which problem to start out solving. NOT 0-indexed (e.g. problem 1 is the first)")
+                        help="Which problem to start out solving. 0-indexed")
     parser.add_argument("endingIndex",
                         type=int)
     parser.add_argument("ug",
@@ -27,6 +27,23 @@ if __name__ == "__main__":
                         default=None)
     
     arguments = parser.parse_args()
+    def universal(j):
+        if j == 0 or arguments.ug == "none":
+            u = ""
+        elif arguments.ug == "empirical":
+            u = "--universal universalGrammars/empirical_%d.p"%(j - 1)
+        elif arguments.ug == "ground":
+            u = "--universal universalGrammars/groundTruth_%d.p"%(j - 1)
+        else: assert False
+        return u
+
+    if arguments.ug == "ground":
+        pickleDirectory = " --pickleDirectory frontierPickles/groundUniversal/ "
+    elif arguments.ug == "none":
+        pickleDirectory = " --pickleDirectory frontierPickles/noUniversal/ "
+    elif arguments.ug == "empiricalUniversal":
+        pickleDirectory = " --pickleDirectory frontierPickles/empiricalUniversal/ "
+    else: assert False
 
     CPUs = arguments.CPUs or numberOfCPUs()
     print("Using %d CPUs"%CPUs)
@@ -36,31 +53,32 @@ if __name__ == "__main__":
     if arguments.ug == "ground":
         print "Precomputing ground-truth universal grammars..."
         for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
-            os.system("pypy UG.py fromGroundTruth --CPUs %d --problems %d --export universalGrammars/groundTruth_%d.p"%(arguments.CPUs, j, j))
+            os.system("pypy UG.py fromGroundTruth --CPUs %d --problems %d --export universalGrammars/groundTruth_%d.p"%(CPUs, j, j))
 
-    for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
-        print("Solving problem %d"%j)
+    if arguments.ug in ["ground","none"]:
+        print "Launching all jobs in parallel!"
+        import subprocess
+        processes = [subprocess.Popen("python driver.py %d incremental --cores %d --top 100 %s %s" %
+                                      (j, CPUs, pickleDirectory, universal(j)),
+                                      shell=True)
+                     for j in xrange(arguments.startingIndex, arguments.endingIndex+1)]
+        for p in processes:
+            p.wait()
 
-        if j == 1 or arguments.ug == "none":
-            u = ""
-        elif arguments.ug == "empirical":
-            u = "--universal universalGrammars/empirical_%d.p"%(j - 1)
-        elif arguments.ug == "ground":
-            u = "--universal universalGrammars/groundTruth_%d.p"%(j - 1)
-        else: assert False
+    else:
+        for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
+            print("Solving problem %d"%j)
+            command = "python driver.py %d incremental --CPUs %d --top 100 %s %s "%(j,CPUs,u,pickleDirectory)
+            print
+            print "\tCURRICULUM: Solving problem %d by issuing the command:"%j
+            print "\t\t",command
+            flushEverything()
+            os.system(command)
 
-        command = "python driver.py %s incremental --top 100 %s --pickleDirectory frontierPickles/"%(j,u)
-        print
-        print "\tCURRICULUM: Solving problem %d by issuing the command:"%j
-        print "\t\t",command
-        flushEverything()
-        os.system(command)
-
-        if arguments.ug == "empirical":
             command = "pypy UG.py fromFrontiers --CPUs %d --problems %d --export universalGrammars/empirical_%d.p"%(CPUs, j, j)
             print
             print "Re- estimating universal grammar by executing:"
             print command
             os.system(command)
-            
-            
+
+
