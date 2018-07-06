@@ -1081,7 +1081,7 @@ interactingProblems.append(Problem(
 
 What two tone rules are motivated by the following data; explain what order the rules apply in.
     ''',
-    #to V	to V e.o	to V for	to V for e.o	to V us	to V it	to V for us	to V it for us
+    #to V	to V e.o	to V for	to V for e.o	to V us		to V it		to V for us	to V it for us
 	[
             (u"kubala",	u"kubalana",	u"kubalila",	u"kubalilana", u"kutúbála",	u"kukíbála",	u"kutúbálila",	u"kukítúbalila"),#	“count”
 	    (u"kugaya",	u"kugayana",	u"kugayila",	u"kugayilana", u"kutúgáya",	u"kukígáya",	u"kutúgáyila",	u"kukítúgayila"),#	“despise”
