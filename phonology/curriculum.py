@@ -11,35 +11,6 @@ def flushEverything():
     sys.stderr.flush()
 
 
-# starting = 0
-# ending = 10
-# if len(sys.argv) > 1:
-#     starting = int(sys.argv[1])
-#     if len(sys.argv) > 2:
-#         ending = int(sys.argv[2])
-        
-# for j in range(starting, ending):
-#     print "Solving problem #",j
-#     if j == 0:
-#         ug = ""
-#     else:
-#         ug = "--universal universalGrammars/empirical_%d.p"%j
-#     command = "python driver.py %s incremental --top 100 %s --pickleDirectory frontierPickles/"%(j,ug)
-#     print 
-#     print "\tCURRICULUM: Solving the next problem by issuing the command:"
-#     print "\t\t",command
-#     print
-#     flushEverything()
-#     os.system(command)
-
-#     command = "pypy UG.py fromFrontiers --CPUs 20 --problems %d --export universalGrammars/empirical_%d.p"%(j+1, j+1)
-#     print 
-#     print "\tCURRICULUM: Reestimating a universal grammar by issuing the command:"
-#     print "\t\t",command
-#     flushEverything()
-#     os.system(command)
-#     print 
-
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description = "Curriculum solving of phonology problems. Calls out to UG.py and driver.py")
@@ -60,7 +31,7 @@ if __name__ == "__main__":
     CPUs = arguments.CPUs or numberOfCPUs()
     print("Using %d CPUs"%CPUs)
 
-    os.system("python command_server.py %d &"%arguments.CPUs)
+    os.system("python command_server.py %d &"%CPUs)
 
     if arguments.ug == "ground":
         print "Precomputing ground-truth universal grammars..."
