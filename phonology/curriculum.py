@@ -35,10 +35,10 @@ if __name__ == "__main__":
 
     if arguments.ug == "ground":
         print "Precomputing ground-truth universal grammars..."
-        for j in xrange(startingIndex, endingIndex+1):
+        for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
             os.system("pypy UG.py fromGroundTruth --CPUs %d --problems %d --export universalGrammars/groundTruth_%d.p"%(arguments.CPUs, j, j))
 
-    for j in xrange(startingIndex, endingIndex+1):
+    for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
         print("Solving problem %d"%j)
 
         if j == 1 or arguments.ug == "none":
