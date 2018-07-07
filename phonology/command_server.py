@@ -2,7 +2,6 @@ import random
 import time
 import threading
 import socket
-import psutil
 import os
 import sys
 import SocketServer
@@ -35,6 +34,7 @@ class CommandHandler(SocketServer.StreamRequestHandler):
             COMMANDSERVERSEMAPHORE.release()
 
 def command_server_running():
+    import psutil
     for p in psutil.process_iter(attrs=['name','cmdline']):
         if p.info['name'] == 'python' and 'command_server.py' in p.info['cmdline'] and 'KILL' not in p.info['cmdline']:
             return True
@@ -55,6 +55,7 @@ def start_server(CPUs):
     time.sleep(0.5)
 
 def kill_servers():
+    import psutil
     ps = []
     for p in psutil.process_iter(attrs=['name','cmdline']):
         if p.info['name'] == 'python' and 'command_server.py' in p.info['cmdline'] and 'KILL' not in p.info['cmdline']:
