@@ -19,7 +19,7 @@ from problems import MATRIXPROBLEMS
 def worker(arguments):
     if arguments.task == 'fromGroundTruth':
         groundTruthSolutions = []
-        for problem in MATRIXPROBLEMS:
+        for problem in MATRIXPROBLEMS[:arguments.problems]:
             if isinstance(problem,Problem):
                 for s in problem.solutions:
                     print s
