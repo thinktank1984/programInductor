@@ -28,12 +28,12 @@ if __name__ == "__main__":
     
     arguments = parser.parse_args()
     def universal(j):
-        if j == 0 or arguments.ug == "none":
+        if arguments.ug == "none":
             u = ""
         elif arguments.ug == "empirical":
-            u = "--universal universalGrammars/empirical_%d.p"%(j - 1)
+            u = "--universal universalGrammars/empirical_%d.p"%j
         elif arguments.ug == "ground":
-            u = "--universal universalGrammars/groundTruth_%d.p"%(j - 1)
+            u = "--universal universalGrammars/groundTruth_%d.p"%j
         else: assert False
         return u
 

@@ -51,7 +51,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Infer universal grammars')
     parser.add_argument('task',choices = ['fromGroundTruth','fromFrontiers'])
     parser.add_argument('--export', type = str, default = None)
-    parser.add_argument('--problems', type = int, default = 0)
+    parser.add_argument('--problems', type = int, default = 0,
+                        help="number of problems from which to learn from.")
     parser.add_argument('--CPUs', type = int, default = numberOfCPUs())
     
     arguments = parser.parse_args()
