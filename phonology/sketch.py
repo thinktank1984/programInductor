@@ -175,8 +175,9 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     
     output = open(outputFile,'r').read()
     if not leavitt:
-        os.remove(temporarySketchFile)
-        os.remove(outputFile)
+        if (not 'LEAVESKETCH' in os.environ) or (os.environ['LEAVESKETCH'] == '0'):
+            os.remove(temporarySketchFile)
+            os.remove(outputFile)
 
     # Cleanup of temporary files
     temporaryOutputFolder = os.path.expanduser("~/.sketch/tmp")
