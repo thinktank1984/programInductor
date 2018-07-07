@@ -13,13 +13,13 @@ import pickle
 import os
 from random import random
 import cProfile
-
+from problems import MATRIXPROBLEMS
 
 
 def worker(arguments):
     if arguments.task == 'fromGroundTruth':
         groundTruthSolutions = []
-        for problem in problems:
+        for problem in MATRIXPROBLEMS:
             if isinstance(problem,Problem):
                 for s in problem.solutions:
                     print s
