@@ -56,7 +56,8 @@ class RuleFragment(Fragment):
                                               self.left,
                                               self.right)
     def isDegenerate(self):
-        return any( f.isDegenerate for f in [self.focus, self.change, self.left, self.right] )
+        return any( f.isDegenerate() for f in [self.focus, # self.change, 
+                                               self.left, self.right] )
     
     @staticmethod
     def abstract(p,q):
@@ -322,7 +323,7 @@ def proposeFragments(ruleSets, verbose = False):
                             if pt != qt: continue
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             newFragments = [ f for f in abstractFragments[pt](pf,qf)
-                                             if (f not in badFragments[pt]) # and (not f.isDegenerate())
+                                             if (f not in badFragments[pt]) and (not f.isDegenerate())
                             ]
                             
                             # if [ f for f in newFragments if "instance at" in str(f) ]:

@@ -272,8 +272,13 @@ class FeatureMatrix(Specification,FC):
     def isDegenerate(self):
         if self.doesNothing: return False
         e = frozenset(self.extension(FeatureBank.GLOBAL))
+        # print "checking if",self,"is degenerate",e
         simplifications = [ FeatureMatrix([ fpp for fpp in self.featuresAndPolarities if fpp != fp])
                             for fp in self.featuresAndPolarities ]
+        # print "simplifications"
+        # for s in simplifications:
+        #     print s, frozenset(s.extension(FeatureBank.GLOBAL))
+        # print 
         return any( e == frozenset(s.extension(FeatureBank.GLOBAL))
                     for s in simplifications )
         
