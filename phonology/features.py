@@ -51,6 +51,10 @@ continuant = "continuant"
 syllabic = "syllabic"
 delayedRelease = "delayedRelease"
 
+# Not actually features...
+wildFeature = "wild"
+optionalFeature = "optional"
+
 featureAbbreviation = {
 palatal:"palatal",
 palletized:"pal",
@@ -103,6 +107,9 @@ delayedRelease:"delRelease"
 }
 
 sophisticatedFeatureMap = {
+    u"*": [wildFeature],
+    u"?": [optionalFeature],
+    
     # unrounded vowels
     u"i": [voice,tense,high],
     u"ɨ": [voice,tense,high,back],
@@ -198,6 +205,9 @@ sophisticatedFeatureMap = {
 }
 
 simpleFeatureMap = {
+    u"*": [wildFeature],
+    u"?": [optionalFeature],
+    
     # unrounded vowels
     u"i": [voice,tense,high,front],
     u"ɨ": [voice,tense,high,back,central],
@@ -484,6 +494,10 @@ class FeatureBank():
         if self.hasSyllables:
             h += "#define SYLLABLEBOUNDARYPHONEME phoneme_%d\n"%(self.phoneme2index[u"-"])
             h += "#define SYLLABLEBOUNDARYFEATURE %d\n"%(self.feature2index[syllableBoundary])
+        if u'*' in self.phonemes:
+            h += "#define WILDPATTERN phoneme_%d\n"%(self.phoneme2index[u"*"])
+        if u'?' in self.phonemes:
+            h += "#define MAYBEPATTERN phoneme_%d\n"%(self.phoneme2index[u"?"])
 
         for j in range(len(self.phonemes)):
             features = ",".join("%s = %d"%(f, int(f in featureMap[self.phonemes[j]]))

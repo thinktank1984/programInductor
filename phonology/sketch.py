@@ -56,6 +56,10 @@ def doNothingRule(*a): pass
 def indexWord(*a): pass
 @sketchImplementation("rule_does_nothing")
 def ruleDoesNothing(*a): pass
+@sketchImplementation("pattern_cost")
+def patternCost(*a): return
+@sketchImplementation("match_pattern")
+def matchPattern(*a): return
 
 def makeConstantVector(v):
     return Array(map(Constant,v))
