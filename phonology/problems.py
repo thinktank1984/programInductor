@@ -718,12 +718,18 @@ underlyingProblems.append(Problem(
 verb inflections.
 (problem 12)
     ''',
+    
     [(u"ro",u"rod",u"roz",u"roɩŋ"),
+     (u"šo",u"šod",u"šoz",u"šoɩŋ"),
+     (u"cal",u"cald",u"calz",u"calɩŋ"),
+     (u"trn",u"trnd",u"trnz",u"trnɩŋ"),
      (u"græb",u"græbd",u"græbz",u"græbɩŋ"),
      (u"sim",u"simd",u"simz",u"simɩŋ"),
      (u"liv",u"livd",u"livz",u"livɩŋ"),
+     (u"mʊv",u"mʊvd",u"mʊvz",u"mʊvɩŋ"),
      (u"həg",u"həgd",u"həgz",u"həgɩŋ"),
      (u"lʊk",u"lʊkt",u"lʊks",u"lʊkɩŋ"),
+     (u"æsk",u"æskt",u"æsks",u"æskɩŋ"),
      (u"æsk",u"æskt",u"æsks",u"æskɩŋ"),
      (u"wɛrk",u"wɛrkt",u"wɛrks",u"wɛrkɩŋ"),
      (u"kɩs",u"kɩst",u"kɩsəz",u"kɩsɩŋ"),
@@ -731,7 +737,8 @@ verb inflections.
      (u"kwɩz",u"kwɩzd",u"kwɩzəz",u"kwɩzɩŋ"),
      (u"bʌz",u"bʌzd",u"bʌzəz",u"bʌzɩŋ"),
      (u"wet",u"wetəd",u"wets",u"wetɩŋ"),
-     (u"wed",u"wedəd",u"wedz",u"wedɩŋ"),     
+     (u"wed",u"wedəd",u"wedz",u"wedɩŋ"),
+     (u"nid",u"nidəd",u"nidz",u"nidɩŋ"),
      (u"lɩft",u"lɩftəd",u"lɩfts",u"lɩftɩŋ")
      ],
     solutions = [u'''

@@ -56,6 +56,11 @@ class AlignmentProblem(object):
                 condition(matchPattern(x.makeConstant(self.bank),
                                        concatenate3(p,stem,s)))
 
+        for i in range(self.numberOfInflections):
+            if all( ss[i] == None for ss in self.data ):
+                condition(wordLength(prefixes[i]) == 0)
+                condition(wordLength(suffixes[i]) == 0)
+
         # OBJECTIVE: (# inflections) * (stem lengths) + (# data points) * (affix len)
         # Because we pay for each stem once per inflection,
         # and pay for each affix once per data point
@@ -98,7 +103,11 @@ class AlignmentProblem(object):
                             underlyingForms={x: Morph.parse(self.bank, output, s)
                                              for x,s in zip(self.data, stems) })
 
-        print solution
+        for i in range(self.numberOfInflections):
+            if all( ss[i] == None for ss in self.data ):
+                print("\t(inflection not seen)")
+            else:
+                print solution.prefixes[i],"+ stem +",solution.suffixes[i]
         return solution
 
     def restrict(self, newData):
@@ -126,28 +135,26 @@ class AlignmentProblem(object):
         output = self.solveSketch()
         return Morph.parse(self.bank, output, stem)
 
-    def guessMorphology(self, batchSize, numberOfSamples):
+    def guessMorphology(self, batchSizes, numberOfSamples):
         from random import choice
         
-        # For each inflection, collect those data points that use that inflection
-        inflectionUsers = [ [ss for ss in self.data if ss[j] is not None ]
-                            for j in range(self.numberOfInflections) ]
-        while True:
-            batches = []
-            for _ in xrange(numberOfSamples):
-                inflection = choice(xrange(self.numberOfInflections))
-                batches.append(randomlyPermute(inflectionUsers[inflection])[:batchSize])
-
-            usedInflections = {j
-                for b in batches
-                for ss in b
-                for j,s in enumerate(ss)
-                if s is not None}
-            if len(usedInflections) == self.numberOfInflections: break
-
+        # For each inflection usage pattern, collect those data points that use inflections in that way
+        def pattern(ss): return tuple(s is not None for s in ss )
+        inflectionUsagePatterns = { pattern(ss)
+                                    for ss in self.data }
+        patternUsers = { p: [ss for ss in self.data if pattern(ss) == p ]
+                         for p in inflectionUsagePatterns }
+        batches = []
+        for _ in range(numberOfSamples):
+            for p, users in patternUsers.items():
+                bs = random.choice(batchSizes)
+                data = randomlyPermute(users)[:bs]
+                batches.append(data)
+        
         solutions = []
         histogram = [{} for _ in xrange(self.numberOfInflections) ]
         for b in batches:
+            p = pattern(b)
             try:
                 s = self.restrict(b).solveAlignment()
                 for i in xrange(self.numberOfInflections):
@@ -201,7 +208,9 @@ if __name__ == "__main__":
         
         print p.description
 
-        a = solver.guessMorphology(5,5)
+        a = solver.guessMorphology(list(range(5,10)),
+                                   10)
+        print a
         dumpPickle(a, "precomputedAlignments/"+str(i)+".p")
         print
     
