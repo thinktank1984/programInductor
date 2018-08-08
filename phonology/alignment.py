@@ -135,6 +135,27 @@ class AlignmentProblem(object):
         output = self.solveSketch()
         return Morph.parse(self.bank, output, stem)
 
+    def solutionCost(self, solution):
+        def patternCost(m):
+            cost = 0
+            for p in m.phonemes:
+                if p == u'?': cost += 2
+                elif p == u'*': cost += 1
+            return cost
+        failures = 0
+        totalCost = 0
+        for ss in self.data:
+            if not (ss in solution.underlyingForms):
+                failures += 1
+                continue
+            
+            for i in range(self.numberOfInflections):
+                if ss[i] is None: continue
+                u = solution.prefixes[i] + solution.underlyingForms[ss] + solution.suffixes[i]
+                totalCost += patternCost(u)
+        return totalCost
+                
+
     def guessMorphology(self, batchSizes, numberOfSamples):
         from random import choice
         
@@ -146,49 +167,33 @@ class AlignmentProblem(object):
                          for p in inflectionUsagePatterns }
         batches = []
         for _ in range(numberOfSamples):
+            this = []
             for p, users in patternUsers.items():
                 bs = random.choice(batchSizes)
                 data = randomlyPermute(users)[:bs]
-                batches.append(data)
-        
+                this += data
+            batches.append(this)
+
         solutions = []
-        histogram = [{} for _ in xrange(self.numberOfInflections) ]
         for b in batches:
-            p = pattern(b)
             try:
                 s = self.restrict(b).solveAlignment()
-                for i in xrange(self.numberOfInflections):
-                    k = (s.prefixes[i], s.suffixes[i])
-                    if any( ss[i] is not None for ss in b ):
-                        histogram[i][k] = histogram[i].get(k,0) + 1
             except SynthesisFailure: continue
-            
-        print(histogram)
-        prefixes = []
-        suffixes = []
-        for h in histogram:
-            prefix, suffix = max(h.keys(),key=lambda k: h[k])
-            prefixes.append(prefix)
-            suffixes.append(suffix)
+            for ss in self.data:
+                try:
+                    s.underlyingForms[ss] = self.solveStem(ss, s)
+                except SynthesisFailure: pass
+            solutions.append(s)
 
-        s = Solution(rules=[],
-                     prefixes=prefixes, suffixes=suffixes,
-                     underlyingForms={})
-        print "Morphological analysis:"
-        print s
+        goodSolutions = [s for s in solutions
+                         if len(s.underlyingForms) > 0.9*len(self.data)]
+        if len(goodSolutions) == 0:
+            print "FAILURE: none of the solutions are very good"
+            return None
 
-        for ss in self.data:
-            try:
-                s.underlyingForms[ss] = self.solveStem(ss, s)
-            except SynthesisFailure: pass
-
-        print "Successfully solved for", len(s.underlyingForms), "/", len(self.data), "underlying forms."
-
-        return s
-        
-
-        
-                
+        best = min(solutions,
+                   key = lambda s: self.solutionCost(s))
+        return best                
         
         
         
@@ -208,8 +213,8 @@ if __name__ == "__main__":
         
         print p.description
 
-        a = solver.guessMorphology(list(range(5,10)),
-                                   10)
+        a = solver.guessMorphology(list(range(4,11)),
+                                   20)
         print a
         dumpPickle(a, "precomputedAlignments/"+str(i)+".p")
         print
