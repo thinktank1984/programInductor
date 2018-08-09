@@ -174,16 +174,26 @@ class AlignmentProblem(object):
                 this += data
             batches.append(this)
 
-        solutions = []
+        solutions = set()
         for b in batches:
             try:
                 s = self.restrict(b).solveAlignment()
             except SynthesisFailure: continue
+            s.underlyingForms = {}
+            solutions = solutions|{s}
+        print "Got",len(solutions),"distinct solutions"
+        solutions = list(solutions)
+        for s in solutions:
             for ss in self.data:
                 try:
                     s.underlyingForms[ss] = self.solveStem(ss, s)
                 except SynthesisFailure: pass
-            solutions.append(s)
+        for s in solutions:
+            print("SOLUTION")
+            print s
+            print "Accounts for",float(len(s.underlyingForms))/len(self.data),"of the data"
+            print "COST",self.solutionCost(s)
+            print 
 
         goodSolutions = [s for s in solutions
                          if len(s.underlyingForms) > 0.9*len(self.data)]

@@ -77,6 +77,14 @@ class Solution(object):
                            for ss,u in self.underlyingForms.iteritems() ]))
     def __str__(self): return unicode(self).encode('utf-8')
 
+    def __eq__(self, o):
+        return tuple(self.prefixes + self.suffixes + self.rules) == tuple(o.prefixes + o.suffixes + o.rules) and \
+            tuple(self.underlyingForms.iteritems()) == tuple(o.underlyingForms.iteritems())
+    def __ne__(self,o): return not (self == o)
+    def __hash__(self):
+        return hash((tuple(self.prefixes + self.suffixes + self.rules),tuple(self.underlyingForms.iteritems())))
+            
+
     def showMorphology(self):
         lines = []
         for p,s in zip(self.prefixes, self.suffixes):

@@ -628,6 +628,7 @@ class Rule():
         return self.leftTriggers.doesNothing() and self.rightTriggers.doesNothing() and self.focus.doesNothing() and self.structuralChange.doesNothing()
 
     def __eq__(self,o): return str(self) == str(o)
+    def __ne__(self,o): return not (self == o)
     def __hash__(self): return hash(str(self))
     def __repr__(self): return str(self)
     def __str__(self): return unicode(self).encode('utf-8')
