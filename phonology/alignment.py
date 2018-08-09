@@ -24,7 +24,8 @@ import copy
         
 
 class AlignmentProblem(object):
-    def __init__(self, data):
+    def __init__(self, data, CPUs=1):
+        self.CPUs = CPUs
         self.bank = FeatureBank([ w for l in data for w in l if w != None ] + [u'?',u'*'])
         self.numberOfInflections = len(data[0])
         # wrap the data in Morph objects if it isn't already
@@ -174,20 +175,26 @@ class AlignmentProblem(object):
                 this += data
             batches.append(this)
 
-        solutions = set()
-        for b in batches:
+        def morphologyBatch(b):
             try:
                 s = self.restrict(b).solveAlignment()
-            except SynthesisFailure: continue
+            except SynthesisFailure: return None
             s.underlyingForms = {}
-            solutions = solutions|{s}
+            return s            
+
+        solutions = lightweightParallelMap(self.CPUs, morphologyBatch, batches)
+        solutions = {s for s in solutions if s is not None }
         print "Got",len(solutions),"distinct solutions"
         solutions = list(solutions)
-        for s in solutions:
+
+        def underlyingBatch(s):
             for ss in self.data:
                 try:
                     s.underlyingForms[ss] = self.solveStem(ss, s)
                 except SynthesisFailure: pass
+            return s
+        solutions = lightweightParallelMap(self.CPUs, underlyingBatch, solutions)
+        
         for s in solutions:
             print("SOLUTION")
             print s
@@ -210,15 +217,21 @@ class AlignmentProblem(object):
 
 
 if __name__ == "__main__":
-    from command_server import start_server
+    from command_server import start_server, kill_servers
     import os
     os.system("mkdir  -p precomputedAlignments")
-    start_server(1)
+    if len(sys.argv) > 1:
+        CPUs = int(sys.argv[1])
+        kill_servers()
+    else:
+        CPUs = 1
+        
+    start_server(CPUs)
 
     for i,p in enumerate(MATRIXPROBLEMS):
         if not isinstance(p,Problem): continue
         if p.parameters is not None: continue
-        solver = AlignmentProblem(p.data)
+        solver = AlignmentProblem(p.data, CPUs=CPUs)
         if solver.numberOfInflections == 1: continue
         
         print p.description
