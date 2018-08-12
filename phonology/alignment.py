@@ -221,7 +221,7 @@ if __name__ == "__main__":
     import os
     import argparse
     parser = argparse.ArgumentParser(description = "")
-    parser.add_arguments("--CPUs",type=int,
+    parser.add_argument("--CPUs",type=int,
                          default=1)
     parser.add_argument("--start",type=int,
                         default=0)
