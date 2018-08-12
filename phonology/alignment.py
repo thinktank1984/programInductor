@@ -219,16 +219,24 @@ class AlignmentProblem(object):
 if __name__ == "__main__":
     from command_server import start_server, kill_servers
     import os
+    import argparse
+    parser = argparse.ArgumentParser(description = "")
+    parser.add_arguments("--CPUs",type=int,
+                         default=1)
+    parser.add_argument("--start",type=int,
+                        default=0)
+    arguments = parser.parse_args()
+    
     os.system("mkdir  -p precomputedAlignments")
-    if len(sys.argv) > 1:
-        CPUs = int(sys.argv[1])
+    CPUs = arguments.CPUs
+    if CPUs > 1:
         kill_servers()
-    else:
-        CPUs = 1
         
     start_server(CPUs)
 
     for i,p in enumerate(MATRIXPROBLEMS):
+        if i < arguments.start: continue
+        
         if not isinstance(p,Problem): continue
         if p.parameters is not None: continue
         solver = AlignmentProblem(p.data, CPUs=CPUs)
@@ -239,6 +247,8 @@ if __name__ == "__main__":
         a = solver.guessMorphology(list(range(4,11)),
                                    20)
         print a
-        dumpPickle(a, "precomputedAlignments/"+str(i)+".p")
+        fn = "precomputedAlignments/"+str(i)+".p"
+        dumpPickle(a, fn)
+        print "exported alignment to",fn
         print
     
