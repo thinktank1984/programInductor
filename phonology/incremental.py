@@ -26,7 +26,7 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
         edits = []
         for s in _everySequenceEdit(r - 1):
             # Should we consider adding a new thing to the sequence?
-            if len(s) == len(sequence) and (maximumLength == None or len(sequence) < maximumLength):
+            if len(s) == len(sequence) and (maximumLength is None or len(sequence) < maximumLength):
                 # Consider either appending or prepending
                 edits += [ [None] + s, s + [None]]
                 #edits += [ s[:j] + [None] + s[j:] for j in range(len(s) + 1) ]
@@ -36,7 +36,7 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
             edits += [ [ (s[i] if k == j else (s[j] if k == i else s[k])) for k in range(len(s)) ]
                        for j in range(len(s) - 1)
                        for i in range(j,len(s))
-                       if s[j] != None and s[i] != None ]
+                       if s[j] is not None and s[i] is not None ]
         return edits
 
     # remove duplicates
@@ -53,14 +53,14 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
         # Does there exist a substitution of None's that converts general to specific?
         # Importantly, we are allowed to substitute None for the empty sequence
         if len(moreGeneral) == 0: return len(moreSpecific) == 0
-        if len(moreSpecific) == 0: return all(x == None for x in moreSpecific)
+        if len(moreSpecific) == 0: return all(x is None for x in moreSpecific)
         g = moreGeneral[0]
         s = moreSpecific[0]
-        return (g == None and subsumes(moreGeneral[1:],moreSpecific)) or \
-            ((s == g or g == None) and subsumes(moreGeneral[1:],moreSpecific[1:]))
+        return (g is None and subsumes(moreGeneral[1:],moreSpecific)) or \
+            ((s == g or g is None) and subsumes(moreGeneral[1:],moreSpecific[1:]))
         if not len(moreGeneral) == len(moreSpecific): return False
         for g,s in zip(moreGeneral,moreSpecific):
-            if g != None and s != g: return False
+            if g is not None and s != g: return False
         #print "%s is strictly more general than %s"%(moreGeneral,moreSpecific)
         return True
 
@@ -73,28 +73,28 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
 
     # Order them by expected difficulty
     removedSubsumption = sorted(removedSubsumption,
-                                key = lambda x: (len([y for y in x if y == None]), # How many new things are there
+                                key = lambda x: (len([y for y in x if y is None]), # How many new things are there
                                                  len(x),
                                                  x))
         
     # reindex into the input sequence
-    return [ [ (None if j == None else sequence[j]) for j in s ]
+    return [ [ (None if j is None else sequence[j]) for j in s ]
              for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
     def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 7, fixedMorphology = None, maximumRadius = 3, problemName = None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
         self.problemName = problemName
-        self.numberOfCPUs = numberOfCPUs if numberOfCPUs != None else \
+        self.numberOfCPUs = numberOfCPUs if numberOfCPUs is not None else \
                             int(math.ceil(utilities.numberOfCPUs()*0.75))
 
         self.maximumNumberOfRules = maximumNumberOfRules
         self.maximumRadius = maximumRadius
         
-        totalNumberOfWords = sum( x != None for i in self.data for x in i )
+        totalNumberOfWords = sum( x is not None for i in self.data for x in i )
         wordsPerDataPoint = float(totalNumberOfWords)/len(self.data)
         
-        if window == None:
+        if window is None:
             # Adaptively set the window size
             if wordsPerDataPoint <= 1.0: window = 6
             elif wordsPerDataPoint <= 3.0: window = 3
@@ -146,7 +146,7 @@ class IncrementalSolver(UnderlyingProblem):
         fixed = {}
         for j in range(self.numberOfInflections):
             # Have we not seen anything for this inflection?
-            if not any( ss[j] != None for ss in solution.underlyingForms.keys() ):
+            if not any( ss[j] is not None for ss in solution.underlyingForms.keys() ):
                 continue
             prefix, suffix = solution.prefixes[j], solution.suffixes[j]
             if self.morphologyHistory[j] is None:
@@ -208,7 +208,7 @@ class IncrementalSolver(UnderlyingProblem):
 
         originalRules = list(rules) # save it for later
 
-        rules = [ (rule.makeDefinition(self.bank) if rule != None else Rule.sample())
+        rules = [ (rule.makeDefinition(self.bank) if rule is not None else Rule.sample())
                   for rule in rules ]
 
         prefixes = []
@@ -219,7 +219,7 @@ class IncrementalSolver(UnderlyingProblem):
         
         morphologicalCosts = []
         for j in range(self.numberOfInflections):
-            if self.fixedMorphology[j] != None:
+            if self.fixedMorphology[j] is not None:
                 assert self.fixedMorphology[j][0] == solution.prefixes[j]
                 assert self.fixedMorphology[j][1] == solution.suffixes[j]
                 
@@ -231,8 +231,8 @@ class IncrementalSolver(UnderlyingProblem):
                 morphologicalCosts.append(None)
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
-            if all(l[j] == None for l in self.data + self.fixedUnderlyingForms.keys()) \
-               and self.fixedMorphology[j] == None:
+            if all(l[j] is None for l in self.data + self.fixedUnderlyingForms.keys()) \
+               and self.fixedMorphology[j] is None:
                 # Never seen this inflection: give it the empty morphology
                 print "Clamping the morphology of inflection %d to be empty"%j
                 condition(wordLength(prefixes[j]) == 0)
@@ -243,11 +243,11 @@ class IncrementalSolver(UnderlyingProblem):
         # Set fixedUnderlyingFormThreshold = infinity to disable this heuristic.
         for observation,stem in self.fixedUnderlyingForms.iteritems():
             # we need to also take into account the length of these auxiliary things because they aren't necessarily in self.data
-            if max( len(o) for o in observation if o != None ) > self.maximumObservationLength: continue
+            if max( len(o) for o in observation if o is not None ) > self.maximumObservationLength: continue
             
             stem = stem.makeConstant(self.bank)
             for i,o in enumerate(observation):
-                if o == None: continue
+                if o is None: continue
                 phonologicalInput = concatenate3(prefixes[i],stem,suffixes[i])
                 auxiliaryCondition(wordEqual(o.makeConstant(self.bank),
                                              applyRules(rules, phonologicalInput,
@@ -259,7 +259,7 @@ class IncrementalSolver(UnderlyingProblem):
                               if not (d in self.fixedUnderlyingForms)]
             
         # Only add in the cost of the new rules that we are synthesizing
-        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o == None],
+        self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o is None],
                                stems, prefixes, suffixes,
                                morphologicalCosts = morphologicalCosts)
         self.excludeBoundaryAndInsertions(rules)
@@ -275,7 +275,7 @@ class IncrementalSolver(UnderlyingProblem):
             # Because these are executed in parallel, do not throw an exception
             return None
         loss = parseMinimalCostValue(output)
-        if loss == None:
+        if loss is None:
             print "WARNING: None loss"
             print output
             printLastSketchOutput()
@@ -283,14 +283,14 @@ class IncrementalSolver(UnderlyingProblem):
             assert False
 
         newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) \
-                                            if morphologicalCosts[j] == None \
+                                            if morphologicalCosts[j] is None \
                                             else solution.prefixes[j] \
                                             for j,p in enumerate(prefixes) ],
                                suffixes = [ Morph.parse(self.bank, output, s) \
-                                            if morphologicalCosts[j] == None \
+                                            if morphologicalCosts[j] is None \
                                             else solution.suffixes[j] \
                                             for j,s in enumerate(suffixes) ],
-                               rules = [ Rule.parse(self.bank, output, r) if rp == None else rp
+                               rules = [ Rule.parse(self.bank, output, r) if rp is None else rp
                                          for r,rp in zip(rules,originalRules) ])
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
@@ -312,10 +312,10 @@ class IncrementalSolver(UnderlyingProblem):
                 worker = self.restrict(trainingData)
                 newSolution = worker.sketchChangeToSolution(solution, rules, verbose=verbose)
                 verbose = False
-                if newSolution == None: return None
+                if newSolution is None: return None
                 print "CEGIS: About to find a counterexample to:\n",newSolution
                 ce = self.findCounterexample(newSolution, trainingData)
-                if ce == None:
+                if ce is None:
                     print "No counterexample so I am just returning best solution"
                     newSolution.underlyingForms = {}
                     newSolution = self.solveUnderlyingForms(newSolution)
@@ -353,7 +353,7 @@ class IncrementalSolver(UnderlyingProblem):
         allSolutions = parallelMap(self.numberOfCPUs,
                                    lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
                                    enumerate(ruleVectors))
-        allSolutions = [ s for s in allSolutions if s != None ]
+        allSolutions = [ s for s in allSolutions if s is not None ]
         if allSolutions == []:
             if exhaustedGlobalTimeout(): raise SynthesisTimeout()
             else: raise SynthesisFailure('incremental change')
@@ -374,7 +374,7 @@ class IncrementalSolver(UnderlyingProblem):
         # export a checkpoint that we will not overwrite later
         persistentName = makeTemporaryFile('.p', d='checkpoints')
         os.system("cp %s %s"%(self.checkpointPath, persistentName))
-        print " [+] Exported checkpoint to",self.checkpointPath," (persistent backup %s.p)"%persistentName
+        print " [+] Exported checkpoint to",self.checkpointPath," (persistent backup %s)"%persistentName
     def restoreCheckpoint(self):
         k = loadPickle(self.checkpointPath)
         self.fixedUnderlyingForms = k["fixedUnderlyingForms"]
