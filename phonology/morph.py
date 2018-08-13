@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant
-from sketch import makeConstantWord, getGeneratorDefinition
+from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant, And, Or, Constant
+from sketch import makeConstantWord, getGeneratorDefinition, indexWord, wordLength
 from features import FeatureBank,featureMap,tokenize
 from utilities import *
 
@@ -39,6 +39,27 @@ class Morph():
         newPhonemes = list(self.phonemes)
         newPhonemes.insert(choice(range(len(self) + 1)),p)
         return Morph(newPhonemes)
+
+    def patternInstantiations(self):
+        if len(self) == 0: yield self
+        else:
+            if self.phonemes[0] == u'?':
+                for suffix in Morph(self.phonemes[1:]).patternInstantiations():
+                    yield Morph([u'*'] + suffix.phonemes)
+                    yield suffix
+            else:
+                for suffix in Morph(self.phonemes[1:]).patternInstantiations():
+                    yield Morph([self.phonemes[0]] + suffix.phonemes)
+    def match(self, bank, variable):
+        def singleMatch(m):
+            predicate = [wordLength(variable) == len(m)]
+            for i,p in enumerate(m.phonemes):
+                if p != u'*':
+                    predicate.append(indexWord(variable,Constant(i)) == bank.phonemeConstant(p))
+            return And(predicate)
+        return Or([singleMatch(m) for m in self.patternInstantiations() ])
+        
+            
 
     @staticmethod
     def sample():

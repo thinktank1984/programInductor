@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 palatal = "palatal"
 palletized = "palletized"
 sibilant = "sibilant"
@@ -475,6 +476,10 @@ class FeatureBank():
     def __unicode__(self):
         return u'FeatureBank({' + u','.join(self.phonemes) + u'})'
     def __str__(self): return unicode(self).encode('utf-8')
+
+    def phonemeConstant(self,p):
+        from sketchSyntax import Constant
+        return Constant("phoneme_%d"%(self.phoneme2index[p]))
 
     def sketch(self):
         """Sketches definitions of the phonemes in the bank"""

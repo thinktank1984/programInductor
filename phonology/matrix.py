@@ -56,6 +56,13 @@ class UnderlyingProblem(object):
 
         self.pervasiveTimeout = None
 
+        self.precomputedAlignment = None
+
+    def loadAlignment(self, fn):
+        print " [+] Loaded the following alignment from",fn
+        self.precomputedAlignment = loadPickle(fn)
+        print self.precomputedAlignment
+
     def solveSketch(self, minimizeBound = 31, maximumMorphLength=None):
         if maximumMorphLength is None: maximumMorphLength = self.maximumObservationLength
         return solveSketch(self.bank,
@@ -216,6 +223,17 @@ class UnderlyingProblem(object):
         for stem, observation in zip(stems, observations):
             self.conditionOnStem(rules, stem, prefixes, suffixes, observation,
                                  auxiliaryHarness = auxiliaryHarness)
+            if self.precomputedAlignment is not None and observation in self.precomputedAlignment.underlyingForms:
+                pattern = self.precomputedAlignment.underlyingForms[observation]
+                condition(pattern.match(self.bank,stem))
+
+    def conditionOnPrecomputedMorphology(self, prefixes, suffixes):
+        if self.precomputedAlignment is None: return
+        for i in xrange(self.numberOfInflections):
+            if any( ss[i] is not None for ss in self.data ):
+                condition(self.precomputedAlignment.prefixes[i].match(self.bank, prefixes[i]))
+                condition(self.precomputedAlignment.suffixes[i].match(self.bank, suffixes[i]))
+                
     
     def solveUnderlyingForms(self, solution, batchSize = 10):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
@@ -360,6 +378,7 @@ the integer is None then we have no guess for that one.'''
 
             self.conditionOnData(rules, stems, prefixes, suffixes,
                                  auxiliaryHarness = auxiliaryHarness)
+            self.conditionOnPrecomputedMorphology(prefixes, suffixes)
 
             output = self.solveSketch()
             print "Final hole value:",parseMinimalCostValue(output)

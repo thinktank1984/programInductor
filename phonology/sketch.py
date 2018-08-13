@@ -136,7 +136,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     leavitt = leaveSketches
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
-
+    
     # figure out how many bits you need for the minimization bound
     if minimizeBound != None:
         minimizeBound = int(math.ceil(math.log(minimizeBound + 1)/math.log(2)))

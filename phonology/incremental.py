@@ -194,14 +194,14 @@ class IncrementalSolver(UnderlyingProblem):
                 print "Permanently freezing the rule",r
                 self.frozenRules.add(r)
 
-    def guessUnderlyingForms(self, stems, verbose=True):
-        dataToConditionOn = [ d for d in self.data
-                              if not (d in self.fixedUnderlyingForms)]
-        prefixes = [ None if inflection is None else inflection[0] for inflection in self.fixedMorphology ]
-        suffixes = [ None if inflection is None else inflection[1] for inflection in self.fixedMorphology ]
-        assert len(dataToConditionOn) == len(stems)
-        for x,stem in zip(dataToConditionOn, stems):
-            self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x, verbose=verbose)
+    # def guessUnderlyingForms(self, stems, verbose=True):
+    #     dataToConditionOn = [ d for d in self.data
+    #                           if not (d in self.fixedUnderlyingForms)]
+    #     prefixes = [ None if inflection is None else inflection[0] for inflection in self.fixedMorphology ]
+    #     suffixes = [ None if inflection is None else inflection[1] for inflection in self.fixedMorphology ]
+    #     assert len(dataToConditionOn) == len(stems)
+    #     for x,stem in zip(dataToConditionOn, stems):
+    #         self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x, verbose=verbose)
 
     def sketchChangeToSolution(self, solution, rules, verbose=True):
         Model.Global()
@@ -266,8 +266,7 @@ class IncrementalSolver(UnderlyingProblem):
         self.conditionOnData(rules, stems, prefixes, suffixes,
                              observations = dataToConditionOn,
                              auxiliaryHarness = True)
-        if (not isCleanDisabled()):
-            self.guessUnderlyingForms(stems, verbose=verbose)
+        self.conditionOnPrecomputedMorphology(prefixes, suffixes)
 
         try:
             output = self.solveSketch()

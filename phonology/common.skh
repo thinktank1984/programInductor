@@ -880,6 +880,7 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
 
 
 // Alignment
+#ifdef MAYBEPATTERN
 bit match_pattern_(Word observation, Word pattern){
   int m = pattern.l;
   int n = observation.l;
@@ -959,3 +960,4 @@ int pattern_cost(Word pattern){
   }
   return c;
 }
+#endif

@@ -87,12 +87,16 @@ def handleProblem(parameters):
         ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
                                problemName = str(problemIndex),
                                numberOfCPUs = 1 if parameters['serial'] else None).\
-             restrict(restriction).\
-             incrementallySolve(resume = parameters['resume'],                                
+             restrict(restriction)
+        if parameters['alignment']: ss.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
+        ss = ss.incrementallySolve(resume = parameters['resume'],                                
                                 k = parameters['top'])
     elif parameters['task'] == 'CEGIS':
-        ss = problem.counterexampleSolution(k = parameters['top'])
+        ss = problem
+        if parameters['alignment']: ss.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
+        ss = ss.counterexampleSolution(k = parameters['top'])
     elif parameters['task'] == 'exact':
+        if parameters['alignment']: problem.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
         s = problem.sketchJointSolution(1, canAddNewRules = True)
         ss = problem.expandFrontier(s, parameters['top'])
     elif parameters['task'] == 'frontier':
@@ -167,6 +171,7 @@ if __name__ == '__main__':
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')
+    parser.add_argument('--alignment', default = False, action = 'store_true')
     parser.add_argument('--disableClean', default = False, action = 'store_true',
                         help = 'disable kleene star')
     parser.add_argument('--resume', default = False, action = 'store_true',
@@ -256,6 +261,7 @@ if __name__ == '__main__':
                    'serial': arguments.serial,
                    'samples': arguments.samples,
                    'dummy': arguments.dummy,
+                   'alignment': arguments.alignment
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(',')) ]
