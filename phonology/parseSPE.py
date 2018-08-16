@@ -98,7 +98,8 @@ matrixParser = concatenate(constantParser('['),
                            whitespaceDelimited(featuresParser),
                            constantParser(']'),
                            combiner = lambda l,fp,r: FeatureMatrix(fp))
-phonemeParser = alternation(*[ constantParser(k,ConstantPhoneme(k)) for k in featureMap ])
+phonemeParser = alternation(*[ constantParser(k,ConstantPhoneme(k)) for k in featureMap
+                               if k != '*'])
 consonantParser = constantParser('C',FeatureMatrix([(False,'vowel')]))
 vowelParser = constantParser('V',FeatureMatrix([(True,'vowel')]))
 boundaryParser = constantParser('+',BoundarySpecification())

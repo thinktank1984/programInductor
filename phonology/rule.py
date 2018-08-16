@@ -408,6 +408,7 @@ class Guard():
         assert not (optionalEnding and endOfString)
         self.starred = starred
         self.specifications = [ s for s in specifications if s != None ]
+        assert len(self.specifications) <= 2
         self.representation = None # Unicode representation
 
     def mutate(self,bank):

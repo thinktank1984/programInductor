@@ -260,7 +260,9 @@ class GuardFragment(Fragment):
             return [GuardFragment([s1,s2],p.endOfString,p.starred)
                     for s1 in SpecificationFragment.abstract(p.specifications[0],q.specifications[0])
                     for s2 in SpecificationFragment.abstract(p.specifications[1],q.specifications[1])]
-        raise Exception('GuardFragment.abstract: should never reach this point')
+        raise Exception('GuardFragment.abstract: should never reach this point. p=%s ; q=%s ; %s ; %s'%(p,q,
+                                                                                              len(p.specifications),
+                                                                                              p.specifications))
 
     def sketchCost(self,v,b):
         checks = ['(%s.endOfString == %d)'%(v,int(self.endOfString)),
