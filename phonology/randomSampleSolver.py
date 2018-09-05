@@ -97,5 +97,69 @@ class RandomSampleSolver(IncrementalSolver):
             print f
             for p,s in zip(prefixes, suffixes):
                 print p,'+stem+',s
-            print 
+            print
+
+    def solve(self, numberOfWorkers, batchSizes, numberOfSamples):
+        bs = self.sampleBatches(batchSizes, numberOfSamples)
+        solutions = Pool(numberOfWorkers).map(lambda j: self.worker(j), range(numberOfSamples))
         
+        # Now coalesce the rules and figure out how frequently they occurred
+        ruleFrequencies = {} # map from the Unicode representation of a rule to frequency
+        for r in [ r for ss in solutions for s in ss for r in s.rules ]:
+            ruleFrequencies[r] = 1 + ruleFrequencies.get(r,0)
+
+        print "Most popular rules..."
+        for r,f in sorted(ruleFrequencies.iteritems(), key = lambda fr: fr[1]):
+            print f,"\t",r.pretty()
+
+        for ss in self.data:
+            print u" ~ ".join(map(str,ss)),\
+                {s.underlyingForms[ss]
+                 for s in solutions
+                 if ss in s.underlyingForms}
+        
+
+        
+        
+        
+    def sampleBatches(self, batchSizes, numberOfSamples):
+        from random import choice
+
+        def randomSlice(xs, l):
+            if l >= len(xs): return xs
+            d = choice(range(len(xs) - l + 1))
+            return xs[d:][:l]            
+        
+        # For each inflection usage pattern, collect those data points that use inflections in that way
+        def pattern(ss): return tuple(s is not None for s in ss )
+        inflectionUsagePatterns = { pattern(ss)
+                                    for ss in self.data }
+        patternUsers = { p: [ss for ss in self.data if pattern(ss) == p ]
+                         for p in inflectionUsagePatterns }
+
+        while True:
+            batches = []
+            for p in inflectionUsagePatterns:
+                for _ in range(numberOfSamples):
+                    bs = random.choice(batchSizes)
+                    data = tuple(randomSlice(patternUsers[p], bs))
+                    batches.append(data)
+
+            # check the data point will include at least once
+            if all( any( ss in b for b in batches  )
+                    for ss in self.data ):
+                break
+            print "Missing data in batches, increasing number of samples..."
+            numberOfSamples += 1
+
+        batches = [list(b) for b in set(batches) ]
+        print len(batches), "distinct batches:"
+        for b in batches:
+            print "BATCH"
+            for ss in b:
+                print ss
+            print 
+            
+            
+
+            

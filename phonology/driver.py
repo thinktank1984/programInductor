@@ -80,7 +80,10 @@ def handleProblem(parameters):
         RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
             restrict(restriction).\
             solve(numberOfWorkers = parameters['cores'],
-                  numberOfSamples = parameters['samples'])
+                  batchSizes=[2,3,5,8,13],
+                  numberOfSamples=10)
+            # solve(numberOfWorkers = parameters['cores'],
+            #       numberOfSamples = parameters['samples'])
         sys.exit(0)
         
     elif parameters['task'] == 'incremental':
