@@ -86,6 +86,19 @@ class Problem():
             for inflections in self.data:
                 assert len(inflections) == len(self.data[0])
 
+    def __str__(self):
+        from utilities import formatTable
+        l = []
+        patterns = {tuple(s is None for s in ss )
+                    for ss in self.data }
+        for p in patterns:
+            for ss in self.data:
+                if tuple(s is None for s in ss ) == p:
+                    l.append(map(unicode,ss))
+        return formatTable(l)
+        return u"\n".join(l)
+                    
+
 # Learning tone patterns
 toneProblems = []
 toneProblems.append(Problem(u'''
@@ -1188,9 +1201,9 @@ it also looks like coronal is deleted in certain contexts.
 [ +coronal -liquid ] > 0 / _ s
 ''']))
 
-#interactingProblems.append(
+interactingProblems.append(
 Problem(
-'''4: Shona
+u'''4: Shona
 	Acute accent indicates H tone and unaccented vowels have L tone. Given the two sets of data immediately below, what tone rule do the following data motivate? There are alternations in the form of adjectives, e.g. kurefú, karefú, marefú all meaning “long”. Adjectives have an agreement prefix, hence ku-refú marks the form of the adjective in one grammatical class, and so on. In some cases, the agreement is realized purely as a change in the initial consonant of the adjective, i.e. gúrú ~ kúrú ~ húrú which need not be explained.
 ''',
     stripConsonants(processMorphology(
@@ -1232,13 +1245,17 @@ Problem(
         ['',
          'died',
          'big',
+         'bigp',
          'short',
+         'shortp',
          'clean',
          'fell',
          'many',
          'tall',
          'long',
+         'longp',
          'thick',
+         'thickp',
          'thin'],
         {
 	u'bveni':	'baboon',	u'bveni pfúpi':	'short baboon',
@@ -1273,13 +1290,13 @@ Problem(
 	u'nhúmé':	'messenger',
 	    u'nhúme yákafá':	'messenger died',
 	u'búku':	'book',	u'búku rákawá':	'book fell',
-	u'mapfeni':	'baboons',	u'mapfeni makúrú':	'big baboons',
-	u'mapadzá':	'hoes',	u'mapadzá makúrú':	'big hoes',
-	u'mapáŋgá':	'knives',	u'mapáŋgá makúrú':	'big knives',
+	u'mapfeni':	'baboons',	u'mapfeni makúrú':	'bigp baboons',
+	u'mapadzá':	'hoes',	u'mapadzá makúrú':	'bigp hoes',
+	u'mapáŋgá':	'knives',	u'mapáŋgá makúrú':	'bigp knives',
 	u'nhúmé':	'messenger',	u'nhúmé ndefú':	'short messenger',
-	u'matémó':	'axes',	u'matémó mapfúpi':	'short axes',
+	u'matémó':	'axes',	u'matémó mapfúpi':	'shortp axes',
 	u'mabúku':	'books',	u'mabúku mažínǰí':	'many books',
-	u'čitóro':	'store',	u'čitóro čikúrú':	'big store',
+	u'čitóro':	'store',	u'čitóro čikúrú':	'bigp store',
 
 	#In the examples below, a second tone rule applies.
 
@@ -1287,17 +1304,17 @@ Problem(
 	u'búku':	'book',	u'búku refú':	'long book',
 	u'ɓadzá':	'hoe',	u'ɓadzá refú':	'long hoe',
 	u'nuŋgú':	'porcupine',	u'nuŋgú ndefú':	'long porcupine',
-	u'mašoko':	'words',	u'mašoko marefú':	'long words',
-	u'kunyíka':	'to the land',	u'kunyíka kurefú':	'long to the land',
-	u'mapadzá':	'hoes',	u'mapadzá márefú':	'long hoes',
-	u'kamhará':	'gazelle (dim.)',	u'kamhará kárefú':	'long gazelle (dim.)',
-	u'tunuŋgú':	'porcupines (dim.)',	u'tunuŋgú túrefú':	'long porcupines (dim.)',
+	u'mašoko':	'words',	u'mašoko marefú':	'longp words',
+	u'kunyíka':	'to the land',	u'kunyíka kurefú':	'longp to the land',
+	u'mapadzá':	'hoes',	u'mapadzá márefú':	'longp hoes',
+	u'kamhará':	'gazelle (dim.)',	u'kamhará kárefú':	'longp gazelle (dim.)',
+	u'tunuŋgú':	'porcupines (dim.)',	u'tunuŋgú túrefú':	'longp porcupines (dim.)',
 
 	u'guɗo':	'baboon',	u'guɗo gobvú':	'thick baboon',
 	u'búku':	'book',	u'búku gobvú':	'thick book',
 	u'ɓadzá':	'hoe',	u'ɓadzá gobvú':	'thick hoe',
-	u'makuɗo':	'baboons',	u'makuɗo makobvú':	'thick baboons',
-	u'mapadzá':	'hoes',	u'mapadzá mákobvú':	'thick hoes',
+	u'makuɗo':	'baboons',	u'makuɗo makobvú':	'thickp baboons',
+	u'mapadzá':	'hoes',	u'mapadzá mákobvú':	'thickp hoes',
 	u'tsamba':	'letter',	u'tsamba nhete':	'thin letter',
 	u'búku':	'book',	u'búku ɗete':	'thin book',
 	u'ɓadzá':	'hoe',	u'badzá ɗéte':	'thin hoe',
@@ -1308,10 +1325,11 @@ Problem(
 	u'ɓáŋgá':	'knife',	u'ɓáŋgá ɗéte':	'thin knife',
 	u'ɗémó':	'axe',	u'ɗémó ɗéte':	'thin axe',
 	u'murúmé':	'person',	u'murúmé mútete':	'thin person',
-	u'kahúní':	'firewood (dim.)',	u'kahúní kárefú':	'long firewood',
-	u'mačírá':	'clothes',	u'mačírá márefú':	'long clothes',
+	u'kahúní':	'firewood (dim.)',	u'kahúní kárefú':	'longp firewood',
+	u'mačírá':	'clothes',	u'mačírá márefú':	'longp clothes',
 	    u'hárí':	'pot',	u'hárí nhéte':	'thin pot'})))
-    #)
+    )
+
 
 interactingProblems.append(Problem(
 '''5: Catalan
