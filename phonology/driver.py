@@ -32,7 +32,7 @@ def handleProblem(parameters):
     isCountingProblem = isinstance(p.parameters, list) \
                         and all( isinstance(parameter,int) for parameter in p.parameters  )
     if not isCountingProblem:
-        print u"\n".join([ u"\t".join(map(unicode,inflections)) for inflections in restriction ])
+        print formatTable([ map(unicode,inflections) for inflections in restriction ])
     else:
         print CountingProblem(p.data, p.parameters).latex()
 

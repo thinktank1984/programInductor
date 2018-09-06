@@ -36,8 +36,8 @@ def processMorphology(stems, inflections, dictionary):
             print "Could not explain",surface, translation
             assert False
     # Construct the inflection matrix
-    matrix = [ tuple([ surfaces.get((stem, inflection),None) for inflection in set(inflections) ])
-             for stem in set(stems) ]
+    matrix = [ tuple([ surfaces.get((stem, inflection),None) for inflection in inflections ])
+             for stem in stems ]
     return matrix
             
             
@@ -1219,7 +1219,6 @@ u'''4: Shona
          'axe',
          'messenger',
          'cloth',
-         'firewood (dim.)',
          'pot',
          'worms',
          'wealth',
@@ -1256,7 +1255,9 @@ u'''4: Shona
          'longp',
          'thick',
          'thickp',
-         'thin'],
+         'thin',
+         'short2',
+         'thin2'],
         {
 	u'bveni':	'baboon',	u'bveni pfúpi':	'short baboon',
 	u'guɗo':	'baboon',	u'gudo rákafá':	'baboon died',
@@ -1293,7 +1294,7 @@ u'''4: Shona
 	u'mapfeni':	'baboons',	u'mapfeni makúrú':	'bigp baboons',
 	u'mapadzá':	'hoes',	u'mapadzá makúrú':	'bigp hoes',
 	u'mapáŋgá':	'knives',	u'mapáŋgá makúrú':	'bigp knives',
-	u'nhúmé':	'messenger',	u'nhúmé ndefú':	'short messenger',
+	u'nhúmé':	'messenger',	u'nhúmé ndefú':	'short2 messenger',
 	u'matémó':	'axes',	u'matémó mapfúpi':	'shortp axes',
 	u'mabúku':	'books',	u'mabúku mažínǰí':	'many books',
 	u'čitóro':	'store',	u'čitóro čikúrú':	'bigp store',
@@ -1324,11 +1325,34 @@ u'''4: Shona
 
 	u'ɓáŋgá':	'knife',	u'ɓáŋgá ɗéte':	'thin knife',
 	u'ɗémó':	'axe',	u'ɗémó ɗéte':	'thin axe',
-	u'murúmé':	'person',	u'murúmé mútete':	'thin person',
-	u'kahúní':	'firewood (dim.)',	u'kahúní kárefú':	'longp firewood',
+	u'murúmé':	'person',	u'murúmé mútete':	'thin2 person',
+	u'kahúní':	'firewood',	u'kahúní kárefú':	'longp firewood',
 	u'mačírá':	'clothes',	u'mačírá márefú':	'longp clothes',
-	    u'hárí':	'pot',	u'hárí nhéte':	'thin pot'})))
+	    u'hárí':	'pot',	u'hárí nhéte':	'thin pot'})),
+    solutions=[u'''
+ + stem + 
+ + stem + ##áaá ; died
+ + stem + ##áá ; big
+ + stem + ##aáá ; bigp
+ + stem + ##áa ; short
+ + stem + ##aáa ; shortp
+ + stem + ##áa ; clean
+ + stem + ##áaá ; fell
+ + stem + ##aáá ; many
+ + stem + ##aá ; tall
+ + stem + ##aá ; long
+ + stem + ##aaá ; longp
+ + stem + ##aá ; thick
+ + stem + ##aaá ; thickp
+ + stem + ##aa ; thin
+ + stem + ##aá ; short2
+ + stem + ##aaa ; thin2
+    V > [-highTone] / [+highTone]_ ## [+highTone]
+    V > [+highTone] / [+highTone] ## _ [-highTone]
+'''])
     )
+# print unicode(interactingProblems[-1])
+# assert False
 
 
 interactingProblems.append(Problem(
