@@ -187,9 +187,16 @@ class UnderlyingProblem(object):
     def conditionOnStem(self, rules, stem, prefixes, suffixes, surfaces, auxiliaryHarness = False):
         """surfaces : list of numberOfInflections elements, each of which is a morph object"""
         assert self.numberOfInflections == len(surfaces)
+
+        if self.wordBoundaries:
+            wb = Constant(self.bank.variablesOfWord(u'##')[0])
+            for i in xrange(max(len(s) for s in surfaces if s is not None )):
+                condition(Or([Constant(i) >= wordLength(stem),
+                              indexWord(stem, Constant(i)) != wb]))
         
         for i,surface in enumerate(surfaces):
             if surface == None: continue
+            if self.wordBoundaries: condition(wordLength(prefixes[i]) == 0)
             
             prediction = applyRules(rules,
                                     concatenate3(prefixes[i],stem,suffixes[i]),

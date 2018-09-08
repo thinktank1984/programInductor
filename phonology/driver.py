@@ -77,6 +77,7 @@ def handleProblem(parameters):
         sys.exit(0)
         
     elif parameters['task'] == 'ransac':
+        assert parameters['timeout'] is not None
         RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
             restrict(restriction).\
             solve(numberOfWorkers = parameters['cores'],
@@ -89,7 +90,8 @@ def handleProblem(parameters):
     elif parameters['task'] == 'incremental':
         ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
                                problemName = str(problemIndex),
-                               numberOfCPUs = 1 if parameters['serial'] else None).\
+                               numberOfCPUs = 1 if parameters['serial'] else None,
+                               globalTimeout=parameters['timeout']*60*60 if parameters['timeout'] is not None else None).\
              restrict(restriction)
         if parameters['alignment']: ss.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
         ss = ss.incrementallySolve(resume = parameters['resume'],                                
@@ -170,7 +172,7 @@ if __name__ == '__main__':
                         help = "What features the solver allowed to use")
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
-    parser.add_argument('--timeout', default = 1.0, type = float,
+    parser.add_argument('--timeout', default = None, type = float,
                         help = 'timeout for ransac solver. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')

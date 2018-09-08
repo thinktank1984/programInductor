@@ -17,6 +17,18 @@ class Expression:
         if not isinstance(o,Expression):
             o = Constant(o)
         return Equals(self,o)
+    def __ne__(self,o):
+        if not isinstance(o,Expression):
+            o = Constant(o)
+        return NotEquals(self,o)
+    def __le__(self,o):
+        if not isinstance(o,Expression):
+            o = Constant(o)
+        return LessThanOrEqual(self,o)
+    def __ge__(self,o):
+        if not isinstance(o,Expression):
+            o = Constant(o)
+        return GreaterThanOrEqual(self,o)
     def __gt__(self,o):
         if not isinstance(o,Expression): o = Constant(o)
         return GreaterThan(o,self)
@@ -77,6 +89,30 @@ class Equals(Expression):
         assert isinstance(a,Expression)
         assert isinstance(b,Expression)
     def sketch(self): return "((%s) == (%s))" % (self.a.sketch(), self.b.sketch())
+
+class NotEquals(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b
+        assert isinstance(a,Expression)
+        assert isinstance(b,Expression)
+    def sketch(self): return "((%s) != (%s))" % (self.a.sketch(), self.b.sketch())
+
+class GreaterThanOrEqual(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b
+        assert isinstance(a,Expression)
+        assert isinstance(b,Expression)
+    def sketch(self): return "((%s) >= (%s))" % (self.a.sketch(), self.b.sketch())
+
+class LessThanOrEqual(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b
+        assert isinstance(a,Expression)
+        assert isinstance(b,Expression)
+    def sketch(self): return "((%s) <= (%s))" % (self.a.sketch(), self.b.sketch())
 
 class Array(Expression):
     def __init__(self,elements):

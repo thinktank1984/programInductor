@@ -82,7 +82,7 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
              for s in removedSubsumption ]
 
 class IncrementalSolver(UnderlyingProblem):
-    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 7, fixedMorphology = None, maximumRadius = 3, problemName = None):
+    def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 7, fixedMorphology = None, maximumRadius = 3, problemName = None, globalTimeout=None):
         UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
         self.problemName = problemName
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs is not None else \
@@ -124,7 +124,9 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from rule to how many times in a row we have seen it lately
         self.ruleHistory = {}
 
-        self.pervasiveTimeout = 60*60 # let's not try and run the solver more than an hour
+        self.pervasiveTimeout = 2*60*60 # let's not try and run the solver more than 2h
+
+        self.globalTimeout = globalTimeout
 
 
 
@@ -401,6 +403,8 @@ class IncrementalSolver(UnderlyingProblem):
     
 
     def incrementallySolve(self, resume = False, k = 1):
+        startingTime = time()
+        
         if not resume:
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
@@ -439,6 +443,13 @@ class IncrementalSolver(UnderlyingProblem):
 
             radius = 1
             while True:
+                if self.globalTimeout is not None and \
+                   time() - startingTime > self.globalTimeout:
+                    print "Global timeout exhausted."
+                    print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
+                                                              100.*float(j)/len(self.data))
+                    return solution.toFrontier()
+
                 try:
                     worker = self.restrict(trainingData + window)
                     solutions = worker.sketchIncrementalChange(solution, radius)
@@ -494,6 +505,8 @@ class IncrementalSolver(UnderlyingProblem):
                             break # break out of the loop over different radius sizes
                         
                         print "Can't shrink the window anymore so I'm just going to return"
+                        print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
+                                                                  100.*float(j)/len(self.data))
                         return solution.toFrontier()
                     continue # retreat back to the loop over different radii
                 except SynthesisTimeout: return solution.toFrontier()
