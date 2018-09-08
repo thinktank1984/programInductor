@@ -25,6 +25,9 @@ if __name__ == "__main__":
     parser.add_argument("--CPUs",
                         type=int,
                         default=None)
+    parser.add_argument("--timeout",
+                        type=float,
+                        default=None)
     
     arguments = parser.parse_args()
     def universal(j):
@@ -45,6 +48,9 @@ if __name__ == "__main__":
         pickleDirectory = " --pickleDirectory frontierPickles/empiricalUniversal/ "
     else: assert False
 
+    if arguments.timeout is None: timeout = ""
+    else: timeout = " --timeout %f"%arguments.timeout
+
     CPUs = arguments.CPUs or numberOfCPUs()
     print("Using %d CPUs"%CPUs)
 
@@ -58,8 +64,8 @@ if __name__ == "__main__":
     if arguments.ug in ["ground","none"]:
         print "Launching all jobs in parallel!"
         import subprocess
-        processes = [subprocess.Popen("python driver.py %d incremental --cores %d --top 100 %s %s" %
-                                      (j, CPUs, pickleDirectory, universal(j)),
+        processes = [subprocess.Popen("python driver.py %d incremental --cores %d --top 100 %s %s %s" %
+                                      (j, CPUs, pickleDirectory, universal(j), timeout),
                                       shell=True)
                      for j in xrange(arguments.startingIndex, arguments.endingIndex+1)]
         for p in processes:
@@ -68,7 +74,7 @@ if __name__ == "__main__":
     else:
         for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
             print("Solving problem %d"%j)
-            command = "python driver.py %d incremental --CPUs %d --top 100 %s %s "%(j,CPUs,u,pickleDirectory)
+            command = "python driver.py %d incremental --CPUs %d --top 100 %s %s %s"%(j,CPUs,u,pickleDirectory, timeout)
             print
             print "\tCURRICULUM: Solving problem %d by issuing the command:"%j
             print "\t\t",command
