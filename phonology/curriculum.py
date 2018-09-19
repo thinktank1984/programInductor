@@ -28,6 +28,9 @@ if __name__ == "__main__":
     parser.add_argument("--timeout",
                         type=float,
                         default=None)
+    parser.add_argument("--serial",
+                        default=False,
+                        action="store_true")
     
     arguments = parser.parse_args()
     def universal(j):
@@ -61,7 +64,7 @@ if __name__ == "__main__":
         for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
             os.system("pypy UG.py fromGroundTruth --CPUs %d --problems %d --export universalGrammars/groundTruth_%d.p"%(CPUs, j, j))
 
-    if arguments.ug in ["ground","none"]:
+    if arguments.ug in ["ground","none"] and not arguments.serial:
         print "Launching all jobs in parallel!"
         import subprocess
         processes = [subprocess.Popen("python driver.py %d incremental --cores %d --top 100 %s %s %s" %
@@ -74,17 +77,21 @@ if __name__ == "__main__":
     else:
         for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
             print("Solving problem %d"%j)
-            command = "python driver.py %d incremental --CPUs %d --top 100 %s %s %s"%(j,CPUs,u,pickleDirectory, timeout)
+            command = "python driver.py %d incremental --cores %d --top 100 %s %s %s"%(j,CPUs,
+                                                                                      universal(j),
+                                                                                      pickleDirectory,
+                                                                                      timeout)
             print
             print "\tCURRICULUM: Solving problem %d by issuing the command:"%j
             print "\t\t",command
             flushEverything()
             os.system(command)
 
-            command = "pypy UG.py fromFrontiers --CPUs %d --problems %d --export universalGrammars/empirical_%d.p"%(CPUs, j, j)
-            print
-            print "Re- estimating universal grammar by executing:"
-            print command
-            os.system(command)
+            if arguments.ug == "empiricalUniversal":
+                command = "pypy UG.py fromFrontiers --CPUs %d --problems %d --export universalGrammars/empirical_%d.p"%(CPUs, j, j)
+                print
+                print "Re- estimating universal grammar by executing:"
+                print command
+                os.system(command)
 
 
