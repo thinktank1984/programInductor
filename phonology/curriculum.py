@@ -76,6 +76,8 @@ if __name__ == "__main__":
 
     else:
         for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
+            os.system("rm -rf ~/.sketch/tmp/*")
+            os.system("rm -rf /scratch/ellisk/*")
             print("Solving problem %d"%j)
             command = "python driver.py %d incremental --cores %d --top 100 %s %s %s"%(j,CPUs,
                                                                                       universal(j),
