@@ -94,6 +94,8 @@ class SynthesisFailure(Exception):
     pass
 class SynthesisTimeout(Exception):
     pass
+class MemoryExhausted(Exception):
+    pass
 
 globalTimeoutCounter = None
 def setGlobalTimeout(seconds):
@@ -196,6 +198,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         lastFailureOutput = source+"\n"+output
         if "Sketch front-end timed out" in output: raise SynthesisTimeout()
         else: raise SynthesisFailure()
+    elif "Cannot allocate memory" in output: raise MemoryExhausted()
     elif "Program Parse Error" in output:
         print "FATAL: Could not parse program"
         print source

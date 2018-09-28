@@ -274,8 +274,10 @@ class IncrementalSolver(UnderlyingProblem):
             output = self.solveSketch()
         except SynthesisFailure:
             print "\t(no modification possible)"
-            # Because these are executed in parallel, do not throw an exception
-            return None
+            raise SynthesisFailure()
+        except MemoryExhausted:
+            print "WARNING: Memory exhausted in one of the workers - going to decrease CPU count..."
+            raise MemoryExhausted()
         loss = parseMinimalCostValue(output)
         if loss is None:
             print "WARNING: None loss"
@@ -308,7 +310,7 @@ class IncrementalSolver(UnderlyingProblem):
         trainingData = random.sample(remainingData, n) + windowData
 
         newSolution = None
-        try: # catch timeout exception
+        try: # catch timeout/memory exceptions
             
             while True:
                 worker = self.restrict(trainingData)
@@ -327,8 +329,10 @@ class IncrementalSolver(UnderlyingProblem):
                 trainingData = trainingData + [ce]
                 
         except SynthesisTimeout: return None
+        except MemoryExhausted: return MemoryExhausted()
 
-    def sketchIncrementalChange(self, solution, radius = 1):
+    def sketchIncrementalChange(self, solution, radius = 1, CPUs=None):
+        if CPUs is None: CPUs = self.numberOfCPUs
         # This is the actual sequence of radii that we go through
         # We start out with a radius of at least 2 so that we can add a rule and revise an old rule
         def radiiSequence(sequenceIndex):
@@ -355,6 +359,11 @@ class IncrementalSolver(UnderlyingProblem):
         allSolutions = parallelMap(self.numberOfCPUs,
                                    lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
                                    enumerate(ruleVectors))
+        if any( isinstance(s, MemoryExhausted) for s in allSolutions ):
+            CPUs = max(1, int(CPUs/2))
+            print "Because memory was exhausted, we will try decreasing the CPU count to %d."%CPUs
+            return self.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
+        
         allSolutions = [ s for s in allSolutions if s is not None ]
         if allSolutions == []:
             if exhaustedGlobalTimeout(): raise SynthesisTimeout()
