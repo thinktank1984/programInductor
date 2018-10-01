@@ -316,7 +316,6 @@ class IncrementalSolver(UnderlyingProblem):
                 worker = self.restrict(trainingData)
                 newSolution = worker.sketchChangeToSolution(solution, rules, verbose=verbose)
                 verbose = False
-                if newSolution is None: return None
                 print "CEGIS: About to find a counterexample to:\n",newSolution
                 ce = self.findCounterexample(newSolution, trainingData)
                 if ce is None:
@@ -328,7 +327,7 @@ class IncrementalSolver(UnderlyingProblem):
                     return newSolution
                 trainingData = trainingData + [ce]
                 
-        except SynthesisTimeout: return None
+        except (SynthesisTimeout,SynthesisFailure), exception: return None
         except MemoryExhausted: return MemoryExhausted()
 
     def sketchIncrementalChange(self, solution, radius = 1, CPUs=None):
