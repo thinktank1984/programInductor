@@ -124,7 +124,7 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from rule to how many times in a row we have seen it lately
         self.ruleHistory = {}
 
-        self.pervasiveTimeout = 2*60*60 # let's not try and run the solver more than 2h
+        self.pervasiveTimeout = 3*60*60 # let's not try and run the solver more than 3h
 
         self.globalTimeout = globalTimeout
 
