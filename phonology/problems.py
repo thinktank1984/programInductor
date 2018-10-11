@@ -743,7 +743,6 @@ verb inflections.
      (u"həg",u"həgd",u"həgz",u"həgɩŋ"),
      (u"lʊk",u"lʊkt",u"lʊks",u"lʊkɩŋ"),
      (u"æsk",u"æskt",u"æsks",u"æskɩŋ"),
-     (u"æsk",u"æskt",u"æsks",u"æskɩŋ"),
      (u"wɛrk",u"wɛrkt",u"wɛrks",u"wɛrkɩŋ"),
      (u"kɩs",u"kɩst",u"kɩsəz",u"kɩsɩŋ"),
      (u"fɩš",u"fɩšt",u"fɩšəz",u"fɩšɩŋ"),

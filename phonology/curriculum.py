@@ -1,3 +1,6 @@
+from problems import MATRIXPROBLEMS, alternationProblems
+
+import pickle
 import os
 import sys
 
@@ -31,6 +34,9 @@ if __name__ == "__main__":
     parser.add_argument("--serial",
                         default=False,
                         action="store_true")
+    parser.add_argument("--visualize",
+                        type=str,
+                        default=None)
     
     arguments = parser.parse_args()
     def universal(j):
@@ -44,12 +50,45 @@ if __name__ == "__main__":
         return u
 
     if arguments.ug == "ground":
-        pickleDirectory = " --pickleDirectory frontierPickles/groundUniversal/ "
+        pickleDirectory = "frontierPickles/groundUniversal"
     elif arguments.ug == "none":
-        pickleDirectory = " --pickleDirectory frontierPickles/noUniversal/ "
+        pickleDirectory = "frontierPickles/noUniversal"
     elif arguments.ug == "empiricalUniversal":
-        pickleDirectory = " --pickleDirectory frontierPickles/empiricalUniversal/ "
+        pickleDirectory = "frontierPickles/empiricalUniversal"
     else: assert False
+    pickleArgument = " --pickleDirectory %s/ "%pickleDirectory
+
+    if arguments.visualize:
+        import matplotlib.pyplot as plot
+        
+        covers = []
+        for ap in alternationProblems:
+            covers.append((ap.languageName + '*', 1.))
+        
+        for j in range(arguments.startingIndex, arguments.endingIndex+1):
+            fn = '%s/matrix_%d.p'%(pickleDirectory,j)
+            try:
+                with open(fn,'rb') as handle:
+                    solution = pickle.load(handle)
+                    covered = len(solution.underlyingForms)
+            except IOError:
+                print "WARNING: Could not load",fn
+                covered = 0
+            total = len(MATRIXPROBLEMS[j].data)
+            language = MATRIXPROBLEMS[j].languageName
+            # Tibetan counting is weird
+            if language == 'Tibetan': covered = total
+                
+            covers.append((language,covered/float(total)))
+            print fn, language, covered/float(total)
+        plot.barh(range(len(covers)),
+                 [c for l,c in covers ],
+                 tick_label=[l for l,c in covers ])
+        plot.show()
+        import sys
+        sys.exit(0)
+        
+
 
     if arguments.timeout is None: timeout = ""
     else: timeout = " --timeout %f"%arguments.timeout
@@ -68,7 +107,7 @@ if __name__ == "__main__":
         print "Launching all jobs in parallel!"
         import subprocess
         processes = [subprocess.Popen("python driver.py %d incremental --cores %d --top 100 %s %s %s" %
-                                      (j, CPUs, pickleDirectory, universal(j), timeout),
+                                      (j, CPUs, pickleArgument, universal(j), timeout),
                                       shell=True)
                      for j in xrange(arguments.startingIndex, arguments.endingIndex+1)]
         for p in processes:
@@ -76,12 +115,10 @@ if __name__ == "__main__":
 
     else:
         for j in xrange(arguments.startingIndex, arguments.endingIndex+1):
-            os.system("rm -rf ~/.sketch/tmp/*")
-            os.system("rm -rf /scratch/ellisk/*")
             print("Solving problem %d"%j)
             command = "python driver.py %d incremental --cores %d --top 100 %s %s %s"%(j,CPUs,
                                                                                       universal(j),
-                                                                                      pickleDirectory,
+                                                                                      pickleArgument,
                                                                                       timeout)
             print
             print "\tCURRICULUM: Solving problem %d by issuing the command:"%j
