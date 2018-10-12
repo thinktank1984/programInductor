@@ -270,6 +270,7 @@ if __name__ == '__main__':
                    }
                   for problemIndex in problems
                   for seed in map(int,arguments.seed.split(',')) ]
+    displayTimestamp("Executing driver")
     print parameters
     
     if arguments.cores > 1 and arguments.problem == 'integration':

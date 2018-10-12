@@ -9,6 +9,10 @@ import itertools
 import traceback
 import heapq
 
+def displayTimestamp(job):
+    import datetime
+    print job, '@', datetime.datetime.now()
+
 def compose(f,g):
     return lambda x: f(g(x))
 def mergeCounts(m,n):

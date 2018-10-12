@@ -1,5 +1,6 @@
 from problems import MATRIXPROBLEMS, alternationProblems
 
+from utilities import *
 import pickle
 import os
 import sys
@@ -93,6 +94,7 @@ if __name__ == "__main__":
     if arguments.timeout is None: timeout = ""
     else: timeout = " --timeout %f"%arguments.timeout
 
+    displayTimestamp("Curriculum training")
     CPUs = arguments.CPUs or numberOfCPUs()
     print("Using %d CPUs"%CPUs)
 
