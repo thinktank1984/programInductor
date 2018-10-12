@@ -421,7 +421,7 @@ class IncrementalSolver(UnderlyingProblem):
             worker = self.restrict(trainingData)
             solution = worker.sketchJointSolution(1,canAddNewRules = True,
                                                   auxiliaryHarness = True)
-            solution = self.lesionMorphologicalRules(solution)
+            solution = worker.lesionMorphologicalRules(solution)
             j = initialTrainingSize
             firstCounterexample = True
         else:
