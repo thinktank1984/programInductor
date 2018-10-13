@@ -124,7 +124,7 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from rule to how many times in a row we have seen it lately
         self.ruleHistory = {}
 
-        self.pervasiveTimeout = 3*60*60 # let's not try and run the solver more than 3h
+        self.pervasiveTimeout = 2*60*60 # let's not try and run the solver more than 2h
 
         self.globalTimeout = globalTimeout
 
@@ -327,8 +327,9 @@ class IncrementalSolver(UnderlyingProblem):
                     return newSolution
                 trainingData = trainingData + [ce]
                 
-        except (SynthesisTimeout,SynthesisFailure), exception: return None
+        except SynthesisFailure: return SynthesisFailure()
         except MemoryExhausted: return MemoryExhausted()
+        except SynthesisTimeout: return SynthesisTimeout()
 
     def sketchIncrementalChange(self, solution, radius = 1, CPUs=None):
         if CPUs is None: CPUs = self.numberOfCPUs
@@ -358,12 +359,19 @@ class IncrementalSolver(UnderlyingProblem):
         allSolutions = parallelMap(self.numberOfCPUs,
                                    lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
                                    enumerate(ruleVectors))
+        allSolutions = [s for s in allSolutions if not isinstance(s, SynthesisFailure) ]
         if any( isinstance(s, MemoryExhausted) for s in allSolutions ):
             CPUs = max(1, int(CPUs/2))
             print "Because memory was exhausted, we will try decreasing the CPU count to %d."%CPUs
             return self.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
+        # Every element of allSolutions is either Solution or SynthesisTimeout
+        if all( isinstance(s, SynthesisTimeout) for s in solutions ) and not exhaustedGlobalTimeout():
+            print "Got no solutions, but did get some timeouts - going to double pervasive timeout"
+            worker = copy.copy(self)
+            worker.pervasiveTimeout = worker.pervasiveTimeout*2
+            return worker.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
         
-        allSolutions = [ s for s in allSolutions if s is not None ]
+        allSolutions = [ s for s in allSolutions if isinstance(s, Solution) ]
         if allSolutions == []:
             if exhaustedGlobalTimeout(): raise SynthesisTimeout()
             else: raise SynthesisFailure('incremental change')
