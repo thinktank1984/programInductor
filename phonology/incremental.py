@@ -365,7 +365,9 @@ class IncrementalSolver(UnderlyingProblem):
             print "Because memory was exhausted, we will try decreasing the CPU count to %d."%CPUs
             return self.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
         # Every element of allSolutions is either Solution or SynthesisTimeout
-        if all( isinstance(s, SynthesisTimeout) for s in allSolutions ) and not exhaustedGlobalTimeout():
+        if all( isinstance(s, SynthesisTimeout) for s in allSolutions ) and \
+           not exhaustedGlobalTimeout() and \
+           len(allSolutions) > 0:
             print "Got no solutions, but did get some timeouts - going to double pervasive timeout"
             worker = copy.copy(self)
             worker.pervasiveTimeout = worker.pervasiveTimeout*2
