@@ -519,7 +519,10 @@ class IncrementalSolver(UnderlyingProblem):
                         if self.windowSize > 0:
                             print "Decreased window size to %s"%self.windowSize
                             radius = 1
-                            break # break out of the loop over different radius sizes
+                            window = self.data[j:j+self.windowSize]
+                            print "Next data points to explain:"
+                            print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ])
+                            continue # Retreat back to the loop over different radii                        
                         
                         print "Can't shrink the window anymore so I'm just going to return"
                         print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
