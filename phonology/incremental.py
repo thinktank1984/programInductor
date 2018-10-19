@@ -110,7 +110,7 @@ class IncrementalSolver(UnderlyingProblem):
         # Map from inflection_index to Maybe (prefix, suffix, count)
         self.morphologyHistory = [None for _ in xrange(self.numberOfInflections) ]
         
-        self.fixedUnderlyingFormThreshold = 2
+        self.fixedUnderlyingFormThreshold = 3
 
         # Map from (surface1, ..., surface_I) to ur
         self.fixedUnderlyingForms = {}

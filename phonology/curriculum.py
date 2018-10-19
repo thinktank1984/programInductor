@@ -85,6 +85,7 @@ if __name__ == "__main__":
         plot.barh(range(len(covers)),
                  [c for l,c in covers ],
                  tick_label=[l for l,c in covers ])
+        plot.xlabel('% data covered by rules')
         plot.show()
         import sys
         sys.exit(0)
