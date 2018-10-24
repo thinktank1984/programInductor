@@ -64,7 +64,10 @@ if __name__ == "__main__":
         
         covers = []
         for ap in alternationProblems:
-            covers.append((ap.languageName + '*', 1.))
+            language = ap.languageName
+            if ' (' in language:
+                language = language[:language.index(' (')]
+            covers.append((language + '*', 1.))
         
         for j in range(arguments.startingIndex, arguments.endingIndex+1):
             fn = '%s/matrix_%d.p'%(pickleDirectory,j)
@@ -77,16 +80,28 @@ if __name__ == "__main__":
                 covered = 0
             total = len(MATRIXPROBLEMS[j].data)
             language = MATRIXPROBLEMS[j].languageName
+            
             # Tibetan counting is weird
             if language == 'Tibetan': covered = total
                 
             covers.append((language,covered/float(total)))
             print fn, language, covered/float(total)
+        plot.figure(figsize=(5,10))
+        plot.yticks(rotation=45)
         plot.barh(range(len(covers)),
                  [c for l,c in covers ],
                  tick_label=[l for l,c in covers ])
         plot.xlabel('% data covered by rules')
-        plot.show()
+
+        if arguments.ug == "ground":
+            plot.title("Learned UG (supervised)")
+        elif arguments.ug == "none":
+            plot.title("No UG (supervised)")
+        elif arguments.ug == "empirical":
+            plot.title("Learned UG (unsupervised)")
+        plot.tight_layout()
+        plot.savefig(arguments.visualize)
+
         import sys
         sys.exit(0)
         
