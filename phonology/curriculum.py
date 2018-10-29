@@ -96,7 +96,7 @@ if __name__ == "__main__":
         if arguments.ug == "ground":
             plot.title("Learned UG (supervised)")
         elif arguments.ug == "none":
-            plot.title("No UG (supervised)")
+            plot.title("No UG")
         elif arguments.ug == "empirical":
             plot.title("Learned UG (unsupervised)")
         plot.tight_layout()
