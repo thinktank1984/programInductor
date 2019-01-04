@@ -21,6 +21,8 @@ if __name__ == "__main__":
                         default=False, action='store_true')
     parser.add_argument("--none",
                         default=False, action='store_true')
+    parser.add_argument("--alternation",
+                        default=False, action='store_true')
     
     arguments = parser.parse_args()
     assert arguments.empirical or arguments.ground or arguments.none
@@ -42,17 +44,18 @@ if __name__ == "__main__":
 
     labeledUniversal = universals[len(universals)/2]
 
-    color = {None: 'b',
+    color = {None: 'g',
              "empirical": 'r',
-             "ground": 'g',
+             "ground": 'b',
              "none": 'k'}
 
     covers = []
-    for ap in alternationProblems:
-        language = ap.languageName
-        if ' (' in language:
-            language = language[:language.index(' (')]
-        covers.append((None,language + '*', 1.))
+    if arguments.alternation:
+        for ap in alternationProblems:
+            language = ap.languageName
+            if ' (' in language:
+                language = language[:language.index(' (')]
+            covers.append((None,language + '*', 1.))
 
     for j in range(arguments.startingIndex, arguments.endingIndex+1):
         for u in universals:
@@ -71,7 +74,7 @@ if __name__ == "__main__":
             if language == 'Tibetan': covered = total
 
             covers.append((u,language,covered/float(total)))
-            print fn, language, covered/float(total)
+            print fn, language, covered/float(total), sum(len(u) for u in solution.underlyingForms.values() )
     plot.figure(figsize=(5,10))
     plot.yticks(rotation=45)
     plot.barh(range(len(covers)),
@@ -79,7 +82,7 @@ if __name__ == "__main__":
              tick_label=[l if u is None or u == labeledUniversal else ""
                          for u,l,c in covers ],
               color=[color[u] for u,l,c in covers ])
-    plot.xlabel('% data covered by rules')
+    plot.xlabel('% data covered by theory')
 
     # if arguments.ug == "ground":
     #     plot.title("Learned UG (supervised)")
@@ -88,5 +91,6 @@ if __name__ == "__main__":
     # elif arguments.ug == "empirical":
     #     plot.title("Learned UG (unsupervised)")
     plot.tight_layout()
+    plot.show()
     plot.savefig("/tmp/visualize.png")
 
