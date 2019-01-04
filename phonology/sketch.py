@@ -155,15 +155,16 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     # Temporary file for collecting the sketch output
     outputFile = makeTemporaryFile('',d = './solver_output')
 
-    if timeout != None: timeout = ' --fe-timeout %d '%(int(timeout/60.0))
-    elif globalTimeoutCounter != None:
+    this_timeout = min(timeout or float('inf'),
+                       globalTimeoutCounter or float('inf'))
+    if this_timeout == float('inf'): timeout_str = ''
+    else:
         if exhaustedGlobalTimeout():
             print "Exhausted global timeout budget."
             raise SynthesisTimeout()
-        timeout = ' --fe-timeout %d '%(int(globalTimeoutCounter/60.0))
-    else: timeout = ''
-
-    command = "sketch --slv-p-cpus 1 %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout,
+        timeout_str = ' --fe-timeout %d '%(int(this_timeout/60.0))
+    
+    command = "sketch --slv-p-cpus 1 %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout_str,
                                                                                                     minimizeBound,
                                                                                                     unroll,
                                                                                                     temporarySketchFile,
@@ -172,7 +173,8 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
-    actualTime = send_to_command_server(command)
+    
+    actualTime = send_to_command_server(command, this_timeout)
     #os.system(command)
     print "Ran the solver in %02f sec (%02f wall clock, includes blocking)"%(actualTime, time() - startTime)
     globalSketchTime += actualTime

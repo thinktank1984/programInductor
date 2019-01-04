@@ -5,6 +5,8 @@ import socket
 import os
 import sys
 import SocketServer
+import subprocess32 as subprocess
+
 
 
 COMMANDSERVERPORT = 1540
@@ -26,10 +28,20 @@ class CommandHandler(SocketServer.StreamRequestHandler):
         if k.strip() == "?":
             self.wfile.write(str(MAXIMUMNUMBEROFCONNECTIONS))
         else:
+            timeout = float(k)
+            k = self.rfile.readline()
+            
             COMMANDSERVERSEMAPHORE.acquire()
             startTime = time.time()
-            os.system(k)
-            dt = time.time() - startTime
+            dt = None
+            try:
+                subprocess.call(k,
+                                shell=True,
+                                timeout=(None if timeout == float('inf') else timeout))
+            except subprocess.TimeoutExpired:
+                dt = "timeout"
+                
+            dt = dt or time.time() - startTime
             self.wfile.write(str(dt))
             COMMANDSERVERSEMAPHORE.release()
 
@@ -64,8 +76,11 @@ def kill_servers():
         print " [+] Killing command server with PID %d"%p
         os.system("kill -9 %s"%p)
 
-def send_to_command_server(k):
+def send_to_command_server(k,timeout=None):
+    assert k == "?" or timeout is not None, "DEPRECATED: we now require timeouts"
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    if timeout: k = "%f\n%s"%(timeout,k)
     
     try:
         # Connect to server and send data
