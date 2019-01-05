@@ -132,7 +132,7 @@ sophisticatedFeatureMap = {
 
     # consonance
     u"p": [anterior,],
-    u"p|": [anterior,unreleased],
+    u"p̚": [anterior,unreleased],
     u"p^h": [anterior,aspirated],
     u"b": [anterior,voice],
     u"f": [anterior,continuant],
@@ -146,7 +146,7 @@ sophisticatedFeatureMap = {
     u"d^z": [anterior,coronal,voice,delayedRelease],
     u"t": [anterior,coronal],
     #u"t̪": [coronal],
-    u"t|": [anterior,coronal,unreleased],
+    u"t̚": [anterior,coronal,unreleased],
     u"t^s": [anterior,coronal,delayedRelease],
     u"t^h": [anterior,aspirated,coronal],
     u"ṭ": [anterior,retroflex,coronal],
@@ -166,7 +166,7 @@ sophisticatedFeatureMap = {
     u"č": [coronal,sibilant],#alveopalatal,
     u"č^h": [coronal,sibilant,aspirated],#alveopalatal,
     u"k": [back,high],
-    u"k|": [back,high,unreleased],
+    u"k̚": [back,high,unreleased],
     u"k^h": [back,high,aspirated],
     u"k^y": [back,high,palletized],
     u"x": [back,high,continuant],
@@ -230,7 +230,7 @@ simpleFeatureMap = {
 
     # consonance
     u"p": [bilabial,stop],
-    u"p|": [bilabial,stop,unreleased],
+    u"p̚": [bilabial,stop,unreleased],
     u"p^h": [bilabial,stop,aspirated],
     u"b": [bilabial, stop, voice],
     u"f": [labiodental,fricative],
@@ -243,7 +243,7 @@ simpleFeatureMap = {
     #u"d̪": [voice,coronal],
     u"d^z": [alveolar,affricate,voice],
     u"t": [alveolar, stop],
-    u"t|": [alveolar, stop, unreleased],
+    u"t̚": [alveolar, stop, unreleased],
     u"t^s": [alveolar, affricate],
     u"t^h": [alveolar, stop,aspirated],
     u"ṭ": [alveolar, stop,retroflex],
@@ -263,7 +263,7 @@ simpleFeatureMap = {
     u"č": [alveopalatal,affricate],
     u"č^h": [alveopalatal,affricate,aspirated],
     u"k": [velar, stop],
-    u"k|": [velar, stop,unreleased],
+    u"k̚": [velar, stop,unreleased],
     u"k^h": [velar, stop,aspirated],
     u"k^y": [velar, stop,palletized],
     u"x": [velar, fricative],
@@ -653,18 +653,18 @@ def minimumCostAlignment(surfaces, N=1, table=None):
 
     
 
-    
+
 if __name__ == "__main__":
-    ss = [u"kubala",u"kubalana",u"kubalila",u"kubalilana",u"kutúbála",u"kukíbála",u"kutúbálila",u"kukítúbalila"]
-    ss = [tokenize(s) for s in ss]
-    for s in ss:
-        print(len(s))
-    print(reduce(lambda a,b: a*b, map(len,ss)))
-    a = minimumCostAlignment(ss
-                             ,N=1)
-    for s in a:
-        print s.ur()
-        print s.cost
-        s.showTrace()
+    vs = [ k for k,v in sophisticatedFeatureMap.iteritems() if vowel in v]
+    def show(p):
+        if p in [u'##',u'*',u'-',u'?']: return 
+        print p,"\t","[ %s ]"%(" ".join([ "+"+f for f in sorted(sophisticatedFeatureMap[p])]))
+    
+    def showMany(name, ps):
+        print "%s:"%name
+        for p in sorted(ps):
+            show(p)
         print
-        print 
+    showMany("vowels", vs)
+    showMany("nasals", [ k for k,v in sophisticatedFeatureMap.iteritems() if vowel not in v and nasal in v])
+    showMany("consonants", [ k for k,v in sophisticatedFeatureMap.iteritems() if vowel not in v and nasal not in v])

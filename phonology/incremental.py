@@ -196,15 +196,6 @@ class IncrementalSolver(UnderlyingProblem):
                 print "Permanently freezing the rule",r
                 self.frozenRules.add(r)
 
-    # def guessUnderlyingForms(self, stems, verbose=True):
-    #     dataToConditionOn = [ d for d in self.data
-    #                           if not (d in self.fixedUnderlyingForms)]
-    #     prefixes = [ None if inflection is None else inflection[0] for inflection in self.fixedMorphology ]
-    #     suffixes = [ None if inflection is None else inflection[1] for inflection in self.fixedMorphology ]
-    #     assert len(dataToConditionOn) == len(stems)
-    #     for x,stem in zip(dataToConditionOn, stems):
-    #         self.constrainUnderlyingRepresentation(stem, prefixes, suffixes, x, verbose=verbose)
-
     def sketchChangeToSolution(self, solution, rules, verbose=True):
         Model.Global()
 
@@ -356,9 +347,10 @@ class IncrementalSolver(UnderlyingProblem):
         # Ensure output is nicely ordered
         flushEverything()
 
-        allSolutions = parallelMap(self.numberOfCPUs,
-                                   lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
-                                   enumerate(ruleVectors))
+        with useGlobalTimeout():
+            allSolutions = parallelMap(self.numberOfCPUs,
+                                       lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
+                                       enumerate(ruleVectors))
         allSolutions = [s for s in allSolutions if not isinstance(s, SynthesisFailure) ]
         if any( isinstance(s, MemoryExhausted) for s in allSolutions ):
             CPUs = max(1, int(CPUs/2))
@@ -366,8 +358,7 @@ class IncrementalSolver(UnderlyingProblem):
             return self.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
         # Every element of allSolutions is either Solution or SynthesisTimeout
         if all( isinstance(s, SynthesisTimeout) for s in allSolutions ) and \
-           not exhaustedGlobalTimeout() and \
-           len(allSolutions) > 0:
+           len(allSolutions) > 0 and not exhaustedGlobalTimeout():
             print "Got no solutions, but did get some timeouts - going to double pervasive timeout"
             worker = copy.copy(self)
             worker.pervasiveTimeout = worker.pervasiveTimeout*2
@@ -421,7 +412,7 @@ class IncrementalSolver(UnderlyingProblem):
     
 
     def incrementallySolve(self, resume = False, k = 1):
-        startingTime = time()
+        if self.globalTimeout is not None: setGlobalTimeout(self.globalTimeout)
         
         if not resume:
             initialTrainingSize = self.windowSize
@@ -462,8 +453,7 @@ class IncrementalSolver(UnderlyingProblem):
 
             radius = 1
             while True:
-                if self.globalTimeout is not None and \
-                   time() - startingTime > self.globalTimeout:
+                if exhaustedGlobalTimeout():
                     print "Global timeout exhausted."
                     print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
                                                               100.*float(j)/len(self.data))
@@ -547,5 +537,6 @@ class IncrementalSolver(UnderlyingProblem):
         print "Converges to the final solution:"
         print solution
         print "Expanding to a frontier of size",k
+        setGlobalTimeout(None)
         return self.expandFrontier(self.solveUnderlyingForms(solution), k,
                                    CPUs = self.numberOfCPUs)

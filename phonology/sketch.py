@@ -130,6 +130,19 @@ def areFeaturesDisabled():
     global featuresAreDisabled
     return featuresAreDisabled
 
+class useGlobalTimeout(object):
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        self.start = time()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        dt = time() - self.start
+        global globalTimeoutCounter
+        if globalTimeoutCounter is not None: globalTimeoutCounter -= dt
+
 lastFailureOutput = None
 lastSketchOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, showSource = False, minimizeBound = None, timeout = None):
