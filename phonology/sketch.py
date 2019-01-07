@@ -188,7 +188,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     flushEverything()
     
     actualTime = send_to_command_server(command, this_timeout)
-    #os.system(command)
+    if actualTime == 'timeout': actualTime = this_timeout
     print "Ran the solver in %02f sec (%02f wall clock, includes blocking)"%(actualTime, time() - startTime)
     globalSketchTime += actualTime
     if globalTimeoutCounter != None: globalTimeoutCounter -= actualTime

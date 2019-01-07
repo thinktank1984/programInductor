@@ -39,8 +39,7 @@ class CommandHandler(SocketServer.StreamRequestHandler):
                                 shell=True,
                                 timeout=(None if timeout == float('inf') else timeout))
             except subprocess.TimeoutExpired:
-                dt = "timeout"
-                
+                dt = "timeout"                
             dt = dt or time.time() - startTime
             self.wfile.write(str(dt))
             COMMANDSERVERSEMAPHORE.release()
