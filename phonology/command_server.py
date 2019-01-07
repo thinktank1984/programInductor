@@ -90,7 +90,10 @@ def send_to_command_server(k,timeout=None):
     finally:
         sock.close()
 
-    return float(received)
+    try:
+        return float(received)
+    except:
+        return received
 
 
         
