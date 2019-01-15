@@ -57,6 +57,18 @@ class Problem():
                                   for x in inflections ])
                           for inflections in data ]
 
+        for n in range(len(data)):
+            assert isinstance(data[n], (unicode,tuple,list)), "Problem data should be either a list of tuples of Unicode or a list of Unicode"
+        if isinstance(data[0], unicode):
+            for n in range(len(data)):
+                assert isinstance(data[n], unicode), "Data started out as a Unicode string but turned into %s"%(data[n])
+        if isinstance(data[0], (list, tuple)):
+            for xs in data:
+                assert isinstance(xs, (list, tuple)), "Data started out as tuples but turned into %s"%xs
+                assert len(data[0]) == len(xs), "Data should be of uniform length"
+        
+        
+
         for l in description.split("\n"):
             l = l.strip().replace(':','')
             if len(l) > 0:
@@ -82,9 +94,6 @@ class Problem():
                 fs = set([ f  for p in ps for f in featureMap[p] ])
                 print "Number of distinct features: %d" % len(fs)
                 print " ==  ==  == "
-        elif not parameters:#this is a matrix problem
-            for inflections in self.data:
-                assert len(inflections) == len(self.data[0])
 
     def __str__(self):
         from utilities import formatTable

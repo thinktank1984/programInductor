@@ -366,7 +366,7 @@ def tokenize(word):
             elif suffixLength == len(word) - 1:
                 print word
                 print originalWord
-                raise Exception(u"No valid prefix: " + word + u" when processing " + originalWord)
+                raise Exception(u"No valid prefix: " + word + u" when parsing " + originalWord + "into phonemes. Perhaps you are trying to use a phoneme that is not currently part of the system.")
     return tokens
 
 class FeatureBank():
@@ -378,17 +378,53 @@ class FeatureBank():
     def __init__(self, words):
         self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))
         self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
-        self.featureMap = dict([
-            (p, list(set(featureMap[p]) & set(self.features)))
-            for p in self.phonemes ])
-        self.featureVectorMap = dict([
-            (p, [ (f in self.featureMap[p]) for f in self.features ])
-            for p in self.phonemes ])
+        self.featureMap = {p: list(set(featureMap[p]) & set(self.features))
+                           for p in self.phonemes }
+        self.featureVectorMap = {p: [ (f in self.featureMap[p]) for f in self.features ]
+                                 for p in self.phonemes }
         self.phoneme2index = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
         self.feature2index = dict([ (self.features[j],j) for j in range(len(self.features)) ])
         self.matrix2phoneme = dict([ (frozenset(featureMap[p]),p) for p in self.phonemes ])
 
         self.hasSyllables = syllableBoundary in self.features
+        return 
+        for p in self.phonemes:
+            print("%s > [+nasal] = %s"%(p,self.nasalVersion(p)))
+
+        print "%d possible structural changes"%(len(self.possibleStructuralChanges()))
+
+    def nasalVersion(self, p):
+        candidateNasals = [n for n in self.phonemes if 'nasal' in self.featureMap[n] ]
+        def symmetricDifference(a, b):
+            return len(set(self.featureMap[a]) - set(self.featureMap[b])) + \
+                len(set(self.featureMap[b]) - set(self.featureMap[a]))
+        nv = min(candidateNasals, key=lambda cn: symmetricDifference(cn, p))
+        if 'vowel' in self.featureMap[p] and 'vowel' not in self.featureMap[nv]: return None
+        return nv
+
+    def possibleStructuralChanges(self):
+        import itertools
+        from rule import FeatureMatrix
+        
+        def extension(fm):
+            e = set()
+            for p in self.phonemes:
+                pp = frozenset(fm.apply(self.featureMap[p]))
+                pp = self.matrix2phoneme.get(pp, None)
+                if p != pp:
+                    e.add((p,pp))
+            return frozenset(e)
+        extension2matrix = {}
+        for cost in range(1,4):
+            for features in itertools.combinations(self.features, cost):
+                for polarities in itertools.product(*([(True,False)]*cost)):
+                    matrix = FeatureMatrix(zip(polarities, features))
+                    e = extension(matrix)
+                    if e not in extension2matrix:
+                        extension2matrix[e] = matrix
+        return extension2matrix
+        
+            
 
     @staticmethod
     def fromData(d):
