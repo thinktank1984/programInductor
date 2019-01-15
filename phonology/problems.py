@@ -50,7 +50,7 @@ class Problem():
         self.parameters = parameters
         self.description = description
         self.solutions = solutions
-        if parameters:
+        if isinstance(data[0], basestring):
             self.data = [ x.replace(u"’",u"") for x in data ]
         else:
             self.data = [ tuple([ (None if x == None else x.replace(u"’",u""))
