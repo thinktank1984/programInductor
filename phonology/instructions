@@ -1,3 +1,6 @@
+Important! The latest instructions can be found at:
+https://raw.githubusercontent.com/ellisk42/programInductor/master/phonology/instructions
+
 We are interested in collecting inflectional paradigms: these are matrices where the columns correspond to different inflections and the rows correspond to different stems. These should be given as python files. Here's how you make these Python files:
 
 1. Check out the code repository. You only need to do this once. Run this on the commandline:
