@@ -111,6 +111,7 @@ if __name__ == "__main__":
     host = "localhost"
     COMMANDSERVERSEMAPHORE = threading.Semaphore(CPUs)
 
+    print("Command server reporting in, starting w/ %d CPUs"%CPUs)
     server = ThreadedTCPServer((host,COMMANDSERVERPORT),CommandHandler)
     server.serve_forever()
     
