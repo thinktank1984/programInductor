@@ -27,7 +27,7 @@ def features():
             if not (set(featureMap[p]) != set(featureMap[q])):
                 print "WARNING: %s and %s have the same features"%(p,q)
                 collisions.append((p,q))
-    for problem in alternationProblems + underlyingProblems + interactingProblems + sevenProblems:
+    for problem in alternationProblems + MATRIXPROBLEMS:
         if isinstance(problem,str): continue
         
         if not isinstance(problem.data[0],unicode):

@@ -662,12 +662,3 @@ the integer is None then we have no guess for that one.'''
         return restriction
 
 
-if __name__ == '__main__':
-    from parseSPE import parseSolution
-    from problems import sevenProblems
-
-    s = parseSolution(sevenProblems[1].solutions[0])
-    solver = UnderlyingProblem(sevenProblems[1].data)
-
-    solver.debugSolution(s,Morph(tokenize(u"koš^yil^y")))
-    
