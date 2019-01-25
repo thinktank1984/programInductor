@@ -168,7 +168,7 @@ if __name__ == '__main__':
                         type = str,
                         help = "What features the solver allowed to use")
     parser.add_argument('-t','--top', default = 1, type = int)
-    parser.add_argument('-m','--cores', default = 1, type = int)
+    parser.add_argument('-m','--cores', default = None, type = int)
     parser.add_argument('--timeout', default = None, type = float,
                         help = 'global timeout. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
@@ -193,6 +193,9 @@ if __name__ == '__main__':
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
+
+    if arguments.cores is None:
+        arguments.cores = numberOfCPUs()
     
     if arguments.features == "none":
         disableFeatures()
