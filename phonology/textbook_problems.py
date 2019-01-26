@@ -33,7 +33,7 @@ Russian Odden 68-69''',
 	], 
 	solutions = [u'''
 stem
-stem + as
+stem + a
 [-sonorant] -> [-voice] / _ #
 	''']))
 
@@ -76,7 +76,12 @@ Finnish Odden 73-74
 	(u"reki",			u"rekeæ"),			# sledge
 	(u"væki",			u"vækeæ"),			# people
 	], 
-	solutions = []
+	solutions = [u'''
+stem
+stem + æ
+e ---> [ +high ] /  _ #
+æ ---> [ +back ] / [ +back +continuant ] [  ]* _
+''']
 	))
 
 Odden_Problems.append(Problem(
@@ -99,5 +104,11 @@ Kerewe Odden 76-77
 	(u"kuhiima",		u"mpiima",			u"ahiima",			u"hiima"),		# gasp
 	(u"kuhuuha",		u"mpuuha",			u"ahuuha",			u"huuha"),		# breath into
 	], 
-	solutions = []
+	solutions = [u'''
+ku + stem + a
+m + stem + a
+a + stem + a
+stem + a
+        [-voice] > p / [+nasal] _
+''']
 	))
