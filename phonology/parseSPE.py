@@ -172,7 +172,9 @@ def parseSolution(s):
     rules = []
     for l in lines:
         if 'stem' in l:
-            [prefix,_,suffix] = l.split('+')
+            [prefix, suffix] = l.split('stem')
+            prefix = prefix.replace('+','').strip()
+            suffix = suffix.replace('+','').strip()
             prefixes.append(Morph(tokenize(prefix)))
             suffixes.append(Morph(tokenize(suffix)))
         elif len(l) > 0:

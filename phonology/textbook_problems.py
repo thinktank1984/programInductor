@@ -74,11 +74,22 @@ Finnish Odden 73-74
 	(u"yærvi",			u"yærveæ"),			# lake
 	(u"koski",			u"koskea"),			# waterfall
 	(u"reki",			u"rekeæ"),			# sledge
+<<<<<<< HEAD
 	(u"væki",			u"vækeæ")			# people
 	], 
 	solutions = [u'''
 e -> i / _ #
 	''']
+=======
+	(u"væki",			u"vækeæ"),			# people
+	], 
+	solutions = [u'''
+stem
+stem + æ
+e ---> [ +high ] /  _ #
+æ ---> [ +back ] / [ +back +continuant ] [  ]* _
+''']
+>>>>>>> c80b3c4b57e222d582e36c260e9316b63f816a01
 	))
 
 Odden_Problems.append(Problem(
@@ -99,6 +110,7 @@ Kerewe Odden 76-77
 	(u"kuhaaŋga",		u"mpaaŋga",			u"ahaaŋga",			u"haaŋga"),		# create
 	(u"kuheeba",		u"mpeeba",			u"aheeba",			u"heeba"),		# guide
 	(u"kuhiima",		u"mpiima",			u"ahiima",			u"hiima"),		# gasp
+<<<<<<< HEAD
 	(u"kuhuuha",		u"mpuuha",			u"ahuuha",			u"huuha")		# breath into
 	], 
 	solutions = [u'''
@@ -190,4 +202,15 @@ Jita Odden 79
 	solutions = [u'''
 [-highTone] -> [+highTone] / [+highTone] _
 	''']
+=======
+	(u"kuhuuha",		u"mpuuha",			u"ahuuha",			u"huuha"),		# breath into
+	], 
+	solutions = [u'''
+ku + stem + a
+m + stem + a
+a + stem + a
+stem + a
+        [-voice] > p / [+nasal] _
+''']
+>>>>>>> c80b3c4b57e222d582e36c260e9316b63f816a01
 	))

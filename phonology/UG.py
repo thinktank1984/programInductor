@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from problems import underlyingProblems, interactingProblems, alternationProblems, MATRIXPROBLEMS, Problem
+from problems import alternationProblems, MATRIXPROBLEMS, Problem
 from rule import *
 from utilities import *
 from fragmentGrammar import *

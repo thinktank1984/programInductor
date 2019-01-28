@@ -1,6 +1,7 @@
 from sketch import disableFeatures, disableClean
 from features import switchFeatures
-from problems import MATRIXPROBLEMS
+from problems import *
+from textbook_problems import *
 from countingProblems import CountingProblem
 from utilities import *
 from parseSPE import parseSolution
@@ -17,15 +18,12 @@ import io
 
 from command_server import start_server
 
-def handleProblem(parameters):
-    problemIndex = parameters['problemIndex']
-    random.seed(parameters['seed'] + problemIndex)
+def handleProblem(p):
+    random.seed(arguments.seed)
 
-    p = MATRIXPROBLEMS[problemIndex]
-
-    if parameters['restrict'] != None:
-        print "(Restricting problem data to interval: %d -- %d)"%(parameters['restrict'][0],parameters['restrict'][1])
-        restriction = p.data[parameters['restrict'][0] : parameters['restrict'][1]]
+    if arguments.restrict != None:
+        print "(Restricting problem data to interval: %d -- %d)"%(arguments.restrict[0],arguments.restrict[1])
+        restriction = p.data[arguments.restrict[0] : arguments.restrict[1]]
     else: restriction = p.data
         
     print p.description
@@ -36,9 +34,9 @@ def handleProblem(parameters):
     else:
         print CountingProblem(p.data, p.parameters).latex()
 
-    if parameters['universalGrammar'] != None:
-        assert parameters['universalGrammar'].endswith('.p')
-        universalGrammarPath = parameters['universalGrammar']
+    if arguments.universal != None:
+        assert arguments.universal.endswith('.p')
+        universalGrammarPath = arguments.universal
             
         if not os.path.exists(universalGrammarPath):
             print "Fatal error: Cannot find universal grammar",universalGrammarPath
@@ -55,16 +53,16 @@ def handleProblem(parameters):
     
     if isCountingProblem:
         problem = CountingProblem(p.data, p.parameters)
-        parameters['task'] = 'exact'
+        arguments.task = 'exact'
     else:
         problem = UnderlyingProblem(p.data, UG = ug).restrict(restriction)
     
-    if parameters['task'] == 'debug':
+    if arguments.task == 'debug':
         for s in p.solutions:
             s = parseSolution(s)
-            problem.debugSolution(s,Morph(tokenize(parameters['debug'])))
+            problem.debugSolution(s,Morph(tokenize(arguments.debug)))
         sys.exit(0)
-    elif parameters['task'] == 'verify':
+    elif arguments.task == 'verify':
         for s in p.solutions:
             s = parseSolution(s)
             print "verifying:"
@@ -76,68 +74,67 @@ def handleProblem(parameters):
             problem.illustrateSolution(s)
         sys.exit(0)
         
-    elif parameters['task'] == 'ransac':
-        assert parameters['timeout'] is not None
-        RandomSampleSolver(p.data, parameters['timeout']*60*60, 10, 25, UG = ug, dummy = parameters['dummy']).\
+    elif arguments.task == 'ransac':
+        assert arguments.timeout is not None
+        RandomSampleSolver(p.data, arguments.timeout*60*60, 10, 25, UG = ug, dummy = arguments.dummy).\
             restrict(restriction).\
-            solve(numberOfWorkers = parameters['cores'],
+            solve(numberOfWorkers = arguments.cores,
                   batchSizes=[2,3,5,8,13],
                   numberOfSamples=10)
-            # solve(numberOfWorkers = parameters['cores'],
-            #       numberOfSamples = parameters['samples'])
+            # solve(numberOfWorkers = arguments.cores,
+            #       numberOfSamples = arguments.samples)
         sys.exit(0)
         
-    elif parameters['task'] == 'incremental':
-        ss = IncrementalSolver(p.data,parameters['window'],UG = ug,
-                               problemName = str(problemIndex),
-                               numberOfCPUs = 1 if parameters['serial'] else None,
-                               globalTimeout=parameters['timeout']*60*60 if parameters['timeout'] is not None else None).\
+    elif arguments.task == 'incremental':
+        ss = IncrementalSolver(p.data,arguments.window,UG = ug,
+                               problemName = p.key,
+                               numberOfCPUs = 1 if arguments.serial else None,
+                               globalTimeout=arguments.timeout*60*60 if arguments.timeout is not None else None).\
              restrict(restriction)
-        if parameters['alignment']: ss.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
-        ss = ss.incrementallySolve(resume = parameters['resume'],                                
-                                k = parameters['top'])
-    elif parameters['task'] == 'CEGIS':
+        if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
+        ss = ss.incrementallySolve(resume = arguments.resume,                                
+                                k = arguments.top)
+    elif arguments.task == 'CEGIS':
         ss = problem
-        if parameters['alignment']: ss.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
-        ss = ss.counterexampleSolution(k = parameters['top'])
-    elif parameters['task'] == 'exact':
-        if parameters['alignment']: problem.loadAlignment('precomputedAlignments/%d.p'%problemIndex)
+        if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
+        ss = ss.counterexampleSolution(k = arguments.top)
+    elif arguments.task == 'exact':
+        if arguments.alignment: problem.loadAlignment('precomputedAlignments/%s.p'%(p.key))
         s = problem.sketchJointSolution(1, canAddNewRules = True)
-        ss = problem.expandFrontier(s, parameters['top'])
-    elif parameters['task'] == 'frontier':
-        f = str(problemIndex) + ".p"
-        seed = os.path.join(parameters['restore'], f)
+        ss = problem.expandFrontier(s, arguments.top)
+    elif arguments.task == 'frontier':
+        f = p.key + ".p"
+        seed = os.path.join(arguments.restore, f)
         if not os.path.exists(seed):
-            print "Skipping frontier job %d, because I can't find %s"%(problemIndex,seed)
-            sys.exit(0)
+            assert False, "Could not find path %s"%seed
         seed = loadPickle(seed)
         assert isinstance(seed,Frontier)
         worker = problem
         seed = worker.solveUnderlyingForms(seed[0])
-        frontier = worker.solveFrontiers(seed, k = parameters['top'])
-        dumpPickle(frontier, os.path.join(parameters['save'], f))
+        frontier = worker.solveFrontiers(seed, k = arguments.top)
+        dumpPickle(frontier, os.path.join(arguments.save, f))
         sys.exit(0)
 
     assert isinstance(ss,Frontier)
     print ss
 
-    print "Total time taken by problem %d: %f seconds"%(problemIndex, time() - startTime)
+    print "Total time taken by problem %s: %f seconds"%(p.key, time() - startTime)
 
-    if parameters['pickleDirectory'] != None:
-        fullPath = os.path.join(parameters['pickleDirectory'], "matrix_" + str(problemIndex) + ".p")
-        if not os.path.exists(parameters['pickleDirectory']):
-            os.mkdir(parameters['pickleDirectory'])
+    if arguments.pickleDirectory != None:
+        fullPath = os.path.join(arguments.pickleDirectory, p.key + ".p")
+        if not os.path.exists(arguments.pickleDirectory):
+            os.mkdir(arguments.pickleDirectory)
         dumpPickle(ss, fullPath)
         print "Exported frontier to",fullPath
         
                 
 
 
-def paretoFrontier(problemIndex):
+def paretoFrontier(p):
     from time import time
     
-    p = MATRIXPROBLEMS[problemIndex]
     print p.description
+    name = p.key
     random.seed(0)
     data = randomlyPermute(p.data)
     print "\n".join(map(str,data))
@@ -152,7 +149,7 @@ def paretoFrontier(problemIndex):
                                 useMorphology=True)
     if arguments.pickleDirectory is not None:
         t = int(time())
-        path = arguments.pickleDirectory + "/" + str(problemIndex) + "_" + str(t) + "_paretoFrontier.p"
+        path = arguments.pickleDirectory + "/" + name + "_" + str(t) + "_paretoFrontier.p"
         dumpPickle(paretoFront, path)
         print "Exported Pareto frontier to",path
     
@@ -171,9 +168,9 @@ if __name__ == '__main__':
                         type = str,
                         help = "What features the solver allowed to use")
     parser.add_argument('-t','--top', default = 1, type = int)
-    parser.add_argument('-m','--cores', default = 1, type = int)
+    parser.add_argument('-m','--cores', default = None, type = int)
     parser.add_argument('--timeout', default = None, type = float,
-                        help = 'timeout for ransac solver. can be a real number. measured in hours.')
+                        help = 'global timeout. can be a real number. measured in hours.')
     parser.add_argument('--serial', default = False, action = 'store_true',
                         help = 'Run the incremental solver in serial mode (no parallelism)')
     parser.add_argument('--alignment', default = False, action = 'store_true')
@@ -196,6 +193,9 @@ if __name__ == '__main__':
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
+
+    if arguments.cores is None:
+        arguments.cores = numberOfCPUs()
     
     if arguments.features == "none":
         disableFeatures()
@@ -206,28 +206,14 @@ if __name__ == '__main__':
     if arguments.disableClean:
         disableClean()
     
-    if arguments.problem == 'integration':
-        problems = [1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    # Chapter five problems
-                    51,
-                    52,
-                    53]
-    else:
-        problems = map(int,arguments.problem.split(','))
+    try:
+        problem = int(arguments.problem)
+    except:
+        try:
+            problem = Problem.named[arguments.problem]
+        except:
+            print("Could not find problem %s"%problem)
+            sys.exit(0)            
 
     if arguments.restrict != None:        
         restriction = tuple(map(int,[offset for offset in arguments.restrict.split(":") if offset != '']))
@@ -244,37 +230,10 @@ if __name__ == '__main__':
 
     if arguments.task == "pareto":
         # a quick hack
-        assert len(problems) == 1
-        paretoFrontier(problems[0])
+        paretoFrontier(problem)
         sys.exit(0)
         
 
-    parameters = [{'problemIndex': problemIndex,
-                   'seed': seed,
-                   'universalGrammar': arguments.universal,
-                   'top': arguments.top,
-                   'task': arguments.task,
-                   'window': arguments.window,
-                   'resume': arguments.resume,
-                   'debug': arguments.debug,
-                   'save': arguments.save,
-                   'restore': arguments.restore,
-                   "restrict": arguments.restrict,
-                   'cores': arguments.cores,
-                   'timeout': arguments.timeout,
-                   'pickleDirectory': arguments.pickleDirectory,
-                   'serial': arguments.serial,
-                   'samples': arguments.samples,
-                   'dummy': arguments.dummy,
-                   'alignment': arguments.alignment
-                   }
-                  for problemIndex in problems
-                  for seed in map(int,arguments.seed.split(',')) ]
     displayTimestamp("Executing driver")
-    print parameters
-    
-    if arguments.cores > 1 and arguments.problem == 'integration':
-        Pool(arguments.cores).map(handleProblem, parameters)
-    else:
-        map(handleProblem, parameters)
+    handleProblem(problem)
         

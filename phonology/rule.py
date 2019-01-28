@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from problems import interactingProblems
 from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
 from features import FeatureBank,featureMap,tokenize
 from morph import Morph

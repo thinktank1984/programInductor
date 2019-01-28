@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from features import *
+import re
 
 def transposeInflections(inflections):
     return [ tuple([ inflections[x][y] for x in range(len(inflections)) ]) for y in range(len(inflections[0])) ]
@@ -46,6 +47,7 @@ def processMorphology(stems, inflections, dictionary):
 
 
 class Problem():
+    named = {}
     def __init__(self,description,data,parameters = None,solutions = []):
         self.parameters = parameters
         self.description = description
@@ -68,13 +70,28 @@ class Problem():
                 assert len(data[0]) == len(xs), "Data should be of uniform length"
         
         
-
+        sources = ["Odden","Halle","Roca","Kevin"]
+        self.languageName = None
+        self.source = None
         for l in description.split("\n"):
-            l = l.strip().replace(':','')
+            l = l.strip()
             if len(l) > 0:
-                if l[0] in '0123456789': l = ' '.join(l.split(' ')[1:])
-                self.languageName = l
-                break
+                if any( s in l for s in sources ):
+                    m = re.search("(%s).*"%("|".join(sources)),l)
+                    assert m is not None, "This should be impossible - sent to Kevin if this occurs"
+                    self.source = str(m.group(0))
+                    l = l[:m.start(0)].strip()
+                    if len(l) == 0: continue
+                l = ' '.join(l.split(' '))
+                self.languageName = str(l)
+            if self.source is not None and self.languageName is not None: break
+        assert self.languageName is not None,\
+            "Could not find a valid language name in description %s"%description
+        assert self.source is not None,\
+            "Could not find a valid problem source in description %s; try adding something like Odden pg <page numbers>"%description
+        self.key = (self.source + "_" + self.languageName).replace(' ','_').replace('-','_').replace('(','').replace(')','')
+        Problem.named[self.key] = self
+        print "Loaded %s problem from %s, named %s"%(self.source, self.languageName, self.key)
             
 
         # As a sanity check we try to tokenize all of the data
@@ -111,7 +128,7 @@ class Problem():
 # Learning tone patterns
 toneProblems = []
 toneProblems.append(Problem(u'''
-Explain HLM tone pattern.
+HLM tones Kevin 1
 ''',
                             [u"áu`i¯",
                              u"íe`i¯",
@@ -130,7 +147,7 @@ alternationProblems = []
 
 alternationProblems.append(Problem(
     u'''
-Kikurai
+Kikurai Odden A1
 Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g] in the following data. Accents mark tone: acute is H tone and ‘hacek’ [   ̌] is rising tone.
     [+voice, +fricative] > [+stop, -fricative] / [+nasal] _
     
@@ -179,7 +196,7 @@ Provide rules to explain the distribution of the consonants [β,r,ɣ] and [b,d,g
 
 alternationProblems.append(Problem(
 u'''
-2: Modern Greek
+Modern Greek Odden A2
 Determine whether the two segments [k] and [k^y] are contrastive or are governed by rule; similarly, determine whether the difference between [x] and [x^y] is contrastive or predictable. If the distribution is rule-governed, what is the rule and what do you assume to be the underlying consonants in these cases?
 Solution:
 {x^y,k^y} occur only when there is a front vowel to the right
@@ -207,7 +224,7 @@ Solution:
 
 alternationProblems.append(Problem(
 u'''
-3: Farsi
+Farsi Odden A3
 Describe the distribution of the trill [r̃] and the flap [ř].
 Solution found by system:
 trill > flap / [ +vowel ] _ [ -alveolar ]
@@ -236,7 +253,7 @@ trill > flap / [ +vowel ] _ [ -alveolar ]
 
 alternationProblems.append(Problem(
     u'''
-4: Osage
+Osage Odden A4
 What rule governs the distribution of [d] versus [ð] in the following data?
     d occurs when there is [a,á] to the right
     ð occurs when there is [i,e] to the right
@@ -258,7 +275,7 @@ What rule governs the distribution of [d] versus [ð] in the following data?
 
 alternationProblems.append(Problem(
     u'''
-5: Amharic
+Amharic Odden A5
 Is there a phonemic contrast between the vowels [ə] and [ɛ] in Amharic? If not, say what rule governs the distribution of these vowels, and what the underlying value of the vowel is.
 "ə" occurs in the contexts:
     {f,r,t,n,g,z,m,d,k,l,b} _ {r,s,n,b,w,d,m,t,g,b,k,č,#}
@@ -298,7 +315,7 @@ System discovers:
 
 alternationProblems.append(Problem(
     u'''
-6: Gen
+Gen Odden A6
 Determine the rule which accounts for the distribution of [r] and [l] in the following data.
     System learns:
     l > r / [ +coronal ] _ [  ]
@@ -344,7 +361,7 @@ These are all coronal
 
 alternationProblems.append(Problem(
 u'''
-7: Kishambaa
+Kishambaa Odden A7
 Describe the distribution of voiced versus voiceless nasals (voiceless nasals are written with a circle under the letter, as in m̥), and voiceless aspirated, voiceless unaspirated and voiced stops in Kishambaa.
 Solution found by system:
 Nasals become voiced when followed by a voiced phoneme
@@ -387,7 +404,7 @@ Unaspirated stops occur in similar right contexts but don't occur next to voicel
 # Problem 8 has Unicode issues
 alternationProblems.append(Problem(
     u'''
-8: Thai
+Thai Odden A8
 The obstruents of Thai are illustrated below. Determine what the obstruent phonemes of Thai are ([p, t and k] are unreleased stops). Are [p, t, k] distinct phonemes, or can they be treated as positional variants of some other phoneme? If so, which ones, and what evidence supports your decision? Note that no words begin with [g].
     Solution: the Unicode isn't formatted correctly here, and were not actually seen the problem.
     [ptk] occur only word finally and might be underlying aspirated or not aspirated
@@ -440,7 +457,7 @@ The obstruents of Thai are illustrated below. Determine what the obstruent phone
 
 alternationProblems.append(Problem(
 u'''
-9: Palauan
+Palauan Odden A9
 Analyse the distribution of ð, θ and d in the following data. Examples of the type ‘X ~ Y’ mean that the word can be pronounced either as X or as Y, in free variation.
 {ð,d} > θ / _#
 ð > d / #_, optionally
@@ -476,7 +493,7 @@ todo: incorporate optional rules
 
 alternationProblems.append(Problem(
     u'''
-10: Quechua (Cuzco dialect)
+Quechua (Cuzco dialect) Odden A10
 	Describe the distribution of the following four sets of segments: k, x, q, χ; ŋ, N; i, e; u, o. Some pairs of these segments are allophones (positional variants) of a single segment. You should state which contrasts are phonemic (unpredictable) and which could be predicted by a rule. For segments which you think are positional variants of a single phoneme, state which phoneme you think is the underlying variant, and explain why you think so; provide a rule which accounts for all occurrences of the predictable variant. (Reminder: N is a uvular nasal).
     [ +sonorant +velar ] ---> [ +uvular -low -sonorant -front -liquid -velar ] /  _ [ +uvular ]
     [ -middle +front -liquid +voice ] ---> [ -high +middle ] / [ -palatal -aspirated -nasal ] _ [ -fricative -bilabial ]* [ -glide -nasal -coronal ]
@@ -542,7 +559,7 @@ alternationProblems.append(Problem(
 
 alternationProblems.append(Problem(
     u'''
-11: Lhasa Tibetan
+Lhasa Tibetan Odden A11
 	There is no underlying contrast in this language between velars and uvulars, or between voiced or voiceless stops or fricatives (except /s/, which exists underlyingly). State what the underlying segments are, and give rules which account for the surface distribution of these consonant types. [Notational reminder: [G] represents a voiced uvular stop]
     ''',
     [
@@ -608,10 +625,10 @@ alternationProblems.append(Problem(
 
 
 # Chapter 4
-underlyingProblems = []
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS = []
+MATRIXPROBLEMS.append(Problem(
     u'''
-1. Axininca Campa
+Axininca Campa Odden 1.1
 	Provide underlying representations and a phonological rule which will account for the following alternations.
     Output of system:
 Phonological rules:
@@ -633,9 +650,9 @@ p > w / V_V
 k > y / V_V
         ''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-2. Kikuyu
+Kikuyu Odden 1.2
 	What is the underlying form of the infinitive prefix in Kikuyu? Give a rule that explains the non-underlying pronunciation of the prefix.
     ''',
     [(u"ɣotɛŋɛra",),
@@ -656,9 +673,9 @@ ko + stem + a
     k ---> ɣ / # _ V [ -continuant -sonorant ]
 ''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-3: Korean
+Korean Odden 1.3
 	Give the underlying representations of each of the verb stems found below; state what phonological rule applies to these data. [Note: there is a vowel harmony rule which explains the variation between final a and ə in the imperative, which you do not need to be concerned with]
     ''',
     [(u"ipə",		u"ipko"),
@@ -680,9 +697,9 @@ underlyingProblems.append(Problem(
     ə > a / a C* _
 ''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     '''
-    Samoan
+    Samoan  Odden 1.10
 example from the textbook.
 (problem 10)
     ''',
@@ -706,9 +723,9 @@ example from the textbook.
 i ---> Ø / [ +vowel -back ] _ 
 ''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     '''
-    Russian
+    Russian  Odden 1.11
  devoicing of word final obscurant
 (problem 11)
     ''',
@@ -734,9 +751,9 @@ underlyingProblems.append(Problem(
  + stem + a
     [-sonorant] > [-voice] / _#''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     '''
-    English 
+    English Odden 1.12
 verb inflections.
 (problem 12)
     ''',
@@ -771,9 +788,9 @@ verb inflections.
     d > [-voice] / [-voice]_#
     z > [-voice] / [-voice]_#''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-4: Hungarian
+Hungarian Odden 2.1
 	Explain what phonological process affects consonants in the following data (a vowel harmony rule makes suffix vowels back after back vowels and front after front vowels, which you do not need to account for). State what the underlying forms are for all morphemes.
     ''',
 #	noun	in N	from N	to N	gloss
@@ -810,9 +827,9 @@ underlyingProblems.append(Problem(
         [ -sonorant ] > [-voice] / _[-voice]
         ''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-5: Kikuria
+Kikuria Odden 2.2
 	Provide appropriate underlying representations and phonological rules which will account for the following data.
     ''',
 	#verb	verb for
@@ -839,9 +856,9 @@ underlyingProblems.append(Problem(
     V > [-high]/_[ -liquid ]* e
 '''])) #	‘win’
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-6: Farsi
+Farsi Odden 2.3
 Give the underlying forms for the following nouns, and say what phonological rule is necessary to explain the following data.
     ''',
 	#singular	plural	gloss
@@ -866,8 +883,8 @@ Give the underlying forms for the following nouns, and say what phonological rul
  + stem + an
 g ---> 0 / e _ #''']))
 
-underlyingProblems.append(Problem(
-    u'''7: Tibetan
+MATRIXPROBLEMS.append(Problem(
+    u'''Tibetan Odden 2.4
 Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
     ''',
     [
@@ -887,9 +904,9 @@ Numbers between 11 and 19 are formed by placing the appropriate digit after the 
     solutions = [u'''
 C > 0/#_C''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-8: Makonde
+Makonde Odden 2.5
 Explain what phonological rules apply in the following examples (the acute accent in these example marks stress, whose position is predictable).
     ''',
 	#repeated	past		imperative	gloss
@@ -923,9 +940,9 @@ Explain what phonological rules apply in the following examples (the acute accen
 [ +highTone ] ---> a /  _ [  ] [ +highTone ]
 ''']))
 
-underlyingProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
     u'''
-9: North Saami
+North Saami Odden 2.6
 Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
     My analysis:
     {h,g,b,ð} > t / _ #
@@ -971,141 +988,8 @@ m > n/_#
 ǰ ---> š /  _ #''']))
 
 
-
-underlyingProblems.append(Problem(
-    '''
-    Finnish
- nominative versus positive.
-(problem 13)
-    ''',
-    [(u"aamu",u"aamua"),
-     (u"hopea",u"hopeaa"),
-     (u"katto",u"kattoa"),
-     (u"kello",u"kelloa"),
-#     (u"kirya",u"kiryaa"), # I think this is a typo in the textbook
-     (u"külmæ",u"külmææ"),
-     (u"koulu",u"koulua"),
-     (u"lintu",u"lintua"),
-     (u"hüllü",u"hüllüæ"),
-     (u"kömpelö",u"kömpelöæ"),
-     (u"nækö",u"næköæ"),
-     (u"yoki",u"yokea"),
-     (u"kivi",u"kiveæ"),
-     (u"muuri",u"muuria"),
-     (u"naapuri",u"naapuria"),
-     (u"nimi",u"nimeæ"),
-#      (u"kaappi",u"kaappia"), # this was also be a typo: inconsistent with textbook solution
-     #     (u"kaikki",u"kaikkea"), # oh I think I see what's going on: APA [a] is ambiguous
-     (u"kiirehti",u"kiirehtiæ")],
-    solutions = [u'''
- + stem + 
- + stem + æ
-æ > a / [+back +vowel] [ ]* _ #
-    e > i / _ #''']))
-
-underlyingProblems.append(Problem(
-    '''
-    Lithuanian 
-voicing assimilation & epenthesis
-(problem 14)
-todo: not enough data for it to get this one
-    ''',
-    [(u"ateiti",),
-     (u"atimti",),
-     (u"atleisti",),
-     (u"atlikti",),
-     (u"atko:pti",),
-     (u"atkurti",),
-     (u"adbekti",),
-     (u"adgauti",),
-     (u"adbukti",),
-     (u"adgimti",),
-     (u"atiduoti",),
-     (u"atidari:ti",),
-     (u"atideti",),
-     (u"atiteisti",),],
-    solutions = [u'''
-at + stem + ti
-    0 > i/ [+stop +coronal] _ [+stop +coronal]
-    [-sonorant] > [+voice]/_[+voice -sonorant]
-''']))
-
-underlyingProblems.append(Problem(
-    '''
-    Armenian 
-voicing assimilation & epenthesis
-(problem 15)
-todo: not enough data for it to get this one
-    ''',
-    [(u"kert^ham",),
-     (u"kasiem",),
-     (u"kaniem",),
-     (u"kakaniem",),
-     (u"kurriem",),
-     (u"kətam",),
-     (u"kəkienam",),
-     (u"gəbəzzam",),
-     (u"gəlam",)],
-    solutions = [u'''
-k + stem + am
-a > e/i_
-    [-sonorant] > [+voice]/_[+voice -vowel]
-    0 > ə / [-anterior +stop]_C
-''']))
-
-# underlyingProblems.append(Problem(
-#     u'''
-#     (adapted from 9): North Saami, but only with the m/n alternation included
-# Posit appropriate underlying forms and any rules needed to explain the following alternations. The emphasis heret should be on correctly identifying the underlying form: the exact nature of the changes seen here is a more advanced problem.
-#     My analysis:
-#     {h,g,b,ð} > t / _ #
-#     {ǰ} > š / _ #
-#     m > n / _ #
-#     Not affected: s
-#     ''',
-# 	#Nominative sg.	Essive
-#     [
-# #	(u"varit",	u"varihin"),#	“2 year old reindeer buck”
-# 	(u"oahpis",	u"oahpisin"),#	“acquaintance”
-# 	(u"čoarvuš",	u"čoarvušin"),#	“antlers & skullcap”
-# #	(u"lottaaš",	u"lottaaǰin"),#	“small bird”
-# #	(u"čuoivvat",	u"čuoivvagin"),#	“yellow-brown reindeer”
-# #	(u"ahhkut",	u"ahhkubin"),#	“grandchild of woman”
-# #	(u"suohkat",	u"suohkaðin"),#	“thick”
-# #	(u"heeǰoš",	u"heeǰoǰin"),#	“poor guy”
-# #	(u"aaǰǰut",	u"aaǰǰubin"),#	“grandchild of man”
-# #	(u"bissobeahtset",	u"bissobeahtsehin"),#	“butt of gun”
-# #	(u"čeahtsit",	u"čeahtsibin"),#	“children of elder brother of man”
-# 	(u"yaaʔmin",	u"yaaʔmimin"),#	“death”
-# #	(u"čuoivat",	u"čuoivagin"),#	“yellow-grey reindeer”
-# #	(u"laageš",	u"laageǰin"),#	“mountain birch”
-# #	(u"gahpir",	u"gahpirin"),#	“cap”
-# 	(u"gaauhtsis",	u"gaauhtsisin"),#	“8 people”
-# #	(u"aaslat",	u"aaslagin"),#	man’s name
-# #	(u"baðoošgaattset",	u"baðoošgaattsebin"),#	“bird type”
-# #	(u"ahhkit",	u"ahhkiðin"),#	“boring”
-# #	(u"bahaanaalat",	u"bahaanaalagin"),#	“badly behaved”
-# 	(u"beštor",	u"beštorin"),#	“bird type”
-# 	(u"heevemeahhtun",	u"heevemeahhtunin"),#	“inappropriate”
-# #	(u"beeǰot",	u"beeǰohin"),#	“white reindeer”
-# 	(u"bissomeahtun",	u"bissomeahtumin"),#	“unstable”
-# 	(u"laðas",	u"laðasin"),#	“something jointed”
-# #	(u"heaiyusmielat",	u"heaiyusmielagin"),#	“unhappy”
-# 	(u"heaŋkkan",	u"heaŋkkanin"),#	“hanger”
-# 	(u"yaman",	u"yamanin")]))
-
-# underlyingProblems.append(Problem(
-#     '''deGemini test''',
-#     [(u"tes",u"tessi"),
-#      (u"tes",u"tesi"),
-#      (u"ak",u"akki"),
-#      (u"lof",u"loffi"),
-#      (u"pig",u"pigi")]))
-
-interactingProblems = []
-
-interactingProblems.append(Problem(
-    '''1: Kerewe
+MATRIXPROBLEMS.append(Problem(
+    '''Kerewe Odden 3.1
 
 What two tone rules are motivated by the following data; explain what order the rules apply in.
     ''',
@@ -1132,8 +1016,8 @@ What two tone rules are motivated by the following data; explain what order the 
 [  ] ---> [ +highTone ] / [ +highTone ] [  ] _ [  ]
 ''']))
 
-interactingProblems.append(Problem(
-    '''2: Polish
+MATRIXPROBLEMS.append(Problem(
+    '''Polish Odden 3.2
 
 What phonological rules are motivated by the following examples, and what order do those rules apply in?
 ''',
@@ -1168,8 +1052,8 @@ o ---> u /  _ [ -nasal +voice ] #
 [ -sonorant ] ---> [ -voice ] /  _ #
 ''']))
 
-interactingProblems.append(Problem(
-    '''3: Ancient Greek
+MATRIXPROBLEMS.append(Problem(
+    '''Ancient Greek Odden 3.3
 
 Discuss the phonological rules and underlying representations which are necessary to account for the following nouns; comment on the ordering of these phonological processes.
 
@@ -1209,162 +1093,8 @@ it also looks like coronal is deleted in certain contexts.
 [ +coronal -liquid ] > 0 / _ s
 ''']))
 
-interactingProblems.append(
-Problem(
-u'''4: Shona
-	Acute accent indicates H tone and unaccented vowels have L tone. Given the two sets of data immediately below, what tone rule do the following data motivate? There are alternations in the form of adjectives, e.g. kurefú, karefú, marefú all meaning “long”. Adjectives have an agreement prefix, hence ku-refú marks the form of the adjective in one grammatical class, and so on. In some cases, the agreement is realized purely as a change in the initial consonant of the adjective, i.e. gúrú ~ kúrú ~ húrú which need not be explained.
-''',
-    stripConsonants(processMorphology(
-        ['baboon',
-         'boy (aug.)',
-         'table',
-         'word',
-         'hoe',
-         'house',
-         'gazelle',
-         'money',
-         'knife',
-         'axe',
-         'messenger',
-         'cloth',
-         'pot',
-         'worms',
-         'wealth',
-         'country',
-         'bones',
-         'pumpkin',
-         'porcupine',
-         'firewood',
-         'books',
-         'book',
-         'store',
-         'baboons',
-         'hoes',
-         'knives',
-         'words',
-         'axes',
-         'to the land',
-         'gazelle (dim.)',
-         'porcupines (dim.)',
-         'letter',
-         'person',
-         'clothes'],
-        ['',
-         'died',
-         'big',
-         'bigp',
-         'short',
-         'shortp',
-         'clean',
-         'fell',
-         'many',
-         'tall',
-         'long',
-         'longp',
-         'thick',
-         'thickp',
-         'thin',
-         'short2',
-         'thin2'],
-        {
-	u'bveni':	'baboon',	u'bveni pfúpi':	'short baboon',
-	u'guɗo':	'baboon',	u'gudo rákafá':	'baboon died',
-        u'táfura':	'table',	u'táfura húrú':	'big table',
-	u'šoko':	'word',	u'šoko bvúpi':	'short word',
-	u'ɓadzá':	'hoe',	u'ɓadzá gúrú':	'big hoe',
-	u'zigómaná':	'boy (aug.)',	u'zigómaná gúrú':	'big boy (aug.)',
-	u'imbá':	'house',	u'imbá čéna':	'clean house',
-	u'mhará':	'gazelle',	u'mhará čéna':	'clean gazelle',
-	u'marí':	'money',	u'marí čéna':	'clean money',
-
-	u'ɓáŋgá':	'knife',	u'ɓáŋga gúrú':	'big knife',
-	u'ɗémó':	'axe',	u'ɗémo bvúpi':	'short axe',
-	u'nhúmé':	'messenger',	u'nhúme pfúpi':	'short messenger',
-	u'ǰírá':	'cloth',	u'ǰíra ǰéna':	'clean cloth',
-	u'hárí':	'pot',	u'hári húrú':	'big pot',
-	u'mbúndúdzí':	'worms',	u'mbúndúdzi húrú':	'big worms',
-	u'fúma':	'wealth',	u'fúma čéna':	'clean wealth',
-	u'nyíka':	'country',	u'nyíka húrú':	'big country',
-	u'hákáta':	'bones',	u'hákáta pfúpi':	'short bones',
-	u'ǰékéra':	'pumpkin',	u'ǰékéra gúrú':	'big pumpkin',
-
-#These data provide further illustration of the operation of this tone rule, which will help you to state the conditions on the rule correctly.
-
-
-	#u'ɓadzá':	'hoe',
-	    u'ɓadzá rákawá':	'hoe fell',
-	u'nuŋgú':	'porcupine',	u'nuŋgú yákafá':	'porcupine died',
-	#u'ɓáŋgá':	'knife',
-            u'ɓáŋga rákawá':	'knife fell',
-	u'nhúmé':	'messenger',
-	    u'nhúme yákafá':	'messenger died',
-	u'búku':	'book',	u'búku rákawá':	'book fell',
-	u'mapfeni':	'baboons',	u'mapfeni makúrú':	'bigp baboons',
-	u'mapadzá':	'hoes',	u'mapadzá makúrú':	'bigp hoes',
-	u'mapáŋgá':	'knives',	u'mapáŋgá makúrú':	'bigp knives',
-	u'nhúmé':	'messenger',	u'nhúmé ndefú':	'short2 messenger',
-	u'matémó':	'axes',	u'matémó mapfúpi':	'shortp axes',
-	u'mabúku':	'books',	u'mabúku mažínǰí':	'many books',
-	u'čitóro':	'store',	u'čitóro čikúrú':	'bigp store',
-
-	#In the examples below, a second tone rule applies.
-
-	u'guɗo':	'baboon',	u'guɗo refú':	'tall baboon',
-	u'búku':	'book',	u'búku refú':	'long book',
-	u'ɓadzá':	'hoe',	u'ɓadzá refú':	'long hoe',
-	u'nuŋgú':	'porcupine',	u'nuŋgú ndefú':	'long porcupine',
-	u'mašoko':	'words',	u'mašoko marefú':	'longp words',
-	u'kunyíka':	'to the land',	u'kunyíka kurefú':	'longp to the land',
-	u'mapadzá':	'hoes',	u'mapadzá márefú':	'longp hoes',
-	u'kamhará':	'gazelle (dim.)',	u'kamhará kárefú':	'longp gazelle (dim.)',
-	u'tunuŋgú':	'porcupines (dim.)',	u'tunuŋgú túrefú':	'longp porcupines (dim.)',
-
-	u'guɗo':	'baboon',	u'guɗo gobvú':	'thick baboon',
-	u'búku':	'book',	u'búku gobvú':	'thick book',
-	u'ɓadzá':	'hoe',	u'ɓadzá gobvú':	'thick hoe',
-	u'makuɗo':	'baboons',	u'makuɗo makobvú':	'thickp baboons',
-	u'mapadzá':	'hoes',	u'mapadzá mákobvú':	'thickp hoes',
-	u'tsamba':	'letter',	u'tsamba nhete':	'thin letter',
-	u'búku':	'book',	u'búku ɗete':	'thin book',
-	u'ɓadzá':	'hoe',	u'badzá ɗéte':	'thin hoe',
-	u'imbá':	'house',	u'imbá nhéte':	'thin house',
-
-#	What do the following examples show about these tone rules?
-
-	u'ɓáŋgá':	'knife',	u'ɓáŋgá ɗéte':	'thin knife',
-	u'ɗémó':	'axe',	u'ɗémó ɗéte':	'thin axe',
-	u'murúmé':	'person',	u'murúmé mútete':	'thin2 person',
-	u'kahúní':	'firewood',	u'kahúní kárefú':	'longp firewood',
-	u'mačírá':	'clothes',	u'mačírá márefú':	'longp clothes',
-	    u'hárí':	'pot',	u'hárí nhéte':	'thin pot'})),
-    solutions=[u'''
- + stem + 
- + stem + ##áaá ; died
- + stem + ##áá ; big
- + stem + ##aáá ; bigp
- + stem + ##áa ; short
- + stem + ##aáa ; shortp
- + stem + ##áa ; clean
- + stem + ##áaá ; fell
- + stem + ##aáá ; many
- + stem + ##aá ; tall
- + stem + ##aá ; long
- + stem + ##aaá ; longp
- + stem + ##aá ; thick
- + stem + ##aaá ; thickp
- + stem + ##aa ; thin
- + stem + ##aá ; short2
- + stem + ##aaa ; thin2
-    V > [-highTone] / [+highTone]_ ## [+highTone]
-    V > [+highTone] / [+highTone] ## _ [-highTone]
-'''])
-    )
-# print unicode(interactingProblems[-1])
-# assert False
-
-
-interactingProblems.append(Problem(
-'''5: Catalan
+MATRIXPROBLEMS.append(Problem(
+'''Catalan Odden 3.5
 
 Give phonological rules which account for the following data, and indicate what ordering is necessary between these rules. For each adjective stem, state what the underlying form of the root is. Pay attention to the difference between surface [b,d,g] and [β,ð,ɣ], in terms of predictability.
 NOTE: This problem set had a bug in it that Tim discovered.
@@ -1446,8 +1176,8 @@ in between sonants voiced fricatives become stops
     k > 0 /  ŋ _ #
     [+vowel] > 0 / [+vowel] [-vowel]* _ [+vowel] #''']))
 
-interactingProblems.append(Problem(
-    '''6: Finnish
+MATRIXPROBLEMS.append(Problem(
+    '''Finnish  Odden 3.6
 Propose rules which will account for the following alternations. It would be best not to write a lot of rules which go directly from underlying forms to surface forms in one step; instead, propose a sequence of rules whose combined effect brings about the change in the underlying form. Pay attention to what consonants actually exist in the language.
     ''',
     [
@@ -1519,8 +1249,8 @@ a > æ / æ C* _
 k > 0 / []_V[-lateral] 
 ''']))
 
-interactingProblems.append(Problem(
-    '''7: Korean
+MATRIXPROBLEMS.append(Problem(
+    '''Korean  Odden 3.7
 Provide rules which will account for the alternations in the stem final consonant in the following examples. State what underlying representation you are assuming for each noun.
     ''',
     #	‘rice’	‘forest’	‘chestnut’	‘field’	‘sickle’	‘day’	‘face’	‘half’	
@@ -1557,10 +1287,9 @@ transposeInflections([
 
 
 
-sevenProblems = []
-sevenProblems.append(Problem(
+MATRIXPROBLEMS.append(Problem(
 '''
-1: Serbo-Croatian
+Serbo-Croatian Odden 4.1
 	These data from Serbo-Croatian have been simplified in two ways, to make the problem more manageable. Vowel length is omitted, and the only accent that is included is the predictable accent. Invariant lexical acent is not marked, and your analysis should explain how accent is assigned in the predictable-accent class, where accent is marked. You cannot write rules which predict accent for those words in the unpredictable accent class, and you cannot (and should not try to) write a rule which somehow predicts whether a word receives a predictable accent. Ignore the accent of words with no accent mark (other parts of the phonology of such words must be accounted for). Past tense verbs all have the same general past tense suffix, and that the difference between masculine, feminine and neuter past tense involves the same suffixes as are used to mark gender in adjectives.
 ''',
 #	Adjectives
@@ -1623,7 +1352,7 @@ l > o/_#
 ''']))
 
 
-sevenProblems.append(Problem('''2: Standard Ukrainian
+MATRIXPROBLEMS.append(Problem('''Standard Ukrainian Odden 4.2
 	Standard Ukrainian has palatalized and non-palatalized consonants, but only non-palatalized consonants before e. Consonants are generally palatalized before i, with some apparent exceptions such as bily ‘ache’, which need not be seen as exceptions, given the right analysis. Give ordered rules to account for the alternations of the following nouns. The alternation between o and e is limited to suffixes. Also for masculine nouns referring to persons, ov/ev is inserted between the root and the case suffix in the locative singular (see ‘son-in-law’, ‘grandfather’). The data are initially ambiguous as to whether or not the alternations between o and i and between e and i are to be implemented by the same rule. Consider both possibilities; give an argument for selecting one of these solutions. 
 ''',
 #	Masculine nouns
@@ -1683,7 +1412,7 @@ l > w/_# ;; l = [liquid,lateral,voice,alveolar,coronal,sonorant]
 v > w/_# ;; v = [labiodental,fricative,voice]
 ''']))
 
-sevenProblems.append(Problem('''3: Somali
+MATRIXPROBLEMS.append(Problem('''Somali Odden 4.3
 	In the following Somali data, [ḍ] is a voiced retroflex stop and [ṛ] is a voiced retroflex spirant. Account for all phonological alternations in these data. In your discussion of these forms, be sure to make it clear what you assume the underlying representations of relevant morphemes are. Your discussion should also make it clear what motivates your underlying representations and rules. For instance if you could analyse some alternation by assuming underlying X and rule Y, say why (or whether) that choice is preferable to the alternative of assuming underlying P and rule Q.
 Kevin analysis:
 Morphology:
@@ -1764,7 +1493,7 @@ t > š/l_
 l > 0/_š
 ''']))
 
-sevenProblems.append(Problem('''4: Latin
+MATRIXPROBLEMS.append(Problem('''Latin Odden 4.4
 	Provide a complete account of the following phonological alternations in Latin, including underlying forms for nouns stems.
 ''',
 [
@@ -1849,7 +1578,7 @@ sevenProblems.append(Problem('''4: Latin
                              
 ''']))
 	
-sevenProblems.append(Problem('''5: Turkish
+MATRIXPROBLEMS.append(Problem('''Turkish Odden 4.5
 	Provide a phonological analysis of the following data from Turkish.
 My analysis:
 Morphology: 
@@ -1922,7 +1651,7 @@ stem + /s
 	(u"hukuk",	u"huku:ku",	u"huku:ka",	u"hukuktan",	u"hukuklar"),#	law
 ]))
 
-sevenProblems.append(Problem('''6: Kera
+MATRIXPROBLEMS.append(Problem('''Kera Odden 4.6
 	Propose rules to account for the following alternations. It will prove useful to think about Kera vowels in terms of high versus non-high vowels. Also, in this language it would be convenient to assume that [h] and [ʔ] are specified as [+low]. Pay attention to both verbs like bɨlan ‘want me’, balnan ‘wanted me’ and bal-l-a ‘you must want!’, i.e. there are present, past and imperative forms involved, certain tenses being marked by suffixes. Finally, pay attention to what might look like a coincidence in the distribution of vowels in the underlying forms of verb roots: there are no coincidences.
 ''',
 	[(u'haman',#  	‘eat me’	
@@ -2038,134 +1767,74 @@ V > [-low +high]/[+high]C*_
 a > ɨ/[-low]_Ca
 ''']))
 
-sevenProblems.append(Problem('''7: Keley-i
-	Account for the alternations in the following verbs. The different forms relate to whether the action is in the past or future, and which element in the sentence is emphasised (subject, object, instrument). Roots underlyingly have the shape CVC(C)VC, and certain forms such as the subject focus future require changes in the stem that result in a CVCCVC shape. This may be accomplished by reduplicating the initial CV- for stems whose first vowel is [e] (ʔum-bebhat – behat) or doubling the middle consonant (ʔum-buŋŋet – buŋet). The contrastive identification imperfective form conditions lengthening of the consonant in the middle of the stem, when the first vowel is not [e] (memayyuʔ – bayuʔ). These changes are part of the morphology, so do not attempt to write phonological rules to double consonants or reduplicate syllables. Be sure to explicitly state the underlying form of each root and affix. Understanding the status of [s] and [h] in this language is important in solving this problem. It is also important to consider exactly what underlying nasal consonant is present in these various prefixes and infixes – there is evidence in the data which shows that the underlying nature of the nasal explains certain observed differences in phonological behavior.
-''',
-#	subject focus	direct object	instrumental focus
-#	future	focus past	past
-[
-	(u"ʔumduntuk",	u"dinuntuk",	u"ʔinduntuk", u"ʔinduntuk",	u"menuntuk",	u"nenuntuk"),#	punch
-	(u"ʔumbayyuʔ",	u"binayuʔ",	u"ʔimbayuʔ", u"ʔimbayuʔ",	u"memayyuʔ",	u"nemayuʔ"),#	pound rice
-	(u"ʔumdillag",	u"dinilag",	u"ʔindilag", u"ʔindilag",	u"menillag",	u"nenilag"),#	light lamp
-	(u"ʔumgubbat",	u"ginubat",	u"ʔiŋgubat", u"ʔiŋgubat",	u"meŋubbat",	u"neŋubat"),#	fight
-	(u"ʔumhullat",	u"hinulat",	u"ʔinhulat", u"ʔinhulat",	u"menullat",	u"nenulat"),#	cover
-	(u"ʔumbuŋŋet",	u"binuŋet",	u"ʔimbuŋet", None,None,None),#	scold
-	(u"ʔumgalgal",	u"ginalgal",	u"ʔiŋgalgal", None,None,None),#	chew
-	(u"ʔumʔagtuʔ",	u"ʔinagtuʔ",	u"ʔinʔagtuʔ", u"ʔinʔagtuʔ",	u"meŋagtuʔ",	u"neŋagtuʔ"),#	carry on head
-	(u"ʔumʔehneŋ",	u"ʔinehneŋ",	u"ʔinʔehneŋ", None,None,None),#	stand
-	(u"ʔumbebhat",	u"binhat",	u"ʔimbehat", None,None,None),#	cut rattan
-	(u"ʔumdedʔek",	u"dinʔek",	u"ʔindeʔek", u"ʔindeʔek",	u"menʔek",	u"nenʔek"),#	accuse
-	(u"ʔumtuggun",	u"sinugun",	u"ʔintugun", None,None,None),#	advise
-	(u"ʔumtetpen",	u"simpen",	u"ʔintepen", u"ʔintepen",	u"mempen",	u"nempen"),#	measure
-	(u"ʔumpeptut",	u"pintut",	u"ʔimpetut",None,None,None),#	dam
-	(u"ʔumhehpuŋ",	u"himpuŋ",	u"ʔinhepuŋ",None,None,None),#	break a stick
-	(u"ʔumtetkuk",	u"siŋkuk",	u"ʔintekuk",u"ʔintekuk",	u"meŋkuk",	u"neŋkuk"),#	shout
-	(u"ʔumkekbet",	u"kimbet",	u"ʔiŋkebet",u"ʔiŋkebet",	u"meŋbet",	u"neŋbet"),#	scratch
-	(u"ʔumbebdad",	u"bindad",	u"ʔimbedad",u"ʔimbedad",	u"memdad",	u"nemdad"),#	untie
-	(u"ʔumdedgeh",	u"diŋgeh",	u"ʔindegeh",u"ʔindegeh",	u"meŋgeh",	u"neŋgeh"),#	sick
-	
-#	instrumental	contrastive	contrastive
-#	past focus	id. imperfective	id. perfective
-#	(u"ʔinduntuk",	u"menuntuk",	u"nenuntuk"),#	punch
-#	(u"ʔimbayuʔ",	u"memayyuʔ",	u"nemayuʔ"),#	pound rice
-#	(u"ʔindilag",	u"menillag",	u"nenilag"),#	light lamp
-#	(u"ʔiŋgubat",	u"meŋubbat",	u"neŋubat"),#	fight
-#	(u"ʔinhulat",	u"menullat",	u"nenulat"),#	cover
-	(None,None,None,u"ʔintanem",	u"menannem",	u"nenanem"),#	plant
-	(None,None,None,u"ʔimpedug",	u"memdug",	u"nemdug"),#	chase
-#	(u"ʔimbedad",	u"memdad",	u"nemdad"),#	untie
-#	(u"ʔiŋkebet",	u"meŋbet",	u"neŋbet"),#	scratch
-	(None,None,None,u"ʔimbekaʔ",	u"memkaʔ",	u"nemkaʔ"),#	dig
-#	(u"ʔintepen",	u"mempen",	u"nempen"),#	measure
-	(None,None,None,u"ʔintebaʔ",	u"membaʔ",	u"nembaʔ"),#	kill a pig
-#	(u"ʔintekuk",	u"meŋkuk",	u"neŋkuk"),#	shout
-#	(u"ʔindegeh",	u"meŋgeh",	u"neŋgeh"),#	sick
-	(None,None,None,u"ʔinhepaw",	u"mempaw",	u"nempaw"),#	possess
-	(None,None,None,u"ʔinteled",	u"menled",	u"nenled"),#	sting
-#	(u"ʔindeʔek",	u"menʔek",	u"nenʔek"),#	accuse
-	(None,None,None,u"ʔinʔebaʔ",	u"meŋbaʔ",	u"neŋbaʔ"),#	carry on back
-	(None,None,None,u"ʔinʔinum",	u"meŋinnum",	u"neŋinum"),#	drink
-#	(u"ʔinʔagtuʔ",	u"meŋagtuʔ",	u"neŋagtuʔ"),#	carry on head
-	(None,None,None,u"ʔinʔalaʔ",	u"meŋallaʔ",	u"neŋalaʔ"),#	get
-	(None,None,None,u"ʔinʔawit",	u"meŋawwit",	u"neŋawit"),#	get
+# MATRIXPROBLEMS.append('''8: Kikuria
+# 	In some (but not all) of the examples below, morphemes boundaries have been been introduced to assist in the analysis. Every noun is assigned to a grammatical class conventionally given a number (1-20), which is indicated by a particular prefix on the nouns (e.g. omo- for cl. 1); there are also pronoun prefixes on verbs marking subject and object for each class. Tones may be disregarded (however, it is predictable in the infinitive). It is important to pay attention to interaction between processes in this problem.
 
-# The following past subject clausal focus forms involve a different prefix, using some of the roots found above. A number of roots require reduplication of the first root syllable. 
+# 	ogo-táángá	‘to begin’	oko-gɛ́sa	‘to harvest’
+# 	oko-rɔ́ga	‘to witch’	oko-réma	‘to plow’
+# 	oko-hóórá	‘to thresh’	ugu-sííká	‘to close a door’
+# 	ugu-súraangá	‘to sing praise’	uku-gííngá	‘to shave’
+# 	ugu-túúhá	‘to be blunt’
 
-# 	nandunduntuk	‘punch’	nampepedug	‘chase’
-# 	naŋkekebet	‘scratch’	nambebekaʔ	‘dig’
-# 	nantetekuk	‘shout’	nandedeʔek	‘accuse
-# 	nanʔeʔebaʔ	‘carry on back’	nanʔiʔinum	‘drink’
-# 	nantanem	‘plant’
-	]))
+# 	ogo-kó-bárǎ	‘to count you (sg)’	uku-gú-súraánga	‘to praise you (sg)’
+# 	oko-mó-bárǎ	‘to count him’	uku-mú-súraánga	‘to praise him’
+# 	ogo-tó-bárǎ	‘to count us’	ugu-tú-súraánga	‘to praise us’
+# 	oko-gé-bárǎ	‘to count them (4)’	uku-gí-súraánga	‘to praise it (4)’
+# 	oko-ré-bárǎ	‘to count it (5)’	uku-rí-súraánga	‘to praise it (5)’
+# 	uku-bí-bárǎ	‘to count it (8)’	uku-bí-súraánga	‘to praise it (8)’
+# 	uku-chí-bárǎ	‘to count it (10)’	ugu-chí-súraánga	‘to praise it (10)’
 
-sevenProblems.append('''8: Kikuria
-	In some (but not all) of the examples below, morphemes boundaries have been been introduced to assist in the analysis. Every noun is assigned to a grammatical class conventionally given a number (1-20), which is indicated by a particular prefix on the nouns (e.g. omo- for cl. 1); there are also pronoun prefixes on verbs marking subject and object for each class. Tones may be disregarded (however, it is predictable in the infinitive). It is important to pay attention to interaction between processes in this problem.
+# 	oko-mó-gó-gɛsɛ́ra	‘to harvest it (3) for him’
+# 	uku-mú-gú-siíkya	‘to make him close it (3)’
+# 	uku-mú-gú-siíndya	‘to make him win it (3)’
+# 	oko-bá-súraánga	‘to praise them’
+# 	oko-mó-bá-suráángéra	‘to praise them for him’
+# 	oko-bá-mú-suráángéra	‘to praise him for them’
 
-	ogo-táángá	‘to begin’	oko-gɛ́sa	‘to harvest’
-	oko-rɔ́ga	‘to witch’	oko-réma	‘to plow’
-	oko-hóórá	‘to thresh’	ugu-sííká	‘to close a door’
-	ugu-súraangá	‘to sing praise’	uku-gííngá	‘to shave’
-	ugu-túúhá	‘to be blunt’
+# 	to V	to make to V	to V for	to make V for
+# 	okoréma	ukurímyá	okorémérǎ	ukurímíryá	‘weed’
+# 	okoróma	ukurúmyá	okorómérǎ	ukurúmíryá	‘bite’
+# 	okohóórá	ukuhúúryá	okohóórérá	ukuhúúríryá	‘thresh’
+# 	okohéétóká	ukuhíítúkyá	okohéétókerá	ukuhíítúkiryá	‘remember’
+# 	okogéémbá	ukugíímbyá	okogéémbérá	ukugíímbíryá	‘make rain’
+# 	ogosóóká	ugusúúkyá	ogosóókérá	ugusúúkíryá	‘respect’
+# 	ogotégétǎ	ugutígítyǎ	ogotégéterá	ugutígítiryá	‘be late’
+# 	okorɔ́ga	okorógyá	okorɔ́gɛ́rǎ	okorógéryá	‘bewitch’
+# 	okogɔ́ɔ́gá	okogóógyá	okogɔ́ɔ́gɛ́rá	okogóógéryá	‘slaughter’
+# 	okogɔ́ɔ́tá	okogóótyá	okogɔ́ɔ́tɛ́rá	okogóótéryá	‘hold’
+# 	ogosɔ́ka	ogosókyá	ogosɔ́kɛ́rǎ	ogosókéryá	‘poke’
+# 	ogotɛ́rɛ́kǎ	ogotérékyá	ogotɛ́rɛ́kɛrá	ogotérékeryá	‘brew’
+# 	okogɛ́sa	okogésyá	okogɛ́sɛ́rǎ	okogéséryá	‘harvest’
+# 	ogosɛ́ɛ́nsá	ogoséénsyá	ogosɛ́ɛ́nsɛ́rá	ogoséénséryá	‘winnow’
 
-	ogo-kó-bárǎ	‘to count you (sg)’	uku-gú-súraánga	‘to praise you (sg)’
-	oko-mó-bárǎ	‘to count him’	uku-mú-súraánga	‘to praise him’
-	ogo-tó-bárǎ	‘to count us’	ugu-tú-súraánga	‘to praise us’
-	oko-gé-bárǎ	‘to count them (4)’	uku-gí-súraánga	‘to praise it (4)’
-	oko-ré-bárǎ	‘to count it (5)’	uku-rí-súraánga	‘to praise it (5)’
-	uku-bí-bárǎ	‘to count it (8)’	uku-bí-súraánga	‘to praise it (8)’
-	uku-chí-bárǎ	‘to count it (10)’	ugu-chí-súraánga	‘to praise it (10)’
+# 	to V	to make to V	to V for	to make V for
+# 	ugusííká	ugusííkyá	ogoséékérá	ugusííkíryá	‘to close’
+# 	ukurúga	ukurúgyá	okorógérǎ	ukurúgíryá	‘to cook’
+# 	ugusúka	ugusúkyá	ogosókérǎ	ugusúkíryá	‘to plait’
+# 	ukurííngá	ukurííngyá	okorééngérá	ukurííngíryá	‘to fold’
+# 	ugusííndá	ugusííndyá	ogosééndérá	ugusííndíryá	‘to win’
 
-	oko-mó-gó-gɛsɛ́ra	‘to harvest it (3) for him’
-	uku-mú-gú-siíkya	‘to make him close it (3)’
-	uku-mú-gú-siíndya	‘to make him win it (3)’
-	oko-bá-súraánga	‘to praise them’
-	oko-mó-bá-suráángéra	‘to praise them for him’
-	oko-bá-mú-suráángéra	‘to praise him for them’
+# 	imperative	infinitive	they will V	then will V for
+# 	remǎ	okoréma	mbareréma	mbareréméra	‘cultivate’
+# 	barǎ	okobára	mbarebára	mbarebáréra	‘count’
+# 	atǎ	ogɔɔ́ta	mbarɛɛ́ta	mbarɛɛ́tɛ́ra	‘be split’
+# 	ahǎ	okɔɔ́ha	mbarɛɛ́ha	mbarɛɛ́hɛ́ra	‘pick greens’
+# 	agǎ	okɔɔ́ga	mbarɛɛ́ga	mbarɛɛ́gɛ́ra	‘weed’
+# 	aangá	okɔɔ́nga	mbarɛɛ́nga	mbarɛɛ́ngɛ́ra	‘refuse’
+# 	andeká	okɔɔ́ndɛ́kǎ	mbarɛɛ́ndɛ́ka	mbarɛɛ́ndɛ́kɛra	‘write’
 
-	to V	to make to V	to V for	to make V for
-	okoréma	ukurímyá	okorémérǎ	ukurímíryá	‘weed’
-	okoróma	ukurúmyá	okorómérǎ	ukurúmíryá	‘bite’
-	okohóórá	ukuhúúryá	okohóórérá	ukuhúúríryá	‘thresh’
-	okohéétóká	ukuhíítúkyá	okohéétókerá	ukuhíítúkiryá	‘remember’
-	okogéémbá	ukugíímbyá	okogéémbérá	ukugíímbíryá	‘make rain’
-	ogosóóká	ugusúúkyá	ogosóókérá	ugusúúkíryá	‘respect’
-	ogotégétǎ	ugutígítyǎ	ogotégéterá	ugutígítiryá	‘be late’
-	okorɔ́ga	okorógyá	okorɔ́gɛ́rǎ	okorógéryá	‘bewitch’
-	okogɔ́ɔ́gá	okogóógyá	okogɔ́ɔ́gɛ́rá	okogóógéryá	‘slaughter’
-	okogɔ́ɔ́tá	okogóótyá	okogɔ́ɔ́tɛ́rá	okogóótéryá	‘hold’
-	ogosɔ́ka	ogosókyá	ogosɔ́kɛ́rǎ	ogosókéryá	‘poke’
-	ogotɛ́rɛ́kǎ	ogotérékyá	ogotɛ́rɛ́kɛrá	ogotérékeryá	‘brew’
-	okogɛ́sa	okogésyá	okogɛ́sɛ́rǎ	okogéséryá	‘harvest’
-	ogosɛ́ɛ́nsá	ogoséénsyá	ogosɛ́ɛ́nsɛ́rá	ogoséénséryá	‘winnow’
+# 	imperative	3s subjunctive	3s subjunctive for
+# 	remǎ	aremɛ̌	aremerɛ́	‘cultivate’
+# 	tɛrɛká	atɛrɛkɛ́	atɛrɛkɛ́rɛ	‘brew’
+# 	ebǎ	ɛɛbɛ̌	ɛɛbɛrɛ́	‘forget’
+# 	egǎ	ɛɛgɛ̌	ɛɛgɛrɛ́	‘learn’
+# 	ogǎ	ɔɔgɛ̌	ɔɔgɛrɛ́	‘be sharp’
+# 	ɛyǎ	ɛɛyɛ̌	ɛɛyɛrɛ́	‘sweep’
+# 	ɔrɔká	ɔɔrɔkɛ́	ɔɔrɔkɛ́rɛ	‘come out’
+# ''')
 
-	to V	to make to V	to V for	to make V for
-	ugusííká	ugusííkyá	ogoséékérá	ugusííkíryá	‘to close’
-	ukurúga	ukurúgyá	okorógérǎ	ukurúgíryá	‘to cook’
-	ugusúka	ugusúkyá	ogosókérǎ	ugusúkíryá	‘to plait’
-	ukurííngá	ukurííngyá	okorééngérá	ukurííngíryá	‘to fold’
-	ugusííndá	ugusííndyá	ogosééndérá	ugusííndíryá	‘to win’
-
-	imperative	infinitive	they will V	then will V for
-	remǎ	okoréma	mbareréma	mbareréméra	‘cultivate’
-	barǎ	okobára	mbarebára	mbarebáréra	‘count’
-	atǎ	ogɔɔ́ta	mbarɛɛ́ta	mbarɛɛ́tɛ́ra	‘be split’
-	ahǎ	okɔɔ́ha	mbarɛɛ́ha	mbarɛɛ́hɛ́ra	‘pick greens’
-	agǎ	okɔɔ́ga	mbarɛɛ́ga	mbarɛɛ́gɛ́ra	‘weed’
-	aangá	okɔɔ́nga	mbarɛɛ́nga	mbarɛɛ́ngɛ́ra	‘refuse’
-	andeká	okɔɔ́ndɛ́kǎ	mbarɛɛ́ndɛ́ka	mbarɛɛ́ndɛ́kɛra	‘write’
-
-	imperative	3s subjunctive	3s subjunctive for
-	remǎ	aremɛ̌	aremerɛ́	‘cultivate’
-	tɛrɛká	atɛrɛkɛ́	atɛrɛkɛ́rɛ	‘brew’
-	ebǎ	ɛɛbɛ̌	ɛɛbɛrɛ́	‘forget’
-	egǎ	ɛɛgɛ̌	ɛɛgɛrɛ́	‘learn’
-	ogǎ	ɔɔgɛ̌	ɔɔgɛrɛ́	‘be sharp’
-	ɛyǎ	ɛɛyɛ̌	ɛɛyɛrɛ́	‘sweep’
-	ɔrɔká	ɔɔrɔkɛ́	ɔɔrɔkɛ́rɛ	‘come out’
-''')
-
-sevenProblems.append(Problem('''
-9: Lardil
+MATRIXPROBLEMS.append(Problem('''
+Lardil Odden 4.9
 	Account for the phonological alternations seen in the data below.
 ''',
 #	Bare N	Accusative	Nonfuture	Future	Gloss
@@ -2226,7 +1895,7 @@ sevenProblems.append(Problem('''
 	(u"tyumputyu",	u"tyumputyumpun",	u"tyumputyumpuŋar",	u"tyumputyumpuṛ")#	dragonfly
     ]))
 	
-sevenProblems.append(Problem('''10: Sakha (Yakut)
+MATRIXPROBLEMS.append(Problem('''Sakha (Yakut) Odden 4.10
 	Give a phonological analysis to the following case-marking paradigms of nouns in Sakha.
 ''',
 #	noun	plural	associative	gloss
@@ -2361,9 +2030,8 @@ sevenProblems.append(Problem('''10: Sakha (Yakut)
 	# aan	aammɨt	door	kapitan	kapitammɨt	capitain
 	# tiiŋ	tiiŋmit	squirrel	oron	orommut	bed
 	# kün	kümmüt	day
-sevenProblems.append(Problem('''	
-11: Sadzava Ukrainian
-Sadžava Ukrainian
+MATRIXPROBLEMS.append(Problem('''	
+Sadzava Ukrainian Odden 4.11
 	Give a phonological analysis of the following data. Assume that all surface occurrences of ky and gy in this language are derived by rule. Also assume that stress is located on the proper vowel in the underlying representation: the rules for shifting stress are too complex to be considered here. Nouns in declension II depalatalizes a consonant before the locative suffix, and nouns in declension III depalatalize in the genitive. The variation in the genitive and locative sg. suffix in declension I (-i or -a versus -u) is lexically governed: do not write rules which select between these suffixes. Concentrate on extablishing the correct underlying representations for the noun stem.
 ''',[
 #	Declension I
@@ -2427,8 +2095,7 @@ Sadžava Ukrainian
 	(None,None,None,None,None,None,u"kyísyky",	u"kóstə"),#,	u"bone"),#
 ]))
 if False:
-    sevenProblems.append(Problem('''
-12:	Koromfe
+    MATRIXPROBLEMS.append(Problem('''Koromfe Odden 4.12
 	Koromfe has two kinds of vowels, [-ATR] ɩʊɛɔa and [+ATR] iueoʌ. Provide an analysis of the alternations in the following data, which involve singular and plural forms of nouns and different tense-inflections for verbs.
 ''',[
 #	Singular	Plural		gloss
@@ -2615,23 +2282,21 @@ nineProblems = [
 ]
 
 
-MATRIXPROBLEMS = underlyingProblems + interactingProblems + sevenProblems
-
-if __name__ == "__main__":
-    from utilities import *
-    for j,p in enumerate(MATRIXPROBLEMS):
-        print "Problem index",j
-        if isinstance(p,Problem):
-            print p.description
-        else: continue
+# if __name__ == "__main__":
+#     from utilities import *
+#     for j,p in enumerate(MATRIXPROBLEMS):
+#         print "Problem index",j
+#         if isinstance(p,Problem):
+#             print p.description
+#         else: continue
         
-        print
-        if p.parameters is not None: continue
+#         print
+#         if p.parameters is not None: continue
         
-        for ss in p.data:
-            print u" ~ ".join(s for s in ss if s is not None)
-            try:
-                a = runWithTimeout(lambda: minimumCostAlignment([tokenize(s) for s in ss if s is not None ]),
-                                   1.)
-                print "\t",a[0].ur()
-            except RunWithTimeout: print("TIMEOUT")
+#         for ss in p.data:
+#             print u" ~ ".join(s for s in ss if s is not None)
+#             try:
+#                 a = runWithTimeout(lambda: minimumCostAlignment([tokenize(s) for s in ss if s is not None ]),
+#                                    1.)
+#                 print "\t",a[0].ur()
+#             except RunWithTimeout: print("TIMEOUT")
