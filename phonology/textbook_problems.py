@@ -223,3 +223,36 @@ V > [-highTone]/_C*[+highTone]
 	))
 
 
+Odden_Problems.append(Problem(
+	u'''
+Korean Odden 81
+	''',
+	[ 
+	# Imperative	Plain Present		Gloss
+	(u"ana",		u"annɨnta"),		# hug
+	(u"kama",		u"kamnɨnta"),		# wind
+	(u"sinə",		u"sinnɨnta"),		# wear shoes
+	(u"t̚atɨmə",		u"t̚atɨmnɨnta"),		# trim
+	(u"nəmə",		u"nəmnɨnta"),		# overflow
+	(u"nama",		u"namnɨnta"),		# remain
+	(u"č^hama",		u"č^hamnɨnta"),		# endure
+	(u"ipə",		u"imnɨnta"),		# put on
+	(u"kupə" 		u"kumnɨnta"),		# bend
+	(u"čəpə", 		u"cəm̌nɨnta"),		# fold
+	(u"tatə",	 	u"tannɨnta"),		# close
+	(u"put^hə", 	u"punnɨnta"),		# adhere
+	(u"čəč^ha", 	u"čonnɨnta"),		# follow
+	(u"məkə", 		u"məŋnɨnta"),		# eat
+	(u"sək̚ə", 		u"səŋnɨnta"),		# mix
+	(u"tak̚a", 		u"taŋnɨnta"),		# polish
+	(u"čukə",	 	u"čuŋnɨnta"),		# die
+	(u"ikə", 		u"iŋnɨnta"),		# ripen
+
+	], 
+	solutions = [u'''
+stem + a or ə
+stem + nɨnta
+# no solution
+	''']
+	))
+
