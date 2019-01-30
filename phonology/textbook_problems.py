@@ -108,6 +108,8 @@ ku + stem + a
 m + stem + a
 a + stem + a
 stem + a
+
+# postnasal hardening
 [-voice] -> p / [+nasal] _
 	''']
 	))
@@ -164,7 +166,6 @@ English Odden 77-78
 
 	], 
 	solutions = [u'''
-stem + s
 stem + z
 [-sonorant] -> [-voice] / [-voice] _
 	''']))
@@ -217,6 +218,7 @@ oku + mu + stem + ir + a
 oku + či + stem + a
 oku + či + stem + ir + a
 
+# High tone shifting (check if the rule is right)
 V > [+highTone]/[+highTone]C*_
 V > [-highTone]/_C*[+highTone]
 	''']
@@ -256,3 +258,181 @@ stem + nɨnta
 	''']
 	))
 
+
+Odden_Problems.append(Problem(
+	u'''
+Koasati Odden 81
+	''',
+	[ 
+	# Noun			1st-sg-pos("my") + N	Gloss
+	(u"apahčá",		u"amapahčá"),			# shadow
+	(u"asikčí",		u"amasikčí"),			# muscle
+	(u"ilkanó",		u"amilkanó"),			# right side
+	(u"ifá",		u"amifá"),				# dog
+	(u"a:pó",		u"ama:pó"),				# grandmother
+	(u"iskí",		u"amiskí"),				# mother
+	(u"pačokkö́ka",	u"ampačokkö́ka"),		# chair
+	(u"towá",		u"antowá"),				# onion
+	(u"kastó",		u"aŋkastó"),			# flea
+	(u"bayá:na",	u"ambayá:na"),			# stomach
+	(u"tá:ta",		u"antá:ta"),			# father
+	(u"čofkoní",	u"añčofkoní"),			# bone
+	(u"kitiłká",	u"aŋkitiłká"),			# hair bangs
+	(u"toní",		u"antoní")				# hip
+	], 
+	solutions = [u'''
+# no solution
+	''']
+	))
+
+
+Odden_Problems.append(Problem(
+	u'''
+Samoan Odden 85
+	''',
+	[ 
+	# Simple		Perfective		Gloss
+	(u"olo",		u"oloia"),		# rub
+	(u"lafo",		u"lafoia"),		# cast
+	(u"aŋa",		u"aŋaia"),		# face
+	(u"usu",		u"usuia"),		# get up and go early
+	(u"tau",		u"tauia"),		# reach a destination
+	(u"taui",		u"tauia"),		# repay
+	(u"sa:ʔili",	u"sa:ʔilia"),	# look for
+	(u"vaŋai",		u"vaŋaia"),		# face each other
+	(u"paʔi",		u"paʔia"),		# touch
+	(u"naumati",	u"naumatia"),	# be waterless
+	(u"sa:uni",		u"sa:unia"),	# prepare
+	(u"seŋi",		u"seŋia"),		# be shy
+	(u"lele",		u"lelea"),		# fly
+	(u"suʔe",		u"suʔea"),		# uncover
+	(u"taʔe",		u"taʔea"),		# smash
+	(u"tafe",		u"tafea"),		# flow
+	(u"ta:upule",	u"ta:upulea"),	# confer
+	(u"palepale",	u"palepalea"),	# hold firm
+
+	(u"tu:",		u"tu:lia"),		# stand
+	(u"tau",		u"taulia"),		# cost
+	(u"ʔalo",		u"ʔalofia"),	# avoid
+	(u"oso",		u"osofia"),		# jump
+	(u"sao",		u"saofia"),		# collect
+	(u"asu",		u"asuŋja"),		# smoke
+	(u"pole",		u"poleŋia"),	# be anxious
+	(u"ifo",		u"ifoŋia"),		# bow down
+	(u"ula",		u"ulaŋia"),		# mock
+	(u"milo",		u"milosia"),	# twist
+	(u"valu",		u"valusia"),	# scrape
+	(u"vela",		u"velasia"),	# be cooked
+	(u"api",		u"apitia"),		# be lodged
+	(u"eʔe",		u"eʔetia"),		# be raised
+	(u"lava:",		u"lava:tia"),	# be able
+	(u"u:",			u"u:tia"),		# grip
+	(u"puni",		u"punitia"),	# be blocked
+	(u"siʔo",		u"siʔomia"),	# be enclosed
+	(u"ŋalo",		u"ŋalomia"),	# forget
+	(u"sopo",		u"sopoʔia"),	# go across
+
+	(u"au",			u"aulia"),		# flow on
+	(u"ma:tau",		u"ma:taulia"),	# observe
+	(u"ili",		u"ilifia"),		# blow
+	(u"ulu",		u"ulufia"),		# enter
+	(u"taŋo",		u"taŋofia"),	# take hold
+	(u"soa",		u"soaŋia"),		# have a friend
+	(u"fesili",		u"fesiliŋia"),	# question
+	(u"ʔote",		u"ʔoteŋia"),	# scold
+	(u"tofu",		u"tofuŋia"),	# dive
+	(u"laʔa",		u""laʔasia),	# step
+	(u"teŋi",		u"taŋisia"),	# cry
+	(u"motu",		u"motusia"),	# break
+	(u"mataʔu",		u"mataʔutia"),	# fear
+	(u"sau",		u"sautia"),		# fall
+	(u"oʔo",		u"oʔotia"),		# arrive
+	(u"ufi",		u"ufitia"),		# cover
+	(u"tanu",		u"tanumia"),	# cover up
+	(u"moʔo",		u"moʔomia"),	# admire
+	(u"tao",		u"taomia"),		# cover
+	(u"fana",		u"fanaʔia")		# shoot
+	], 
+	solutions = [u'''
+stem
+stem + ia
+
+# Vowel-cluster reduction
+[ +vowel +front] -> 0 / [ +vowel +front ] _ 
+
+# Final consonant deletion
+ C -> 0 / _ #
+	''']
+	))
+
+Odden_Problems.append(Problem(
+	u'''
+Palauan Odden 88
+	''',
+	[ 
+	# Present middle	Future innovative	Future Conservative		Gloss
+	(u"mədáŋəb",		u"dəŋəbáll",		u"dəŋóbl"),				# cover
+	(u"mətéʔəb",		u"təʔəbáll",		u"təʔíbl"),				# pull out
+	(u"məŋétəm",		u"ŋətəmáll",		u"ŋətóml"),				# lick
+	(u"mətábək",		u"təbəkáll",		u"təbákl"),				# patch
+	(u"məʔárəm",		u"ʔərəmáll",		u"ʔəróml"),				# taste
+	(u"məsésəb",		u"səsəbáll",		u"səsóbl")				# burn
+	], 
+	solutions = [u'''
+mə + stem
+stem + al + l
+stem + l
+
+#final syllable stressed if ends in two consonants
+#otherwise the second to last (penultimate) syllable stressed
+
+# Unstressed vowel reduction
+unstressed V -> ə
+	''']
+	))
+
+
+Odden_Problems.append(Problem(
+	u'''
+Bukusu Odden 105
+	''',
+	[ 
+	# Imperative	3pl pres		1sg pres		Gloss
+	(u"ča",			u"βača",		u"ñǰa"),		# go
+	(u"čexa",		u"βačexa",		u"ñǰexa"),		# laugh
+	(u"čučuuŋga",	u"βačučuuŋga",	u"ñǰučuuŋga"),	# sieve
+	(u"talaanda",	u"βatalaanda",	u"ndalaanda"),	# go around
+	(u"teexa",		u"βateexa",		u"ndeexa"),		# cook
+	(u"tiira",		u"βatiira",		u"ndiira"),		# get ahold of
+	(u"piima",		u"βapiima",		u"mbiima"),		# weigh
+	(u"pakala",		u"βapakala",	u"mbakala"),	# writhe in pain
+	(u"ketulula",	u"βaketulula",	u"ŋgetulula"),	# pour out
+	(u"kona",		u"βakona",		u"ŋgona"),		# pass the night
+	(u"kula",		u"βakula",		u"ŋgula"),		# buy
+	(u"kwa",		u"βakwa",		u"ŋgwa")		# fall 
+	], 
+	solutions = [u'''
+stem
+βa + stem
+n + stem
+
+# Postnasal voicing
+[ -voice ] -> [ +voice ] / [ +nasal ] _
+# Nasal place assimilation
+[ +nasal ] -> αplace _[αplace]
+	''']
+	))
+
+
+Odden_Problems.append(Problem(
+	u'''
+Lithuanian Odden 114
+	''',
+	[ 
+
+
+	], 
+	solutions = [u'''
+
+	''']
+	))
