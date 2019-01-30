@@ -390,11 +390,10 @@ class FeatureBank():
         self.matrix2phoneme = dict([ (frozenset(featureMap[p]),p) for p in self.phonemes ])
 
         self.hasSyllables = syllableBoundary in self.features
-        return 
-        for p in self.phonemes:
-            print("%s > [+nasal] = %s"%(p,self.nasalVersion(p)))
 
-        print "%d possible structural changes"%(len(self.possibleStructuralChanges()))
+        if len(self.phonemes) < 80 and False:
+            print "%d possible structural changes"%(len(self.possibleStructuralChanges()))
+            print("%d possible guards"%(len(self.possibleGuards())))
 
     def nasalVersion(self, p):
         candidateNasals = [n for n in self.phonemes if 'nasal' in self.featureMap[n] ]
@@ -414,7 +413,7 @@ class FeatureBank():
             for p in self.phonemes:
                 pp = frozenset(fm.apply(self.featureMap[p]))
                 pp = self.matrix2phoneme.get(pp, None)
-                if p != pp:
+                if pp is not None:
                     e.add((p,pp))
             return frozenset(e)
         extension2matrix = {}
@@ -425,7 +424,25 @@ class FeatureBank():
                     e = extension(matrix)
                     if e not in extension2matrix:
                         extension2matrix[e] = matrix
+        extension2matrix = {e:m for e,m in extension2matrix.iteritems()
+                            if not any( ep > e for ep in extension2matrix if e != ep )}
         return extension2matrix
+
+    def possibleGuards(self):
+        import itertools
+        from rule import FeatureMatrix
+
+        extension2matrix = {}
+        for cost in range(1,4):
+            for features in itertools.combinations(self.features, cost):
+                for polarities in itertools.product(*([(True,False)]*cost)):
+                    matrix = FeatureMatrix(zip(polarities, features))
+                    e = frozenset(matrix.extension(self))
+                    if len(e) > 0 and e not in extension2matrix:
+                        extension2matrix[e] = matrix
+        return extension2matrix
+        
+            
         
             
 
