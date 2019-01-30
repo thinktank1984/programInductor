@@ -320,7 +320,7 @@ Samoan Odden 85
 	(u"ʔalo",		u"ʔalofia"),	# avoid
 	(u"oso",		u"osofia"),		# jump
 	(u"sao",		u"saofia"),		# collect
-	(u"asu",		u"asuŋja"),		# smoke
+	(u"asu",		u"asuŋia"),		# smoke
 	(u"pole",		u"poleŋia"),	# be anxious
 	(u"ifo",		u"ifoŋia"),		# bow down
 	(u"ula",		u"ulaŋia"),		# mock
@@ -346,7 +346,7 @@ Samoan Odden 85
 	(u"ʔote",		u"ʔoteŋia"),	# scold
 	(u"tofu",		u"tofuŋia"),	# dive
 	(u"laʔa",		u"laʔasia"),	# step
-	(u"teŋi",		u"taŋisia"),	# cry
+	(u"taŋi",		u"taŋisia"),	# cry
 	(u"motu",		u"motusia"),	# break
 	(u"mataʔu",		u"mataʔutia"),	# fear
 	(u"sau",		u"sautia"),		# fall
