@@ -194,6 +194,7 @@ sophisticatedFeatureMap = {
     u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
     u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
     u"l": [liquid,lateral,voice,coronal,sonorant,continuant],
+    u"ł": [liquid,lateral,voice,back,high,sonorant,continuant],
 #    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
     # I'm not sure what this is
@@ -291,6 +292,7 @@ simpleFeatureMap = {
     u"r̥̃": [liquid,trill,retroflex],
     u"ř": [liquid,flap,voice,retroflex],
     u"l": [liquid,lateral,voice],
+    u"ł": [liquid,lateral,voice,velar],
 #    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
     # I'm not sure what this is
@@ -325,6 +327,7 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
         fm[v + u"`"] = fm[v] + [lowTone]
         fm[v + u"¯"] = fm[v] + [middleTone]
         fm[v + u":"] = fm[v] + [longVowel]
+        fm[v + u"́:"] = fm[v] + [longVowel,highTone]
         fm[v + u"̌"] =  fm[v] + [risingTone]
         fm[v + u"̃"] = fm[v] + [nasal]
 

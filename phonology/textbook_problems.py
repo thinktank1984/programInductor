@@ -277,7 +277,7 @@ Koasati Odden 81
 	(u"pačokkö́ka",	u"ampačokkö́ka"),		# chair
 	(u"towá",		u"antowá"),				# onion
 	(u"kastó",		u"aŋkastó"),			# flea
-	(u"bayá:na",	u"ambaya:́na"),			# stomach
+	(u"bayá:na",	u"ambayá:na"),			# stomach
 	(u"tá:ta",		u"antá:ta"),			# father
 	(u"čofkoní",	u"añčofkoní"),			# bone
 	(u"kitiłká",	u"aŋkitiłká"),			# hair bangs

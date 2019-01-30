@@ -165,7 +165,9 @@ def parseRule(s):
 def parseSolution(s):
     def removeComment(y):
         if ';' in y: return y[:y.index(';')].strip()
-        return y.strip()
+        y = y.strip()
+        if len(y) == 0 or y[0] == '#': return ''
+        return y
     lines = [ removeComment(x) for x in s.split('\n') ]
     prefixes = []
     suffixes = []
