@@ -197,15 +197,15 @@ Jita Odden 79
 	(u"okukuβírana"),	# to fold for each other
 
 
-	(u"okumuβúma"),		# to hit him/her
-	(u"okumuβúmira"),	# to hit for him/her
-	(u"okučiβúma"),		# to hit it
-	(u"okučiβúmira"),	# to hit for it
+	(u"okumuβúma"),		# to hit him/her
+	(u"okumuβúmira"),	# to hit for him/her
+	(u"okučiβúma"),		# to hit it
+	(u"okučiβúmira"),	# to hit for it
 
-	(u"okumusíβa"),		# to block him/her
-	(u"okumusíβira"),	# to block for him/her
-	(u"okučisíβa"),		# to block it
-	(u"okučisíβira")	# to block for it
+	(u"okumusíβa"),		# to block him/her
+	(u"okumusíβira"),	# to block for him/her
+	(u"okučisíβa"),		# to block it
+	(u"okučisíβira")	# to block for it
 	], 
 	solutions = [u'''
 oku + stem + a
@@ -215,8 +215,8 @@ oku + stem + ir + an + a
 
 oku + mu + stem + a
 oku + mu + stem + ir + a
-oku + či + stem + a
-oku + či + stem + ir + a
+oku + či + stem + a
+oku + či + stem + ir + a
 
 # High tone shifting (check if the rule is right)
 V > [+highTone]/[+highTone]C*_
@@ -225,12 +225,15 @@ V > [-highTone]/_C*[+highTone]
 	))
 
 
+
+
 Odden_Problems.append(Problem(
 	u'''
 Korean Odden 81
 	''',
 	[ 
 	# Imperative	Plain Present		Gloss
+
 	(u"ana",		u"annɨnta"),		# hug
 	(u"kama",		u"kamnɨnta"),		# wind
 	(u"sinə",		u"sinnɨnta"),		# wear shoes
@@ -239,8 +242,8 @@ Korean Odden 81
 	(u"nama",		u"namnɨnta"),		# remain
 	(u"č^hama",		u"č^hamnɨnta"),		# endure
 	(u"ipə",		u"imnɨnta"),		# put on
-	(u"kupə" 		u"kumnɨnta"),		# bend
-	(u"čəpə", 		u"cəm̌nɨnta"),		# fold
+	(u"kupə", 		u"kumnɨnta"),		# bend
+	(u"čəpə", 		u"čəmnɨnta"),		# fold
 	(u"tatə",	 	u"tannɨnta"),		# close
 	(u"put^hə", 	u"punnɨnta"),		# adhere
 	(u"čəč^ha", 	u"čonnɨnta"),		# follow
@@ -248,12 +251,12 @@ Korean Odden 81
 	(u"sək̚ə", 		u"səŋnɨnta"),		# mix
 	(u"tak̚a", 		u"taŋnɨnta"),		# polish
 	(u"čukə",	 	u"čuŋnɨnta"),		# die
-	(u"ikə", 		u"iŋnɨnta"),		# ripen
-
-	], 
+	(u"ikə", 		u"iŋnɨnta")			# ripen
+	],
 	solutions = [u'''
 stem + a or ə
 stem + nɨnta
+
 # no solution
 	''']
 	))
@@ -265,20 +268,20 @@ Koasati Odden 81
 	''',
 	[ 
 	# Noun			1st-sg-pos("my") + N	Gloss
-	(u"apahčá",		u"amapahčá"),			# shadow
-	(u"asikčí",		u"amasikčí"),			# muscle
-	(u"ilkanó",		u"amilkanó"),			# right side
-	(u"ifá",		u"amifá"),				# dog
-	(u"a:pó",		u"ama:pó"),				# grandmother
-	(u"iskí",		u"amiskí"),				# mother
+	(u"apahčá",		u"amapahčá"),			# shadow
+	(u"asikčí",		u"amasikčí"),			# muscle
+	(u"ilkanó",		u"amilkanó"),			# right side
+	(u"ifá",		u"amifá"),				# dog
+	(u"a:pó",		u"ama:pó"),				# grandmother
+	(u"iskí",		u"amiskí"),				# mother
 	(u"pačokkö́ka",	u"ampačokkö́ka"),		# chair
-	(u"towá",		u"antowá"),				# onion
-	(u"kastó",		u"aŋkastó"),			# flea
-	(u"bayá:na",	u"ambayá:na"),			# stomach
+	(u"towá",		u"antowá"),				# onion
+	(u"kastó",		u"aŋkastó"),			# flea
+	(u"bayá:na",	u"ambaya:́na"),			# stomach
 	(u"tá:ta",		u"antá:ta"),			# father
-	(u"čofkoní",	u"añčofkoní"),			# bone
-	(u"kitiłká",	u"aŋkitiłká"),			# hair bangs
-	(u"toní",		u"antoní")				# hip
+	(u"čofkoní",	u"añčofkoní"),			# bone
+	(u"kitiłká",	u"aŋkitiłká"),			# hair bangs
+	(u"toní",		u"antoní")				# hip
 	], 
 	solutions = [u'''
 # no solution
@@ -341,7 +344,7 @@ Samoan Odden 85
 	(u"fesili",		u"fesiliŋia"),	# question
 	(u"ʔote",		u"ʔoteŋia"),	# scold
 	(u"tofu",		u"tofuŋia"),	# dive
-	(u"laʔa",		u""laʔasia),	# step
+	(u"laʔa",		u"laʔasia"),	# step
 	(u"teŋi",		u"taŋisia"),	# cry
 	(u"motu",		u"motusia"),	# break
 	(u"mataʔu",		u"mataʔutia"),	# fear
@@ -371,12 +374,12 @@ Palauan Odden 88
 	''',
 	[ 
 	# Present middle	Future innovative	Future Conservative		Gloss
-	(u"mədáŋəb",		u"dəŋəbáll",		u"dəŋóbl"),				# cover
-	(u"mətéʔəb",		u"təʔəbáll",		u"təʔíbl"),				# pull out
-	(u"məŋétəm",		u"ŋətəmáll",		u"ŋətóml"),				# lick
-	(u"mətábək",		u"təbəkáll",		u"təbákl"),				# patch
-	(u"məʔárəm",		u"ʔərəmáll",		u"ʔəróml"),				# taste
-	(u"məsésəb",		u"səsəbáll",		u"səsóbl")				# burn
+	(u"mədáŋəb",		u"dəŋəbáll",		u"dəŋóbl"),				# cover
+	(u"mətéʔəb",		u"təʔəbáll",		u"təʔíbl"),				# pull out
+	(u"məŋétəm",		u"ŋətəmáll",		u"ŋətóml"),				# lick
+	(u"mətábək",		u"təbəkáll",		u"təbákl"),				# patch
+	(u"məʔárəm",		u"ʔərəmáll",		u"ʔəróml"),				# taste
+	(u"məsésəb",		u"səsəbáll",		u"səsóbl")				# burn
 	], 
 	solutions = [u'''
 mə + stem
@@ -398,9 +401,9 @@ Bukusu Odden 105
 	''',
 	[ 
 	# Imperative	3pl pres		1sg pres		Gloss
-	(u"ča",			u"βača",		u"ñǰa"),		# go
-	(u"čexa",		u"βačexa",		u"ñǰexa"),		# laugh
-	(u"čučuuŋga",	u"βačučuuŋga",	u"ñǰučuuŋga"),	# sieve
+	(u"ča",			u"βača",		u"ñǰa"),		# go
+	(u"čexa",		u"βačexa",		u"ñǰexa"),		# laugh
+	(u"čučuuŋga",	u"βačučuuŋga",	u"ñǰučuuŋga"),	# sieve
 	(u"talaanda",	u"βatalaanda",	u"ndalaanda"),	# go around
 	(u"teexa",		u"βateexa",		u"ndeexa"),		# cook
 	(u"tiira",		u"βatiira",		u"ndiira"),		# get ahold of
@@ -423,16 +426,3 @@ n + stem
 	''']
 	))
 
-
-Odden_Problems.append(Problem(
-	u'''
-Lithuanian Odden 114
-	''',
-	[ 
-
-
-	], 
-	solutions = [u'''
-
-	''']
-	))
