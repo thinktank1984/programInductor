@@ -362,7 +362,7 @@ stem
 stem + ia
 
 # Vowel-cluster reduction
-[ +vowel +front] -> 0 / [ +vowel +front ] _ 
+[ +vowel -back] -> 0 / [ +vowel -back ] _ 
 
 # Final consonant deletion
  C -> 0 / _ #
