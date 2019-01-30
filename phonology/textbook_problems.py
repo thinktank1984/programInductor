@@ -123,46 +123,46 @@ English Odden 77-78
 	## Noun Plural Suffix
 
 	# suffix [s]		
-	(u"kæps"),		# caps
-	(u"kæts"),		# cats
-	(u"kaks"),		# cocks
-	(u"pruwfs"),	# proofs
+	(u"kæps",),		# caps
+	(u"kæts",),		# cats
+	(u"kaks",),		# cocks
+	(u"pruwfs",),	# proofs
 
 	# suffix [z]		
-	(u"kæbz"),		# cabs
-	(u"kædz"),		# cads
-	(u"kagz"),		# cogs
-	(u"hʊvz"),		# hooves
-	(u"fliyz"),		# fleas
-	(u"plæwz"),		# plows
-	(u"pyṛez"),		# purees
+	(u"kæbz",),		# cabs
+	(u"kædz",),		# cads
+	(u"kagz",),		# cogs
+	(u"hʊvz",),		# hooves
+	(u"fliyz",),		# fleas
+	(u"plæwz",),		# plows
+	(u"pyṛez",),		# purees
 
-	(u"klæmz"),		# clams
-	(u"kænz"),		# cans
-	(u"karz"),		# cars
-	(u"gəlz"),		# gulls
+	(u"klæmz",),		# clams
+	(u"kænz",),		# cans
+	(u"karz",),		# cars
+	(u"gəlz",),		# gulls
 	
 
 	## 3sg Present Verbal Suffix
 
 	# suffix [s]
-	(u"slæps"),		# slaps
-	(u"hɩts"),		# hits
-	(u"powks"),		# pokes
+	(u"slæps",),		# slaps
+	(u"hɩts",),		# hits
+	(u"powks",),		# pokes
 
 	# suffix [z]
-	(u"stæbz"),		# stabs
-	(u"haydz"),		# hides
-	(u"dɩgz"),		# digs
-	(u"læfs"),		# laughs
-	(u"pɩθs"),		# piths
+	(u"stæbz",),		# stabs
+	(u"haydz",),		# hides
+	(u"dɩgz",),		# digs
+	(u"læfs",),		# laughs
+	(u"pɩθs",),		# piths
 
-	(u"slæmz"),		# slams
-	(u"kænz"),		# cans
-	(u"hæŋz"),		# hangs
-	(u"θrayvz"),	# thrives
-	(u"beyðz"),		# bathes
-	(u"flayz")		# flies
+	(u"slæmz",),		# slams
+	(u"kænz",),		# cans
+	(u"hæŋz",),		# hangs
+	(u"θrayvz",),	# thrives
+	(u"beyðz",),		# bathes
+	(u"flayz",)		# flies
 
 	], 
 	solutions = [u'''
@@ -176,36 +176,37 @@ Odden_Problems.append(Problem(
 Jita Odden 79
 	''',
 	[ 
-	(u"okuβuma"),		# to hit
-	(u"okuβumira"),		# to hit for
-	(u"okuβumana"),		# to hit each other
-	(u"okuβumirana"),	# to hit for each other
+	(u"okuβuma",		# to hit
+	 u"okuβumira",		# to hit for
+	 u"okuβumana",		# to hit each other
+	 u"okuβumirana",	# to hit for each other
+	 u"okumuβúma",		# to hit him/her
+	 u"okumuβúmira",	# to hit for him/her
+	 u"okučiβúma",	# to hit it
+	 u"okučiβúmira"),	# to hit for it
+            
 
-	(u"okusiβa"),		# to block
-	(u"okusiβira"),		# to block for
-	(u"okusiβana"),		# to block each other
-	(u"okusiβirana"),	# to block for each other
+	(u"okusiβa",		# to block
+	 u"okusiβira",		# to block for
+	 u"okusiβana",		# to block each other
+	 u"okusiβirana",	# to block for each other
+         u"okumusíβa",		# to block him/her
+	 u"okumusíβira",	# to block for him/her
+	 u"okučisíβa",	# to block it
+	 u"okučisíβira"),	# to block for it
 
-	(u"okulúma"),		# to bite
-	(u"okulumíra"),		# to bite for
-	(u"okulumána"),		# to bite each other
-	(u"okulumírana"),	# to bite for each other
+	(u"okulúma",		# to bite
+	 u"okulumíra",		# to bite for
+	 u"okulumána",		# to bite each other
+	 u"okulumírana",	# to bite for each other
+         None,None,None,None),
 
-	(u"okukúβa"),		# to fold
-	(u"okukuβíra"),		# to fold for
-	(u"okukuβána"),		# to fold each other
-	(u"okukuβírana"),	# to fold for each other
+	(u"okukúβa",		# to fold
+	 u"okukuβíra",		# to fold for
+	 u"okukuβána",		# to fold each other
+	 u"okukuβírana",	# to fold for each other
+         None,None,None,None)
 
-
-	(u"okumuβúma"),		# to hit him/her
-	(u"okumuβúmira"),	# to hit for him/her
-	(u"okučiβúma"),		# to hit it
-	(u"okučiβúmira"),	# to hit for it
-
-	(u"okumusíβa"),		# to block him/her
-	(u"okumusíβira"),	# to block for him/her
-	(u"okučisíβa"),		# to block it
-	(u"okučisíβira")	# to block for it
 	], 
 	solutions = [u'''
 oku + stem + a
