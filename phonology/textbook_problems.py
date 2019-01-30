@@ -391,7 +391,7 @@ stem + l
 #otherwise the second to last (penultimate) syllable stressed
 
 # Unstressed vowel reduction
-unstressed V -> ə
+        [+vowel -highTone] -> ə
 	''']
 	))
 

@@ -149,24 +149,12 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     global lastFailureOutput,lastSketchOutput,globalTimeoutCounter,leaveSketches,globalSketchTime
 
     leavitt = leaveSketches
-
-    source = makeSketch(bank, maximumMorphLength, alternationProblem)
     
     # figure out how many bits you need for the minimization bound
     if minimizeBound != None:
         minimizeBound = int(math.ceil(math.log(minimizeBound + 1)/math.log(2)))
     else:
         minimizeBound = 5
-
-    # Temporary file for writing the sketch
-    temporarySketchFile = makeTemporaryFile('.sk')
-    with open(temporarySketchFile,'w') as handle:
-        handle.write(source)
-
-    if showSource: print source
-
-    # Temporary file for collecting the sketch output
-    outputFile = makeTemporaryFile('',d = './solver_output')
 
     this_timeout = min(timeout or float('inf'),
                        globalTimeoutCounter or float('inf'))
@@ -177,12 +165,26 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
             raise SynthesisTimeout()
         timeout_str = ' --fe-timeout %d '%(int(this_timeout/60.0))
     
-    command = "sketch --slv-p-cpus 1 %s --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s > %s 2> %s" % (timeout_str,
-                                                                                                    minimizeBound,
-                                                                                                    unroll,
-                                                                                                    temporarySketchFile,
-                                                                                                    outputFile,
-                                                                                                    outputFile)
+
+
+
+    source = makeSketch(bank, maximumMorphLength, alternationProblem)
+    source = """pragma options "--slv-p-cpus 1  --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s ";
+"""%(minimizeBound,unroll,timeout_str) + source
+    
+    # Temporary file for writing the sketch
+    temporarySketchFile = makeTemporaryFile('.sk')
+    with open(temporarySketchFile,'w') as handle:
+        handle.write(source)
+
+    if showSource: print source
+
+    # Temporary file for collecting the sketch output
+    outputFile = makeTemporaryFile('',d = './solver_output')
+
+    command = "sketch %s > %s 2> %s" % (temporarySketchFile,
+                                        outputFile,
+                                        outputFile)
     print "Invoking solver: %s"%command
     startTime = time()
     flushEverything()
@@ -220,6 +222,9 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         print output
         assert False,"Sketch parse error"
     else:
+        if actualTime > 5*60 and actualTime < 15*60:
+            print "This sketch should be sent to Armando!"
+            sendItToArmando(source, actualTime)
         return output
 
 
@@ -230,7 +235,13 @@ def printLastSketchOutput():
     global lastSketchOutput
     print lastSketchOutput
 
+def sendItToArmando(source, time):
+    temporarySketchFile = makeTemporaryFile('.sk',d="phonologySketches")
+    with open(temporarySketchFile,'w') as handle:
+        handle.write("// Ran in time " + str(time) + " seconds\n")
+        handle.write(source)
 
+    
 def deleteTemporarySketchFiles():
     os.system("rm tmp*sk")
     os.system("rm -r ~/.sketch/tmp/tmp*")
