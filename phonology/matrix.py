@@ -345,7 +345,7 @@ the integer is None then we have no guess for that one.'''
         # but it lets sketch get away with having to deal with smaller numbers
         stemSize = sum([ wordLength(m)-
                          (approximateStemSize[j] if self.numberOfInflections > 1
-                          else len(self.data[j][0]) - 4)
+                          else len(self.data[j][0]) - 1)
                          for j,m in enumerate(stems) ])
 
         ruleSize = sum([ruleCost(r) for r in rules ])

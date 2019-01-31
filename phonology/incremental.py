@@ -96,8 +96,7 @@ class IncrementalSolver(UnderlyingProblem):
         
         if window is None:
             # Adaptively set the window size
-            if wordsPerDataPoint <= 1.0: window = 6
-            elif wordsPerDataPoint <= 3.0: window = 3
+            if wordsPerDataPoint <= 3.0: window = 3
             elif wordsPerDataPoint <= 4.0: window = 2
             else: window = 1
             print "Incremental solver has adaptively set the window size to",window
