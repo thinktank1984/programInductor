@@ -68,8 +68,7 @@ class Problem():
             for xs in data:
                 assert isinstance(xs, (list, tuple)), "Data started out as tuples but turned into %s"%xs
                 assert len(data[0]) == len(xs), "Data should be of uniform length"
-        
-        
+
         sources = ["Odden","Halle","Roca","Kevin"]
         self.languageName = None
         self.source = None
@@ -92,7 +91,10 @@ class Problem():
         self.key = (self.source + "_" + self.languageName).replace(' ','_').replace('-','_').replace('(','').replace(')','')
         Problem.named[self.key] = self
         print "Loaded %s problem from %s, named %s"%(self.source, self.languageName, self.key)
-            
+        if "en_A" not in self.key:
+            if "Kevin" not in self.key:
+                if "Tibetan" not in self.key:
+                    FeatureBank([w for ws in data for w in ws if w])            
 
         # As a sanity check we try to tokenize all of the data
         # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features
@@ -103,14 +105,6 @@ class Problem():
                 for x in d:
                     if x != "~" and x != None:
                         tokenize(x)
-        # If this is an alternation problem
-        if parameters and "alternations" in parameters:
-            if False:
-                ps = set([ p for w in data for p in tokenize(w) ])
-                print "Number of distinct phonemes: %d" % len(ps)
-                fs = set([ f  for p in ps for f in featureMap[p] ])
-                print "Number of distinct features: %d" % len(fs)
-                print " ==  ==  == "
 
     def __str__(self):
         from utilities import formatTable

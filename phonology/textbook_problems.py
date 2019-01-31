@@ -214,13 +214,13 @@ oku + stem + ir + a
 oku + stem + an + a
 oku + stem + ir + an + a
 
-oku + mu + stem + a
-oku + mu + stem + ir + a
-oku + či + stem + a
-oku + či + stem + ir + a
+oku + mú + stem + a
+oku + mú + stem + ir + a
+oku + čí + stem + a
+oku + čí + stem + ir + a
 
 # High tone shifting (check if the rule is right)
-V > [+highTone]/[+highTone]C*_
+V > [+highTone]/[+highTone]C*_C
 V > [-highTone]/_C*[+highTone]
 	''']
 	))

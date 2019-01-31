@@ -446,7 +446,8 @@ the integer is None then we have no guess for that one.'''
                     expandedSolution = worker.sketchJointSolution(depth + 1,
                                                                   auxiliaryHarness = True)
                 except SynthesisTimeout: return solution.toFrontier()
-                if expandedSolution.cost() <= solution.cost():
+                if not any( r.doesNothing() for r in expandedSolution.rules ) and \
+                   expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
                     print "Better compression achieved by expanding to %d rules"%(depth + 1)
                     depth += 1
