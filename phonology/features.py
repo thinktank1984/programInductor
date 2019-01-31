@@ -391,18 +391,9 @@ class FeatureBank():
 
         self.hasSyllables = syllableBoundary in self.features
 
-        if len(self.phonemes) < 80 and False:
-            print "%d possible structural changes"%(len(self.possibleStructuralChanges()))
-            print("%d possible guards"%(len(self.possibleGuards())))
-
-    def nasalVersion(self, p):
-        candidateNasals = [n for n in self.phonemes if 'nasal' in self.featureMap[n] ]
-        def symmetricDifference(a, b):
-            return len(set(self.featureMap[a]) - set(self.featureMap[b])) + \
-                len(set(self.featureMap[b]) - set(self.featureMap[a]))
-        nv = min(candidateNasals, key=lambda cn: symmetricDifference(cn, p))
-        if 'vowel' in self.featureMap[p] and 'vowel' not in self.featureMap[nv]: return None
-        return nv
+        # if len(self.phonemes) < 80 and False:
+        #     print "%d possible structural changes"%(len(self.possibleStructuralChanges()))
+        #     print("%d possible guards"%(len(self.possibleGuards())))
 
     def possibleStructuralChanges(self):
         import itertools
@@ -441,8 +432,36 @@ class FeatureBank():
                     if len(e) > 0 and e not in extension2matrix:
                         extension2matrix[e] = matrix
         return extension2matrix
-        
-            
+
+    def assimilatePlace(self, target, source):
+        placeFeatures = [anterior, coronal, high, back, low]
+        target = self.featureMap[target]
+        source = self.featureMap[source]
+        for f in placeFeatures:
+            if f in source: target = target + [f]
+            else: target = [_f for _f in target if f != _f ]
+        target = set(target)
+        return min(list(self.featureMap.iteritems()),
+                   key=lambda pf: len(target^set(pf[1])))
+    def makeNasal(self, target):
+        target = set(self.featureMap[target])
+        if vowel in target or nasal in target: return None
+        target.add(nasal)
+        nasals = {p for p,f in self.featureMap.iteritems()
+                  if nasal in f and vowel not in f}
+        if len(nasals) == 0: return None
+        bestScore = None
+        bestNasal = None
+        for n in nasals:
+            score = len(target^set(self.featureMap[n]))
+            if bestScore is None:
+                bestScore = score
+                bestNasal = n
+            elif bestScore == score: return None # ambiguity
+            elif bestScore > score:
+                bestScore = score
+                bestNasal = n
+        return bestNasal
         
             
 
