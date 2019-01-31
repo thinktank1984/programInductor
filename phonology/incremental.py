@@ -216,14 +216,14 @@ class IncrementalSolver(UnderlyingProblem):
                 assert self.fixedMorphology[j][0] == solution.prefixes[j]
                 assert self.fixedMorphology[j][1] == solution.suffixes[j]
                 
-                morphologicalCosts.append(len(solution.prefixes[j]) + \
-                                          len(solution.suffixes[j]))
                 prefixes.append(solution.prefixes[j].makeDefinition(self.bank))
                 suffixes.append(solution.suffixes[j].makeDefinition(self.bank))
             else:
-                morphologicalCosts.append(None)
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
+            # Guess that the morphological cost is whatever it was previously
+            morphologicalCosts.append(len(solution.prefixes[j]) + \
+                                      len(solution.suffixes[j]))
             if all(l[j] is None for l in self.data + self.fixedUnderlyingForms.keys()) \
                and self.fixedMorphology[j] is None:
                 # Never seen this inflection: give it the empty morphology
