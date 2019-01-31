@@ -18,6 +18,16 @@ import io
 
 from command_server import start_server
 
+def exportPath():
+    importantArguments = ["features", "disableClean", "window"]    
+    p = arguments.problem + "_" + arguments.task + "_" + "_".join("%s=%s"%(k, arguments.__dict__[k])
+                                                                  for k in sorted(importantArguments)
+                                                                  if arguments.__dict__[k] is not None)
+    if arguments.universal:
+        p += "_ug"
+    p += ".p"
+    return "experimentOutputs/" + p
+
 def handleProblem(p):
     random.seed(arguments.seed)
 
@@ -32,7 +42,7 @@ def handleProblem(p):
     if not isCountingProblem:
         print formatTable([ map(unicode,inflections) for inflections in restriction ])
     else:
-        print CountingProblem(p.data, p.parameters).latex()
+        print CountingProblem(p.data, p.parameters, problemName=p.key).latex()
 
     if arguments.universal != None:
         assert arguments.universal.endswith('.p')
@@ -52,10 +62,10 @@ def handleProblem(p):
     accuracy, compression = None, None
     
     if isCountingProblem:
-        problem = CountingProblem(p.data, p.parameters)
+        problem = CountingProblem(p.data, p.parameters, problemName=p.key)
         arguments.task = 'exact'
     else:
-        problem = UnderlyingProblem(p.data, UG = ug).restrict(restriction)
+        problem = UnderlyingProblem(p.data, problemName=p.key, UG = ug).restrict(restriction)
     
     if arguments.task == 'debug':
         for s in p.solutions:
@@ -75,16 +85,7 @@ def handleProblem(p):
         sys.exit(0)
         
     elif arguments.task == 'ransac':
-        assert arguments.timeout is not None
-        RandomSampleSolver(p.data, arguments.timeout*60*60, 10, 25, UG = ug, dummy = arguments.dummy).\
-            restrict(restriction).\
-            solve(numberOfWorkers = arguments.cores,
-                  batchSizes=[2,3,5,8,13],
-                  numberOfSamples=10)
-            # solve(numberOfWorkers = arguments.cores,
-            #       numberOfSamples = arguments.samples)
-        sys.exit(0)
-        
+        assert False, "ransac solver is deprecated"
     elif arguments.task == 'incremental':
         ss = IncrementalSolver(p.data,arguments.window,UG = ug,
                                problemName = p.key,
@@ -92,22 +93,26 @@ def handleProblem(p):
                                globalTimeout=arguments.timeout*60*60 if arguments.timeout is not None else None).\
              restrict(restriction)
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
-        ss = ss.incrementallySolve(resume = arguments.resume,                                
-                                k = arguments.top)
+        result = ss.incrementallySolve(resume = arguments.resume,                                
+                                   k = arguments.top)
     elif arguments.task == 'CEGIS':
         ss = problem
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
-        ss = ss.counterexampleSolution(k = arguments.top)
+        result = ss.counterexampleSolution(k = arguments.top)
     elif arguments.task == 'exact':
         if arguments.alignment: problem.loadAlignment('precomputedAlignments/%s.p'%(p.key))
+        result = Result(p.key)
         s = problem.sketchJointSolution(1, canAddNewRules = True)
+        result.recordSolution(s)
         ss = problem.expandFrontier(s, arguments.top)
+        result.recordFinalFrontier(ss)
     elif arguments.task == 'frontier':
         f = p.key + ".p"
         seed = os.path.join(arguments.restore, f)
         if not os.path.exists(seed):
             assert False, "Could not find path %s"%seed
         seed = loadPickle(seed)
+        if isinstance(seed, Result): seed = seed.finalFrontier
         assert isinstance(seed,Frontier)
         worker = problem
         seed = worker.solveUnderlyingForms(seed[0])
@@ -115,18 +120,11 @@ def handleProblem(p):
         dumpPickle(frontier, os.path.join(arguments.save, f))
         sys.exit(0)
 
-    assert isinstance(ss,Frontier)
-    print ss
-
     print "Total time taken by problem %s: %f seconds"%(p.key, time() - startTime)
 
-    if arguments.pickleDirectory != None:
-        fullPath = os.path.join(arguments.pickleDirectory, p.key + ".p")
-        if not os.path.exists(arguments.pickleDirectory):
-            os.mkdir(arguments.pickleDirectory)
-        dumpPickle(ss, fullPath)
-        print "Exported frontier to",fullPath
-        
+    result.parameters = arguments
+    dumpPickle(result, exportPath())
+    print "Exported experiment to",exportPath()        
                 
 
 
@@ -188,7 +186,6 @@ if __name__ == '__main__':
     parser.add_argument('--debug', default = None, type = lambda s: unicode(s,'utf8'))
     parser.add_argument('--restrict', default = None, type = str)
     parser.add_argument('--samples', default = 30, type = int)
-    parser.add_argument('--pickleDirectory',default = None,type = str)
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
     arguments = parser.parse_args()

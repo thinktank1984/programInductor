@@ -693,60 +693,6 @@ Korean Odden 1.3
 
 MATRIXPROBLEMS.append(Problem(
     '''
-    Samoan  Odden 1.10
-example from the textbook.
-(problem 10)
-    ''',
-    [
-        (u"olo", u"oloia"),
-        (u"lafo",u"lafoia"),
-        (u"usu",u"usuia"),
-        (u"tau",u"tauia"),
-        (u"taui",u"tauia"),
-        (u"lele",u"lelea"),
-        (u"tafe",u"tafea"),
-        (u"tau",u"taulia"),
-        (u"oso",u"osofia"),
-        (u"valu",u"valusia"),
-        (u"u:",u"u:tia")
-    ],
-    solutions = [u'''
- + stem + 
- + stem + ia
-[ -vowel ] ---> Ø /  _ #
-i ---> Ø / [ +vowel -back ] _ 
-''']))
-
-MATRIXPROBLEMS.append(Problem(
-    '''
-    Russian  Odden 1.11
- devoicing of word final obscurant
-(problem 11)
-    ''',
-    [
-        (u"vagon", u"vagona"),
-        (u"glas", u"glaza"),
-        (u"golos",u"golosa"),
-        (u"ras", u"raza"),
-        (u"les",u"lesa"),
-        (u"porok",u"poroga"),
-        (u"vrak",u"vraga"),
-        (u"urok",u"uroka"),
-        (u"tvet",u"tveta"),
-        (u"prut",u"pruda"),
-        (u"soldat",u"soldata"),
-        (u"zavot",u"zavoda"),
-        (u"xlep",u"xleba"),
-        (u"grip",u"griba"),
-        (u"trup",u"trupa")
-    ],
-    solutions = [u'''
- + stem + 
- + stem + a
-    [-sonorant] > [-voice] / _#''']))
-
-MATRIXPROBLEMS.append(Problem(
-    '''
     English Odden 1.12
 verb inflections.
 (problem 12)

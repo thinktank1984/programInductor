@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from result import *
 from features import FeatureBank, tokenize
 from latex import latexWord
 from rule import *
@@ -9,7 +10,8 @@ from solution import *
 from utilities import *
 
 class CountingProblem():
-    def __init__(self, data, count):
+    def __init__(self, data, count, problemName=None):
+        self.problemName = problemName
         self.data = [ Morph(tokenize(x)) for x in data ]
         self.count = count
         self.bank = FeatureBank([ w for w in data ])
@@ -43,7 +45,7 @@ class CountingProblem():
     def sketchJointSolution(self, depth, canAddNewRules = True, existingSolutions = []):
         assert depth == 1
         assert canAddNewRules
-        
+
         Model.Global()
 
         r = Rule.sample()

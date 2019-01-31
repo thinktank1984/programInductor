@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from matrix import *
+from result import *
 import utilities
 
 from time import time
@@ -83,8 +84,8 @@ def everyEditSequence(sequence, radii, allowSubsumption = True, maximumLength = 
 
 class IncrementalSolver(UnderlyingProblem):
     def __init__(self, data, window, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 7, fixedMorphology = None, maximumRadius = 3, problemName = None, globalTimeout=None):
-        UnderlyingProblem.__init__(self, data, bank = bank, UG = UG, fixedMorphology = fixedMorphology)
-        self.problemName = problemName
+        UnderlyingProblem.__init__(self, data, problemName=problemName,
+                                   bank = bank, UG = UG, fixedMorphology = fixedMorphology)
         self.numberOfCPUs = numberOfCPUs if numberOfCPUs is not None else \
                             int(math.ceil(utilities.numberOfCPUs()*0.75))
 
@@ -412,7 +413,8 @@ class IncrementalSolver(UnderlyingProblem):
 
     def incrementallySolve(self, resume = False, k = 1):
         if self.globalTimeout is not None: setGlobalTimeout(self.globalTimeout)
-        
+        result = Result(self.problemName)
+
         if not resume:
             initialTrainingSize = self.windowSize
             print "Starting out with explaining just the first %d examples:"%initialTrainingSize
@@ -422,9 +424,11 @@ class IncrementalSolver(UnderlyingProblem):
             solution = worker.sketchJointSolution(1,canAddNewRules = True,
                                                   auxiliaryHarness = True)
             solution = worker.lesionMorphologicalRules(solution)
+            result.recordSolution(solution)
             j = initialTrainingSize
             firstCounterexample = True
         else:
+            assert False, "checkpoints are deprecated"
             j, solution = self.restoreCheckpoint()
             firstCounterexample = False
 
@@ -435,7 +439,7 @@ class IncrementalSolver(UnderlyingProblem):
                 if self.verify(solution,self.data[j]):
                     j += 1
                     continue
-            except SynthesisTimeout: return solution.toFrontier()
+            except SynthesisTimeout: return result.lastSolutionIsFinal()
 
             trainingData = self.data[:j]
 
@@ -456,7 +460,7 @@ class IncrementalSolver(UnderlyingProblem):
                     print "Global timeout exhausted."
                     print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
                                                               100.*float(j)/len(self.data))
-                    return solution.toFrontier()
+                    return result.lastSolutionIsFinal()
 
                 try:
                     worker = self.restrict(trainingData + window)
@@ -518,24 +522,26 @@ class IncrementalSolver(UnderlyingProblem):
                         print "Can't shrink the window anymore so I'm just going to return"
                         print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
                                                                   100.*float(j)/len(self.data))
-                        return solution.toFrontier()
+                        return result.lastSolutionIsFinal()
                     continue # retreat back to the loop over different radii
-                except SynthesisTimeout: return solution.toFrontier()
+                except SynthesisTimeout: return result.lastSolutionIsFinal()
 
                 # Successfully explained a new data item
 
                 # Update both the training data and solution
                 solution = newSolution
+                result.recordSolution(solution)
                 j += self.windowSize
                 
                 break # break out the loop over different radius sizes
 
-            self.exportCheckpoint(solution, j)
+            #self.exportCheckpoint(solution, j)
             
 
         print "Converges to the final solution:"
         print solution
         print "Expanding to a frontier of size",k
         setGlobalTimeout(None)
-        return self.expandFrontier(self.solveUnderlyingForms(solution), k,
-                                   CPUs = self.numberOfCPUs)
+        result.recordFinalFrontier(self.expandFrontier(self.solveUnderlyingForms(solution), k,
+                                                       CPUs = self.numberOfCPUs))
+        return result

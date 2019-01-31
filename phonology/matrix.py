@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from result import *
 from compileRuleToSketch import compileRuleToSketch
 from utilities import *
 from solution import *
@@ -27,8 +28,9 @@ def sampleMorphWithLength(l):
         
 
 class UnderlyingProblem(object):
-    def __init__(self, data, bank = None, useSyllables = False, UG = None,
+    def __init__(self, data, problemName=None, bank = None, useSyllables = False, UG = None,
                  fixedMorphology = None):
+        self.problemName = problemName
         self.UG = UG
 
       
@@ -412,6 +414,8 @@ the integer is None then we have no guess for that one.'''
 
 
     def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3):
+        result = Result(self.problemName)
+        
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]
@@ -427,7 +431,8 @@ the integer is None then we have no guess for that one.'''
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             try:
-                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, auxiliaryHarness = True)            
+                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, auxiliaryHarness = True)
+                result.recordSolution(solution)
                 depth = solution.depth() # update depth because it might have grown
                 solverTime = time() - solverTime
 
@@ -435,7 +440,7 @@ the integer is None then we have no guess for that one.'''
                 if counterexample != None:
                     trainingData.append(counterexample)
                     continue
-            except SynthesisTimeout: return solution.toFrontier() if solution else None
+            except SynthesisTimeout: return result.lastSolutionIsFinal()
             
             # we found a solution that had no counterexamples
 
@@ -449,10 +454,11 @@ the integer is None then we have no guess for that one.'''
                 if not any( r.doesNothing() for r in expandedSolution.rules ) and \
                    expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
+                    result.recordSolution(solution)
                     print "Better compression achieved by expanding to %d rules"%(depth + 1)
                     depth += 1
                     try: counterexample = self.findCounterexample(expandedSolution, trainingData)
-                    except SynthesisTimeout: return solution.toFrontier()
+                    except SynthesisTimeout: return result.lastSolutionIsFinal()
                     
                     if counterexample != None:
                         trainingData.append(counterexample)
@@ -466,9 +472,10 @@ the integer is None then we have no guess for that one.'''
             print "Final solutions:"
             print solution
             try: solution = self.solveUnderlyingForms(solution)
-            except SynthesisTimeout: return solution.toFrontier()
+            except SynthesisTimeout: return result.lastSolutionIsFinal()
 
-            return self.expandFrontier(solution, k)
+            result.recordFinalFrontier(self.expandFrontier(solution, k))
+            return result
 
     def computeSolutionScores(self,solution,invariant):
         # Compute the description length of everything
