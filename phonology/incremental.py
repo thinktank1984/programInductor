@@ -277,16 +277,20 @@ class IncrementalSolver(UnderlyingProblem):
             print makeSketchSkeleton()
             assert False
 
+        underlyingForms = dict(zip(dataToConditionOn, [Morph.parse(self.bank, output, s)
+                                                       for s in stems ]))
+        underlyingForms.update(self.fixedUnderlyingForms)
         newSolution = Solution(prefixes = [ Morph.parse(self.bank, output, p) \
-                                            if morphologicalCosts[j] is None \
+                                            if self.fixedMorphology[j] is None \
                                             else solution.prefixes[j] \
                                             for j,p in enumerate(prefixes) ],
                                suffixes = [ Morph.parse(self.bank, output, s) \
-                                            if morphologicalCosts[j] is None \
+                                            if self.fixedMorphology[j] is None \
                                             else solution.suffixes[j] \
                                             for j,s in enumerate(suffixes) ],
                                rules = [ Rule.parse(self.bank, output, r) if rp is None else rp
-                                         for r,rp in zip(rules,originalRules) ])
+                                         for r,rp in zip(rules,originalRules) ],
+                               underlyingForms=underlyingForms)
         print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
                                                                            indent("\n".join(map(str,newSolution.rules))))
 
