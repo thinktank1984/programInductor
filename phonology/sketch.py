@@ -190,7 +190,10 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     flushEverything()
     
     actualTime = send_to_command_server(command, this_timeout)
-    if actualTime == 'timeout': actualTime = this_timeout
+    timedOut = False
+    if actualTime == 'timeout':
+        actualTime = this_timeout
+        timedOut = True
     print "Ran the solver in %02f sec (%02f wall clock, includes blocking)"%(actualTime, time() - startTime)
     globalSketchTime += actualTime
     if globalTimeoutCounter != None: globalTimeoutCounter -= actualTime
@@ -207,13 +210,15 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     temporaryCleanupPath = temporaryOutputFolder + "/" + os.path.split(temporarySketchFile)[1]
     if os.path.exists(temporaryCleanupPath):
         #print "Removing temporary files ",temporaryCleanupPath
-        os.system("rm -r " + temporaryCleanupPath)
+        os.system("rm -rf " + temporaryCleanupPath)
 
     lastSketchOutput = output
+
+    timedOut = timedOut or "Sketch front-end timed out" in output
     
-    if "not be resolved." in output or "Rejected" in output or "Sketch front-end timed out" in output:
+    if "not be resolved." in output or "Rejected" in output or timedOut:
         lastFailureOutput = source+"\n"+output
-        if "Sketch front-end timed out" in output: raise SynthesisTimeout()
+        if timedOut: raise SynthesisTimeout()
         else: raise SynthesisFailure()
     elif "Cannot allocate memory" in output: raise MemoryExhausted()
     elif "Program Parse Error" in output:
