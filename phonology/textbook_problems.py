@@ -484,26 +484,24 @@ Armenian Odden 116
 	''',
 	[ 
 	# a.
-	(u"kert^ham",			# I will go
-	u"k-asiem",				# I will say
-	u"k-aniem",				# I will do
-	u"k-akaniem",			# I will watch
-	u"k-oxniem",			# I will bless
-	u"k-urriem",			# I will swell
-	None,None,None,None),
+	(u"kert^ham",),			# I will go
+	(u"k-asiem",),				# I will say
+	(u"k-aniem",),				# I will do
+	(u"k-akaniem",),			# I will watch
+	(u"k-oxniem",),			# I will bless
+	(u"k-urriem",),			# I will swell
 
 	# b.
-	(u"kə-tam",				# I will give
-	u"kə-kienam",			# I will exist
-	u"gə-bəzzam",			# I will buzz
-	u"gə-lam",				# I will cry
-	u"gə-zəram",			# I will bray
-	u"k^hə-t^huoyniem",		# I will allow
-	u"k^hə-č^hap^hiem",		# I will measure
-	u"g^hə-b^hieřiem",		# I will carry
-	u"g^hə-g^huom",			# I will come
-	u"g^hə-d^z^hieviem",	# I will form
-	)
+	(u"kə-tam",),				# I will give
+	(u"kə-kienam",),			# I will exist
+	(u"gə-bəzzam",),			# I will buzz
+	(u"gə-lam",),				# I will cry
+	(u"gə-zəram",),			# I will bray
+	(u"k^hə-t^huoyniem",),		# I will allow
+	(u"k^hə-č^hap^hiem",),		# I will measure
+	(u"g^hə-b^hieřiem",),		# I will carry
+	(u"g^hə-g^huom",),			# I will come
+	(u"g^hə-d^z^hieviem",),	# I will form
 	], 
 	solutions = [u'''
 at + stem
