@@ -522,18 +522,18 @@ Yawelmani Odden 170
 	''',
 	[
 	# Nonefuture	Imperative	Dubitative	Passive aorist	Gloss 
-	#(u"xathin",		u"xatk'a",	u"xatal",	u"xatit"),	# eat
-	#(u"dubhun",		u"dubk'a",	u"dubal",	u"dubut"),	# lead by hand
-	#(u"xilhin",		u"xilk'a",	u"xilal",	u"xilit"),	# tangle
-	#(u"k'oʔhin",	u"k'oʔk'o",	u"k'oʔol",	u"k'oʔit"),	# throw
-	#(u"doshin",		u"dosk'o",	u"do:sol",	u"do:sit"),	# report
-	#(u"ṣaphin",		u"ṣapk'a",	u"ṣa:pal",	u"ṣa:pit"),	# burn
+	(u"xathin",		u"xatk'a",	u"xatal",	u"xatit"),	# eat
+	(u"dubhun",		u"dubk'a",	u"dubal",	u"dubut"),	# lead by hand
+	(u"xilhin",		u"xilk'a",	u"xilal",	u"xilit"),	# tangle
+	(u"k'oʔhin",	u"k'oʔk'o",	u"k'oʔol",	u"k'oʔit"),	# throw
+	(u"doshin",		u"dosk'o",	u"do:sol",	u"do:sit"),	# report
+	(u"ṣaphin",		u"ṣapk'a",	u"ṣa:pal",	u"ṣa:pit"),	# burn
 
-	#(u"lanhin",		u"lank'a",	u"la:nal",	u"la:nit"),	# hear
-	#(u"mek'hin",	u"mek'k'a",	u"me:k'al",	u"me:k'it"),	# swallow
-	#(u"wonhin",		u"wonk'o",	u"won:nol",	u"wo:nit"),		# hide
-	#(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
-	#(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	#walk
+	(u"lanhin",		u"lank'a",	u"la:nal",	u"la:nit"),	# hear
+	(u"mek'hin",	u"mek'k'a",	u"me:k'al",	u"me:k'it"),	# swallow
+	(u"wonhin",		u"wonk'o",	u"wo:nol",	u"wo:nit"),		# hide
+	(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
+	(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	#walk
 
 
 	], 
