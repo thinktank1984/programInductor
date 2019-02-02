@@ -435,39 +435,37 @@ Lithuanian Odden 114
 	[ 
 	# a.
 	# /at/
-	(u"at-eiti",		# to arrive
-	u"at-imti",			# to take away
-	u"at-nešti",		# to bring
-	u"at-leisti",		# to forgive
-	u"at-likti",		# to complete
-	u"at-ko:pti",		# to rise
-	u"at-praši:ti",		# to ask
-	u"at-kurti"),		# to reestablish
+	(u"at-eiti",None),		# to arrive
+	(u"at-imti",None),			# to take away
+	(u"at-nešti",None),		# to bring
+	(u"at-leisti",None),		# to forgive
+	(u"at-likti",None),		# to complete
+	(u"at-ko:pti",None),		# to rise
+	(u"at-praši:ti",None),		# to ask
+	(u"at-kurti",None),		# to reestablish
 
 	# /ap/
-	(u"ap-eiti",		# to circumvent
-	u"ap-ieško:ti",		# to search everywhere
-	u"ap-akti",			# to become blind
-	u"ap-mo:ki:ti",		# to train
-	u"ap-temdi:ti",		# to obscure
-	u"ap-šaukti",		# to proclaim
-	None,None),
+	(None,u"ap-eiti"),		# to circumvent
+	(None,u"ap-ieško:ti"),		# to search everywhere
+	(None,u"ap-akti"),			# to become blind
+	(None,u"ap-mo:ki:ti"),		# to train
+	(None,u"ap-temdi:ti"),		# to obscure
+	(None,u"ap-šaukti"),		# to proclaim
 
 	# b.
 	# /at/
-	(u"ad-bekti",		# to run up
-	u"ad-gauti",		# to get back
-	u"ad-bukti",		# to become blunt
-	u"ad-gimti",		# to be born again
-	None, None, None, None),
+	(u"ad-bekti",None),		# to run up
+	(u"ad-gauti",None),		# to get back
+	(u"ad-bukti",None),		# to become blunt
+	(u"ad-gimti",None),		# to be born again
 
 	# /ap/
-	(u"ab-gauti",		# to deceive
-	u"ab-ž^yureti",		# to have a look at
-	u"ab-želti",		# to become overgrown
-	u"ab-dauži:ti",		# to damage
-	u"ab-draski:ti",	# to tear
-	None,None,None)
+	(None,u"ab-gauti"),		# to deceive
+	(None,u"ab-ž^yureti"),		# to have a look at
+	(None,u"ab-želti"),		# to become overgrown
+	(None,u"ab-dauži:ti"),		# to damage
+	(None,u"ab-draski:ti"),	# to tear
+
 
 	], 
 	solutions = [u'''
@@ -475,7 +473,7 @@ at + stem
 ap + stem
 
 # Voicing assimilation
-[ -sonorant ] -> [ +voice ] / _ [ +sonorant +voice ]
+[ -sonorant ] -> [ +voice ] / _ [ -sonorant +voice ]
 	''']
 	))
 
