@@ -516,6 +516,9 @@ ap + stem
 	''']
 	))
 
+
+
+
 Odden_Problems.append(Problem(
 	u'''
 Yawelmani Odden 170
@@ -534,10 +537,16 @@ Yawelmani Odden 170
 	#(u"wonhin",		u"wonk'o",	u"won:nol",	u"wo:nit"),		# hide
 	#(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
 	#(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	#walk
-
+	(u"p'axathin",
+		u"ṭ", u"ṛ", u"ṭ", u"ṣ")
 
 	], 
 	solutions = [u'''
+at + stem
+ap + stem
 
+# Voicing assimilation
+[ -sonorant ] -> [ +voice ] / _ [ +sonorant +voice ]
 	''']
 	))
+
