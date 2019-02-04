@@ -107,17 +107,17 @@ def handleProblem(p):
         ss = problem.expandFrontier(s, arguments.top)
         result.recordFinalFrontier(ss)
     elif arguments.task == 'frontier':
-        f = p.key + ".p"
-        seed = os.path.join(arguments.restore, f)
+        seed = arguments.restore
         if not os.path.exists(seed):
             assert False, "Could not find path %s"%seed
-        seed = loadPickle(seed)
-        if isinstance(seed, Result): seed = seed.finalFrontier
-        assert isinstance(seed,Frontier)
+        result = loadPickle(seed)
+        assert isinstance(result, Result)
         worker = problem
-        seed = worker.solveUnderlyingForms(seed[0])
-        frontier = worker.solveFrontiers(seed, k = arguments.top)
-        dumpPickle(frontier, os.path.join(arguments.save, f))
+        seed = worker.solveUnderlyingForms(result.finalFrontier.MAP())
+        frontier = worker.expandFrontier(seed, k = arguments.top)
+        result.finalFrontier = frontier
+        print frontier
+        dumpPickle(result, arguments.save or arguments.restore)
         sys.exit(0)
 
     print "Total time taken by problem %s: %f seconds"%(p.key, time() - startTime)

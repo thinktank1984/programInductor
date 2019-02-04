@@ -272,6 +272,10 @@ class UnderlyingProblem(object):
             ys.append(parallelMap(CPUs, lambda (x,us): self.applyRuleUsingSketch(r,x,us),
                                   zip(xs[-1],untilSuffix) ))
             xs.append(ys[-1])
+        for x,y in zip(xs, ys):
+            print "Training data for rule:"
+            for a,b in zip(x,y):
+                print a," > ",b
 
         # Now that we have the training data, we can solve for each of the rules' frontier
         frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j])).topK(k,r),
