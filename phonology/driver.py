@@ -114,7 +114,7 @@ def handleProblem(p):
         assert isinstance(result, Result)
         worker = problem
         seed = worker.solveUnderlyingForms(result.finalFrontier.MAP())
-        frontier = worker.solveFrontiers(seed, k = arguments.top)
+        frontier = worker.expandFrontier(seed, k = arguments.top)
         result.finalFrontier = frontier
         print frontier
         #dumpPickle(result, arguments.save or arguments.restore)
