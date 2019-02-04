@@ -113,7 +113,7 @@ def handleProblem(p):
         result = loadPickle(seed)
         assert isinstance(result, Result)
         worker = problem
-        seed = worker.solveUnderlyingForms(result.finalFrontier.MAP()c)
+        seed = worker.solveUnderlyingForms(result.finalFrontier.MAP())
         frontier = worker.solveFrontiers(seed, k = arguments.top)
         result.finalFrontier = frontier
         print frontier
