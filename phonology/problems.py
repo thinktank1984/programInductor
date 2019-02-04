@@ -53,9 +53,9 @@ class Problem():
         self.description = description
         self.solutions = solutions
         if isinstance(data[0], basestring):
-            self.data = [ x.replace(u"’",u"") for x in data ]
+            self.data = [ x.replace(u"’",u"").replace(u"'",u"").replace(u"-",u"") for x in data ]
         else:
-            self.data = [ tuple([ (None if x == None else x.replace(u"’",u""))
+            self.data = [ tuple([ (None if x == None else x.replace(u"’",u"").replace(u"'",u"").replace(u"-",u""))
                                   for x in inflections ])
                           for inflections in data ]
 
@@ -94,7 +94,7 @@ class Problem():
         if "en_A" not in self.key:
             if "Kevin" not in self.key:
                 if "Tibetan" not in self.key:
-                    FeatureBank([w for ws in data for w in ws if w])            
+                    FeatureBank([w for ws in self.data for w in ws if w])
 
         # As a sanity check we try to tokenize all of the data
         # This is to make sure that as we define each problem we check to see if it only uses things for which we know the features

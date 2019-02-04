@@ -435,39 +435,37 @@ Lithuanian Odden 114
 	[ 
 	# a.
 	# /at/
-	(u"at-eiti",		# to arrive
-	u"at-imti",			# to take away
-	u"at-nešti",		# to bring
-	u"at-leisti",		# to forgive
-	u"at-likti",		# to complete
-	u"at-ko:pti",		# to rise
-	u"at-praši:ti",		# to ask
-	u"at-kurti"),		# to reestablish
+	(u"at-eiti",None),		# to arrive
+	(u"at-imti",None),		# to take away
+	(u"at-nešti",None),		# to bring
+	(u"at-leisti",None),	# to forgive
+	(u"at-likti",None),		# to complete
+	(u"at-ko:pti",None),	# to rise
+	(u"at-praši:ti",None),	# to ask
+	(u"at-kurti",None),		# to reestablish
 
 	# /ap/
-	(u"ap-eiti",		# to circumvent
-	u"ap-ieško:ti",		# to search everywhere
-	u"ap-akti",			# to become blind
-	u"ap-mo:ki:ti",		# to train
-	u"ap-temdi:ti",		# to obscure
-	u"ap-šaukti",		# to proclaim
-	None,None),
+	(None,u"ap-eiti"),		# to circumvent
+	(None,u"ap-ieško:ti"),	# to search everywhere
+	(None,u"ap-akti"),		# to become blind
+	(None,u"ap-mo:ki:ti"),	# to train
+	(None,u"ap-temdi:ti"),	# to obscure
+	(None,u"ap-šaukti"),	# to proclaim
 
 	# b.
 	# /at/
-	(u"ad-bekti",		# to run up
-	u"ad-gauti",		# to get back
-	u"ad-bukti",		# to become blunt
-	u"ad-gimti",		# to be born again
-	None, None, None, None),
+	(u"ad-bekti",None),		# to run up
+	(u"ad-gauti",None),		# to get back
+	(u"ad-bukti",None),		# to become blunt
+	(u"ad-gimti",None),		# to be born again
 
 	# /ap/
-	(u"ab-gauti",		# to deceive
-	u"ab-ž^yureti",		# to have a look at
-	u"ab-želti",		# to become overgrown
-	u"ab-dauži:ti",		# to damage
-	u"ab-draski:ti",	# to tear
-	None,None,None)
+	(None,u"ab-gauti"),		# to deceive
+	(None,u"ab-ž^yureti"),	# to have a look at
+	(None,u"ab-želti"),		# to become overgrown
+	(None,u"ab-dauži:ti"),	# to damage
+	(None,u"ab-draski:ti"),	# to tear
+
 
 	], 
 	solutions = [u'''
@@ -475,7 +473,7 @@ at + stem
 ap + stem
 
 # Voicing assimilation
-[ -sonorant ] -> [ +voice ] / _ [ +sonorant +voice ]
+[ -sonorant ] -> [ +voice ] / _ [ -sonorant +voice ]
 	''']
 	))
 
@@ -486,26 +484,24 @@ Armenian Odden 116
 	''',
 	[ 
 	# a.
-	(u"kert^ham",			# I will go
-	u"k-asiem",				# I will say
-	u"k-aniem",				# I will do
-	u"k-akaniem",			# I will watch
-	u"k-oxniem",			# I will bless
-	u"k-urriem",			# I will swell
-	None,None,None,None),
+	(u"kert^ham",),			# I will go
+	(u"k-asiem",),			# I will say
+	(u"k-aniem",),			# I will do
+	(u"k-akaniem",),		# I will watch
+	(u"k-oxniem",),			# I will bless
+	(u"k-urriem",),			# I will swell
 
 	# b.
-	(u"kə-tam",				# I will give
-	u"kə-kienam",			# I will exist
-	u"gə-bəzzam",			# I will buzz
-	u"gə-lam",				# I will cry
-	u"gə-zəram",			# I will bray
-	u"k^hə-t^huoyniem",		# I will allow
-	u"k^hə-č^hap^hiem",		# I will measure
-	u"g^hə-b^hieřiem",		# I will carry
-	u"g^hə-g^huom",			# I will come
-	u"g^hə-d^z^hieviem",	# I will form
-	)
+	(u"kə-tam",),			# I will give
+	(u"kə-kienam",),		# I will exist
+	(u"gə-bəzzam",),		# I will buzz
+	(u"gə-lam",),			# I will cry
+	(u"gə-zəram",),			# I will bray
+	(u"k^hə-t^huoyniem",),	# I will allow
+	(u"k^hə-č^hap^hiem",),	# I will measure
+	(u"g^hə-b^hieřiem",),	# I will carry
+	(u"g^hə-g^huom",),		# I will come
+	(u"g^hə-d^z^hieviem",),	# I will form
 	], 
 	solutions = [u'''
 at + stem
@@ -525,20 +521,20 @@ Yawelmani Odden 170
 	''',
 	[
 	# Nonefuture	Imperative	Dubitative	Passive aorist	Gloss 
-	#(u"xathin",		u"xatk'a",	u"xatal",	u"xatit"),	# eat
-	#(u"dubhun",		u"dubk'a",	u"dubal",	u"dubut"),	# lead by hand
-	#(u"xilhin",		u"xilk'a",	u"xilal",	u"xilit"),	# tangle
-	#(u"k'oʔhin",	u"k'oʔk'o",	u"k'oʔol",	u"k'oʔit"),	# throw
-	#(u"doshin",		u"dosk'o",	u"do:sol",	u"do:sit"),	# report
-	#(u"ṣaphin",		u"ṣapk'a",	u"ṣa:pal",	u"ṣa:pit"),	# burn
 
-	#(u"lanhin",		u"lank'a",	u"la:nal",	u"la:nit"),	# hear
-	#(u"mek'hin",	u"mek'k'a",	u"me:k'al",	u"me:k'it"),	# swallow
-	#(u"wonhin",		u"wonk'o",	u"won:nol",	u"wo:nit"),		# hide
-	#(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
-	#(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	#walk
-	(u"p'axathin",
-		u"ṭ", u"ṛ", u"ṭ", u"ṣ")
+
+	(u"xathin",		u"xatk'a",	u"xatal",	u"xatit"),	# eat
+	(u"dubhun",		u"dubk'a",	u"dubal",	u"dubut"),	# lead by hand
+	(u"xilhin",		u"xilk'a",	u"xilal",	u"xilit"),	# tangle
+	(u"k'oʔhin",	u"k'oʔk'o",	u"k'oʔol",	u"k'oʔit"),	# throw
+	(u"doshin",		u"dosk'o",	u"do:sol",	u"do:sit"),	# report
+	(u"ṣaphin",		u"ṣapk'a",	u"ṣa:pal",	u"ṣa:pit"),	# burn
+
+	(u"lanhin",		u"lank'a",	u"la:nal",	u"la:nit"),	# hear
+	(u"mek'hin",	u"mek'k'a",	u"me:k'al",	u"me:k'it"),	# swallow
+	(u"wonhin",		u"wonk'o",	u"wo:nol",	u"wo:nit"),		# hide
+	(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
+	(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	#walk
 
 	], 
 	solutions = [u'''
