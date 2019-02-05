@@ -574,18 +574,14 @@ Halle_Problems = []
 
 Halle_Problems.append(Problem(
 	u'''
-Ewe Odden 49
+Ewe Halle 49
 	''',
 	[ 
 	(u"zrɔ̃",),	# to be smooth
 	(u"ɲra",)
 	], 
 	solutions = [u'''
-at + stem
-ap + stem
 
-# Voicing assimilation
-[ -sonorant ] -> [ +voice ] / _ [ +sonorant +voice ]
 	''']
 	))
 
