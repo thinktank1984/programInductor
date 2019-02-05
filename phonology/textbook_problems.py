@@ -2,7 +2,7 @@
 from problems import *
 
 
-# Oden's Introducing Phonology
+# Odden's Introducing Phonology
 Odden_Problems = []
 
 Odden_Problems.append(Problem(
@@ -133,11 +133,11 @@ English Odden 77-78
 	(u"kædz",),		# cads
 	(u"kagz",),		# cogs
 	(u"hʊvz",),		# hooves
-	(u"fliyz",),		# fleas
-	(u"plæwz",),		# plows
-	(u"pyṛez",),		# purees
+	(u"fliyz",),	# fleas
+	(u"plæwz",),	# plows
+	(u"pyṛez",),	# purees
 
-	(u"klæmz",),		# clams
+	(u"klæmz",),	# clams
 	(u"kænz",),		# cans
 	(u"karz",),		# cars
 	(u"gəlz",),		# gulls
@@ -146,22 +146,22 @@ English Odden 77-78
 	## 3sg Present Verbal Suffix
 
 	# suffix [s]
-	(u"slæps",),		# slaps
+	(u"slæps",),	# slaps
 	(u"hɩts",),		# hits
-	(u"powks",),		# pokes
+	(u"powks",),	# pokes
 
 	# suffix [z]
-	(u"stæbz",),		# stabs
-	(u"haydz",),		# hides
+	(u"stæbz",),	# stabs
+	(u"haydz",),	# hides
 	(u"dɩgz",),		# digs
 	(u"læfs",),		# laughs
 	(u"pɩθs",),		# piths
 
-	(u"slæmz",),		# slams
+	(u"slæmz",),	# slams
 	(u"kænz",),		# cans
 	(u"hæŋz",),		# hangs
 	(u"θrayvz",),	# thrives
-	(u"beyðz",),		# bathes
+	(u"beyðz",),	# bathes
 	(u"flayz",)		# flies
 
 	], 
@@ -182,7 +182,7 @@ Jita Odden 79
 	 u"okuβumirana",	# to hit for each other
 	 u"okumuβúma",		# to hit him/her
 	 u"okumuβúmira",	# to hit for him/her
-	 u"okučiβúma",	# to hit it
+	 u"okučiβúma",		# to hit it
 	 u"okučiβúmira"),	# to hit for it
             
 
@@ -192,7 +192,7 @@ Jita Odden 79
 	 u"okusiβirana",	# to block for each other
      u"okumusíβa",		# to block him/her
 	 u"okumusíβira",	# to block for him/her
-	 u"okučisíβa",	# to block it
+	 u"okučisíβa",		# to block it
 	 u"okučisíβira"),	# to block for it
 
 	(u"okulúma",		# to bite
@@ -219,9 +219,8 @@ oku + mú + stem + ir + a
 oku + čí + stem + a
 oku + čí + stem + ir + a
 
-# High tone shifting (check if the rule is right)
-V > [+highTone]/[+highTone]C*_C
-V > [-highTone]/_C*[+highTone]
+# High tone shifting
+[+highTone]C[-highTone] > [-highTone]C[+highTone]
 	''']
 	))
 
@@ -255,7 +254,7 @@ Korean Odden 81
 	(u"ikə", 		u"iŋnɨnta")			# ripen
 	],
 	solutions = [u'''
-stem + a or ə
+stem + a/ə
 stem + nɨnta
 
 # no solution
@@ -387,11 +386,12 @@ mə + stem
 stem + al + l
 stem + l
 
-#final syllable stressed if ends in two consonants
-#otherwise the second to last (penultimate) syllable stressed
+# final syllable stressed if ends in two consonants
+[ +vowel ] -> [ +highTone ] / _CC#
 
-# Unstressed vowel reduction
-        [+vowel -highTone] -> ə
+#otherwise the second to last (penultimate) syllable stressed
+[ +vowel ] -> [ +highTone ] / _CVC#
+
 	''']
 	))
 
@@ -422,6 +422,7 @@ n + stem
 
 # Postnasal voicing
 [ -voice ] -> [ +voice ] / [ +nasal ] _
+
 # Nasal place assimilation
 [ +nasal ] -> αplace _[αplace]
 	''']
@@ -520,22 +521,64 @@ Odden_Problems.append(Problem(
 Yawelmani Odden 170
 	''',
 	[
-	# Nonefuture	Imperative	Dubitative	Passive aorist	Gloss 
+	# Nonefuture	Imperative	Dubitative	Passive_aorist	Gloss 
 
-
-	(u"xathin",		u"xatk'a",	u"xatal",	u"xatit"),	# eat
-	(u"dubhun",		u"dubk'a",	u"dubal",	u"dubut"),	# lead by hand
-	(u"xilhin",		u"xilk'a",	u"xilal",	u"xilit"),	# tangle
-	(u"k'oʔhin",	u"k'oʔk'o",	u"k'oʔol",	u"k'oʔit"),	# throw
-	(u"doshin",		u"dosk'o",	u"do:sol",	u"do:sit"),	# report
-	(u"ṣaphin",		u"ṣapk'a",	u"ṣa:pal",	u"ṣa:pit"),	# burn
-
-	(u"lanhin",		u"lank'a",	u"la:nal",	u"la:nit"),	# hear
+	(u"xathin",		u"xatk'a",	u"xatal",	u"xatit"),		# eat
+	(u"dubhun",		u"dubk'a",	u"dubal",	u"dubut"),		# lead by hand
+	(u"xilhin",		u"xilk'a",	u"xilal",	u"xilit"),		# tangle
+	(u"k'oʔhin",	u"k'oʔk'o",	u"k'oʔol",	u"k'oʔit"),		# throw
+	(u"doshin",		u"dosk'o",	u"do:sol",	u"do:sit"),		# report
+	(u"ṣaphin",		u"ṣapk'a",	u"ṣa:pal",	u"ṣa:pit"),		# burn
+	(u"lanhin",		u"lank'a",	u"la:nal",	u"la:nit"),		# hear
 	(u"mek'hin",	u"mek'k'a",	u"me:k'al",	u"me:k'it"),	# swallow
 	(u"wonhin",		u"wonk'o",	u"wo:nol",	u"wo:nit"),		# hide
-	(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
-	(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	#walk
 
+	(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
+	(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	# walk
+	(u"ʔopothin",	u"ʔopotk'o",	u"ʔopo:tol",	u"ʔopo:tit"),	# arise from bed
+	(u"yawalhin",	u"yawalk's",	u"yawa:lal",	u"yawa:lit"),	# follow
+	(u"paʔiṭhin",	u"paʔiṭk'a",	u"paʔṭal",		u"paʔṭit"),		# fight
+	(u"ʔilikhin",	u"ʔilikk'a",	u"ʔilkal",		u"ʔilkit"),		# sing
+	(u"logiwhin",	u"logiwk'a",	u"logwol",		u"logwit"),		# pulverize
+	(u"ʔugunhun",	u"ʔugunk'a",	u"ʔugnal",		u"ʔugnut"),		# drink
+	(u"lihimhin",	u"lihimk'a",	u"lihmal",		u"lihmit"),		# run
+	(u"ʔayiyhin",	u"ʔayiyk'a",	u"ʔayyal",		u"ʔayyit"),		# pole a boat
+	(u"t'oyixhin",	u"t'oyixk'a",	u"t'oyxol",		u"t'oyxit"),	# give medicine
+	(u"luk'ulhun",	u"luk'ulk'a",	u"luk'lal",		u"luk'lut"),	# bury
+	(u"so:nilhin",	u"so:uilk'a",	u"sonlol",		u"sonlit"),		# put on back
+	(u"ʔa:milhin",	u"ʔa:milk'a",	u"ʔamlal",		u"ʔamlit"),		# help
+	(u"mo:yinhin",	u"mo:yink'a",	u"moynol",		u"moynit"),		# become tired
+	(u"ṣa:lik'hin",	u"ṣa:lik'k'a",	u"ṣalk'al",		u"ṣalk'it")		# wake up
+	], 
+	solutions = [u'''
+stem + hin/hun
+stem + k'a/k'o
+stem + al/ol
+stem + it/ut
+
+# Vowel Harmony
+[ +vowel αhi ] -> [ +round ] / [ +vowel αhi +round ]
+
+# Vowel Shortening
+[ +vowel ] -> [ -long ] / _CC
+
+# Epenthesis OR Vowel Deletion (One or the other - Both Works with the data)
+0 -> [ +vowel +high ] / C_CC    # Epenthesis
+[ +vowel -long ] -> 0 / VC_CV    # Vowel Deletion
+	''']
+	))
+
+
+# Halle's Problem Book in Phonology
+Halle_Problems = []
+
+Halle_Problems.append(Problem(
+	u'''
+Ewe Odden 49
+	''',
+	[ 
+	(u"zrɔ̃",),	# to be smooth
+	(u"ɲra",)
 	], 
 	solutions = [u'''
 at + stem
