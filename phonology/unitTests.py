@@ -18,6 +18,21 @@ def test(f):
     return f
 
 @test
+def place():
+    data = [(u"man", u"mank"),
+            (u"b", u"gk"),
+            (u"t", u"kk"),
+            (u"z",u"gk")]
+    solver = UnderlyingProblem(data)
+    enableGeometry()
+    solution1 = solver.sketchJointSolution(1)
+    disableGeometry()
+    solution2 = solver.sketchJointSolution(1)
+    assert isinstance(solution1.rules[0].structuralChange, PlaceSpecification)
+    assert not isinstance(solution2.rules[0].structuralChange, PlaceSpecification)
+    assert solution1.cost() < solution2.cost()
+    
+@test
 def features():
     collisions = []
     for p in featureMap:

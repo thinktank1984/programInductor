@@ -451,8 +451,41 @@ class FeatureBank():
             if f in source: target = target + [f]
             else: target = [_f for _f in target if f != _f ]
         target = set(target)
-        return min(list(self.featureMap.iteritems()),
-                   key=lambda pf: len(target^set(pf[1])))
+        destination,_ = min(list(self.featureMap.iteritems()),
+                          key=lambda pf: len(target^set(pf[1])))
+        return destination
+
+    def calculatePlaceMapping(self):
+        """Returns {target: [(new form, sources)]}"""
+        possiblePhonemes = {p for p,f in self.featureMap.iteritems()
+                            if vowel not in f and syllableBoundary not in f and wordBoundary not in f \
+                            and wildFeature not in f and optionalFeature not in f}
+        mapping = {}
+        for target in possiblePhonemes:
+            mapping[target] = []
+            newForms = {self.assimilatePlace(target, source)
+                        for source in possiblePhonemes }
+            for newForm in newForms:
+                sources = {source
+                           for source in possiblePhonemes
+                           if self.assimilatePlace(target, source) == newForm}
+                mapping[target].append((newForm, sources))
+        return mapping
+
+    
+    def definePlaceAssimilation(self):
+        mapping = self.calculatePlaceMapping()
+        m = "#define PLACEASSIMILATION\nSound assimilatePlace(Sound source, Sound target) {\n"
+        for target in mapping:
+            m += "  if (target == phoneme_%d) {\n"%(self.phoneme2index[target])
+            for newForm, sources in mapping[target]:
+                condition = " || ".join("source == phoneme_%d"%self.phoneme2index[s]
+                                        for s in sources)
+                m += "    if (%s) return phoneme_%d;\n"%(condition, self.phoneme2index[newForm])
+            m += "    assert 0;}\n"
+        m += "  assert 0;}\n"
+        return m
+            
     def makeNasal(self, target):
         target = set(self.featureMap[target])
         if vowel in target or nasal in target: return None
@@ -566,7 +599,7 @@ class FeatureBank():
         from sketchSyntax import Constant
         return Constant("phoneme_%d"%(self.phoneme2index[p]))
 
-    def sketch(self):
+    def sketch(self, placeAssimilation = False, nasalAssimilation = False):
         """Sketches definitions of the phonemes in the bank"""
         for p in self.featureVectorMap:
             for q in self.featureVectorMap:
@@ -597,9 +630,12 @@ class FeatureBank():
                                                             if self.phonemes[j] != u'-' ]))
         h += "\n#define UNKNOWNCONSTANTSPECIFICATION {| %s |}\n" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes)) ]))
         
-        #h += self.defineZeroFeatures()
         h += "\n"
-        # h += self.defineFeaturesToSound()
+
+        if placeAssimilation:
+            h += self.definePlaceAssimilation() + "\n"
+        if nasalAssimilation:
+            print "WARNING: nasal geometry not yet implemented"
         return h
 
 FeatureBank.GLOBAL = FeatureBank(featureMap.keys())

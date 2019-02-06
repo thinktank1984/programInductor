@@ -1,4 +1,4 @@
-from sketch import disableFeatures, disableClean
+from sketch import disableFeatures, disableClean, enableGeometry
 from features import switchFeatures
 from problems import *
 from textbook_problems import *
@@ -19,7 +19,7 @@ import io
 from command_server import start_server
 
 def exportPath():
-    importantArguments = ["features", "disableClean", "window"]    
+    importantArguments = ["features", "disableClean", "window", "geometry"] 
     p = arguments.problem + "_" + arguments.task + "_" + "_".join("%s=%s"%(k, arguments.__dict__[k])
                                                                   for k in sorted(importantArguments)
                                                                   if arguments.__dict__[k] is not None)
@@ -165,6 +165,9 @@ if __name__ == '__main__':
                         default = "sophisticated",
                         type = str,
                         help = "What features the solver allowed to use")
+    parser.add_argument('--geometry',
+                        action='store_true', default=None,
+                        help="use basic feature geometry.")
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-m','--cores', default = None, type = int)
     parser.add_argument('--timeout', default = None, type = float,
@@ -202,6 +205,9 @@ if __name__ == '__main__':
         
     if arguments.disableClean:
         disableClean()
+
+    if arguments.geometry:
+        enableGeometry()
     
     try:
         problem = int(arguments.problem)

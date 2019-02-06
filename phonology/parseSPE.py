@@ -91,7 +91,7 @@ def runParser(p,s):
 featureParser = alternation(*[ constantParser(p + f, (p == '+',f)) 
                                for f in set([ f for fs in sophisticatedFeatureMap.values() for f in fs ] + \
                                             [ f for fs in simpleFeatureMap.values() for f in fs ])
-                               for p in ['-','+'] ])
+                                for p in ['-','+'] ])
 whitespaceFeatureParser = whitespaceDelimited(featureParser)
 featuresParser = repeat(whitespaceFeatureParser)
 matrixParser = concatenate(constantParser('['),
@@ -100,10 +100,12 @@ matrixParser = concatenate(constantParser('['),
                            combiner = lambda l,fp,r: FeatureMatrix(fp))
 phonemeParser = alternation(*[ constantParser(k,ConstantPhoneme(k)) for k in featureMap
                                if k != '*'])
+placeParser = alternation(constantParser('place+1', PlaceSpecification(1)),
+                          constantParser('place-1', PlaceSpecification(-1)))
 consonantParser = constantParser('C',FeatureMatrix([(False,'vowel')]))
 vowelParser = constantParser('V',FeatureMatrix([(True,'vowel')]))
 boundaryParser = constantParser('+',BoundarySpecification())
-specificationParser = alternation(matrixParser,phonemeParser,boundaryParser,vowelParser,consonantParser)
+specificationParser = alternation(matrixParser,phonemeParser,boundaryParser,vowelParser,consonantParser,placeParser)
 
 optionalEndOfStringParser = concatenate(constantParser("{#,",None),
                                         specificationParser,
@@ -190,6 +192,7 @@ def parseSolution(s):
 if __name__ == '__main__':
     print parseRule(u'o > e / a [ ] _ V {#,C}')
     print parseRule('0 > -2 / #[-vowel][]* _ e #').pretty()
+    print(parseRule('[ ] > place+1 / _'))
     print parseSolution(u''' + stem + 
  + stem + ə
     [-sonorant] > [-voice] / _ #''')

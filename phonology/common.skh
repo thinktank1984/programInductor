@@ -84,6 +84,9 @@ struct Offset extends Specification{@Immutable("")
     // If we are deleting a phoneme, ensure that is equal to this offset.
     int offset;
 }
+struct Place extends Specification{@Immutable("")
+    int place_offset;
+}
 // It seems that I need the dummy...
 struct Boundary extends Specification{@Immutable("")
     bit dummy;
@@ -93,6 +96,15 @@ Specification global_boundary_specification = new Boundary(dummy = 0);
 bit specification_equal(Specification p, Specification q) {
   if (p == null || q == null) return p == null && q == null;
   switch (p) {
+  case Place:{
+    switch (q) {
+    case Place:{ return p.place_offset == q.place_offset; }
+    case Vector:{return 0;}
+    case ConstantPhoneme:{return 0;}
+    case Boundary:{return 0;}
+    case Offset:{return 0;}
+    }
+  }
   case Vector:{
     switch (q) {
     case Vector:{
@@ -101,6 +113,7 @@ bit specification_equal(Specification p, Specification q) {
     case ConstantPhoneme:{ return 0; }
     case Boundary:{return 0;}
     case Offset:{return 0;}
+    case Place:{return 0;}
     }
   }
   case ConstantPhoneme:{
@@ -109,6 +122,7 @@ bit specification_equal(Specification p, Specification q) {
     case ConstantPhoneme:{ return p.phoneme == q.phoneme; }
     case Boundary:{return 0;}
     case Offset:{return 0;}
+    case Place:{return 0;}
     }
   }
   case Offset:{
@@ -117,6 +131,7 @@ bit specification_equal(Specification p, Specification q) {
     case ConstantPhoneme:{ return 0; }
     case Offset:{return p.offset == q.offset;}
     case Boundary:{return 0;}
+    case Place:{return 0;}
     }
   }
   case Boundary:{
@@ -125,6 +140,7 @@ bit specification_equal(Specification p, Specification q) {
     case ConstantPhoneme:{ return 0; }
     case Offset:{return 0;}
     case Boundary:{return 1;}
+    case Place:{return 0;}
     }
   }
   }
@@ -139,6 +155,7 @@ bit empty_specification(Specification p) {
   case ConstantPhoneme:{ return 0; }
   case Boundary:{ return 0;}
   case Offset:{return 0;}
+  case Place:{return 0;}
   }
 }
 
@@ -155,6 +172,7 @@ bit constant_specification(Specification p) {
   case ConstantPhoneme:{ return 1; }
   case Offset:{ return 0; }
   case Boundary:{ return 0;}
+  case Place:{return 0;}
   }
 }
 
@@ -168,6 +186,7 @@ bit vector_specification(Specification p) {
   case ConstantPhoneme:{ return 0; }
   case Offset:{ return 0; }
   case Boundary:{ return 0; }
+  case Place:{return 0;}
   }
 }
 
@@ -178,6 +197,7 @@ Sound extract_constant_sound(Specification p) {
   case Boundary:{ return null; }
   case ConstantPhoneme:{ return p.phoneme; }
   case Offset:{return null;}
+  case Place:{return null;}
   }
 }
 
@@ -190,7 +210,8 @@ bit matches_specification(Sound sound, Specification specification) {
     return sound_equal(sound, specification.phoneme);
   }
   case Boundary:{ assert 0; }
-    // in this case the focused is an offset
+  case Place:{assert 0;}
+    // in this case the focus is an offset
   case Offset:{return 1;}
   }
 }
@@ -206,6 +227,7 @@ Sound apply_specification(Specification specification, Sound sound) {
   }
   case Offset:{assert 0;}
   case Boundary:{ assert 0; }
+  case Place:{assert 0;}
   }
 }
 
@@ -290,6 +312,7 @@ bit is_syllable_specification(Specification s) {
   if (s == null) { return 0; }
   switch(s){
   case Vector:{ return 0; }
+  case Place:{ return 0; }
   case Boundary:{ return 0; }
   case Offset:{ return 0; }
   case ConstantPhoneme:{ return s.phoneme == SYLLABLEBOUNDARYPHONEME;}
@@ -304,6 +327,7 @@ bit has_syllable_feature(Specification s) {
   case ConstantPhoneme:{ return 0;}
   case Boundary:{ return 0; }
   case Offset:{ return 0; }
+  case Place:{ return 0; }
   }
 }
 #endif
@@ -317,6 +341,7 @@ int specification_cost(Specification s) {
   case ConstantPhoneme:{ return 2; }
   case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
   case Offset:{ return 1; }
+  case Place:{ return 1; }
   case Vector:{
     int c = 1 + VECTORCOST(s);
     // Alternation problems basically have their specification already given
@@ -340,6 +365,7 @@ int guard_specification_cost(Specification s) {
   case ConstantPhoneme:{ return 2; }
   case Boundary:{ return 2; }
   case Offset:{ assert 0; } // cannot have an offset in guards
+  case Place:{ assert 0; }
   case Vector:{
     int c = 1 + VECTORCOST(s);
     assert c <= 4; // at most 3 features mentioned
@@ -380,6 +406,7 @@ bit is_valid_structural_change(Specification s) {
   case Boundary:{assert 0;}
   case Vector:{}
   case Offset:{}
+  case Place:{}
   }
   return 1;
 }
@@ -391,12 +418,25 @@ int get_offset(Specification s) {
   case Boundary:{assert 0;}
   case Vector:{assert 0;}
   case Offset:{return s.offset;}
+  case Place:{assert 0;}
+  }
+  assert 0;
+}
+ int get_place_offset(Specification s) {
+  if (s == null) assert 0;
+  switch (s){
+  case ConstantPhoneme:{assert 0;}
+  case Boundary:{assert 0;}
+  case Vector:{assert 0;}
+  case Offset:{assert 0;}
+  case Place:{return s.place_offset;}
   }
   assert 0;
 }
 bit is_offset(Specification s) {
   if (s == null) return 0;
   switch (s){
+  case Place:{return 0;}
   case ConstantPhoneme:{return 0;}
   case Boundary:{return 0;}
   case Vector:{return 0;}
@@ -404,6 +444,18 @@ bit is_offset(Specification s) {
   }
   assert 0;
 }
+bit is_place(Specification s) {
+  if (s == null) return 0;
+  switch (s){
+  case Place:{return 1;}
+  case ConstantPhoneme:{return 0;}
+  case Boundary:{return 0;}
+  case Vector:{return 0;}
+  case Offset:{return 0;}
+  }
+  assert 0;
+}
+
 
 bit is_deletion_rule(Rule r) { return r.structural_change == null; }
 bit is_insertion_rule(Rule r) { return r.focus == null; }
@@ -426,7 +478,11 @@ generator Guard unknown_guard() {
   return new Guard(endOfString = ??, optionalEndOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
 generator Specification unknown_FC_specification() {
-  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null |}; // FIXME: Should offset be able to be zero?
+#ifdef PLACEASSIMILATION
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null | new Place(place_offset = {| 1 | -1 |}) |};
+#else
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null |};
+#endif  
 }
 generator Specification unknown_guard_specification() {
   return {| global_boundary_specification | new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
@@ -623,6 +679,7 @@ bit specification_uses_features(Specification p){
   case ConstantPhoneme:{ return 0; }
   case Boundary:{ return 0;}
   case Offset:{return 0;}
+  case Place:{return 0;}
   }
 }
 bit guard_uses_features(Guard g){
@@ -815,7 +872,15 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
       output[j] = !triggered[j] ? u.s[j] :
 	(is_offset(structural_change)?
 	 u.s[j + get_offset(structural_change)] :
-	 apply_specification(structural_change, u.s[j]));
+#ifdef PLACEASSIMILATION	 
+	 (is_place(structural_change)?
+	  assimilatePlace(u.s[j + get_place_offset(structural_change)], u.s[j]):
+#endif
+	  apply_specification(structural_change, u.s[j]))
+#ifdef PLACEASSIMILATION
+	 )
+#endif
+	;
       if (triggered[j] && output[j] != u.s[j]) made_a_change = 1;
     }
     output_length = u.l;

@@ -420,11 +420,11 @@ stem
 βa + stem
 n + stem
 
-# Postnasal voicing
-[ -voice ] -> [ +voice ] / [ +nasal ] _
-
-# Nasal place assimilation
-[ +nasal ] -> αplace _[αplace]
+        # Postnasal voicing
+        [ -voice ] -> [ +voice ] / [ +nasal ] _
+        # Nasal place assimilation
+        # [ +nasal ] -> [ αplace ] / _ [αplace]
+        [ +nasal ] -> place+1 / _ C
 	''']
 	))
 

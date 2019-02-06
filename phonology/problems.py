@@ -1223,7 +1223,7 @@ transposeInflections([
  + stem + ita
  + stem + ɨro
     C > [-aspirated]/_{#,C}
-    p > m/_[+nasal]''']))
+    C > place+1/_[+nasal]''']))
 
 
 

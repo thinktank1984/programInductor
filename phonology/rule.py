@@ -63,7 +63,7 @@ class Specification():
     
     @staticmethod
     def parse(bank, output, variable):
-        parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse,OffsetSpecification.parse]
+        parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse,OffsetSpecification.parse,PlaceSpecification.parse]
         for parser in parsers:
             try:
                 return parser(bank, output, variable)
@@ -211,6 +211,48 @@ class OffsetSpecification(FC):
 
     def sketchEquals(self,v,bank):
         return '(is_offset(%s) && get_offset(%s) == %d)'%(v,v,self.offset)
+
+class PlaceSpecification(FC):
+    def __init__(self,offset):
+        #assert offset != 0
+        self.offset = offset
+    def __unicode__(self): return unicode("place%d"%self.offset)
+    def __str__(self): return unicode(self).encode('utf-8')
+
+    def doesNothing(self): return False
+    def skeleton(self): return "Z"
+    def cost(self): return 1
+    def latex(self): return '$%d$place'%self.offset
+    def mutate(self,_): return self
+
+    def isDegenerate(self): return False
+
+    def share(self, table):
+        k = ('PLACESPECIFICATION',unicode(self))
+        if k in table: return table[k]
+        table[k] = self
+        return self
+
+    def merge(self, other):
+        if isinstance(other, PlaceSpecification) and self.offset == other.offset: return self
+        return Braces(self, other)
+
+    @staticmethod
+    def parse(bank, output, variable):
+        m = re.search("%s = new Place\(place_offset=([0-9\-\(\)]+)\);"%variable, output)
+        if not m: raise Exception('Failure at parsing offset')
+        o = int(''.join(c for c in m.group(1) if not c in '()'))
+        return PlaceSpecification(o)
+    def makeConstant(self, bank):
+        return Constant('(new Place(place_offset = %d))'%self.offset)
+
+    def matches(self, test):
+        raise Exception('cannot match place')
+    def apply(self, test):
+        raise Exception('cannot apply place')
+
+    def sketchEquals(self,v,bank):
+        return '(is_place(%s) && get_place_offset(%s) == %d)'%(v,v,self.offset)
 
 class BoundarySpecification(Specification):
     def __init__(self): pass
@@ -836,7 +878,15 @@ class Rule():
             self.rightTriggers.sketchEquals(v+'.right_trigger',b))
 
     def explain(self,b):
-        if self.calculateCopyOffset() == 0:
+        if isinstance(self.structuralChange, PlaceSpecification):
+            print "Place assimilation:"
+            mapping = b.calculatePlaceMapping()
+            for target in mapping:
+                print target,"\t",
+                for newForm, sources in mapping[target]:
+                    print newForm, "\t", "{%s}"%(", ".join(sources)),"\n\t",
+                print
+        elif self.calculateCopyOffset() == 0:
             print "\tMAPPING:",u"  ".join([ k + u'⟶' + unicode(v)
                                             for k,v in self.calculateMapping(b).iteritems()])
         else:
