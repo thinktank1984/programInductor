@@ -284,7 +284,9 @@ Koasati Odden 81
 	(u"toní",		u"antoní")				# hip
 	], 
 	solutions = [u'''
-# no solution
+stem
+am + stem
+        [+nasal] > place+1 / _ [-sonorant]
 	''']
 	))
 
