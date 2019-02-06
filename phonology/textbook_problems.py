@@ -585,3 +585,40 @@ Ewe Halle 49
 	''']
 	))
 
+
+Problem('''
+Indonesian Halle 125
+''',
+[
+   # simple form        prefixed form        gloss
+     (u"lempar",        u"məlempar"),       #'throw'
+     (u"rasa",          u"mərasa"),         #'feel'
+     (u"wakil",         u"məwakili"),       #'represent'
+     (u"yakin",         u"məyakini"),       #'convince'
+     (u"masak",         u"məmasak"),        #'cook'
+     (u"nikah",         u"mənikah"),        #'marry'
+     (u"ŋaco",          u"məŋaco"),         #'chat'
+     (u"ɲaɲi",          u"məɲaɲi"),         #'sing'
+     (u"hituŋ",         u"məŋhituŋ"),       #'count'
+     (u"gambar",        u"məŋgambar"),      #'draw a picture'
+     (u"kirim",         u"məŋirim"),        #'send'
+     (u"dəŋar",         u"məndəŋar"),       #'hear'
+     (u"tulis",         u"mənulis"),        #'write'
+     (u"bantu",         u"məmbantu"),       #'help'
+     (u"pukul",         u"məmukul"),        #'hit'
+     (u"ǰahit",         u"mən̆ǰahit"),       #'sew'
+     (u"čatat",         u"mən̆čatat"),       #'note down'
+     (u"ambil",         u"məŋambil"),       #'take'
+     (u"isi",           u"məŋisi"),         #'fill up'
+     (u"undaŋ",         u"məŋundaŋ"),       #'invite'
+],
+solutions=[u'''
+stem
+mə + stem
+ŋ > ∅ / __ C, [+sonorant] 
+ŋ > m / __ [-sonorant, LAB]
+ŋ > n / __ [-sonorant, +ant]
+ŋ > ɲ/ __ [-sonorant, -ant]
+[-vce, -cont] > ∅ / [+nasal] __ across a morpheme boundary
+''' 
+])

@@ -164,7 +164,13 @@ sophisticatedFeatureMap = {
     u"n": [anterior,nasal,voice,coronal,sonorant],#continuant],
     u"ṇ": [anterior,retroflex,nasal,voice,sonorant],#continuant],
     u"n̥": [anterior,nasal,coronal,sonorant],#continuant],
-    u"ñ": [nasal,voice,coronal,sonorant],#continuant],alveopalatal,
+
+    # conjecture: these are the same
+    u"ñ": [nasal,voice,coronal,sonorant],
+    u"n̆": [nasal,voice,coronal,sonorant],
+
+    u"ɲ": [nasal,voice,coronal,sonorant,high],
+    
     u"š": [continuant,coronal, sibilant],#alveopalatal,
     u"c": [palatal,coronal], # NOT the same thing as palletized
     u"č": [coronal,sibilant],#alveopalatal,
@@ -268,6 +274,7 @@ simpleFeatureMap = {
     u"ṇ": [retroflex,nasal,voice],
     u"n̥": [alveolar,nasal],
     u"ñ": [nasal,voice,alveopalatal],
+    u"n̆": [nasal,voice,alveopalatal],
     u"š": [fricative, alveopalatal],
     u"c": [palatal,stop], 
     u"č": [alveopalatal,affricate],
@@ -307,7 +314,7 @@ simpleFeatureMap = {
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA
-    # u"ɲ": []
+    u"ɲ": [nasal,voice,alveopalatal,high],
 
     u"ʕ": [affricate, pharyngeal, voice],
     u"-": [syllableBoundary],
@@ -359,8 +366,6 @@ def tokenize(word):
         print u"ERROR: š should have been purged."
         print "word =",word
         assert False
-    # ɲ is valid IPA but is invalid APA
-    word = word.replace(u"ɲ", u"ñ")
     # remove all the spaces
     word = word.replace(u" ",u"")
     # not sure what this is but let's remove it
