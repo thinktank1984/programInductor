@@ -220,6 +220,12 @@ bit matches_specification(Sound sound, Specification specification) {
 Sound apply_specification(Specification specification, Sound sound) {
   switch (specification) {
   case Vector:{
+#ifdef MAKENASAL
+    if (specification.nasal_specified && specification.nasal) {
+      assert ONLYNASAL(specification);
+      return makeNasal(sound);
+    }
+#endif
     PROJECTVECTOR(specification, sound);
   }
   case ConstantPhoneme:{

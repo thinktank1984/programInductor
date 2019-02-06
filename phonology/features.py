@@ -409,6 +409,8 @@ class FeatureBank():
         # if len(self.phonemes) < 80 and False:
         #     print "%d possible structural changes"%(len(self.possibleStructuralChanges()))
         #     print("%d possible guards"%(len(self.possibleGuards())))
+        # for p in self.phonemes:
+        #     print p,"\t",self.makeNasal(p)
 
     def possibleStructuralChanges(self):
         import itertools
@@ -490,11 +492,26 @@ class FeatureBank():
             m += "    assert 0;}\n"
         m += "  assert 0;}\n"
         return m
-            
+
+    def defineMakeNasal(self):
+        m = "#define ONLYNASAL(v) %s"%(" && ".join( "!v.%s_specified"%f if f != nasal else "v.%s_specified&&v.%s"%(f,f)
+                                                    for f in self.features ))
+        m += "\n#define MAKENASAL\nSound makeNasal(Sound source){\n"
+        for p in self.phonemes:
+            q = self.makeNasal(p)
+            m += "  if (source == phoneme_%d) "%(self.phoneme2index[p])
+            if q is None:
+                m += "assert 0;\n"
+            else:
+                m += "return phoneme_%d;\n"%(self.phoneme2index[q])
+        m += "}\n"
+        return m
+    
     def makeNasal(self, target):
         target = set(self.featureMap[target])
         if vowel in target or nasal in target: return None
         target.add(nasal)
+        target.add(sonorant)
         nasals = {p for p,f in self.featureMap.iteritems()
                   if nasal in f and vowel not in f}
         if len(nasals) == 0: return None
@@ -639,8 +656,8 @@ class FeatureBank():
 
         if placeAssimilation:
             h += self.definePlaceAssimilation() + "\n"
-        if nasalAssimilation:
-            print "WARNING: nasal geometry not yet implemented"
+        if nasalAssimilation and nasal in self.features:
+            h += self.defineMakeNasal() + "\n"
         return h
 
 FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
