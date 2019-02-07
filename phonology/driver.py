@@ -39,7 +39,10 @@ def handleProblem(p):
     print p.description
     isCountingProblem = isinstance(p.parameters, list) \
                         and all( isinstance(parameter,int) for parameter in p.parameters  )
-    if not isCountingProblem:
+    isAlternationProblem = isinstance(p.parameters, dict) and p.parameters.get("type",None) == "alternation"
+    if isAlternationProblem:
+        assert False, "driver does not handle alternation problems"
+    elif not isCountingProblem:
         print formatTable([ map(unicode,inflections) for inflections in restriction ])
     else:
         print CountingProblem(p.data, p.parameters, problemName=p.key).latex()
@@ -70,6 +73,10 @@ def handleProblem(p):
     if arguments.task == 'debug':
         for s in p.solutions:
             s = parseSolution(s)
+            for r in s.rules:
+                print "Explaining rule: ",r
+                r.explain(UnderlyingProblem(p.data).bank)
+
             problem.debugSolution(s,Morph(tokenize(arguments.debug)))
         sys.exit(0)
     elif arguments.task == 'verify':
@@ -204,9 +211,11 @@ if __name__ == '__main__':
         switchFeatures(arguments.features)
         
     if arguments.disableClean:
+        print "Disabling kleene"
         disableClean()
 
     if arguments.geometry:
+        print "Enabling feature geometry."
         enableGeometry()
     
     try:

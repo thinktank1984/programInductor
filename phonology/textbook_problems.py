@@ -254,8 +254,12 @@ Korean Odden 81
 	(u"ikə", 		u"iŋnɨnta")			# ripen
 	],
 	solutions = [u'''
-stem + a/ə
+stem + a
 stem + nɨnta
+
+    [ +aspirated ] > [ -aspirated ] / _ C ; this test case will pass even if this is not included
+    ə > a / a C* _
+        [-sonorant] > [+nasal] / _[+nasal]
 
 # no solution
 	''']
@@ -615,6 +619,14 @@ Indonesian Halle 125
      (u"undaŋ",         u"məŋundaŋ"),       #'invite'
 ],
 solutions=[u'''
+stem
+mə + stem + i
+ŋ > 0 / #_C
+[-sonorant] > [+nasal] / #mə_
+ŋ > place+1 / _ [-vowel]
+i > 0 / m [-glide]* _ #
+''',
+           u'''
 stem
 mə + stem
 ŋ > ∅ / __ C, [+sonorant] 

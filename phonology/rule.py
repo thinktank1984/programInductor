@@ -889,6 +889,10 @@ class Rule():
         elif self.calculateCopyOffset() == 0:
             print "\tMAPPING:",u"  ".join([ k + u'⟶' + unicode(v)
                                             for k,v in self.calculateMapping(b).iteritems()])
+            if isinstance(self.structuralChange, FeatureMatrix) and (True,'nasal') in self.structuralChange.featuresAndPolarities and len(self.structuralChange.featuresAndPolarities) == 1:
+                print "\tNasal feature geometry:",
+                print u" ".join(p + u'⟶' + unicode(b.makeNasal(p))
+                                for p in b.phonemes)
         else:
             print "\tMAPPING: involves copying"
         for s in list(reversed(self.leftTriggers.specifications)) + self.rightTriggers.specifications:

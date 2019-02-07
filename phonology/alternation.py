@@ -6,7 +6,8 @@ from rule import Rule
 from sketch import *
 from solution import *
 
-from problems import alternationProblems, toneProblems
+from command_server import *
+from problems import *
 
 from multiprocessing import Pool
 import sys
@@ -82,7 +83,8 @@ class AlternationProblem():
         minimize(sum([ alternationCost(r) for r in rules ] + \
                      [ ite(ruleDoesNothing(r),Constant(0),Constant(1))
                        for r in rules ]))
-        for other in solutions:
+        for other, _ in solutions:
+            print other
             condition(Or([ alternationEqual(other[j].makeConstant(self.bank), rules[j]) == 0 for j in range(depth) ]))
 
         for r in rules:
@@ -139,42 +141,41 @@ class AlternationProblem():
             sub = [ (v,k) for k,v in self.surfaceToUnderlying.iteritems() ]
         return rules, sub
 
-def handleProblem(problemInfo):
-    (problemIndex, arguments) = problemInfo
-    data = toneProblems[0] if problemIndex == 'tone' else alternationProblems[problemIndex - 1]
-    print data.description
+def handleProblem(problem):
+    print problem.description
 
     compositeSubstitution = []
     allTheRules = []
     
-    for j, alternation in enumerate(data.parameters["alternations"]):
+    for j, alternation in enumerate(problem.parameters["alternations"]):
         print "Analyzing alternation:"
         for k in alternation:
             print "\t",k,"\t",alternation[k]
-        problem = AlternationProblem(alternation, data.data)
+        problem = AlternationProblem(alternation, problem.data)
         solutions = problem.topSolutions(arguments.top)
         if solutions != []:
             allTheRules += solutions[0][0]
             compositeSubstitution += solutions[0][1]
         
-    if arguments.pickle and len(solutions) > 0:
-        composite = AlternationSolution(map(Morph,data.data),dict(compositeSubstitution),allTheRules)
-        dumpPickle(composite, "pickles/alternation_"+str(problemIndex)+".p")
+    if len(solutions) > 0:
+        composite = AlternationSolution(map(Morph,problem.data),dict(compositeSubstitution),allTheRules)
+        fn = "experimentOutputs/alternation/"+arguments.problem+".p"
+        print "Exporting to",fn
+        dumpPickle(composite, fn)
             
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Analyze an alternation to determine whether it is valid and how much it compresses the data.')
     parser.add_argument('problem')
     parser.add_argument('-t','--top', default = 1, type = int)
-    parser.add_argument('-p','--pickle', action = 'store_true')
     parser.add_argument('-m','--cores', default = 1, type = int)
+    
     arguments = parser.parse_args()
-    if arguments.problem == 'integration':
-        problems = ["tone"] + list(range(1,12))
-    elif arguments.problem == 'tone':
-        problems = ["tone"]
-    else:
-        problems = [int(arguments.problem)]
+    start_server(arguments.cores)
+    
+    try:
+        problem = Problem.named[arguments.problem]
+    except:
+        print("Could not find problem %s"%problem)
+        sys.exit(0)            
 
-    # pack up the arguments and then invoke all of them in parallel
-    problemInfo = [ (problemIndex,arguments) for problemIndex in problems ]
-    parallelMap(arguments.cores, handleProblem, problemInfo)
+    handleProblem(problem)

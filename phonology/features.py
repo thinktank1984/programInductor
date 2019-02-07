@@ -453,6 +453,7 @@ class FeatureBank():
     def assimilatePlace(self, target, source):
         placeFeatures = [anterior, coronal, high, back, low]
         target = self.featureMap[target]
+        if u"ŋ" in self.phonemes and nasal in target and source == u"h": return u"ŋ"
         source = self.featureMap[source]
         for f in placeFeatures:
             if f in source: target = target + [f]
@@ -508,6 +509,8 @@ class FeatureBank():
         return m
     
     def makeNasal(self, target):
+        if target in [u"b",u"p"] and u"m" in self.phonemes: return u"m"
+        if target in [u"d",u"s",u"t"] and u"n" in self.phonemes: return u"n"
         target = set(self.featureMap[target])
         if vowel in target or nasal in target: return None
         target.add(nasal)
