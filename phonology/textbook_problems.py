@@ -578,18 +578,6 @@ stem + it/ut
 # Halle's Problem Book in Phonology
 Halle_Problems = []
 
-Halle_Problems.append(Problem(
-	u'''
-Ewe Halle 49
-	''',
-	[ 
-	(u"zrɔ̃",),	# to be smooth
-	(u"ɲra",)
-	], 
-	solutions = [u'''
-
-	''']
-	))
 
 
 Problem('''
@@ -636,3 +624,165 @@ mə + stem
 [-vce, -cont] > ∅ / [+nasal] __ across a morpheme boundary
 ''' 
 ])
+
+
+
+
+
+# Roca's A Workbook in Phonology
+Roca_Problems = []
+
+Roca_Problems.append(Problem(
+	u'''
+German Roca 16
+	''',
+	[ 
+	# lexical form		phonetic form	gloss
+
+	(u"tak",			None),			# day
+	(u"raup",			None),			# robbery
+	(u"ləit", 			None),			# sorry
+	(u"lop", 			None),			# praise
+	(u"wək", 			None),			# way
+	(u"lant", 			None),			# land
+	(u"grəis", 			None),			# old man
+	(u"braf", 			None),			# obedient (pred.)
+	(u"rat", 			None),			# advice
+	(u"volk", 			None),			# people
+	(u"pəriskop", 		None),			# periscope
+	(u"hof", 			None),			# courtyard
+	(u"ros", 			None), 			# horse
+
+	(None,				u"tagə"),		# days
+	(None,				u"raubən"),		# to rob
+	(None,				u"ləidən"),		# to suffer
+	(None,				u"lobən"),		# to praise
+	(None,				u"wəgə"),		# ways
+	(None,				u"landən"),		# to land
+	(None,				u"grəizes"),	# old men
+	(None,				u"bravər"),		# obedient (masc.)
+	(None,				u"ratən"),		# to advise
+	(None,				u"volkə"),		# peoples
+	(None,				u"pəriskopə"),	# periscopes
+	(None,				u"höfə"),		# courtyards
+	(None,				u"rosə")		# horses
+	], 
+	solutions = [u'''
+stem
+stem + e/en/es/er
+
+[-sonorant] -> [-voice] / _#
+	''']
+	))
+
+
+
+Roca_Problems.append(Problem(
+	u'''
+Dutch Roca 17
+	''',
+	[ 
+	# lexical form		phonetic form	gloss
+	(u"klaptə"),	# applauded
+	(u"krabdə"),	# scratched
+	(u"rɛdə"),		# saved
+#	(u"vɪstə"),		# fished
+	(u"razdə"),		# raged
+	(u"zɛtə"),		# put
+	(u"maftə"),		# slept
+	(u"klovdə"),	# split
+	(u"lɛɣdə"),		# laid
+	(u"laxtə"),		# laughed
+
+	(u"rumdə"),		# praised
+	(u"zundə"),		# kissed
+	(u"meŋdə"),		# mixed
+	(u"rurdə"),		# stirred
+	(u"rɔldə"),		# rolled
+	(u"ajdə"),		# caressed
+	(u"skidə")		# skied
+
+	], 
+	solutions = [u'''
+stem + tə/də
+# No solution
+	''']
+	))
+
+
+Roca_Problems.append(Problem(
+	u'''
+Zoque Roca 25
+	''',
+	[ 
+	# lexical_form		my+
+	(u"pama", 			None),			# clothing
+	(u"tatah", 			None),			# father
+	(u"kwarto", 		None),			# room
+	(u"plato", 			None),			# plate
+	(u"trama", 			None),			# trap
+	(u"disko", 			None),			# record
+	(u"gaju", 			None),			# rooster
+	(u"čoʔngoja", 		None),			# rabbit
+	(u"tsima", 			None),			# calabash
+	(u"sʌk", 			None),			# beans
+	(u"faha", 			None),			# belt
+	(u"šapun", 			None),			# soap
+
+	(None,				u"mbama"),		# my clothing
+	(None,				u"ndatah"),		# my father
+	(None,				u"ŋgwarto"),	# my room
+	(None,				u"mblato"),		# my plate
+	(None,				u"ndrama"),		# my trap
+	(None,				u"ndisko"),		# my record
+	(None,				u"ŋgaju"),		# my rooster
+	(None,				u"ñžoʔngoja"),	# my rabbit
+	(None,				u"ndzima"),		# my calabash
+	(None,				u"sʌk"),		# my beans
+	(None,				u"faha"),		# my belt
+	(None,				u"šapun")		# my soap
+	], 
+	solutions = [u'''
+# No solution
+	''']
+	))
+
+
+
+Roca_Problems.append(Problem(
+	u'''
+Anxiang Roca 37
+	''',
+	[ 
+	# base 		diminutive_form
+	(u"tie",	u"tie tiər"),	# small dish, plate
+	(u"mian",	u"mian miər"),	# face
+	(u"tai",	u"tai tər"),	# belt
+	(u"pau",	u"pau pər"),	# bud
+	(u"ke",		u"ke kər"),		# check, chequer
+	(u"fa",		u"fa fər"),		# law, way
+	(u"o",		u"o ər"),		# bird's nest
+	(u"ti",		u"ti tiər"),	# bamboo flute
+	(u"tin",	u"tin tiər"),	# nail
+	(u"p^hu",	u"p^hu p^hər"),	# spread
+#	(u"tx̯y",	u"tx̯y tx̯yər")	# pearl
+	], 
+	solutions = [u'''
+# No solution
+	''']
+	))
+
+"""
+Roca_Problems.append(Problem(
+	u'''
+Verlan Roca 31
+	''',
+	[ 
+	# French 	Verlan
+	(u"")
+	], 
+	solutions = [u'''
+# No solution
+	''']
+	))
+"""
