@@ -712,7 +712,7 @@ Zoque Roca 25
 	(u"trama", 			u"ndrama"),			# trap
 	(u"disko", 			u"ndisko"),			# record
 	(u"gaju", 			u"ŋgaju"),			# rooster
-	(u"čoʔngoja", 		u"ñžoʔngoja"),			# rabbit
+	(u"čoʔngoja", 		u"ñǰoʔngoja"),			# rabbit
 	(u"tsima", 			u"ndzima"),			# calabash
 	(u"sʌk", 			u"sʌk"),			# beans
 	(u"faha", 			u"faha"),			# belt
@@ -721,7 +721,7 @@ Zoque Roca 25
 	solutions = [u'''
 stem
 m + stem
-        [+nasal] > 0 / #_[-sonorant +continuant]
+        [+nasal] > 0 / #_[-sonorant +continuant -voice]
         [+nasal] > place+1 / #_ C
         C > [+voice] / #[+nasal]C*_
 	''']
