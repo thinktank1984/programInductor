@@ -639,37 +639,26 @@ German Roca 16
 	[ 
 	# lexical form		phonetic form	gloss
 
-	(u"tak",			None),			# day
-	(u"raup",			None),			# robbery
-	(u"ləit", 			None),			# sorry
-	(u"lop", 			None),			# praise
-	(u"wək", 			None),			# way
-	(u"lant", 			None),			# land
-	(u"grəis", 			None),			# old man
-	(u"braf", 			None),			# obedient (pred.)
-	(u"rat", 			None),			# advice
-	(u"volk", 			None),			# people
-	(u"pəriskop", 		None),			# periscope
-	(u"hof", 			None),			# courtyard
-	(u"ros", 			None), 			# horse
-
-	(None,				u"tagə"),		# days
-	(None,				u"raubən"),		# to rob
-	(None,				u"ləidən"),		# to suffer
-	(None,				u"lobən"),		# to praise
-	(None,				u"wəgə"),		# ways
-	(None,				u"landən"),		# to land
-	(None,				u"grəizes"),	# old men
-	(None,				u"bravər"),		# obedient (masc.)
-	(None,				u"ratən"),		# to advise
-	(None,				u"volkə"),		# peoples
-	(None,				u"pəriskopə"),	# periscopes
-	(None,				u"höfə"),		# courtyards
-	(None,				u"rosə")		# horses
+            # Uninflected/Plural/Infinitive/Masculine
+	(u"tak", u"tagə",None,None),			# day
+	(u"volk", u"volkə",None,None),			# people
+	(u"pəriskop", u"pəriskopə",None,None),			# periscope
+	(u"hof", u"höfə",None,None),			# courtyard
+	(u"wək", u"wəgə",None,None),			# way
+	    (u"ros", u"rosə",None,None), 			# horse
+	(u"raup",None,u"raubən",			None),			# robbery
+	(u"ləit",None,u"ləidən",None),			# sorry
+	(u"lop",None,u"lobən",None),			# praise
+	(u"lant",None,u"landən", 			None),			# land
+	(u"rat",None,u"ratən",None),			# advice
+	    (u"grəis",u"grəizes",None,None),			# old man
+	(u"braf",None,None,u"bravər"),			# obedient (pred.) /  (masc.)
 	], 
 	solutions = [u'''
 stem
-stem + e/en/es/er
+stem + ə
+stem + ən
+stem + ər
 
 [-sonorant] -> [-voice] / _#
 	''']
@@ -683,24 +672,24 @@ Dutch Roca 17
 	''',
 	[ 
 	# lexical form		phonetic form	gloss
-	(u"klaptə"),	# applauded
-	(u"krabdə"),	# scratched
-	(u"rɛdə"),		# saved
+	(u"klaptə",),	# applauded
+	(u"krabdə",),	# scratched
+	(u"rɛdə",),		# saved
 #	(u"vɪstə"),		# fished
-	(u"razdə"),		# raged
-	(u"zɛtə"),		# put
-	(u"maftə"),		# slept
-	(u"klovdə"),	# split
-	(u"lɛɣdə"),		# laid
-	(u"laxtə"),		# laughed
+	(u"razdə",),		# raged
+	(u"zɛtə",),		# put
+	(u"maftə",),		# slept
+	(u"klovdə",),	# split
+	(u"lɛɣdə",),		# laid
+	(u"laxtə",),		# laughed
 
-	(u"rumdə"),		# praised
-	(u"zundə"),		# kissed
-	(u"meŋdə"),		# mixed
-	(u"rurdə"),		# stirred
-	(u"rɔldə"),		# rolled
-	(u"ajdə"),		# caressed
-	(u"skidə")		# skied
+	(u"rumdə",),		# praised
+	(u"zundə",),		# kissed
+	(u"meŋdə",),		# mixed
+	(u"rurdə",),		# stirred
+	(u"rɔldə",),		# rolled
+	(u"ajdə",),		# caressed
+	(u"skidə",)		# skied
 
 	], 
 	solutions = [u'''
@@ -716,34 +705,25 @@ Zoque Roca 25
 	''',
 	[ 
 	# lexical_form		my+
-	(u"pama", 			None),			# clothing
-	(u"tatah", 			None),			# father
-	(u"kwarto", 		None),			# room
-	(u"plato", 			None),			# plate
-	(u"trama", 			None),			# trap
-	(u"disko", 			None),			# record
-	(u"gaju", 			None),			# rooster
-	(u"čoʔngoja", 		None),			# rabbit
-	(u"tsima", 			None),			# calabash
-	(u"sʌk", 			None),			# beans
-	(u"faha", 			None),			# belt
-	(u"šapun", 			None),			# soap
-
-	(None,				u"mbama"),		# my clothing
-	(None,				u"ndatah"),		# my father
-	(None,				u"ŋgwarto"),	# my room
-	(None,				u"mblato"),		# my plate
-	(None,				u"ndrama"),		# my trap
-	(None,				u"ndisko"),		# my record
-	(None,				u"ŋgaju"),		# my rooster
-	(None,				u"ñžoʔngoja"),	# my rabbit
-	(None,				u"ndzima"),		# my calabash
-	(None,				u"sʌk"),		# my beans
-	(None,				u"faha"),		# my belt
-	(None,				u"šapun")		# my soap
+	(u"pama", 			u"mbama"),			# clothing
+	(u"tatah", 			u"ndatah"),			# father
+	(u"kwarto", 		u"ŋgwarto"),			# room
+	(u"plato", 			u"mblato"),			# plate
+	(u"trama", 			u"ndrama"),			# trap
+	(u"disko", 			u"ndisko"),			# record
+	(u"gaju", 			u"ŋgaju"),			# rooster
+	(u"čoʔngoja", 		u"ñžoʔngoja"),			# rabbit
+	(u"tsima", 			u"ndzima"),			# calabash
+	(u"sʌk", 			u"sʌk"),			# beans
+	(u"faha", 			u"faha"),			# belt
+	(u"šapun", 			u"šapun"),			# soap
 	], 
 	solutions = [u'''
-# No solution
+stem
+m + stem
+        [+nasal] > 0 / #_[-sonorant +continuant]
+        [+nasal] > place+1 / #_ C
+        C > [+voice] / #[+nasal]C*_
 	''']
 	))
 
