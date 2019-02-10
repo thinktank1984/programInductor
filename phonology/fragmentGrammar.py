@@ -37,6 +37,7 @@ class VariableFragment(Fragment):
         calculator[Guard] = 'guard_cost'
         calculator[FeatureMatrix] = 'specification_cost'
         calculator[ConstantPhoneme] = 'specification_cost'
+        calculator[PlaceSpecification] = 'specification_cost'
         return ([], ['%s(%s)'%(calculator[self.ty],v)])
     def numberOfVariables(self): return 1
     def hasConstants(self): return False
@@ -125,12 +126,15 @@ class FCFragment(Fragment):
             fragments += [VariableFragment(FC)]
         if isinstance(p,OffsetSpecification) and isinstance(q,OffsetSpecification):
             fragments += [VariableFragment(OffsetSpecification)]
+        if isinstance(p,PlaceSpecification) and isinstance(q,PlaceSpecification):
+            fragments += [VariableFragment(PlaceSpecification)]
         if isinstance(p,Specification) and isinstance(q,Specification):
             fragments += SpecificationFragment.abstract(p,q)
         return fragments
 
 FCFragment.BASEPRODUCTIONS = [FCFragment(EmptySpecification(),-1),
                               FCFragment(VariableFragment(OffsetSpecification)),
+                              FCFragment(VariableFragment(PlaceSpecification)),
                               FCFragment(VariableFragment(Specification))]
 
 class SpecificationFragment(Fragment):
@@ -413,6 +417,7 @@ class FragmentGrammar():
         self.likelihoodCalculator[FC] = lambda fc:  self.fCLogLikelihood(fc)
         self.likelihoodCalculator[BoundarySpecification] = lambda o: self.boundaryLogLikelihood(o)
         self.likelihoodCalculator[OffsetSpecification] = lambda o: self.offsetLogLikelihood(o)
+        self.likelihoodCalculator[PlaceSpecification] = lambda o: self.placeLogLikelihood(o)
         
         # different types of fragments
         # fragments of type rule, etc
@@ -443,6 +448,7 @@ class FragmentGrammar():
             correspondence = [('Guard', 'Trigger'),
                               ('BoundarySpecification', '+'),
                               ('OffsetSpecification', 'ℤ'),
+                              ('PlaceSpecification', 'αplace'),
                               ('Specification', 'PhonemeSet'),
                               ('ConstantPhoneme', 'Phoneme')]
             for k,v in correspondence:
@@ -513,6 +519,12 @@ class FragmentGrammar():
             return -log(4.0), {}
         else:
             raise Exception('offsetLogLikelihood: did not get offset')
+
+    def placeLogLikelihood(self, o):
+        if isinstance(o,PlaceSpecification):
+            return -log(2.0), {}
+        else:
+            raise Exception('placeLogLikelihood: did not get offset')
 
     def boundaryLogLikelihood(self, o):
         if isinstance(o,BoundarySpecification):
@@ -612,7 +624,8 @@ class FragmentGrammar():
 
 BASEPRODUCTIONS = [(k.CONSTRUCTOR,
                     # Penalize deletion/insertion/copying
-                    -math.log(50)*int(unicode(f) in [u"Ø",u"OffsetSpecification",u"BoundarySpecification"]),
+                    -math.log(50)*int(unicode(f) in [u"Ø",u"OffsetSpecification",u"BoundarySpecification",
+                                                     u"PlaceSpecification"]),
                     f)
                    for k in [RuleFragment,FCFragment,SpecificationFragment,MatrixFragment,ConstantFragment,GuardFragment]
                    for f in k.BASEPRODUCTIONS]

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from problems import alternationProblems, MATRIXPROBLEMS, Problem
+from problems import Problem
 from rule import *
 from utilities import *
 from fragmentGrammar import *
@@ -13,13 +13,19 @@ import pickle
 import os
 from random import random
 import cProfile
+from textbook_problems import *
 from problems import MATRIXPROBLEMS
 
 
 def worker(arguments):
     if arguments.task == 'fromGroundTruth':
         groundTruthSolutions = []
-        for problem in MATRIXPROBLEMS[:arguments.problems]:
+        for problem in arguments.load:
+            try:
+                problem = Problem.named[problem]
+            except:
+                assert False, "Could not find problem %s"%problem
+            
             if isinstance(problem,Problem):
                 for s in problem.solutions:
                     print s
@@ -29,11 +35,12 @@ def worker(arguments):
         print "Going to induce a fragment grammar from %d rules"%(len(groundTruthRules))
         g = induceFragmentGrammar(groundTruthRules, CPUs = arguments.CPUs)
     elif arguments.task == 'fromFrontiers':
-        frontiers = [ loadPickle('frontierPickles/empiricalUniversal/matrix_%d.p'%j) for j in range(arguments.problems) ]
-        print "Successfully loaded %s frontiers."%(len(frontiers))
+        results = [ loadPickle(p) for p in arguments.load ]
+        print "Successfully loaded %s frontiers."%(len(results))
         # convert frontier objects to list of list of rules
         g = induceFragmentGrammar([ rs
-                                    for frontier in frontiers
+                                    for result in results
+                                    for frontier in [result.finalFrontier]
                                     for rs in frontier.frontiers ],
                                   CPUs = arguments.CPUs)
 
@@ -51,8 +58,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Infer universal grammars')
     parser.add_argument('task',choices = ['fromGroundTruth','fromFrontiers'])
     parser.add_argument('--export', type = str, default = None)
-    parser.add_argument('--problems', type = int, default = 0,
-                        help="number of problems from which to learn from.")
+    parser.add_argument('--load', type = str, default = [], nargs='+',
+                        help="If learning from ground truth, these are names of problems. Otherwise, these are paths to solutions.")
     parser.add_argument('--CPUs', type = int, default = numberOfCPUs())
     
     arguments = parser.parse_args()

@@ -611,18 +611,18 @@ stem
 mə + stem + i
 ŋ > 0 / #_C
 [-sonorant] > [+nasal] / #mə_
-ŋ > place+1 / _ [-vowel]
+[+nasal] > place+1 / _ [-vowel]
 i > 0 / m [-glide]* _ #
 ''',
-           u'''
-stem
-mə + stem
-ŋ > ∅ / __ C, [+sonorant] 
-ŋ > m / __ [-sonorant, LAB]
-ŋ > n / __ [-sonorant, +ant]
-ŋ > ɲ/ __ [-sonorant, -ant]
-[-vce, -cont] > ∅ / [+nasal] __ across a morpheme boundary
-''' 
+#            u'''
+# stem
+# mə + stem
+# ŋ > ∅ / __ C, [+sonorant] 
+# ŋ > m / __ [-sonorant, LAB]
+# ŋ > n / __ [-sonorant, +ant]
+# ŋ > ɲ/ __ [-sonorant, -ant]
+# [-vce, -cont] > ∅ / [+nasal] __ across a morpheme boundary
+# ''' 
 ])
 
 

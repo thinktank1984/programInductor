@@ -11,7 +11,7 @@ from time import time
 import re
 
 
-from command_server import send_to_command_server
+
 
 @sketchImplementation("alternation_cost")
 def alternationCost(r): pass
@@ -155,6 +155,7 @@ class useGlobalTimeout(object):
 lastFailureOutput = None
 lastSketchOutput = None
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, showSource = False, minimizeBound = None, timeout = None):
+    from command_server import send_to_command_server
     global lastFailureOutput,lastSketchOutput,globalTimeoutCounter,leaveSketches,globalSketchTime
 
     leavitt = leaveSketches
