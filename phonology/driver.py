@@ -124,7 +124,9 @@ def handleProblem(p):
         frontier = worker.expandFrontier(seed, k = arguments.top)
         result.finalFrontier = frontier
         print frontier
-        dumpPickle(result, arguments.save or arguments.restore)
+        fn = arguments.save or arguments.restore or exportPath()
+        print "Exporting to",fn
+        dumpPickle(result, fn)        
         sys.exit(0)
 
     print "Total time taken by problem %s: %f seconds"%(p.key, time() - startTime)
