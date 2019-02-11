@@ -13,6 +13,7 @@ class MatchFailure(Exception):
     pass
 
 class Fragment():
+    def leftUnicode(self): return unicode(self)
     def __str__(self): return unicode(self).encode('utf-8')
     def __repr__(self): return str(self)
     def __eq__(self,other): return unicode(self) == unicode(other)
@@ -54,7 +55,7 @@ class RuleFragment(Fragment):
     def __unicode__(self):
         return u"{} ---> {} / {} _ {}".format(self.focus,
                                               self.change,
-                                              self.left,
+                                              self.left.leftUnicode(),
                                               self.right)
     def isDegenerate(self):
         return any( f.isDegenerate() for f in [self.focus, # self.change, 
@@ -240,6 +241,11 @@ class GuardFragment(Fragment):
         if self.starred: parts[-2] += u'*'
         if self.endOfString: parts += [u'#']
         return u" ".join(parts)
+    def leftUnicode(self):
+        parts = map(unicode, self.specifications)
+        if self.starred: parts[-2] += u'*'
+        if self.endOfString: parts += [u'#']
+        return u" ".join(reversed(parts))
 
     def match(self, program):
         if self.endOfString != program.endOfString or self.starred != program.starred or len(self.specifications) != len(program.specifications):
