@@ -19,6 +19,8 @@ from problems import MATRIXPROBLEMS
 
 def worker(arguments):
     eq = [] # list of equivalence classes
+    frontiers = [] # Frontiers that might be adjusted
+    problems = [] # Problems that those frontiers came from
     for source in arguments.load:
         if source in Problem.named:
             problem = Problem.named[source]
@@ -44,13 +46,27 @@ def worker(arguments):
             except:
                 assert False, "Failure loading %s"%source
             frontier = result.finalFrontier
+            frontiers.append(frontier)
+            problems.append(result.problem)
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
             MAP = frontier.MAP().rules
             for rs,r in zip(frontier.frontiers,MAP):
                 eq.append(rs)
                 print "frontier size",len(rs),"MAP",r
 
+    
+
     g = induceFragmentGrammar(eq, CPUs=arguments.CPUs)
+    for frontier, problem in zip(frontiers, problems):
+        print "Problem",problem,"is solved by the following solution according to this UG:"
+        solution = frontier.MAP(g)
+        solution.underlyingForms = {}
+        print solution
+        print 
+
+    
+
+    
     if arguments.export != None:
         exportPath = arguments.export
         print "Exporting universal grammar to %s"%(exportPath)
