@@ -45,8 +45,10 @@ def worker(arguments):
                 assert False, "Failure loading %s"%source
             frontier = result.finalFrontier
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
-            for rs in frontier.frontiers:
+            MAP = frontier.MAP().rules
+            for rs,r in zip(frontier.frontiers,MAP):
                 eq.append(rs)
+                print "frontier size",len(rs),"MAP",r
 
     g = induceFragmentGrammar(eq, CPUs=arguments.CPUs)
     if arguments.export != None:
