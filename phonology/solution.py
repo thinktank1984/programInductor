@@ -47,7 +47,10 @@ class Frontier(object):
         return u"\n".join(lines)
 
     def MAP(self, ug=None):
-        return Solution(rules = [ min(f,key = lambda r: (r.cost() if ug is None else -ug.ruleLogLikelihood(r)))
+        def cost(r):
+            if ug is None: return r.cost()
+            return -ug.ruleLogLikelihood(r)[0]
+        return Solution(rules = [ min(f,key = cost)
                                   for f in self.frontiers ],
                         prefixes = self.prefixes, suffixes = self.suffixes,
                         underlyingForms = self.underlyingForms)
