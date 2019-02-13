@@ -983,12 +983,36 @@ Halle_Problems.append(Problem('''
 Klamath Halle 113
 	''',
 	[
-	# underlying		surface
-	(u"honli:na",	u"holli:na"),	# flies along the bank
-	(u"honly",		u"holhi"),		# flies into
-	(u"honl'a:l'a",	u"holʔa:l'a"),	# flies into the fire
-	(u"pa:lla",		u"pa:lha"),		# dries on
-	(u"yalyall'i",	u"yalyalʔi")	# clear
+	# underlying	surface
+	(u"honli:na",	u"holli:na"), # flies along the bank
+	(u"honly",		u"holhi"), # flies into
+	(u"honl'a:l'a",	u"holʔa:l'a"), # flies into the fire
+	(u"pa:lla",		u"pa:lha"), # dries on
+	(u"yalyall'i",	u"yalyalʔi") # clear
+	],
+	solutions = [u'''
+# No solution
+
+	''']
+	))
+
+
+Halle_Problems.append(Problem('''
+Russian Halle 115
+	''',
+	[
+	# 1st_sg_pres	past_masc	past_fem	past_pl	whether_he_did	were_he_to_do 	
+
+	(u"v^yirnú", u"v^yirnúl", u"v^yirnúla", u"v^yirnúl^yi", None, None), # return (s. th.)
+	(u"vrú", u"vrál", u"vralá", u"vrál^yi", None, None), # lie, mislead
+	(u"stayú", u"stayál", u"stayála", u"stayál^yi", None, None), # stand
+
+#	(u"p^yikú", u"p^yók", u"p^yiklá", u"p^yikl^yí", u"p^yók l^yi", u"p^yóg bɨ"), # bake (ie. whether he baked, were he to bake)
+	(u"v^yizú", u"v^yós", u"v^yizlá", u"v^yizl^yí", u"v^yós l^yi", u"v^yó bɨ"), # transport (ie. whether he carried, were he to carry)
+	(u"magú", u"mók", u"maglá", u"magl^yí", u"mók l^yi", u"móg bɨ"), # can (ie. whether he could, were he to be able)
+	(u"móknu", u"mók", u"mókla", u"mókl^yi", u"mók l^yi", u"móg bɨ"), # soak (ie. whether he soaked, where he to soak)
+
+
 	],
 	solutions = [u'''
 # No solution
