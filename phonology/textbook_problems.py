@@ -1019,3 +1019,103 @@ Russian Halle 115
 
 	''']
 	))
+
+
+Halle_Problems.append(Problem('''
+Russian Halle 149
+	''',
+	[
+	# Nom_sg 	Gen_pl	Dat_sg	Nom_pl	gloss
+	(u"luná", u"lún", u"lun^yɛ`", u"lúnɨ"), # moon
+	(u"dɨrá", u"dɨr", u"dɨr^yɛ`", u"dɨ́rɨ"), # hole
+	(u"travá", u"tráf", u"trav^yɛ`", u"trávɨ"), # grass
+
+#	(u"p^yilá", u"p^yíl", u"p^yil^yɛ`", u"p^yílɨ"), # saw
+	(u"valná", u"vóln", u"valn^yɛ`", u"vólnɨ"), # wave
+	(u"galavá", u"galóf", u"galav^yɛ`", u"gólavɨ"), # head
+
+	(u"žɨl^yizá", u"žɨl^yós", u"žɨl^yiz^yɛ`", u"žél^yizɨ"), # gland
+	(u"žɨná", u"žón", u"žɨn^yɛ`", u"žónɨ"), # wife
+	(u"zm^yyá", u"zm^yéy", u"zm^yiyɛ`", u"zm^yéyi"), # snake
+
+	(u"m^yɛ`na", u"m^yɛ`n", u"m^yén^yi", u"m^yɛ`nɨ"), # change
+#	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ`", u"p^yil^yinɨ́"), # shroud
+	(u"b^yis^yɛ`da", u"b^yis^yɛ`t", u"b^yis^yéd^yi", u"b^yis^yɛ`dɨ"), # conversation
+
+	(u"b^yidá", u"b^yɛ`t", u"b^yid^yɛ`", u"b^yɛ`dɨ"), # sorrow
+#	(u"p^yitá", u"p^yát", u"p^yit^yɛ`", u"p^yitɨ́"), # heel
+	(u"st^yiná", u"st^yɛ`n", u"st^yin^yɛ`", u"st^yɛ`nɨ"), # wall
+
+	(u"r^yiká", u"r^yɛ`k", u"r^yik^yɛ`", u"r^yék^yi"), # river
+	(u"slugá", u"slúk", u"slug^yɛ`", u"slúg^yi"), # servant
+	(u"blaxá", u"blóx", u"blax^yɛ`", u"blóx^yi") # flea
+	],
+	solutions = [u'''
+# No solution
+
+	''']
+	))
+
+
+Halle_Problems.append(Problem('''
+Sao Tome Creole Halle 141
+	''',
+	[
+	# Portuguese	Sao_Tome_Creole
+	(u"vešpʌ", u"vešpa"), # wasp
+	(u"šigar", u"šiga"), # to arrive
+	(u"sɛgu", u"sɛgu"), # blind
+	(u"šumbu", u"sumbu"), # lead
+	(u"pəškar", u"piška"), # to fish 		** ə->3
+	(u"r̃atu", u"latu"), # rat
+	(u"artə", u"ači"), # art 				** ə->3
+	(u"tašu", u"tasu"), # pan
+	(u"kulpʌ", u"klupa"), # blame
+	(u"r̃əšpʌitu", u"lišpetu"), # courtesy 	** ə->3
+#	(u"ʌgu ʌ", u"guya"), # needle			**lambda
+	(u"tirar", u"čila"), # to take out
+	(u"dyabu", u"ǰabu"), # devil
+	(u"šʌmar", u"sama"), # to call
+	(u"kwazə", u"kwaži"), # almost			** ə->3
+	(u"tardə", u"taǰi"), # afternoon		** ə->3
+	(u"idadə", u"daǰi"), # age				** ə->3
+	(u"kʌprišu", u"kaplisu"), # caprice
+	(u"fɛr̃u", u"fɛlu"), # iron
+	(u"brõzə", u"blõzi"), # bronze			** ə->3
+	(u"fižir", u"fiži"), # to pretend
+	(u"žemʌ", u"zema"), # egg yolk
+	(u"diʌ", u"ǰa"), # day
+	(u"forsa", u"fosa"), # strength
+	(u"mɔrtə", u"mɔči"), # death			** ə->3
+	(u"pulgʌ", u"pluga"), # flea
+	(u"bišu", u"bisu"), # animal
+	(u"pədir", u"piǰi"), # to ask
+	(u"tiʌ", u"ča"), # aunt
+	(u"kʌižu", u"kezu"), # cheese
+	(u"pʌlasyu", u"palašu"), # place
+	(u"bʌrbʌiru", u"blabelu"), # barber
+	(u"ifɛr̃nu", u"fɛnu"), # hell
+	(u"sinku", u"šinku") # five
+
+	],
+	solutions = [u'''
+# No solution
+
+	''']
+	))
+
+
+
+Halle_Problems.append(Problem('''
+Swahili Halle 133
+	''',
+	[
+	# singular	plural
+	(u"ubale", u""),
+	
+	],
+	solutions = [u'''
+# No solution
+
+	''']
+	))
