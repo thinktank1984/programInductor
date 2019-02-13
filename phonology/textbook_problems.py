@@ -693,8 +693,9 @@ Dutch Roca 17
 
 	], 
 	solutions = [u'''
-stem + tə/də
 # No solution
+# stem + tə/də
+# FIND SUFFIX VARIATION
 	''']
 	))
 
@@ -749,20 +750,249 @@ Anxiang Roca 37
 	], 
 	solutions = [u'''
 # No solution
+"""
+stem
+stem + partial_stem + ər
+
+*** FIND THE PART OF THE BASE STEM IN THE DUPLICATED FORM
+"""
 	''']
 	))
 
-"""
+
 Roca_Problems.append(Problem(
 	u'''
 Verlan Roca 31
 	''',
 	[ 
-	# French 	Verlan
-	(u"")
+	# French 		Verlan			gloss
+	(u"gamɛ̃",		u"mɛ̃ga"),		# kid (masc.)
+	(u"gamin",		u"minga"),		# kid (fem.)
+	(u"kopɛ̃",		u"pɛ̃ko"),		# mate (masc.)
+	(u"kopin",		u"pinko"),		# mate (fem.)
+	(u"frãsɛ",		u"sɛfrã"),		# French (masc.)
+	(u"frãsɛz",		u"sɛzfrã"),		# French (fem.)
+	(u"fyme",		u"mefy"),		# to smoke
+	(u"finir",		u"nirfi"),		# to finish
+
+	(u"rigolo",		u"logori"),		# funny
+	(u"tabure",		u"rebuta"),		# stool
+	(u"papijɔ̃", 	u"jɔ̃pipa"),		# butterfly
+
+	(u"sigarɛt",	u"garɛtsi"),	# cigarette
+	(u"korida",		u"ridako"),		# bull fight
+
+	(u"ãkyle",		u"leãky"),		# sod
+	(u"degölas",	u"lasdegö"),	# disgusting
+	(u"karate",		u"tekara"),		# karate
 	], 
 	solutions = [u'''
 # No solution
+# Syllable inversion
+# disyllabic: first and second syllables switch places
+# trisyllabic: ?
 	''']
 	))
+
+
+
+Roca_Problems.append(Problem(
+	u'''
+Icelandic Roca 35
+	''',
+	[ 
+	# Nom_sg Acc_sg Dat_sg Gen_sg Dat_pl Gen_pl gloss
+
+	# Nom_sg	Acc_sg
+	(u"dagur",	u"dag",		None, None, None, None),		# day
+	(u"staður",	u"stað",	None, None, None, None),		# place
+	(u"hestur",	u"hest",	None, None, None, None),		# horse
+	(u"bær",	u"bæ",		None, None, None, None),		# farmhouse
+	(u"læknir",	u"lækni",	None, None, None, None),		# physician
+
+	# Nom_sg	Dat_sg
+	(u"lifur",	None,	u"lifri", None, None, None),	# liver
+	(u"akur",	None,	u"agri", None, None, None),		# field
+	(u"aldur",	None, 	u"aldri", None, None, None),	# age
+
+	# Nom_sg	Acc_sg	Gen_sg	Dat_pl	Gen_pl
+	(u"lyfur",	u"lyf",	None,	u"lyfs",	u"lyfjum",	u"lyfja"),	# medicine
+	(u"bylur",	u"byl",	None,	u"byls",	u"byljum",	u"bylja"),	# snowstorm
+	(u"söngur",	u"söng", None,	u"söngs",	u"söngvum",	u"söngva"),	# song
+
+	# Nom_sg	Dat_pl
+	(u"barn", None, None, None, u"börnum", None), # child
+	(u"baggi", None, None, None, u"böggull", None), # package
+	(u"jaki", None, None, None, u"jökull", None), # glacier
+	(u"θagga", None, None, None, u"θögull", None), # taciturn
+	(u"kalla", None, None, None, u"köllum", None), # call (1st pl.)
+	(u"akur", None, None, None, u"ökrum", None), # field
+	(u"aldur", None, None, None, u"öldrum", None), # age
+	(u"staður", None, None, None, u"stöðum", None) # place
+
+	], 
+	solutions = [u'''
+# No solution
 """
+Suffix Variants
+Nom_sg: -ur, -r, 0
+Acc_sg: 0
+Dat_sg: -ri
+Gen_sg: -s
+Dat_pl: -um, -ull
+Gen_pl: -a
+
+*** FIND THE RULES FOR NOM_SG SUFFIX VARIATION
+"""
+	''']
+	))
+
+
+Roca_Problems.append(Problem(
+	u'''
+Lumasaaba Roca 89
+	''',
+	[
+	# a+[word]	small+[word]
+#	(u"iñjele", u"xax̯yele"),	# frog (ie. a frog, small frog)
+	(u"iñga:fu", u"xaxa:fu"), 	# cow
+	(u"imbeβa",	u"caβeβa"),		# rat
+	(u"iñgoxo",	u"xakoxo"),		# hen
+	(u"iñgwe",	u"xakwe"),		# leopard
+	(u"indali",	u"xatali"),		# beer
+	(u"imboko",	u"xaβoko")		# buffalo
+	], 
+	solutions = [u'''
+# No solution
+# iñ/in/im + stem
+# xa + stem
+# *** FIND THE STEM INITIAL CONSONANT VARIATION
+	''']
+	))
+
+Roca_Problems.append(Problem(
+	u'''
+Tunica Roca 104
+	''',
+	[
+	# Infinitive	3rd_sg_masc		3rd_sg_fem		3rd_sg_fem_pres_prog
+	(u"pó", u"póʔuhki",	u"póʔɔki", u"póhkʔaki"),	# look
+	(u"pí",	u"píʔuhki",	u"píʔɛki", u"píhkʔaki"),	# emerge
+	(u"já", u"jáʔuhki", u"jáʔaki", u"jáhkʔaki"),	# do
+	(u"čú", u"čúʔuhki", u"čúʔɔki", u"čúhkʔaki"),	# take
+
+	(u"hára", u"hárʔuhki", u"hárʔaki", u"hárahkʔáki"),	# sing
+	(u"hípu", u"hípʔuhki", u"hípʔɔki", u"hípuhkʔáki"),	# dance
+	(u"náši", u"nášʔuhki", u"nášʔɛki", u"nášihkʔáki")	# lead someone
+	], 
+	solutions = [u'''
+# No solution
+"""
+stem
+stem + ʔuhki
+stem + ʔ + aki/ɔki/ɛki
+stem + hkʔaki
+
+*** FIND THE SUFFIX VARIATION OF 3rd_sg_fem INITIAL CONSONANT VARIATION
+
+"""
+	''']
+	))
+
+
+
+Halle_Problems.append(Problem('''
+Turkish Halle 85
+	''',
+	[
+	# Nom_sg 	Gen_sg 		Nom_pl 		Gen_pl 		gloss
+	(u"ip", u"ipin", u"ipler", u"iplerin"), 		# rope
+	(u"kɨz", u"kɨzɨn", u"kɨzlar", u"kɨzlarɨn"),		# girl
+	(u"yüz", u"yüzün", u"yüzler", u"yüzlerin"),		# face
+	(u"pul", u"pulun", u"pullar", u"pullarɨn"),		# stamp
+	(u"el", u"elin", u"eller", u"ellerin"), 		# hand
+	(u"čan", u"čanɨn", u"čanlar", u"čanlarɨn"), 	# bell
+	(u"köy", u"köyün", u"köyler", u"köylerin"), 	# village
+	(u"son", u"sonun", u"sonlar", u"sonlarɨn") 		# end
+	],
+	solutions = [u'''
+# No solution
+stem
+stem + in/ɨn/ün/un
+stem + ler/lar
+stem + ler/lar + in/ɨn
+
+	''']
+	))
+
+Halle_Problems.append(Problem('''
+Turkish Halle 97
+	''',
+	[
+	# noun_stem		possessed_form		gloss
+	(u"ip", u"ipi"),		# rope
+	(u"bit", u"biti"),		# louse
+	(u"sebep", u"sebebi"),	# reason
+	(u"kanat", u"kanadɨ"),	# wing
+	(u"šeref", u"šerefi"),	# honor
+	(u"kɨč", u"kɨčɨ"),		# rump
+	(u"pilot", u"pilotu"),	# pilot
+	(u"demet", u"demeti"),	# bunch
+	(u"šarap", u"šarabɨ"),	# wine
+	(u"ahmet", u"ahmedi"),	# Ahmed
+	(u"pabuč", u"pabuǰu"),	# slipper
+	(u"güč", u"güǰü"),		# power
+	(u"sepet", u"sepeti"),	# basket
+	(u"sanat", u"sanatɨ"),	# art
+	(u"kep", u"kepi"),		# cap
+	(u"kurt", u"kurdu"),	# worm
+	(u"sač", u"sačɨ"),		# hair
+	(u"renk", u"rengi")		# color
+	],
+	solutions = [u'''
+# No solution
+stem
+stem + in/ɨn/ün/un
+stem + ler/lar
+stem + ler/lar + in/ɨn
+
+	''']
+	))
+
+Halle_Problems.append(Problem('''
+Russian Halle 109
+	''',
+	[
+	# from 		without		next_to
+	(u"at rózɨ", u"b^yiz rózɨ", u"u rózɨ"),	# rose
+	(u"at álɨ", u"b^yiz álɨ", u"u álɨ"),	# Ala (name)
+	(u"at karóvɨ", u"b^yiz karóvɨ", u"u karóvɨ"),	# cow
+	(u"ad baradɨ́", u"b^yiz baradɨ́", u"u baradɨ́"),	# beard
+	(u"at s^yistrɨ́", u"b^yis s^yistrɨ́", u"u s^yistrɨ́")	# sister
+	],
+	solutions = [u'''
+# No solution
+# Voicing Assimilation - consonant alternations in the preposition
+
+	''']
+	))
+
+
+
+Halle_Problems.append(Problem('''
+Klamath Halle 113
+	''',
+	[
+	# underlying		surface
+	(u"honli:na",	u"holli:na"),	# flies along the bank
+	(u"honly",		u"holhi"),		# flies into
+	(u"honl'a:l'a",	u"holʔa:l'a"),	# flies into the fire
+	(u"pa:lla",		u"pa:lha"),		# dries on
+	(u"yalyall'i",	u"yalyalʔi")	# clear
+	],
+	solutions = [u'''
+# No solution
+# Voicing Assimilation - consonant alternations in the preposition
+
+	''']
+	))
