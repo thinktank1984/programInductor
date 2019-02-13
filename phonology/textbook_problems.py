@@ -992,7 +992,6 @@ Klamath Halle 113
 	],
 	solutions = [u'''
 # No solution
-# Voicing Assimilation - consonant alternations in the preposition
 
 	''']
 	))
