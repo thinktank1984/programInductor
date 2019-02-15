@@ -675,7 +675,7 @@ Dutch Roca 17
 	(u"klaptə",),	# applauded
 	(u"krabdə",),	# scratched
 	(u"rɛdə",),		# saved
-#	(u"vɪstə"),		# fished
+	(u"vɪstə"),		# fished
 	(u"razdə",),		# raged
 	(u"zɛtə",),		# put
 	(u"maftə",),		# slept
@@ -746,7 +746,7 @@ Anxiang Roca 37
 	(u"ti",		u"ti tiər"),	# bamboo flute
 	(u"tin",	u"tin tiər"),	# nail
 	(u"p^hu",	u"p^hu p^hər"),	# spread
-#	(u"tx̯y",	u"tx̯y tx̯yər")	# pearl
+	(u"tx̯y",	u"tx̯y tx̯yər")	# pearl
 	], 
 	solutions = [u'''
 # No solution
@@ -854,7 +854,7 @@ Lumasaaba Roca 89
 	''',
 	[
 	# a+[word]	small+[word]
-#	(u"iñjele", u"xax̯yele"),	# frog (ie. a frog, small frog)
+	(u"iñjele", u"xax̯yele"),	# frog (ie. a frog, small frog)
 	(u"iñga:fu", u"xaxa:fu"), 	# cow
 	(u"imbeβa",	u"caβeβa"),		# rat
 	(u"iñgoxo",	u"xakoxo"),		# hen
@@ -1007,7 +1007,7 @@ Russian Halle 115
 	(u"vrú", u"vrál", u"vralá", u"vrál^yi", None, None), # lie, mislead
 	(u"stayú", u"stayál", u"stayála", u"stayál^yi", None, None), # stand
 
-#	(u"p^yikú", u"p^yók", u"p^yiklá", u"p^yikl^yí", u"p^yók l^yi", u"p^yóg bɨ"), # bake (ie. whether he baked, were he to bake)
+	(u"p^yikú", u"p^yók", u"p^yiklá", u"p^yikl^yí", u"p^yók l^yi", u"p^yóg bɨ"), # bake (ie. whether he baked, were he to bake)
 	(u"v^yizú", u"v^yós", u"v^yizlá", u"v^yizl^yí", u"v^yós l^yi", u"v^yó bɨ"), # transport (ie. whether he carried, were he to carry)
 	(u"magú", u"mók", u"maglá", u"magl^yí", u"mók l^yi", u"móg bɨ"), # can (ie. whether he could, were he to be able)
 	(u"móknu", u"mók", u"mókla", u"mókl^yi", u"mók l^yi", u"móg bɨ"), # soak (ie. whether he soaked, where he to soak)
@@ -1030,7 +1030,7 @@ Russian Halle 149
 	(u"dɨrá", u"dɨr", u"dɨr^yɛ`", u"dɨ́rɨ"), # hole
 	(u"travá", u"tráf", u"trav^yɛ`", u"trávɨ"), # grass
 
-#	(u"p^yilá", u"p^yíl", u"p^yil^yɛ`", u"p^yílɨ"), # saw
+	(u"p^yilá", u"p^yíl", u"p^yil^yɛ`", u"p^yílɨ"), # saw
 	(u"valná", u"vóln", u"valn^yɛ`", u"vólnɨ"), # wave
 	(u"galavá", u"galóf", u"galav^yɛ`", u"gólavɨ"), # head
 
@@ -1039,11 +1039,11 @@ Russian Halle 149
 	(u"zm^yyá", u"zm^yéy", u"zm^yiyɛ`", u"zm^yéyi"), # snake
 
 	(u"m^yɛ`na", u"m^yɛ`n", u"m^yén^yi", u"m^yɛ`nɨ"), # change
-#	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ`", u"p^yil^yinɨ́"), # shroud
+	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ`", u"p^yil^yinɨ́"), # shroud
 	(u"b^yis^yɛ`da", u"b^yis^yɛ`t", u"b^yis^yéd^yi", u"b^yis^yɛ`dɨ"), # conversation
 
 	(u"b^yidá", u"b^yɛ`t", u"b^yid^yɛ`", u"b^yɛ`dɨ"), # sorrow
-#	(u"p^yitá", u"p^yát", u"p^yit^yɛ`", u"p^yitɨ́"), # heel
+	(u"p^yitá", u"p^yát", u"p^yit^yɛ`", u"p^yitɨ́"), # heel
 	(u"st^yiná", u"st^yɛ`n", u"st^yin^yɛ`", u"st^yɛ`nɨ"), # wall
 
 	(u"r^yiká", u"r^yɛ`k", u"r^yik^yɛ`", u"r^yék^yi"), # river
@@ -1072,7 +1072,7 @@ Sao Tome Creole Halle 141
 	(u"tašu", u"tasu"), # pan
 	(u"kulpʌ", u"klupa"), # blame
 	(u"r̃əšpʌitu", u"lišpetu"), # courtesy 	** ə->3
-#	(u"ʌgu ʌ", u"guya"), # needle			**lambda
+	(u"ʌgu ʌ", u"guya"), # needle			**lambda
 	(u"tirar", u"čila"), # to take out
 	(u"dyabu", u"ǰabu"), # devil
 	(u"šʌmar", u"sama"), # to call
@@ -1104,7 +1104,7 @@ Sao Tome Creole Halle 141
 	''']
 	))
 
-
+"""
 
 Halle_Problems.append(Problem('''
 Swahili Halle 133
@@ -1119,3 +1119,4 @@ Swahili Halle 133
 
 	''']
 	))
+"""
