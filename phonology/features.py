@@ -370,6 +370,8 @@ def tokenize(word):
     word = word.replace(u" ",u"")
     # not sure what this is but let's remove it
     word = word.replace(u"’",u"")
+    # IPA > APA
+    word = word.replace(u"ɪ",u"ɩ")
     originalWord = word
     tokens = []
     while len(word) > 0:

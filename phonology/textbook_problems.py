@@ -675,7 +675,7 @@ Dutch Roca 17
 	(u"klaptə",),	# applauded
 	(u"krabdə",),	# scratched
 	(u"rɛdə",),		# saved
-	(u"vɪstə"),		# fished
+	(u"vɪstə",),		# fished
 	(u"razdə",),		# raged
 	(u"zɛtə",),		# put
 	(u"maftə",),		# slept
