@@ -132,6 +132,7 @@ sophisticatedFeatureMap = {
 
     # consonance
     u"p": [anterior,],
+    u"p^y": [anterior,palletized],
     u"p̚": [anterior,unreleased],
     u"p^h": [anterior,aspirated],
     u"b": [anterior,voice],
@@ -173,6 +174,7 @@ sophisticatedFeatureMap = {
     
     u"š": [continuant,coronal, sibilant],#alveopalatal,
     u"c": [palatal,coronal], # NOT the same thing as palletized
+    u"x̯": [palatal,coronal,continuant],
     u"č": [coronal,sibilant],#alveopalatal,
     u"č^h": [coronal,sibilant,aspirated],#alveopalatal,
     u"k": [back,high],
@@ -242,6 +244,7 @@ simpleFeatureMap = {
 
     # consonance
     u"p": [bilabial,stop],
+    u"p^y": [bilabial,stop,palletized],
     u"p̚": [bilabial,stop,unreleased],
     u"p^h": [bilabial,stop,aspirated],
     u"b": [bilabial, stop, voice],
@@ -276,7 +279,8 @@ simpleFeatureMap = {
     u"ñ": [nasal,voice,alveopalatal],
     u"n̆": [nasal,voice,alveopalatal],
     u"š": [fricative, alveopalatal],
-    u"c": [palatal,stop], 
+    u"c": [palatal,stop],
+    u"x̯": [palatal,fricative],
     u"č": [alveopalatal,affricate],
     u"č^h": [alveopalatal,affricate,aspirated],
     u"k": [velar, stop],
