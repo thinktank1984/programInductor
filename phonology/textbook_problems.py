@@ -1098,7 +1098,7 @@ Sao Tome Creole Halle 141
 	(u"ifɛr̃nu", u"fɛnu"), # hell
 	(u"sinku", u"šinku") # five
 
-	],
+	], supervised=True,
 	solutions = [u'''
 # No solution
 
