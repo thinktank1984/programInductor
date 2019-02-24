@@ -141,6 +141,7 @@ sophisticatedFeatureMap = {
     u"v": [anterior,continuant,voice],
     u"β": [anterior,continuant,voice],
     u"m": [anterior,nasal,voice,sonorant],#continuant],
+    u"m̩": [anterior,nasal,voice,sonorant,syllabic],
     u"m̥": [anterior,nasal,sonorant],#,continuant],
     u"θ": [anterior,continuant,coronal],
     u"d": [anterior,voice,coronal],
@@ -163,6 +164,7 @@ sophisticatedFeatureMap = {
     u"s": [anterior,continuant,coronal, sibilant],
     u"ṣ": [anterior,continuant,coronal, sibilant, retroflex],
     u"n": [anterior,nasal,voice,coronal,sonorant],#continuant],
+    u"n̩":  [anterior,nasal,voice,coronal,syllabic,sonorant],
     u"ṇ": [anterior,retroflex,nasal,voice,sonorant],#continuant],
     u"n̥": [anterior,nasal,coronal,sonorant],#continuant],
 
@@ -171,6 +173,7 @@ sophisticatedFeatureMap = {
     u"n̆": [nasal,voice,coronal,sonorant],
 
     u"ɲ": [nasal,voice,coronal,sonorant,high],
+    u"ɲ̩": [nasal,voice,coronal,sonorant,high,syllabic],
     
     u"š": [continuant,coronal, sibilant],#alveopalatal,
     u"c": [palatal,coronal], # NOT the same thing as palletized
@@ -189,6 +192,7 @@ sophisticatedFeatureMap = {
     u"g^y": [back,high,voice,palletized],
     u"ɣ": [back,high,continuant,voice],
     u"ŋ": [back,high,nasal,voice,sonorant],#continuant],
+    u"ŋ̩":  [back,high,nasal,voice,sonorant,syllabic],
     u"q": [back],
     u"N": [back,nasal,voice],#continuant],
     u"G": [back,voice],
@@ -207,6 +211,8 @@ sophisticatedFeatureMap = {
     u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
     u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
     u"l": [liquid,lateral,voice,coronal,sonorant,continuant],
+    u"l̥": [liquid,lateral,coronal,sonorant,continuant],
+    u"ʎ": [liquid,lateral,voice,palatal,sonorant,continuant],
     u"ł": [liquid,lateral,voice,back,high,sonorant,continuant],
 #    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
@@ -253,6 +259,7 @@ simpleFeatureMap = {
     u"v": [labiodental,fricative,voice],
     u"β": [labiodental,fricative,voice],
     u"m": [bilabial,nasal,voice],
+    u"m̩": [bilabial,nasal,voice,syllabic],
     u"m̥": [bilabial,nasal],#,continuant],
     u"θ": [dental, fricative],
     u"d": [alveolar,stop,voice],
@@ -274,6 +281,7 @@ simpleFeatureMap = {
     u"s": [fricative, alveolar],
     u"ṣ":  [fricative, alveolar, retroflex],
     u"n": [alveolar,nasal,voice],
+    u"n̩": [alveolar,nasal,voice,syllabic],
     u"ṇ": [retroflex,nasal,voice],
     u"n̥": [alveolar,nasal],
     u"ñ": [nasal,voice,alveopalatal],
@@ -295,6 +303,7 @@ simpleFeatureMap = {
     u"g^y": [velar,stop,voice,palletized],
     u"ɣ": [velar,fricative,voice],
     u"ŋ": [velar,nasal,voice],
+    u"ŋ̩": [velar,nasal,voice,syllabic],
     u"q": [uvular, stop],
     u"N": [uvular, nasal,voice],#continuant],
     u"G": [uvular, stop,voice],
@@ -313,12 +322,15 @@ simpleFeatureMap = {
     u"r̥̃": [liquid,trill,retroflex],
     u"ř": [liquid,flap,voice,retroflex],
     u"l": [liquid,lateral,voice],
+    u"l̥": [liquid,lateral],
+    u"ʎ":  [liquid,lateral,palatal,voice],
     u"ł": [liquid,lateral,voice,velar],
 #    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
     # I'm not sure what this is
     # I think it is a mistranscription, as it is in IPA but not APA
     u"ɲ": [nasal,voice,alveopalatal,high],
+    u"ɲ̩": [nasal,voice,alveopalatal,high,syllabic],
 
     u"ʕ": [affricate, pharyngeal, voice],
     u"-": [syllableBoundary],
@@ -370,6 +382,8 @@ def tokenize(word):
         print u"ERROR: š should have been purged."
         print "word =",word
         assert False
+    # FIXME: this is not part of APA, approximate with a shewha
+    word = word.replace(u"ɜ", u"ə")
     # remove all the spaces
     word = word.replace(u" ",u"")
     # not sure what this is but let's remove it

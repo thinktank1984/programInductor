@@ -993,7 +993,8 @@ Klamath Halle 113
 	solutions = [u'''
 # No solution
 
-	''']
+	'''],
+                              supervised=True
 	))
 
 
@@ -1066,30 +1067,38 @@ Sao Tome Creole Halle 141
 	(u"šigar", u"šiga"), # to arrive
 	(u"sɛgu", u"sɛgu"), # blind
 	(u"šumbu", u"sumbu"), # lead
+<<<<<<< HEAD
 	(u"pɜškar", u"piška"), # to fish 		++** ə->3
+=======
+	(u"pɜškar", u"piška"), # to fish 		** ə->ɜ
+>>>>>>> 433507ea71e335a2afcbe34b04aa6652206e0224
 	(u"r̃atu", u"latu"), # rat
-	(u"artə", u"ači"), # art 				** ə->3
+	(u"artɜ", u"ači"), # art 				** ə->ɜ
 	(u"tašu", u"tasu"), # pan
 	(u"kulpʌ", u"klupa"), # blame
+<<<<<<< HEAD
 	(u"r̃əšpʌitu", u"lišpetu"), # courtesy 	** ə->3
+=======
+	(u"r̃ɜšpʌitu", u"lišpetu"), # courtesy 	** ə->ɜ
+>>>>>>> 433507ea71e335a2afcbe34b04aa6652206e0224
 	(u"ʌguʎʌ", u"guya"), # needle			**lambda
 	(u"tirar", u"čila"), # to take out
 	(u"dyabu", u"ǰabu"), # devil
 	(u"šʌmar", u"sama"), # to call
-	(u"kwazə", u"kwaži"), # almost			** ə->3
-	(u"tardə", u"taǰi"), # afternoon		** ə->3
-	(u"idadə", u"daǰi"), # age				** ə->3
+	(u"kwazɜ", u"kwaži"), # almost			** ə->ɜ
+	(u"tardɜ", u"taǰi"), # afternoon		** ə->ɜ
+	(u"idadɜ", u"daǰi"), # age				** ə->ɜ
 	(u"kʌprišu", u"kaplisu"), # caprice
 	(u"fɛr̃u", u"fɛlu"), # iron
-	(u"brõzə", u"blõzi"), # bronze			** ə->3
+	(u"brõzɜ", u"blõzi"), # bronze			** ə->ɜ
 	(u"fižir", u"fiži"), # to pretend
 	(u"žemʌ", u"zema"), # egg yolk
 	(u"diʌ", u"ǰa"), # day
 	(u"forsa", u"fosa"), # strength
-	(u"mɔrtə", u"mɔči"), # death			** ə->3
+	(u"mɔrtɜ", u"mɔči"), # death			** ə->ɜ
 	(u"pulgʌ", u"pluga"), # flea
 	(u"bišu", u"bisu"), # animal
-	(u"pədir", u"piǰi"), # to ask
+	(u"pɜdir", u"piǰi"), # to ask
 	(u"tiʌ", u"ča"), # aunt
 	(u"kʌižu", u"kezu"), # cheese
 	(u"pʌlasyu", u"palašu"), # place
@@ -1097,7 +1106,7 @@ Sao Tome Creole Halle 141
 	(u"ifɛr̃nu", u"fɛnu"), # hell
 	(u"sinku", u"šinku") # five
 
-	],
+	], supervised=True,
 	solutions = [u'''
 # No solution
 

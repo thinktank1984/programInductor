@@ -48,7 +48,8 @@ def processMorphology(stems, inflections, dictionary):
 
 class Problem():
     named = {}
-    def __init__(self,description,data,parameters = None,solutions = []):
+    def __init__(self,description,data,parameters = None,solutions = [],supervised=False):
+        self.supervised = supervised
         self.parameters = parameters
         self.description = description
         self.solutions = solutions
