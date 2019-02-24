@@ -207,6 +207,8 @@ sophisticatedFeatureMap = {
     u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
     u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
     u"l": [liquid,lateral,voice,coronal,sonorant,continuant],
+    u"l̥": [liquid,lateral,coronal,sonorant,continuant],
+    u"ʎ": [liquid,lateral,voice,palatal,sonorant,continuant],
     u"ł": [liquid,lateral,voice,back,high,sonorant,continuant],
 #    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
@@ -313,6 +315,8 @@ simpleFeatureMap = {
     u"r̥̃": [liquid,trill,retroflex],
     u"ř": [liquid,flap,voice,retroflex],
     u"l": [liquid,lateral,voice],
+    u"l̥": [liquid,lateral],
+    u"ʎ":  [liquid,lateral,palatal,voice],
     u"ł": [liquid,lateral,voice,velar],
 #    u"̌l": [liquid,lateral,voice,coronal,sonorant],
 
@@ -370,6 +374,8 @@ def tokenize(word):
         print u"ERROR: š should have been purged."
         print "word =",word
         assert False
+    # FIXME: this is not part of APA, approximate with a shewha
+    word = word.replace(u"ɜ", u"ə")
     # remove all the spaces
     word = word.replace(u" ",u"")
     # not sure what this is but let's remove it

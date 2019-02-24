@@ -40,6 +40,7 @@ def handleProblem(p):
     isCountingProblem = isinstance(p.parameters, list) \
                         and all( isinstance(parameter,int) for parameter in p.parameters  )
     isAlternationProblem = isinstance(p.parameters, dict) and p.parameters.get("type",None) == "alternation"
+    isSupervisedProblem = p.supervised
     if isAlternationProblem:
         assert False, "driver does not handle alternation problems"
     elif not isCountingProblem:
@@ -66,6 +67,9 @@ def handleProblem(p):
     
     if isCountingProblem:
         problem = CountingProblem(p.data, p.parameters, problemName=p.key)
+        arguments.task = 'exact'
+    elif isSupervisedProblem:
+        problem = SupervisedProblem(p.data, problemName=p.key)
         arguments.task = 'exact'
     else:
         problem = UnderlyingProblem(p.data, problemName=p.key, UG = ug).restrict(restriction)

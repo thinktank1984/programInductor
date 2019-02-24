@@ -985,15 +985,16 @@ Klamath Halle 113
 	[
 	# underlying	surface
 	(u"honli:na",	u"holli:na"), # flies along the bank
-	(u"honly",		u"holhi"), # flies into
+	(u"honl̥y",		u"holhi"), # flies into
 	(u"honl'a:l'a",	u"holʔa:l'a"), # flies into the fire
-	(u"pa:lla",		u"pa:lha"), # dries on
+	(u"pa:ll̥a",		u"pa:lha"), # dries on
 	(u"yalyall'i",	u"yalyalʔi") # clear
 	],
 	solutions = [u'''
 # No solution
 
-	''']
+	'''],
+                              supervised=True
 	))
 
 
@@ -1066,30 +1067,30 @@ Sao Tome Creole Halle 141
 	(u"šigar", u"šiga"), # to arrive
 	(u"sɛgu", u"sɛgu"), # blind
 	(u"šumbu", u"sumbu"), # lead
-	(u"pəškar", u"piška"), # to fish 		** ə->3
+	(u"pɜškar", u"piška"), # to fish 		** ə->ɜ
 	(u"r̃atu", u"latu"), # rat
-	(u"artə", u"ači"), # art 				** ə->3
+	(u"artɜ", u"ači"), # art 				** ə->ɜ
 	(u"tašu", u"tasu"), # pan
 	(u"kulpʌ", u"klupa"), # blame
-	(u"r̃əšpʌitu", u"lišpetu"), # courtesy 	** ə->3
-	(u"ʌgu ʌ", u"guya"), # needle			**lambda
+	(u"r̃ɜšpʌitu", u"lišpetu"), # courtesy 	** ə->ɜ
+	(u"ʌguʎʌ", u"guya"), # needle			**lambda
 	(u"tirar", u"čila"), # to take out
 	(u"dyabu", u"ǰabu"), # devil
 	(u"šʌmar", u"sama"), # to call
-	(u"kwazə", u"kwaži"), # almost			** ə->3
-	(u"tardə", u"taǰi"), # afternoon		** ə->3
-	(u"idadə", u"daǰi"), # age				** ə->3
+	(u"kwazɜ", u"kwaži"), # almost			** ə->ɜ
+	(u"tardɜ", u"taǰi"), # afternoon		** ə->ɜ
+	(u"idadɜ", u"daǰi"), # age				** ə->ɜ
 	(u"kʌprišu", u"kaplisu"), # caprice
 	(u"fɛr̃u", u"fɛlu"), # iron
-	(u"brõzə", u"blõzi"), # bronze			** ə->3
+	(u"brõzɜ", u"blõzi"), # bronze			** ə->ɜ
 	(u"fižir", u"fiži"), # to pretend
 	(u"žemʌ", u"zema"), # egg yolk
 	(u"diʌ", u"ǰa"), # day
 	(u"forsa", u"fosa"), # strength
-	(u"mɔrtə", u"mɔči"), # death			** ə->3
+	(u"mɔrtɜ", u"mɔči"), # death			** ə->ɜ
 	(u"pulgʌ", u"pluga"), # flea
 	(u"bišu", u"bisu"), # animal
-	(u"pədir", u"piǰi"), # to ask
+	(u"pɜdir", u"piǰi"), # to ask
 	(u"tiʌ", u"ča"), # aunt
 	(u"kʌižu", u"kezu"), # cheese
 	(u"pʌlasyu", u"palašu"), # place
