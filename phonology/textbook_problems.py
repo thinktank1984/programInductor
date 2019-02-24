@@ -675,7 +675,7 @@ Dutch Roca 17
 	(u"klaptə",),	# applauded
 	(u"krabdə",),	# scratched
 	(u"rɛdə",),		# saved
-	(u"vɪstə",),		# fished
+	(u"vɩstə",),		# fished
 	(u"razdə",),		# raged
 	(u"zɛtə",),		# put
 	(u"maftə",),		# slept
@@ -713,7 +713,7 @@ Zoque Roca 25
 	(u"trama", 			u"ndrama"),			# trap
 	(u"disko", 			u"ndisko"),			# record
 	(u"gaju", 			u"ŋgaju"),			# rooster
-	(u"čoʔngoja", 		u"ñǰoʔngoja"),			# rabbit
+	(u"čoʔngoja", 		u"ɲǰoʔngoja"),			# rabbit
 	(u"tsima", 			u"ndzima"),			# calabash
 	(u"sʌk", 			u"sʌk"),			# beans
 	(u"faha", 			u"faha"),			# belt
@@ -854,17 +854,17 @@ Lumasaaba Roca 89
 	''',
 	[
 	# a+[word]	small+[word]
-	(u"iñjele", u"xax̯yele"),	# frog (ie. a frog, small frog)
-	(u"iñga:fu", u"xaxa:fu"), 	# cow
+	(u"iɲjele", u"xax̯yele"),	# frog (ie. a frog, small frog)
+	(u"iŋga:fu", u"xaxa:fu"), 	# cow
 	(u"imbeβa",	u"caβeβa"),		# rat
-	(u"iñgoxo",	u"xakoxo"),		# hen
-	(u"iñgwe",	u"xakwe"),		# leopard
+	(u"iŋgoxo",	u"xakoxo"),		# hen
+	(u"iŋgwe",	u"xakwe"),		# leopard
 	(u"indali",	u"xatali"),		# beer
 	(u"imboko",	u"xaβoko")		# buffalo
 	], 
 	solutions = [u'''
 # No solution
-# iñ/in/im + stem
+# iɲ/iŋ/in/im + stem
 # xa + stem
 # *** FIND THE STEM INITIAL CONSONANT VARIATION
 	''']
@@ -985,9 +985,9 @@ Klamath Halle 113
 	[
 	# underlying	surface
 	(u"honli:na",	u"holli:na"), # flies along the bank
-	(u"honly",		u"holhi"), # flies into
+	(u"honl̥y",		u"holhi"), # flies into
 	(u"honl'a:l'a",	u"holʔa:l'a"), # flies into the fire
-	(u"pa:lla",		u"pa:lha"), # dries on
+	(u"pa:ll̥a",		u"pa:lha"), # dries on
 	(u"yalyall'i",	u"yalyalʔi") # clear
 	],
 	solutions = [u'''
@@ -1066,13 +1066,13 @@ Sao Tome Creole Halle 141
 	(u"šigar", u"šiga"), # to arrive
 	(u"sɛgu", u"sɛgu"), # blind
 	(u"šumbu", u"sumbu"), # lead
-	(u"pəškar", u"piška"), # to fish 		** ə->3
+	(u"pɜškar", u"piška"), # to fish 		++** ə->3
 	(u"r̃atu", u"latu"), # rat
 	(u"artə", u"ači"), # art 				** ə->3
 	(u"tašu", u"tasu"), # pan
 	(u"kulpʌ", u"klupa"), # blame
 	(u"r̃əšpʌitu", u"lišpetu"), # courtesy 	** ə->3
-	(u"ʌgu ʌ", u"guya"), # needle			**lambda
+	(u"ʌguʎʌ", u"guya"), # needle			**lambda
 	(u"tirar", u"čila"), # to take out
 	(u"dyabu", u"ǰabu"), # devil
 	(u"šʌmar", u"sama"), # to call
@@ -1104,14 +1104,14 @@ Sao Tome Creole Halle 141
 	''']
 	))
 
-"""
+
 
 Halle_Problems.append(Problem('''
 Swahili Halle 133
 	''',
 	[
 	# singular	plural
-	(u"ubale", u""),
+	(u"ubale", u"n̩m̩ŋ̩ɲ̩"),
 	
 	],
 	solutions = [u'''
@@ -1119,4 +1119,4 @@ Swahili Halle 133
 
 	''']
 	))
-"""
+
