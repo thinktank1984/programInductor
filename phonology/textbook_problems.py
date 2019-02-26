@@ -1067,35 +1067,27 @@ Sao Tome Creole Halle 141
 	(u"šigar", u"šiga"), # to arrive
 	(u"sɛgu", u"sɛgu"), # blind
 	(u"šumbu", u"sumbu"), # lead
-<<<<<<< HEAD
-	(u"pɜškar", u"piška"), # to fish 		++** ə->3
-=======
-	(u"pɜškar", u"piška"), # to fish 		** ə->ɜ
->>>>>>> 433507ea71e335a2afcbe34b04aa6652206e0224
+	(u"pɜškar", u"piška"), # to fish
 	(u"r̃atu", u"latu"), # rat
-	(u"artɜ", u"ači"), # art 				** ə->ɜ
+	(u"artɜ", u"ači"), # art
 	(u"tašu", u"tasu"), # pan
 	(u"kulpʌ", u"klupa"), # blame
-<<<<<<< HEAD
-	(u"r̃əšpʌitu", u"lišpetu"), # courtesy 	** ə->3
-=======
-	(u"r̃ɜšpʌitu", u"lišpetu"), # courtesy 	** ə->ɜ
->>>>>>> 433507ea71e335a2afcbe34b04aa6652206e0224
-	(u"ʌguʎʌ", u"guya"), # needle			**lambda
+	(u"r̃ɜšpʌitu", u"lišpetu"), # courtesy
+	(u"ʌguʎʌ", u"guya"), # needle
 	(u"tirar", u"čila"), # to take out
 	(u"dyabu", u"ǰabu"), # devil
 	(u"šʌmar", u"sama"), # to call
-	(u"kwazɜ", u"kwaži"), # almost			** ə->ɜ
-	(u"tardɜ", u"taǰi"), # afternoon		** ə->ɜ
-	(u"idadɜ", u"daǰi"), # age				** ə->ɜ
+	(u"kwazɜ", u"kwaži"), # almost
+	(u"tardɜ", u"taǰi"), # afternoon
+	(u"idadɜ", u"daǰi"), # age
 	(u"kʌprišu", u"kaplisu"), # caprice
 	(u"fɛr̃u", u"fɛlu"), # iron
-	(u"brõzɜ", u"blõzi"), # bronze			** ə->ɜ
+	(u"brõzɜ", u"blõzi"), # bronze
 	(u"fižir", u"fiži"), # to pretend
 	(u"žemʌ", u"zema"), # egg yolk
 	(u"diʌ", u"ǰa"), # day
 	(u"forsa", u"fosa"), # strength
-	(u"mɔrtɜ", u"mɔči"), # death			** ə->ɜ
+	(u"mɔrtɜ", u"mɔči"), # death
 	(u"pulgʌ", u"pluga"), # flea
 	(u"bišu", u"bisu"), # animal
 	(u"pɜdir", u"piǰi"), # to ask
@@ -1119,13 +1111,43 @@ Halle_Problems.append(Problem('''
 Swahili Halle 133
 	''',
 	[
-	# singular	plural
-	(u"ubale", u"n̩m̩ŋ̩ɲ̩"),
-	
+	# singular	Plural_option1	plural_option2 		gloss
+	(u"ubale", u"m̩bale", None),		# piece
+	(u"udago", u"n̩dago", None),		# nut-grass
+	(u"ugimbi", u"ŋ̩gimbi", None),		# beer
+	(u"uǰia", u"ɲ̩ǰia", None),		# passage-way
+	(u"upaǰa", u"p^haǰa", u"mapaǰa"),		# a bulging
+	(u"upamba", u"p^hamba", None),		# (type of) knife
+	(u"utunzo", u"t^hunzo", u"matunzo"),		# guardianship
+	(u"utunda", u"t^hunda", None),		# string of beads
+	(u"ukelele", u"k^helele", u"makelele"), 	# a cry
+	(u"ukumbi", u"k^humbi", None),		# porch
+	(u"učoma", u"č^homa", u"mačoma"),		# a burning
+	(u"učaŋgo", u"č^haŋgo", None),		# small intestine
+	(u"ufuasi", u"fuasi", u"mafuasi"),		# imitation
+	(u"ufuko", u"fuko", None),		# sea-shore
+	(u"uvušo", u"vušo", u"mavušo"),		# a ferrying
+	(u"uvumbi", u"vumbi", None),		# speck of dust
+	(u"usiku", u"siku", u"masiku"),		# night
+	(u"usira", u"sira", None),		# (type of) powder
+	(u"ušono", u"šono", u"mašono"),		# sewing
+	(u"ušaŋga", u"šaŋga", None),		# bead
+	(u"uwiŋgu", u"m̩biŋgu", None),		# sky, heaven
+	(u"uwili", u"m̩bili", None),		# duality
+	(u"ulimi", u"n̩dimi", None),		# tongue
+	(u"urefu", u"n̩defu", None),		# length, distance
+	(u"umio", u"mio", None),		# throat
+	(u"wimbo", u"ɲimbo", None),		# song
+	(u"wembe", u"ɲembe", None),		# razor
+	(u"wakati", u"ɲakati", None),		# time
+	(u"uši", u"ɲuši", None),		# eyebrow
+	(u"šoka", u"mašoka", None),		# axe
+	(u"tunda", u"matunda", None),		# fruit
+	(u"kaša", u"makaša", None)		# safe
 	],
 	solutions = [u'''
 # No solution
-
+# FINDING UNDERLYING STEM
 	''']
 	))
 
