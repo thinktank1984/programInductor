@@ -800,7 +800,8 @@ Roca_Problems.append(Problem(
 	u'''
 Icelandic Roca 35
 	''',
-	[ 
+	[
+            # y, in the IPa system, is ü in the APA system
 	# Nom_sg Acc_sg Dat_sg Gen_sg Dat_pl Gen_pl gloss
 
 	# Nom_sg	Acc_sg
@@ -816,8 +817,8 @@ Icelandic Roca 35
 	(u"aldur",	None, 	u"aldri", None, None, None),	# age
 
 	# Nom_sg	Acc_sg	Gen_sg	Dat_pl	Gen_pl
-	(u"lyfur",	u"lyf",	None,	u"lyfs",	u"lyfjum",	u"lyfja"),	# medicine
-	(u"bylur",	u"byl",	None,	u"byls",	u"byljum",	u"bylja"),	# snowstorm
+	(u"lüfur",	u"lüf",	None,	u"lüfs",	u"lüfjum",	u"lüfja"),	# medicine
+	(u"bülur",	u"bül",	None,	u"büls",	u"büljum",	u"bülja"),	# snowstorm
 	(u"söngur",	u"söng", None,	u"söngs",	u"söngvum",	u"söngva"),	# song
 
 	# Nom_sg	Dat_pl
@@ -854,7 +855,7 @@ Lumasaaba Roca 89
 	''',
 	[
 	# a+[word]	small+[word]
-	(u"iɲjele", u"xax̯yele"),	# frog (ie. a frog, small frog)
+	(u"iɲjele", u"xax̯üele"),	# frog (ie. a frog, small frog)
 	(u"iŋga:fu", u"xaxa:fu"), 	# cow
 	(u"imbeβa",	u"caβeβa"),		# rat
 	(u"iŋgoxo",	u"xakoxo"),		# hen
