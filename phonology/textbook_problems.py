@@ -1027,29 +1027,29 @@ Russian Halle 149
 	''',
 	[
 	# Nom_sg 	Gen_pl	Dat_sg	Nom_pl	gloss
-	(u"luná", u"lún", u"lun^yɛ`", u"lúnɨ"), # moon
-	(u"dɨrá", u"dɨr", u"dɨr^yɛ`", u"dɨ́rɨ"), # hole
-	(u"travá", u"tráf", u"trav^yɛ`", u"trávɨ"), # grass
+	(u"luná", u"lún", u"lun^yɛ́", u"lúnɨ"), # moon
+	(u"dɨrá", u"dɨr", u"dɨr^yɛ́", u"dɨ́rɨ"), # hole
+	(u"travá", u"tráf", u"trav^yɛ́", u"trávɨ"), # grass
 
-	(u"p^yilá", u"p^yíl", u"p^yil^yɛ`", u"p^yílɨ"), # saw
-	(u"valná", u"vóln", u"valn^yɛ`", u"vólnɨ"), # wave
-	(u"galavá", u"galóf", u"galav^yɛ`", u"gólavɨ"), # head
+	(u"p^yilá", u"p^yíl", u"p^yil^yɛ́", u"p^yílɨ"), # saw
+	(u"valná", u"vóln", u"valn^yɛ́", u"vólnɨ"), # wave
+	(u"galavá", u"galóf", u"galav^yɛ́", u"gólavɨ"), # head
 
-	(u"žɨl^yizá", u"žɨl^yós", u"žɨl^yiz^yɛ`", u"žél^yizɨ"), # gland
-	(u"žɨná", u"žón", u"žɨn^yɛ`", u"žónɨ"), # wife
-	(u"zm^yyá", u"zm^yéy", u"zm^yiyɛ`", u"zm^yéyi"), # snake
+	(u"žɨl^yizá", u"žɨl^yós", u"žɨl^yiz^yɛ́", u"žél^yizɨ"), # gland
+	(u"žɨná", u"žón", u"žɨn^yɛ́", u"žónɨ"), # wife
+	(u"zm^yyá", u"zm^yéy", u"zm^yiyɛ́", u"zm^yéyi"), # snake
 
-	(u"m^yɛ`na", u"m^yɛ`n", u"m^yén^yi", u"m^yɛ`nɨ"), # change
-	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ`", u"p^yil^yinɨ́"), # shroud
-	(u"b^yis^yɛ`da", u"b^yis^yɛ`t", u"b^yis^yéd^yi", u"b^yis^yɛ`dɨ"), # conversation
+	(u"m^yɛ́na", u"m^yɛ́n", u"m^yén^yi", u"m^yɛ́nɨ"), # change
+	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ́", u"p^yil^yinɨ́"), # shroud
+	(u"b^yis^yɛ́da", u"b^yis^yɛ́t", u"b^yis^yéd^yi", u"b^yis^yɛ́dɨ"), # conversation
 
-	(u"b^yidá", u"b^yɛ`t", u"b^yid^yɛ`", u"b^yɛ`dɨ"), # sorrow
-	(u"p^yitá", u"p^yát", u"p^yit^yɛ`", u"p^yitɨ́"), # heel
-	(u"st^yiná", u"st^yɛ`n", u"st^yin^yɛ`", u"st^yɛ`nɨ"), # wall
+	(u"b^yidá", u"b^yɛ́t", u"b^yid^yɛ́", u"b^yɛ́dɨ"), # sorrow
+	(u"p^yitá", u"p^yát", u"p^yit^yɛ́", u"p^yitɨ́"), # heel
+	(u"st^yiná", u"st^yɛ́n", u"st^yin^yɛ́", u"st^yɛ́nɨ"), # wall
 
-	(u"r^yiká", u"r^yɛ`k", u"r^yik^yɛ`", u"r^yék^yi"), # river
-	(u"slugá", u"slúk", u"slug^yɛ`", u"slúg^yi"), # servant
-	(u"blaxá", u"blóx", u"blax^yɛ`", u"blóx^yi") # flea
+	(u"r^yiká", u"r^yɛ́k", u"r^yik^yɛ́", u"r^yék^yi"), # river
+	(u"slugá", u"slúk", u"slug^yɛ́", u"slúg^yi"), # servant
+	(u"blaxá", u"blóx", u"blax^yɛ́", u"blóx^yi") # flea
 	],
 	solutions = [u'''
 # No solution
