@@ -878,6 +878,9 @@ xa + stem
 Roca_Problems.append(Problem(
 	u'''
 Tunica Roca 104
+According to:
+http://pluto.huji.ac.il/~msyfalk/Phon/English/OrderHwk.pdf
+there is a bug in this problem - the third singular feminine present progressive suffix should not have any stress markers
 	''',
 	[
 	# Infinitive	3rd_sg_masc		3rd_sg_fem		3rd_sg_fem_pres_prog
@@ -886,22 +889,21 @@ Tunica Roca 104
 	(u"já", u"jáʔuhki", u"jáʔaki", u"jáhkʔaki"),	# do
 	(u"čú", u"čúʔuhki", u"čúʔɔki", u"čúhkʔaki"),	# take
 
-	(u"hára", u"hárʔuhki", u"hárʔaki", u"hárahkʔáki"),	# sing
-	(u"hípu", u"hípʔuhki", u"hípʔɔki", u"hípuhkʔáki"),	# dance
-	(u"náši", u"nášʔuhki", u"nášʔɛki", u"nášihkʔáki")	# lead someone
+	(u"hára", u"hárʔuhki", u"hárʔaki", u"hárahkʔaki"),	# sing
+	(u"hípu", u"hípʔuhki", u"hípʔɔki", u"hípuhkʔaki"),	# dance
+	(u"náši", u"nášʔuhki", u"nášʔɛki", u"nášihkʔaki")	# lead someone
 	], 
 	solutions = [u'''
 # No solution
-"""
 stem
 stem + ʔuhki
-stem + ʔ + aki/ɔki/ɛki
+stem + ʔaki
 stem + hkʔaki
-
-*** FIND THE SUFFIX VARIATION OF 3rd_sg_fem INITIAL CONSONANT VARIATION
-
-"""
+        a > ɔ / [+rounded] C _
+        a > ɛ / [+vowel +high] C _
+        [+vowel -highTone] > 0 / _ʔ
 	''']
+    
 	))
 
 
