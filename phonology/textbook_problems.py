@@ -855,9 +855,9 @@ Lumasaaba Roca 89
 	''',
 	[
 	# a+[word]	small+[word]
-	(u"iɲjele", u"xax̯üele"),	# frog (ie. a frog, small frog)
+	(u"iɲɉele", u"xaçele"),	# frog (ie. a frog, small frog)
 	(u"iŋga:fu", u"xaxa:fu"), 	# cow
-	(u"imbeβa",	u"caβeβa"),		# rat
+	(u"imbeβa",	u"xaβeβa"),		# rat
 	(u"iŋgoxo",	u"xakoxo"),		# hen
 	(u"iŋgwe",	u"xakwe"),		# leopard
 	(u"indali",	u"xatali"),		# beer
@@ -868,6 +868,10 @@ Lumasaaba Roca 89
 # iɲ/iŋ/in/im + stem
 # xa + stem
 # *** FIND THE STEM INITIAL CONSONANT VARIATION
+im + stem
+xa + stem
+        C > [-continuant +voice] / [+nasal] _
+        [+nasal] > place+1 / _ C
 	''']
 	))
 

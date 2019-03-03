@@ -177,6 +177,8 @@ sophisticatedFeatureMap = {
     
     u"š": [continuant,coronal, sibilant],#alveopalatal,
     u"c": [palatal,coronal], # NOT the same thing as palletized
+    u"ç": [continuant,palatal],
+    u"ɉ": [voice,palatal],
     u"x̯": [palatal,coronal,continuant],
     u"č": [coronal,sibilant],#alveopalatal,
     u"č^h": [coronal,sibilant,aspirated],#alveopalatal,
@@ -288,6 +290,8 @@ simpleFeatureMap = {
     u"n̆": [nasal,voice,alveopalatal],
     u"š": [fricative, alveopalatal],
     u"c": [palatal,stop],
+    u"ç": [fricative,palatal],
+    u"ɉ": [voice,palatal,stop],
     u"x̯": [palatal,fricative],
     u"č": [alveopalatal,affricate],
     u"č^h": [alveopalatal,affricate,aspirated],
@@ -474,6 +478,7 @@ class FeatureBank():
         placeFeatures = [anterior, coronal, high, back, low]
         target = self.featureMap[target]
         if u"ŋ" in self.phonemes and nasal in target and source == u"h": return u"ŋ"
+        if u"ɲ" in self.phonemes and nasal in target and source in [u"ç",u"ɉ"]: return u"ɲ"
         source = self.featureMap[source]
         for f in placeFeatures:
             if f in source: target = target + [f]
