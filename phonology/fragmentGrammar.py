@@ -323,7 +323,12 @@ def proposeFragments(ruleSets, verbose = False):
     badFragments[Rule] += [ f for _,_,f in EMPTYFRAGMENTGRAMMAR.ruleFragments ]
     badFragments[Specification] += [ f for _,_,f in EMPTYFRAGMENTGRAMMAR.specificationFragments ]
 
+    numberOfPairs = len(ruleSets)*(len(ruleSets) + 1)/2
     startTime = time()
+    updateFrequency = 60 # update every this many seconds
+    nextUpdate = startTime + updateFrequency
+    completedPairs = 0
+    
     fragments = {} # map from type to a set of fragments
     for i in range(len(ruleSets) - 1):
         for j in range(i+1, len(ruleSets)):
@@ -344,6 +349,13 @@ def proposeFragments(ruleSets, verbose = False):
                             #     print [ str(f) for f in newFragments if "instance at" in str(f) ]
                             #     assert False
                             fragments[pt] = fragments[pt] | set(newFragments)
+
+            completedPairs += 1
+            if time() > nextUpdate:
+                print "Completed %d/%d (%d%%) antiunifications in %f seconds. ETA %f seconds"%(
+                    completedPairs, numberOfPairs, int(float(completedPairs)/numberOfPairs*100),
+                    time() - startTime,
+                    (numberOfPairs - completedPairs)/(completedPairs/(time() - startTime)))
 
 
     totalNumberOfFragments = sum([len(v) for v in fragments.values() ])
