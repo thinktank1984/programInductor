@@ -806,15 +806,15 @@ Icelandic Roca 35
 
 	# Nom_sg	Acc_sg
 	(u"dagur",	u"dag",		None, None, None, None),		# day
-	(u"staður",	u"stað",	None, None, None, None),		# place
+	(u"staður",	u"stað",	None, None, u"stöðum", None),		# place
 	(u"hestur",	u"hest",	None, None, None, None),		# horse
 	(u"bær",	u"bæ",		None, None, None, None),		# farmhouse
 	(u"læknir",	u"lækni",	None, None, None, None),		# physician
 
 	# Nom_sg	Dat_sg
 	(u"lifur",	None,	u"lifri", None, None, None),	# liver
-	(u"akur",	None,	u"agri", None, None, None),		# field
-	(u"aldur",	None, 	u"aldri", None, None, None),	# age
+	(u"akur",	None,	u"agri", None, u"ökrum", None),		# field
+	(u"aldur",	None, 	u"aldri", None, u"öldrum", None),	# age
 
 	# Nom_sg	Acc_sg	Gen_sg	Dat_pl	Gen_pl
 	(u"lüfur",	u"lüf",	None,	u"lüfs",	u"lüfjum",	u"lüfja"),	# medicine
@@ -827,24 +827,21 @@ Icelandic Roca 35
 	(u"jaki", None, None, None, u"jökull", None), # glacier
 	(u"θagga", None, None, None, u"θögull", None), # taciturn
 	(u"kalla", None, None, None, u"köllum", None), # call (1st pl.)
-	(u"akur", None, None, None, u"ökrum", None), # field
-	(u"aldur", None, None, None, u"öldrum", None), # age
-	(u"staður", None, None, None, u"stöðum", None) # place
+#	(u"akur", None, None, None, u"ökrum", None), # field
+#	(u"aldur", None, None, None, u"öldrum", None), # age
+#	(u"staður", None, None, None, u"stöðum", None) # place
 
 	], 
 	solutions = [u'''
-# No solution
-"""
-Suffix Variants
-Nom_sg: -ur, -r, 0
-Acc_sg: 0
-Dat_sg: -ri
-Gen_sg: -s
-Dat_pl: -um, -ull
-Gen_pl: -a
-
-*** FIND THE RULES FOR NOM_SG SUFFIX VARIATION
-"""
+stem + ur
+stem
+stem + ri
+stem + s
+stem + jum
+stem + ja
+        u > 0 / V _
+        [-continuant -sonorant] > [+voice] / _ r
+        
 	''']
 	))
 
