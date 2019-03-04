@@ -920,12 +920,13 @@ Turkish Halle 85
 	(u"son", u"sonun", u"sonlar", u"sonlarɨn") 		# end
 	],
 	solutions = [u'''
-# No solution
+# solution found by system
 stem
-stem + in/ɨn/ün/un
-stem + ler/lar
-stem + ler/lar + in/ɨn
-
+stem + un
+stem + lar
+stem + larɨn
+        V > [-back -low] / [+vowel -back] [ ] _
+        V > [-rounded] / [ -rounded ] [ ]* _
 	''']
 	))
 
@@ -1145,13 +1146,16 @@ Swahili Halle 133
 	(u"wembe", u"ɲembe", None),		# razor
 	(u"wakati", u"ɲakati", None),		# time
 	(u"uši", u"ɲuši", None),		# eyebrow
-	(u"šoka", u"mašoka", None),		# axe
-	(u"tunda", u"matunda", None),		# fruit
-	(u"kaša", u"makaša", None)		# safe
+	(u"šoka", None, u"mašoka"),		# axe
+	(u"tunda", None, u"matunda"),		# fruit
+	(u"kaša", None, u"makaša")		# safe
 	],
 	solutions = [u'''
-# No solution
-# FINDING UNDERLYING STEM
+u + stem
+m̩ + stem
+        [+nasal] > 0 / [+aspirated]_
+        [+aspirated] > [-aspirated] / [ ] _
+        [+nasal] > place+1 / #_C
 	''']
 	))
 

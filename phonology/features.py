@@ -479,6 +479,9 @@ class FeatureBank():
         target = self.featureMap[target]
         if u"ŋ" in self.phonemes and nasal in target and source == u"h": return u"ŋ"
         if u"ɲ" in self.phonemes and nasal in target and source in [u"ç",u"ɉ"]: return u"ɲ"
+        if u"ɲ̩" in self.phonemes and nasal in target and source in [u"ǰ"]:
+            if syllabic in target: return u"ɲ̩"
+            else: return u"ɲ"
         source = self.featureMap[source]
         for f in placeFeatures:
             if f in source: target = target + [f]
