@@ -9,6 +9,11 @@ from os import system
 import cProfile
 from multiprocessing import Pool
 
+universalEmpty = False
+def enableUniversalEmpty():
+    global universalEmpty
+    universalEmpty = True
+
 class MatchFailure(Exception):
     pass
 
@@ -196,7 +201,7 @@ class MatrixFragment(Fragment):
         
     @staticmethod
     def abstract(p,q):
-        if unicode(p) == unicode(q):
+        if unicode(p) == unicode(q) and (universalEmpty or len(p.featuresAndPolarities) > 0):
             if len(p.featuresAndPolarities) < 3:
                 return [MatrixFragment.fromFeatureMatrix(p)]
             else:

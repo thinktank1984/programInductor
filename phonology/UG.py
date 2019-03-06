@@ -83,8 +83,11 @@ if __name__ == '__main__':
     parser.add_argument('load', type = str, default = [], nargs='+',
                         help="This is a list of problems / paths to experiment outputs.")
     parser.add_argument('--CPUs', type = int, default = numberOfCPUs())
+    parser.add_argument('--empty', default=False, action='store_true',
+                        help="allow the empty feature matrix to be part of UG")
     
     arguments = parser.parse_args()
+    if arguments.empty: enableUniversalEmpty()
 
     worker(arguments)
     
