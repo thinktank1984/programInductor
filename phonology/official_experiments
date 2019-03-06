@@ -1,7 +1,7 @@
 
 
 ### Produce UG1
-pypy UG.py --export experimentOutputs/ug0.py \
+pypy UG.py --export experimentOutputs/ug0.p \
 experimentOutputs/Odden_105_Bukusu_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_1.12_English_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_2.1_Hungarian_incremental_disableClean=False_features=sophisticated_geometry=True.p \
@@ -10,7 +10,6 @@ experimentOutputs/Odden_2.5_Makonde_incremental_disableClean=False_features=soph
 experimentOutputs/Odden_3.1_Kerewe_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_3.2_Polish_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_3.3_Ancient_Greek_incremental_disableClean=False_features=sophisticated_geometry=True.p \
-experimentOutputs/Odden_3.5_Catalan_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_1.3_Korean_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_85_Samoan_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated_geometry=True.p \

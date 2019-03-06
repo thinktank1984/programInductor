@@ -1033,7 +1033,7 @@ Russian Halle 149
 	[
 	# Nom_sg 	Gen_pl	Dat_sg	Nom_pl	gloss
 	(u"luná", u"lún", u"lun^yɛ́", u"lúnɨ"), # moon
-	(u"dɨrá", u"dɨr", u"dɨr^yɛ́", u"dɨ́rɨ"), # hole
+	(u"dɨrá", u"dɨ́r", u"dɨr^yɛ́", u"dɨ́rɨ"), # hole
 	(u"travá", u"tráf", u"trav^yɛ́", u"trávɨ"), # grass
 
 	(u"p^yilá", u"p^yíl", u"p^yil^yɛ́", u"p^yílɨ"), # saw
