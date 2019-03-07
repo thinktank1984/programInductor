@@ -117,7 +117,7 @@ sophisticatedFeatureMap = {
     u"ɩ": [voice,high],
     u"e": [voice,tense],
     u"ə": [voice,back],
-    u"ɛ": [voice],
+    u"ɛ": [voice,low], # TODO: is this actually +low? halle seems to think so!
     u"æ": [voice,low,tense],
     u"a": [voice,low,tense,back],
     u"ʌ": [voice,back,tense],
@@ -125,7 +125,7 @@ sophisticatedFeatureMap = {
     u"u": [voice,tense,high,back,rounded],
     u"ü": [voice,tense,high,rounded],
     u"ʊ": [voice,high, back, rounded],
-    u"o": [voice,tense,back,rounded],
+    u"o": [low,voice,tense,back,rounded],
     u"ö": [voice,tense,rounded],
     u"ɔ": [voice,back,rounded],
     #possibly missing are umlauts
@@ -435,6 +435,17 @@ class FeatureBank():
         #     print("%d possible guards"%(len(self.possibleGuards())))
         # for p in self.phonemes:
         #     print p,"\t",self.makeNasal(p)
+
+    def checkCollisions(self):
+        for p in self.featureVectorMap:
+            for q in self.featureVectorMap:
+                if p == q: continue
+                if self.featureVectorMap[p] == self.featureVectorMap[q]:
+                    print "WARNING: these have the same feature vectors in the bank:",p,q
+                    print "The features are",self.featureVectorMap[p]
+                    print featureMap[p]
+                    print featureMap[q]
+                    assert False        
 
     def possibleStructuralChanges(self):
         import itertools

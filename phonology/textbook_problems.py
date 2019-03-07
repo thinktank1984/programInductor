@@ -777,7 +777,7 @@ Verlan Roca 31
 
 	(u"rigolo",		u"logori"),		# funny
 	(u"tabure",		u"rebuta"),		# stool
-	(u"papijɔ̃", 	u"jɔ̃pipa"),		# butterfly
+	(u"papiyɔ̃", 	u"yɔ̃pipa"),		# butterfly
 
 	(u"sigarɛt",	u"garɛtsi"),	# cigarette
 	(u"korida",		u"ridako"),		# bull fight
@@ -1042,7 +1042,7 @@ Russian Halle 149
 
 	(u"žɨl^yizá", u"žɨl^yós", u"žɨl^yiz^yɛ́", u"žél^yizɨ"), # gland
 	(u"žɨná", u"žón", u"žɨn^yɛ́", u"žónɨ"), # wife
-	(u"zm^yyá", u"zm^yéy", u"zm^yiyɛ́", u"zm^yéyi"), # snake
+	(u"zm^yiá", u"zm^yéy", u"zm^yiyɛ́", u"zm^yéyi"), # snake
 
 	(u"m^yɛ́na", u"m^yɛ́n", u"m^yén^yi", u"m^yɛ́nɨ"), # change
 	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ́", u"p^yil^yinɨ́"), # shroud
