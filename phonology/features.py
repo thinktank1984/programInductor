@@ -204,6 +204,7 @@ sophisticatedFeatureMap = {
 
     # glides
     u"w": [glide,voice,sonorant,continuant],
+    u"w̥": [glide,sonorant,continuant],
     u"y": [glide,palletized,voice,sonorant,continuant],
     u"j": [glide,palletized,voice,sonorant,continuant],
 
@@ -317,6 +318,7 @@ simpleFeatureMap = {
 
     # glides
     u"w": [glide,voice,bilabial],
+    u"w̥": [glide,bilabial],
     u"y": [glide,voice],
     u"j": [glide,palletized,voice],
 
@@ -367,6 +369,11 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
         fm[v + u"́:"] = fm[v] + [longVowel,highTone]
         fm[v + u"̌"] =  fm[v] + [risingTone]
         fm[v + u"̃"] = fm[v] + [nasal]
+# Mohawk is crazy like this
+v = u"ʌ"
+for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
+    fm[v + u"̃́"] = fm[v] + [nasal,highTone]
+    fm[v + u"̃́:"] = fm[v] + [nasal,highTone,longVowel]
 
 # palletization
 for fm in [simpleFeatureMap, sophisticatedFeatureMap]:

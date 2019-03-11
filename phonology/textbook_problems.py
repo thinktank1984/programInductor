@@ -1159,3 +1159,303 @@ m̩ + stem
 	''']
 	))
 
+
+# Problem('''
+# Child Language Halle 117
+# ''',
+# [
+#    # child word        adult word
+#      (u"puppy",        u"pəʔiy"),
+#      (u"kick",          u"kɩʔ"),
+#      (u"beyʔiü",       u"baby"),
+#      (u"wɑkt",         u"walks"),
+#      (u"wɑkt",         u"walked"),
+#      (u"rənd",         u"ran"),
+#      (u"mænd",         u"men"),
+#      (u"pɛt",          u"pet"),
+#      (u"kænd",         u"can"),
+#      (u"dɩʔ",          u"did"),
+#      (u"dəd",          u"does"),
+#      (u"tɑkt",         u"talks"),
+#      (u"biyt",         u"beat"),
+#      (u"dayʔ",         u"died"),
+#      (u"teykiʔ/tuk",   u"took"),
+#      (u"bɩt",          u"bit"),
+#      (u"tɑkɨʔ",        u"talked"),
+#      (u"dæʔiy",        u"daddy"),
+#      (u"bɑʔiy",        u"Bobby"),
+#      (u"tæg",          u"tag"),
+#      (u"peyʔər",       u"paper"),
+#      (u"teykt",        u"takes"),
+#      (u"dɑgd",         u"dogs"),
+#      (u"tuwʔ",         u"toot"),
+#      (u"tuwt",         u"suit"),
+#      (u"keyʔ",         u"cake")
+# ], supervised=True,
+# solutions=[u'''
+
+# ''' 
+# ])
+
+if False:
+    Problem('''
+    Ewe Halle 49
+    ''',
+    [
+       # data              gloss
+         u"zrɔ̃",           #'to be smooth'
+         u"ñra",           #'to rage'
+         u"lɔ̃",            #'to love'
+         u"kpla",          #'to intertwine'
+         u"mlagoo",        #'thick'
+         u"gblaa",         #'wide'
+         u"lolo",          #'to be large'
+         u"wlu",           #'to dig'
+         u"βla",           #'suddenly'
+         u"srɔ̃",           #'wife'
+         u"lãkle",         #'leopard'
+         u"hle",           #'to spread out'
+         u"vlɔ",           #'to go far away'
+         u"atra",          #'mangrove'
+         u"dru",           #'to be bent'
+         u"fle",           #'to pluck'
+         u"glamaa",        #'uneven'
+         u"litsa",         #'chameleon'
+         u"dzre",          #'to quarrel'
+         u"ɣla",           #'to hide'
+         u"xloloo",        #'rough'
+         u"tsro",          #'bark' (of tree)
+         u"φle",           #'to buy'
+         u"blema",         #'formerly'
+         u"dɔlele",        #'illness'
+         u"ŋlɔ",           #'to write'
+         u"yre",           #'evil'
+         u"adoglo",        #'lizard'
+         u"kplu",          #'jug'
+         u"kpali",         #'Paris'
+         u"klalo",         #'finished'
+         u"atrakpoe",      #'steps'
+    ],
+    solutions=[u'''
+    r --> l  / [-COR] __  
+    r --> l / #__ 
+    '''
+    ],
+    parameters={"type": "alternation", "alternations": [{u"l":u"r"}]})
+
+if False:
+    Problem('''
+    Ganda Halle 51
+    ''',
+    [
+       # data              gloss
+         u"kola",          #'do'
+         u"lwana",         #'fight'
+         u"buulira",       #'tell'
+         u"lya",           #'eat'
+         u"luula",         #'sit'
+         u"omugole",       #'bride'
+         u"lumonde",       #'sweet potato'
+         u"eddwaliro",     #'hospital'
+         u"oluganda",      #'Ganda language'
+         u"olulimi",       #'tongue'
+         u"wulira",        #'hear'
+         u"beera",         #'help'
+         u"jjukira",       #'remember'
+         u"eryato",        #'canoe'
+         u"omuliro",       #'fire'
+         u"effirimbi",     #'whistle'
+         u"emmeeri",       #'ship'
+         u"eraddu",        #'lightning'
+         u"wawaabira",     #'accuse'
+         u"lagira",        #'command'
+         u"ebendera",      #'flag'
+         u"leerwe",        #'railway'
+         u"luula",         #'ruler'
+         u"ssaffaali",     #'safari'
+    ],
+    solutions=[u'''
+    l --> r  / V,[+high, -back] __  
+    '''],
+    parameters={"type": "alternation", "alternations": [{u"l":u"r"}]})
+
+Problem('''
+Japanese Halle 127
+''',
+[
+   # present     negative     volitional   past       inchoative     gloss
+     (u"neru",   u"nenai",    u"netai",    u"neta",   u"neyoo"),     #'sleep'
+     (u"minu",   u"minai",    u"mitai",    u"mita",   u"miyoo"),     #'see'
+     (u"šinu",   u"šinanai",  u"šinitai",  u"šinda",  u"šinoo"),     #'die'
+     (u"yomu",   u"yomanai",  u"yomitai",  u"yonda",  u"yomoo"),     #'read'
+     (u"yobu",   u"yobanai",  u"yobitai",  u"yonda",  u"yoboo"),     #'call'
+     (u"kat^su", u"katanai",  u"kačitai",  u"katta",  u"katoo"),     #'win'
+     (u"kasu",   u"kasanai",  u"kašitai",  u"kašita", u"kasoo"),     #'lend'
+     (u"waku",   u"wakanai",  u"wakitai",  u"waita",  u"wakoo"),     #'boil'
+     (u"t^sugu", u"t^suganai",u"t^sugitai",u"t^suida",u"t^sugoo"),   #'pour'
+     (u"karu",   u"karanai",  u"karitai",  u"katta",  u"karoo"),     #'shear'
+     (u"kau",    u"kawanai",  u"kaitai",   u"katta",  u"kaoo"),      #'buy'
+     
+],
+solutions=[u'''
+           
+'''])
+
+Problem('''
+Mohawk Halle 121
+''',
+[
+   # UR                       surface form          gloss
+     (u"hranyahesʌ̃s",       u"ranahé:zʌ̃s"),       #'he trusts her'
+     (u"hraketas",          u"ragé:das"),         #'he scrapes'
+     (u"waʔhraketʔ",       u"wahá:gedeʔ"),       #'he scraped'
+     (u"owisʔ",             u"ó:wizeʔ"),          #'ice, glass'
+     (u"wakenuhweʔuneʔ",   u"wagenuhweʔú:neʔ"),  #'I had liked it'
+     (u"ʌ̃khʌ̃teʔ",          u"ʌ̃khʌ̃́:deʔ"),         #'I shall go ahead'
+     (u"yaknirʌ̃notʔ",    u"yagenirɔ́:nodeʔ"),   #'we two (exclusive) 
+                                                    #are singing'
+     (u"yakniehyaraʔs",   u"yagenehyá:raʔs"),   #'we two (exclusive)'
+                                                    #remember'
+     (u"yakwarʌ̃notʔ",    u"yagwarɔ́:nodeʔ"),    #'we (plural exlusive)
+                                                    #are singing
+     (u"yakwaehyaraʔs",   u"yagwehyá:raʔs"),    #'we (plural exclusive)
+                                                    #remember 
+     (u"hrayʌ̃thos",         u"rayʌ̃́thos"),         #'he plants'
+     (u"hraehyaraʔs",       u"rehyá:raʔs"),       #'he remembers'
+     (u"yekhreks",         u"yékreks"),          #'I push it'
+     (u"yeʌ̃khrekʔ",        u"yɔ́kregeʔ"),         #'I will push it'
+], supervised=True,
+solutions=[u'''
+∅ --> e / [-sonorant] __ ʔ in the final syllable 
+'''
+])
+
+
+Problem('''
+Mohawk Halle 59
+''',
+[
+   # data              gloss
+     u"oli:deʔ",       #'pigeon'
+     u"zahset",        #'hide it!' (sg.)
+     u"ga:lis",        #'stocking'
+     u"odahsa",        #'tail'
+     u"wisk",          #'five'
+     u"degeni",        #'two'
+     u"aplam",         #'Abram, Abraham'
+     u"oya:gala",      #'shirt'
+     u"ohyotsah",      #'chin'
+     u"labahbet",      #'catfish'
+     u"sdu:ha",        #'a little bit'
+     u"ǰiks",          #'fly'
+     u"desdaʔn̥",       #'stand up!' (sg.)
+     u"de:zeknw̥",      #'pick it up' (s.g)
+],
+            parameters={"type": "alternation",
+             "alternations": [{u"b": u"p",
+                               u"d": u"t",
+                               u"g": u"k"}]},
+solutions=[u'''
+  / V,[+high, -back] __  
+''',
+])
+
+Problem('''
+Papago Halle 53
+''',
+[
+   # data              gloss
+     u"bíǰim",         #'turn around'
+     u"tá:pan",        #'split'
+     u"hídoḍ",         #'cook'
+     u"čɨ́kid",         #'vaccinate'
+     u"gátwid",        #'shoot'
+     u"čúku",          #'become black'
+     u"dágṣp",         #'press with hand'
+     u"tóha",          #'become white'
+     u"ǰú:kǐ",         #'rain' (noun)
+     u"hɨ́wgid",        #'smell'
+     u"číhaŋ",         #'hire'
+     u"tóñi",          #'become hot'
+     u"wíḍut",         #'swing'
+     u"tá:taḍ",        #'feet'
+     u"kí:čud",        #'build a house for'
+     u"dó:dom",        #'copulate'
+     u"tá:tam",        #'touch'
+],
+            parameters={"type": "alternation",
+             "alternations": [{u"t": u"č",
+                               u"d": u"ǰ"}]},
+solutions=[u'''
+t --> č / __ V,[+high] 
+d --> ǰ / __ V,[+high]
+'''])
+           
+Problem('''
+Proto-Bantu Halle 55
+''',
+[
+   # data              gloss
+     u"βale",          #'two'
+     u"leme",          #'tongue'
+     u"taβe",          #'twig'
+     u"pala",          #'antelope'
+     u"kondɛ",         #'bean'
+     u"zɔŋgɔ",         #'gall'
+     u"βɛɣa",          #'monkey'
+     u"βɛmbe",         #'pigeon'
+     u"limo",          #'god, spirit'
+     u"kaŋga",         #'guinea fowl'
+     u"ɣɔmbɛ",         #'cattle'
+     u"lelɔ",          #'fire'
+     u"kiɣa",          #'eyebrow'
+     u"ɣiɣɛ",          #'locust'
+     u"kulu",          #'tortoise'
+     u"oŋgo",          #'cooking pot'
+     u"tɛndɛ",         #'palm tree'
+     u"zala",          #'hunger'
+     u"zɔɣu",          #'elephant'
+     u"βele",          #'body'
+     u"lɛlu",          #'chin, beard'
+     u"eɣi",           #'water'
+     u"kiŋgɔ",         #'neck'
+     u"nto",           #'person'
+],
+solutions=[u'''
+β --> b / C,[+nasal] __ 
+l --> d / C,[+nasal] __ 
+ɣ --> g / C,[+nasal] __
+'''
+],
+parameters={"type": "alternation", "alternations": [{u"b": u"β",
+                                          u"d": u"l",
+                                          u"g": u"ɣ"}]})
+
+Problem('''
+Yokuts Halle 153
+''',
+[
+   # aorist passive          aorist          future passive      gloss
+     (u"xatit",              u"xathin",      u"xatnit"),         #'eat'
+     (u"gopit",              u"gophin",      u"gopnit"),         #'take care of
+                                                                 #an infant'
+     (u"giyit",              u"giyhin",      u"giynit"),         #'touch'
+     (u"mutut",              u"muthun",      u"mutnut"),         #'swear'
+     (u"sa:pit",             u"saphin",      u"sapnit"),         #'burn'
+     (u"go:bit",             u"gobhin",      u"gobnit"),         #'take in'
+     (u"me:kit",             u"mekhin",      u"meknit"),         #'swallow'
+     (u"ʔo:tut",             u"ʔothun",      u"ʔotnut"),         #'steal'
+     (u"panat",              u"pana:hin",    u"pana:nit"),       #'arrive'
+     (u"hoyot",              u"hoyo:hin",    u"hoyo:nit"),       #'name'
+     (u"ʔilet",              u"ʔile:hin",    u"ʔile:nit"),       #'fan'
+     (u"cuyot",              u"cuyo:hun",    u"cuyo:nut"),       #'urinate'
+     (u"paxa:tit",           u"paxathin",    u"paxatnit"),       #'mourn'
+     (u"ʔopo:tit",           u"ʔopothin",    u"ʔopotnit"),       #'arise from
+                                                                 #bed'
+     (u"hibe:yit",           u"hibeyhin",    u"hibeynit"),       #'bring water'
+     (u"sudo:kut",           u"sudokhun",    u"sudoknut"),       #'remove'
+],
+solutions=[u'''
+
+''' 
+])
