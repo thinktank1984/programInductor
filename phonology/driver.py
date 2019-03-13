@@ -9,7 +9,7 @@ from parseSPE import parseSolution
 from fragmentGrammar import FragmentGrammar
 from matrix import *
 from randomSampleSolver import RandomSampleSolver
-from incremental import IncrementalSolver
+from incremental import IncrementalSolver,SupervisedIncremental
 
 import argparse
 from multiprocessing import Pool
@@ -69,8 +69,8 @@ def handleProblem(p):
         problem = CountingProblem(p.data, p.parameters, problemName=p.key)
         arguments.task = 'exact'
     elif isSupervisedProblem:
-        problem = SupervisedProblem(p.data, problemName=p.key)
-        arguments.task = 'exact'
+        problem = SupervisedIncremental(p.data, problemName=p.key)
+        arguments.task = 'incremental'
     else:
         problem = UnderlyingProblem(p.data, problemName=p.key, UG = ug).restrict(restriction)
     
@@ -98,10 +98,11 @@ def handleProblem(p):
     elif arguments.task == 'ransac':
         assert False, "ransac solver is deprecated"
     elif arguments.task == 'incremental':
-        ss = IncrementalSolver(p.data,arguments.window,UG = ug,
-                               problemName = p.key,
-                               numberOfCPUs = 1 if arguments.serial else None,
-                               globalTimeout=arguments.timeout*60*60 if arguments.timeout is not None else None).\
+        ss = (SupervisedIncremental if isSupervisedProblem else IncrementalSolver)\
+             (p.data,window=arguments.window,UG = ug,
+              problemName = p.key,
+              numberOfCPUs = 1 if arguments.serial else None,
+              globalTimeout=arguments.timeout*60*60 if arguments.timeout is not None else None).\
              restrict(restriction)
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
         result = ss.incrementallySolve(resume = arguments.resume,                                

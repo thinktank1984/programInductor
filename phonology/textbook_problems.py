@@ -1071,37 +1071,37 @@ Sao Tome Creole Halle 141
 	(u"vešpʌ", u"vešpa"), # wasp
 	(u"šigar", u"šiga"), # to arrive
 	(u"sɛgu", u"sɛgu"), # blind
-	(u"šumbu", u"sumbu"), # lead
-	(u"pɜškar", u"piška"), # to fish
-	(u"r̃atu", u"latu"), # rat
-	(u"artɜ", u"ači"), # art
-	(u"tašu", u"tasu"), # pan
-	(u"kulpʌ", u"klupa"), # blame
-	(u"r̃ɜšpʌitu", u"lišpetu"), # courtesy
-	(u"ʌguʎʌ", u"guya"), # needle
-	(u"tirar", u"čila"), # to take out
-	(u"dyabu", u"ǰabu"), # devil
-	(u"šʌmar", u"sama"), # to call
-	(u"kwazɜ", u"kwaži"), # almost
-	(u"tardɜ", u"taǰi"), # afternoon
-	(u"idadɜ", u"daǰi"), # age
-	(u"kʌprišu", u"kaplisu"), # caprice
-	(u"fɛr̃u", u"fɛlu"), # iron
-	(u"brõzɜ", u"blõzi"), # bronze
-	(u"fižir", u"fiži"), # to pretend
-	(u"žemʌ", u"zema"), # egg yolk
-	(u"diʌ", u"ǰa"), # day
-	(u"forsa", u"fosa"), # strength
-	(u"mɔrtɜ", u"mɔči"), # death
-	(u"pulgʌ", u"pluga"), # flea
-	(u"bišu", u"bisu"), # animal
-	(u"pɜdir", u"piǰi"), # to ask
-	(u"tiʌ", u"ča"), # aunt
-	(u"kʌižu", u"kezu"), # cheese
-	(u"pʌlasyu", u"palašu"), # place
-	(u"bʌrbʌiru", u"blabelu"), # barber
-	(u"ifɛr̃nu", u"fɛnu"), # hell
-	(u"sinku", u"šinku") # five
+	# (u"šumbu", u"sumbu"), # lead
+	# (u"pɜškar", u"piška"), # to fish
+	# (u"r̃atu", u"latu"), # rat
+	# (u"artɜ", u"ači"), # art
+	# (u"tašu", u"tasu"), # pan
+	# (u"kulpʌ", u"klupa"), # blame
+	# (u"r̃ɜšpʌitu", u"lišpetu"), # courtesy
+	# (u"ʌguʎʌ", u"guya"), # needle
+	# (u"tirar", u"čila"), # to take out
+	# (u"dyabu", u"ǰabu"), # devil
+	# (u"šʌmar", u"sama"), # to call
+	# (u"kwazɜ", u"kwaži"), # almost
+	# (u"tardɜ", u"taǰi"), # afternoon
+	# (u"idadɜ", u"daǰi"), # age
+	# (u"kʌprišu", u"kaplisu"), # caprice
+	# (u"fɛr̃u", u"fɛlu"), # iron
+	# (u"brõzɜ", u"blõzi"), # bronze
+	# (u"fižir", u"fiži"), # to pretend
+	# (u"žemʌ", u"zema"), # egg yolk
+	# (u"diʌ", u"ǰa"), # day
+	# (u"forsa", u"fosa"), # strength
+	# (u"mɔrtɜ", u"mɔči"), # death
+	# (u"pulgʌ", u"pluga"), # flea
+	# (u"bišu", u"bisu"), # animal
+	# (u"pɜdir", u"piǰi"), # to ask
+	# (u"tiʌ", u"ča"), # aunt
+	# (u"kʌižu", u"kezu"), # cheese
+	# (u"pʌlasyu", u"palašu"), # place
+	# (u"bʌrbʌiru", u"blabelu"), # barber
+	# (u"ifɛr̃nu", u"fɛnu"), # hell
+	# (u"sinku", u"šinku") # five
 
 	], supervised=True,
 	solutions = [u'''

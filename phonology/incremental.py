@@ -549,3 +549,327 @@ class IncrementalSolver(UnderlyingProblem):
         result.recordFinalFrontier(self.expandFrontier(self.solveUnderlyingForms(solution), k,
                                                        CPUs = self.numberOfCPUs))
         return result
+
+class SupervisedIncremental(IncrementalSolver):
+    def __init__(self, data, window=None, bank = None, UG = None, numberOfCPUs = None, maximumNumberOfRules = 7, maximumRadius = 3, problemName = None, globalTimeout=None):
+        bank = bank or FeatureBank([ w for x,y in data for w in [x,y] ])
+
+        self.ys = [Morph(y) for x,y in data]
+        self.xs = [Morph(x) for x,y in data]
+                
+        IncrementalSolver.__init__(self, data, problemName=problemName,
+                                   bank = bank, UG = UG,
+                                   window=window)
+
+    def restrict(self, newData):
+        """Creates a new version of this object which is identical but has different training data"""
+        restriction = copy.copy(self)
+
+        def m(u):
+            if u is None or isinstance(u,Morph): return u
+            return Morph(u)
+        
+        if all( len(n) == 2 for n in newData ):
+            restriction.xs = [m(x) for x,y in newData]
+            restriction.ys = [m(y) for x,y in newData]
+            restriction.data = zip(restriction.xs,restriction.ys)
+        else: assert False
+        return restriction
+    
+    def sketchChangeToSolution(self, solution, rules, verbose=True):
+        Model.Global()
+
+        originalRules = list(rules) # save it for later
+
+        rules = [ (rule.makeDefinition(self.bank) if rule is not None else Rule.sample())
+                  for rule in rules ]
+
+        for x,y in self.data:
+            x = x.makeConstant(self.bank)
+            yh = applyRules(rules, x, wordLength(x), len(y) + 1)
+            auxiliaryCondition(wordEqual(y.makeConstant(self.bank),yh))
+                               
+        # Only add in the cost of the new rules that we are synthesizing
+        if any( r is not None for r in rules  ):
+            minimize(sum([ ruleCost(r) for r,o in zip(rules,originalRules) if o is None]))
+
+        try:
+            output = self.solveSketch()
+        except SynthesisFailure:
+            print "\t(no modification possible)"
+            raise SynthesisFailure()
+        except MemoryExhausted:
+            print "WARNING: Memory exhausted in one of the workers - going to decrease CPU count..."
+            raise MemoryExhausted()
+        loss = parseMinimalCostValue(output)
+        if loss is None:
+            print "WARNING: None loss"
+            print output
+            printLastSketchOutput()
+            print makeSketchSkeleton()
+            assert False
+
+        newSolution = Solution(prefixes = [ Morph(u"") ],
+                               suffixes = [ Morph(u"") ],
+                               rules = [ Rule.parse(self.bank, output, r) if rp is None else rp
+                                         for r,rp in zip(rules,originalRules) ],
+                               underlyingForms={(y,):x for x,y in self.data })
+        print "\t(modification successful; loss = %s, solution = \n%s\t)"%(loss,
+                                                                           indent("\n".join(map(str,newSolution.rules))))
+
+        flushEverything()
+        return newSolution.withoutUselessRules()
+
+    def findCounterexample(self, solution, trainingData=[]):
+        for x,y in self.data:
+            if not self.verify(solution,x,y):
+                if (x,y) in trainingData:
+                    assert False, "Failed to verify something in the training data!"
+                return x,y
+        return None
+
+    def sketchCEGISChange(self, solution, rules, verbose=False):
+        windowData = self.data[-self.windowSize:]
+        remainingData = self.data[:-self.windowSize]
+        n = min(10,len(remainingData))
+        trainingData = random.sample(remainingData, n) + windowData
+
+        newSolution = None
+        try: # catch timeout/memory exceptions
+            
+            while True:
+                worker = self.restrict(trainingData)
+                newSolution = worker.sketchChangeToSolution(solution, rules, verbose=verbose)
+                verbose = False
+                print "CEGIS: About to find a counterexample to:\n",newSolution
+                ce = self.findCounterexample(newSolution, trainingData)
+                if ce is None:
+                    print "No counterexample so I am just returning best solution"
+                    newSolution.underlyingForms = {(y,):x
+                                                   for x,y in self.data}
+                    print "Final CEGIS solution:\n%s"%(newSolution)
+                    return newSolution
+                trainingData = trainingData + [ce]
+                
+        except SynthesisFailure: return SynthesisFailure()
+        except MemoryExhausted: return MemoryExhausted()
+        except SynthesisTimeout: return SynthesisTimeout()
+
+        
+        
+    def sketchJointSolution(self, depth, canAddNewRules = False, costUpperBound = None,
+                            fixedRules = None, auxiliaryHarness = False):
+        try:
+            return self.sketchChangeToSolution(None, [None]*depth)
+        except SynthesisFailure:
+            if canAddNewRules:
+                return self.sketchJointSolution(depth + 1, canAddNewRules=True)
+            raise SynthesisFailure()
+        except MemoryExhausted: raise MemoryExhausted()
+
+    def verify(self, solution, x, y):
+        Model.Global()
+        rs = [r.makeDefinition(self.bank)
+              for r in solution.rules ]
+        x = x.makeConstant(self.bank)
+        yh = Morph.sample()
+        condition(wordEqual(applyRules(rs, x, Constant(-1), len(y) + 1),
+                            yh))
+        try:
+            o = self.solveSketch()
+            return y == Morph.parse(self.bank,o,yh)
+        except: return False
+
+    def sketchIncrementalChange(self, solution, radius = 1, CPUs=None):
+        if CPUs is None: CPUs = self.numberOfCPUs
+        # This is the actual sequence of radii that we go through
+        # We start out with a radius of at least 2 so that we can add a rule and revise an old rule
+        def radiiSequence(sequenceIndex):
+            assert sequenceIndex > 0
+            if sequenceIndex == 1: return [1,2]
+            else: return [sequenceIndex + 1]
+        ruleVectors = everyEditSequence(solution.rules, radiiSequence(radius),
+                                        allowSubsumption = False,
+                                        maximumLength = self.maximumNumberOfRules)
+        ruleVectors = [ vector
+                        for vector in ruleVectors
+                        if all(f in vector for f in self.frozenRules )]
+        
+        if len(solution.rules) <= 2:
+            # This is generally tractable when there is  < 3 rules
+            ruleVectors.append(solution.rules + [None,None])
+
+        print "# parallel sketch jobs:",len(ruleVectors)
+        print "# data points not in window or fixed:",len(self.data) - self.windowSize
+
+        # Ensure output is nicely ordered
+        flushEverything()
+
+        with useGlobalTimeout():
+            allSolutions = parallelMap(self.numberOfCPUs,
+                                       lambda (j,v): self.sketchCEGISChange(solution,v,verbose=(j == 0)),
+                                       enumerate(ruleVectors))
+        allSolutions = [s for s in allSolutions if not isinstance(s, SynthesisFailure) ]
+        if any( isinstance(s, MemoryExhausted) for s in allSolutions ):
+            CPUs = max(1, int(CPUs/2))
+            print "Because memory was exhausted, we will try decreasing the CPU count to %d."%CPUs
+            return self.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
+        # Every element of allSolutions is either Solution or SynthesisTimeout
+        if all( isinstance(s, SynthesisTimeout) for s in allSolutions ) and \
+           len(allSolutions) > 0 and not exhaustedGlobalTimeout():
+            print "Got no solutions, but did get some timeouts - going to double pervasive timeout"
+            worker = copy.copy(self)
+            worker.pervasiveTimeout = worker.pervasiveTimeout*2
+            return worker.sketchIncrementalChange(solution, radius=radius, CPUs=CPUs)
+        
+        allSolutions = [ s for s in allSolutions if isinstance(s, Solution) ]
+        if allSolutions == []:
+            if exhaustedGlobalTimeout(): raise SynthesisTimeout()
+            else: raise SynthesisFailure('incremental change')
+        return sorted(allSolutions,key = lambda s: s.cost())
+
+    def expandFrontier(self, solution, k, CPUs = None):
+        '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a Frontier object.'''
+        if k == 1: return solution.toFrontier()
+
+        CPUs = CPUs or numberOfCPUs()
+
+        # Construct the training data for each rule
+        xs = [self.xs]
+        ys = []
+        for r in solution.rules:
+            ys.append(parallelMap(CPUs, lambda x: self.applyRuleUsingSketch(r,x,-1), xs[-1]))
+            xs.append(ys[-1])
+        for x,y in zip(xs, ys):
+            print "Training data for rule:"
+            for a,b in zip(x,y):
+                print a," > ",b
+
+        # Now that we have the training data, we can solve for each of the rules' frontier
+        frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],ys[j])).topK(k,r),
+                                enumerate(solution.rules))
+
+        return Frontier(frontiers,
+                        prefixes = solution.prefixes,
+                        suffixes = solution.suffixes,
+                        underlyingForms = solution.underlyingForms)
+        
+    def incrementallySolve(self, resume = False, k = 1):
+        if self.globalTimeout is not None: setGlobalTimeout(self.globalTimeout)
+        result = Result(self.problemName)
+
+        print("Entering incremental supervised solver")
+
+        if not resume:
+            initialTrainingSize = self.windowSize
+            print "Starting out with explaining just the first %d examples:"%initialTrainingSize
+            trainingData = self.data[:initialTrainingSize]
+            print u"\n".join(u"\t~\t".join(map(unicode,w)) for w in trainingData)
+            worker = self.restrict(trainingData)
+            solution = worker.sketchJointSolution(1,canAddNewRules = True,
+                                                  auxiliaryHarness = True)
+            result.recordSolution(solution)
+            j = initialTrainingSize
+            firstCounterexample = True
+        else:
+            assert False, "checkpoints are deprecated"
+            j, solution = self.restoreCheckpoint()
+            firstCounterexample = False
+
+        # Maintain the invariant: the first j examples have been explained
+        while j < len(self.data):
+            # Can we explain the jth example?
+            try:
+                if self.verify(solution, *self.data[j]):
+                    j += 1
+                    continue
+            except SynthesisTimeout: return result.lastSolutionIsFinal()
+
+            trainingData = self.data[:j]
+
+            print "Next data points to explain: "
+            window = self.data[j:j + self.windowSize]
+            print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ]) 
+
+            # Fix the morphology/stems/rules that we are certain about
+            if not firstCounterexample:
+                self.updateFrozenRules(solution)
+            firstCounterexample = False
+
+            radius = 1
+            while True:
+                if exhaustedGlobalTimeout():
+                    print "Global timeout exhausted."
+                    print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
+                                                              100.*float(j)/len(self.data))
+                    return result.lastSolutionIsFinal()
+
+                try:
+                    worker = self.restrict(trainingData + window)
+                    solutions = worker.sketchIncrementalChange(solution, radius)
+                    assert solutions != []
+                    # see which of the solutions is best overall
+                    # different metrics of "best overall",
+                    # depending upon which set of examples you compute the description length
+                    
+                    solutionScores = [(s.modelCost(self.UG),random.random(),s)
+                                      for s in solutions ]
+                    print "Alternative solutions and their scores:"
+                    for score,_,solution in solutionScores:
+                        print "COST = %.2f SOLUTION = \n%s\n"%(score,solution)
+                    solutionScores = min(solutionScores)
+                    newSolution = solutionScores[-1]
+                    newJointScore = solutionScores[0]
+                    
+                    print " [+] Best new solution (cost = %.2f):"%(newJointScore)
+                    print newSolution
+
+                    # Make sure that all of the previously explained data points are still explained
+                    for alreadyExplained in self.data[:j+self.windowSize]:
+                        if not self.verify(newSolution, *alreadyExplained):
+                            print "But that solution cannot explain an earlier data point, namely:"
+                            print u'\t~\t'.join(map(unicode,alreadyExplained))
+                            print "This should be impossible with the new incremental CEGIS"
+                            assert False
+                except SynthesisFailure:
+                    print "No incremental modification within radius of size %d"%radius
+                    radius += 1
+                    print "Increasing search radius to %d"%radius
+                    if radius > self.maximumRadius:
+                        print "I refuse to use a radius this big."
+                        self.windowSize -= 1
+                        if self.windowSize > 0:
+                            print "Decreased window size to %s"%self.windowSize
+                            radius = 1
+                            window = self.data[j:j+self.windowSize]
+                            print "Next data points to explain:"
+                            print u"\n".join([ u'\t~\t'.join(map(unicode,w)) for w in window ])
+                            continue # Retreat back to the loop over different radii                        
+                        
+                        print "Can't shrink the window anymore so I'm just going to return"
+                        print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
+                                                                  100.*float(j)/len(self.data))
+                        return result.lastSolutionIsFinal()
+                    continue # retreat back to the loop over different radii
+                except SynthesisTimeout: return result.lastSolutionIsFinal()
+
+                # Successfully explained a new data item
+
+                # Update both the training data and solution
+                solution = newSolution
+                result.recordSolution(solution)
+                j += self.windowSize
+                
+                break # break out the loop over different radius sizes
+
+            #self.exportCheckpoint(solution, j)
+            
+
+        print "Converges to the final solution:"
+        print solution
+        print "Expanding to a frontier of size",k
+        setGlobalTimeout(None)
+        result.recordFinalFrontier(self.expandFrontier(solution, k,
+                                                       CPUs = self.numberOfCPUs))
+        return result
+            
