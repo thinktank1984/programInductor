@@ -590,7 +590,7 @@ class SupervisedIncremental(IncrementalSolver):
             auxiliaryCondition(wordEqual(y.makeConstant(self.bank),yh))
                                
         # Only add in the cost of the new rules that we are synthesizing
-        if any( r is not None for r in originalRules ):
+        if any( r is None for r in originalRules ):
             minimize(sum([ ruleCost(r) for r,o in zip(rules,originalRules) if o is None]))
 
         try:
@@ -602,7 +602,7 @@ class SupervisedIncremental(IncrementalSolver):
             print "WARNING: Memory exhausted in one of the workers - going to decrease CPU count..."
             raise MemoryExhausted()
 
-        if any( r is not None for r in originalRules ):
+        if any( r is None for r in originalRules ):
             loss = parseMinimalCostValue(output)
             if loss is None:
                 print "WARNING: None loss"
