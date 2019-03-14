@@ -601,13 +601,16 @@ class SupervisedIncremental(IncrementalSolver):
         except MemoryExhausted:
             print "WARNING: Memory exhausted in one of the workers - going to decrease CPU count..."
             raise MemoryExhausted()
-        loss = parseMinimalCostValue(output)
-        if loss is None:
-            print "WARNING: None loss"
-            print output
-            printLastSketchOutput()
-            print makeSketchSkeleton()
-            assert False
+
+        if any( r is not None for r in originalRules ):
+            loss = parseMinimalCostValue(output)
+            if loss is None:
+                print "WARNING: None loss"
+                print output
+                printLastSketchOutput()
+                print makeSketchSkeleton()
+                assert False
+        else: loss = "n/a"
 
         newSolution = Solution(prefixes = [ Morph(u"") ],
                                suffixes = [ Morph(u"") ],
