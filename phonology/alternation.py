@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from textbook_problems import *
 from morph import *
 from features import FeatureBank, tokenize
 from rule import Rule
@@ -146,7 +147,7 @@ def handleProblem(problem):
 
     compositeSubstitution = []
     allTheRules = []
-    
+    data = problem.data
     for j, alternation in enumerate(problem.parameters["alternations"]):
         print "Analyzing alternation:"
         for k in alternation:
@@ -158,8 +159,9 @@ def handleProblem(problem):
             compositeSubstitution += solutions[0][1]
         
     if len(solutions) > 0:
-        composite = AlternationSolution(map(Morph,problem.data),dict(compositeSubstitution),allTheRules)
+        composite = AlternationSolution(map(Morph,data),dict(compositeSubstitution),allTheRules)
         fn = "experimentOutputs/alternation/"+arguments.problem+".p"
+        os.system("mkdir  -p experimentOutputs/alternation")
         print "Exporting to",fn
         dumpPickle(composite, fn)
             
