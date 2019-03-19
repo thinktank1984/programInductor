@@ -195,7 +195,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     command = "sketch %s > %s 2> %s" % (temporarySketchFile,
                                         outputFile,
                                         outputFile)
-    print "Invoking solver: %s"%command
+    print "Invoking solver (timeout %s): %s"%(this_timeout, command)
     startTime = time()
     flushEverything()
     

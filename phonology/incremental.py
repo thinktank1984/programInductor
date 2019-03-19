@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from problems import *
 from matrix import *
 from result import *
 import utilities
@@ -96,11 +97,17 @@ class IncrementalSolver(UnderlyingProblem):
         wordsPerDataPoint = float(totalNumberOfWords)/len(self.data)
         
         if window is None:
-            # Adaptively set the window size
-            if wordsPerDataPoint <= 3.0: window = 3
-            elif wordsPerDataPoint <= 4.0: window = 2
-            else: window = 1
-            print "Incremental solver has adaptively set the window size to",window
+            if self.problemName in Problem.named and \
+               Problem.named[problemName].parameters is not None and \
+                "window" in Problem.named[problemName].parameters:
+                window = Problem.named[problemName].parameters["window"]
+                print "Incremental solver is taking custom default window",window
+            else:                
+                # Adaptively set the window size
+                if wordsPerDataPoint <= 3.0: window = 3
+                elif wordsPerDataPoint <= 4.0: window = 2
+                else: window = 1
+                print "Incremental solver has adaptively set the window size to",window
         self.windowSize = window
 
         if wordsPerDataPoint >= 12:

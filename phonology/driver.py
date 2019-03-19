@@ -254,5 +254,6 @@ if __name__ == '__main__':
         
 
     displayTimestamp("Executing driver")
+    print "Command line", " ".join(sys.argv)
     handleProblem(problem)
         

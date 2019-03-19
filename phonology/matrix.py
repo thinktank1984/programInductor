@@ -323,14 +323,13 @@ the integer is None then we have no guess for that one.'''
             self.UG.sketchUniversalGrammar(self.bank)
             
         # guess the size of each stem to be its corresponding smallest observation length
-        if morphologicalCosts == None:
+        if morphologicalCosts is None:
             approximateStemSize = [ min([ len(w) for w in i if w != None ])
-                                    for i in self.data ]
+                                        for i in self.data ]
         else:
             approximateStemSize = [ min([ len(w) - (0 if morphologicalCosts[j] == None else morphologicalCosts[j])
                                           for j,w in enumerate(i) if w != None ])
                                     for i in self.data ]
-            
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             adjustment = 0
@@ -351,7 +350,7 @@ the integer is None then we have no guess for that one.'''
         # but it lets sketch get away with having to deal with smaller numbers
         stemSize = sum([ wordLength(m)-
                          (approximateStemSize[j] if self.numberOfInflections > 1
-                          else len(self.data[j][0]) - 1)
+                          else len(self.data[j][0]) - 2)
                          for j,m in enumerate(stems) ])
 
         ruleSize = sum([ruleCost(r) for r in rules ])

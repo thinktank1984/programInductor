@@ -691,11 +691,10 @@ Dutch Roca 17
 	(u"ajdə",),		# caressed
 	(u"skidə",)		# skied
 
-	], 
+	],  parameters={"window": 5}, # TODO: can we just set the window to be five for everything with only one flexion
 	solutions = [u'''
-# No solution
-# stem + tə/də
-# FIND SUFFIX VARIATION
+stem + də
+        [-sonorant] > [-voice] / [-voice] _
 	''']
 	))
 
