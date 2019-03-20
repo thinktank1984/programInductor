@@ -350,8 +350,9 @@ the integer is None then we have no guess for that one.'''
         # but it lets sketch get away with having to deal with smaller numbers
         onlyOneInflection = all( 1 == sum(w is not None for w in ws )
                                  for ws in self.data )
+        print("onlyOneInflection",onlyOneInflection)
         stemSize = sum([ wordLength(m)-
-                         (approximateStemSize[j] if not onlyOneInflection
+                         (approximateStemSize[j] if not onlyOneInflection \
                           else len(self.data[j][0]) - 2)
                          for j,m in enumerate(stems) ])
 
