@@ -452,7 +452,7 @@ class IncrementalSolver(UnderlyingProblem):
             try:
                 # seeing an inflection for the first time
                 newInflection = any( self.data[j][i] is not None and \
-                                     all( self.data[k][i] is None for i in range(j) )
+                                     all( self.data[k][i] is None for k in range(j) )
                                      for i in range(self.numberOfInflections) ) and j > initialTrainingSize
                 if newInflection:
                     print "We are experiencing a new inflection!",self.data[j]
