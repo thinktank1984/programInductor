@@ -228,9 +228,12 @@ class IncrementalSolver(UnderlyingProblem):
             else:
                 prefixes.append(Morph.sample())
                 suffixes.append(Morph.sample())
-            # Guess that the morphological cost is whatever it was previously
-            morphologicalCosts.append(len(solution.prefixes[j]) + \
-                                      len(solution.suffixes[j]))
+            # Guess that the morphological cost is whatever it was previously - assuming we have seen it previously
+            if self.morphologyHistory[j] is not None:
+                morphologicalCosts.append(len(solution.prefixes[j]) + \
+                                          len(solution.suffixes[j]))
+            else:
+                morphologicalCosts.append(None)
             if all(l[j] is None for l in self.data + self.fixedUnderlyingForms.keys()) \
                and self.fixedMorphology[j] is None:
                 # Never seen this inflection: give it the empty morphology
