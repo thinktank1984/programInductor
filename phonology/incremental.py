@@ -450,7 +450,12 @@ class IncrementalSolver(UnderlyingProblem):
         while j < len(self.data):
             # Can we explain the jth example?
             try:
-                if self.verify(solution,self.data[j]):
+                # seeing an inflection for the first time
+                newInflection = any( self.data[j][i] is not None and self.morphologyHistory[i] is None
+                                     for i in range(self.numberOfInflections) )
+                if newInflection:
+                    print "We are experiencing a new inflection!",self.data[j]
+                if (not newInflection) and self.verify(solution,self.data[j]):
                     j += 1
                     continue
             except SynthesisTimeout: return result.lastSolutionIsFinal()
@@ -793,12 +798,9 @@ class SupervisedIncremental(IncrementalSolver):
         while j < len(self.data):
             # Can we explain the jth example?
             try:
+                
                 if self.verify(solution, *self.data[j]):
                     j += 1
-                    print "Successfully verified:"
-                    print self.data[j]
-                    print "with the model:"
-                    print solution.withoutStems()
                     continue
             except SynthesisTimeout: return result.lastSolutionIsFinal()
 
