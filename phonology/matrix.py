@@ -340,7 +340,7 @@ the integer is None then we have no guess for that one.'''
             guess = max(guess,0)
             approximateStemSize.append(guess)
 
-        print(approximateStemSize)
+        print(zip(self.data,approximateStemSize))
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             adjustment = 0

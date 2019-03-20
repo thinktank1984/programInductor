@@ -130,6 +130,9 @@ class Solution(object):
 
     def depth(self): return len(self.rules)
 
+    def withoutStems(self):
+        return Solution(rules=self.rules, prefixes=self.prefixes, suffixes=self.suffixes)
+
     def showMorphologicalAnalysis(self):
         print "Morphological analysis:"
         for i in range(len(self.prefixes)):

@@ -795,6 +795,10 @@ class SupervisedIncremental(IncrementalSolver):
             try:
                 if self.verify(solution, *self.data[j]):
                     j += 1
+                    print "Successfully verified:"
+                    print self.data[j]
+                    print "with the model:"
+                    print solution.withoutStems()
                     continue
             except SynthesisTimeout: return result.lastSolutionIsFinal()
 
