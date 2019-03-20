@@ -348,8 +348,10 @@ the integer is None then we have no guess for that one.'''
         # We subtract a constant from the stems size in order to offset the cost
         # Should have no effect upon the final solution that we find,
         # but it lets sketch get away with having to deal with smaller numbers
+        onlyOneInflection = all( 1 == sum(w is not None for w in ws )
+                                 for ws in self.data )
         stemSize = sum([ wordLength(m)-
-                         (approximateStemSize[j] if self.numberOfInflections > 1
+                         (approximateStemSize[j] if not onlyOneInflection
                           else len(self.data[j][0]) - 2)
                          for j,m in enumerate(stems) ])
 
