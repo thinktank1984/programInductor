@@ -334,7 +334,7 @@ the integer is None then we have no guess for that one.'''
             guess = None
             for w,mc in zip(ws,morphologicalCosts):
                 if w is None or mc is None: continue
-                guess = min(len(w) - mc, guess) if guess is not None else len(w) - wc
+                guess = min(len(w) - mc, guess) if guess is not None else len(w) - mc
             if guess is None:
                 guess = min(len(w) for w in ws if w is not None ) - 4
             guess = max(guess,0)
