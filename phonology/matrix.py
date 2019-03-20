@@ -352,7 +352,7 @@ the integer is None then we have no guess for that one.'''
                                  for ws in self.data )
         stemSize = sum([ wordLength(m)-
                          (approximateStemSize[j] if not onlyOneInflection \
-                          else len(self.data[j][0]) - 2)
+                          else max(len(w) for w in self.data[j]) - 2)
                          for j,m in enumerate(stems) ])
 
         ruleSize = sum([ruleCost(r) for r in rules ])
