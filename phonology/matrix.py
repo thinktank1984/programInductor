@@ -321,15 +321,26 @@ to the total size of the morphology for that inflection. If instead
 the integer is None then we have no guess for that one.'''
         if self.UG:
             self.UG.sketchUniversalGrammar(self.bank)
+
+        if morphologicalCosts is None:
+            morphologicalCosts = [None]*self.numberOfInflections
+
+        onlyOneInflection = all( 1 == sum(w is not None for w in ws )
+                                 for ws in self.data )
             
         # guess the size of each stem to be its corresponding smallest observation length
-        if morphologicalCosts is None:
-            approximateStemSize = [ min([ len(w) for w in i if w != None ])
-                                        for i in self.data ]
-        else:
-            approximateStemSize = [ min([ len(w) - (0 if morphologicalCosts[j] == None else morphologicalCosts[j])
-                                          for j,w in enumerate(i) if w != None ])
-                                    for i in self.data ]
+        approximateStemSize = []
+        for ws in self.data:
+            guess = None
+            for w,mc in zip(ws,morphologicalCosts):
+                if w is None or mc is None: continue
+                guess = min(len(w) - mc, guess) if guess is not None else len(w) - wc
+            if guess is None:
+                guess = min(len(w) for w in ws if w is not None ) - 4
+            guess = max(guess,0)
+            approximateStemSize.append(guess)
+
+        print(approximateStemSize)
         affixAdjustment = []
         for j in range(self.numberOfInflections):
             adjustment = 0
@@ -348,11 +359,7 @@ the integer is None then we have no guess for that one.'''
         # We subtract a constant from the stems size in order to offset the cost
         # Should have no effect upon the final solution that we find,
         # but it lets sketch get away with having to deal with smaller numbers
-        onlyOneInflection = all( 1 == sum(w is not None for w in ws )
-                                 for ws in self.data )
-        stemSize = sum([ wordLength(m)-
-                         (approximateStemSize[j] if not onlyOneInflection \
-                          else max(len(w) for w in self.data[j] if w is not None) - 2)
+        stemSize = sum([ wordLength(m)-approximateStemSize[j] 
                          for j,m in enumerate(stems) ])
 
         ruleSize = sum([ruleCost(r) for r in rules ])
