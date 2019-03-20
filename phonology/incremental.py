@@ -452,7 +452,7 @@ class IncrementalSolver(UnderlyingProblem):
             try:
                 # seeing an inflection for the first time
                 newInflection = any( self.data[j][i] is not None and self.morphologyHistory[i] is None
-                                     for i in range(self.numberOfInflections) )
+                                     for i in range(self.numberOfInflections) ) and j > initialTrainingSize
                 if newInflection:
                     print "We are experiencing a new inflection!",self.data[j]
                 if (not newInflection) and self.verify(solution,self.data[j]):
