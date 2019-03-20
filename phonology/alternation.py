@@ -152,8 +152,8 @@ def handleProblem(problem):
         print "Analyzing alternation:"
         for k in alternation:
             print "\t",k,"\t",alternation[k]
-        problem = AlternationProblem(alternation, problem.data)
-        solutions = problem.topSolutions(arguments.top)
+        _problem = AlternationProblem(alternation, problem.data)
+        solutions = _problem.topSolutions(arguments.top)
         if solutions != []:
             allTheRules += solutions[0][0]
             compositeSubstitution += solutions[0][1]
