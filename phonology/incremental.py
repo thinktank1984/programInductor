@@ -574,7 +574,7 @@ class SupervisedIncremental(IncrementalSolver):
         self.xs = [Morph(x) for x,y in data]
 
         if window is None:
-            if self.problemName in Problem.named and \
+            if problemName in Problem.named and \
                Problem.named[problemName].parameters is not None and \
                 "window" in Problem.named[problemName].parameters:
                 window = Problem.named[problemName].parameters["window"]
