@@ -572,6 +572,19 @@ class SupervisedIncremental(IncrementalSolver):
 
         self.ys = [Morph(y) for x,y in data]
         self.xs = [Morph(x) for x,y in data]
+
+        if window is None:
+            if self.problemName in Problem.named and \
+               Problem.named[problemName].parameters is not None and \
+                "window" in Problem.named[problemName].parameters:
+                window = Problem.named[problemName].parameters["window"]
+                print "Incremental solver is taking custom default window",window
+            else:                
+                # Adaptively set the window size
+                if len(data) <= 8: window = len(self.data)
+                else: window = 2
+                print "Incremental solver has adaptively set the window size to",window
+        
                 
         IncrementalSolver.__init__(self, data, problemName=problemName,
                                    bank = bank, UG = UG,
