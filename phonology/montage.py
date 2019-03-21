@@ -20,6 +20,13 @@ class Bars():
     @property
     def alternation(self):
         return self.problem.parameters and "alternations" in self.problem.parameters
+
+    def universalHeight(self):
+        if self.alternation: return 1.
+        if self.problem.key == "Odden_2.4_Tibetan": return 1.
+        if self.universal is None: return 0.
+        n = len(self.problem.data)
+        return float(len(self.universal.finalFrontier.underlyingForms))/n
         
 
 if __name__ == "__main__":
@@ -71,7 +78,7 @@ if __name__ == "__main__":
     for bs,a in zip([b1,b2],axes):
 
         a.barh(range(len(bs)),
-               [int(b.universal is not None) for b in bs ],
+               [b.universalHeight() for b in bs ],
                tick_label=[b.name for b in bs ])
     plot.show()
 

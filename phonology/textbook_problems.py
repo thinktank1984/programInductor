@@ -989,14 +989,16 @@ Klamath Halle 113
 	[
 	# underlying	surface
 	(u"honli:na",	u"holli:na"), # flies along the bank
-	(u"honl̥y",		u"holhi"), # flies into
-	(u"honl'a:l'a",	u"holʔa:l'a"), # flies into the fire
+#	(u"honl̥y",		u"holhi"), # flies into
+            (u"honl̥",		u"holh"), # flies into
+	(u"honl`a:l`a",	u"holʔa:l`a"), # flies into the fire
 	(u"pa:ll̥a",		u"pa:lha"), # dries on
-	(u"yalyall'i",	u"yalyalʔi") # clear
+	(u"yalyall`i",	u"yalyalʔi") # clear
 	],
 	solutions = [u'''
-# No solution
-
+        n > l / [+lateral] _
+        l̥ > h / l _
+        l` > ʔ / l _
 	'''],
                               supervised=True
 	))
@@ -1297,7 +1299,14 @@ Japanese Halle 127
      
 ],
 solutions=[u'''
-           
+stem + ru
+stem + anai
+stem + itai
+stem + ta
+stem + yoo
+t > d / [+voice -vowel]
+r > 0 / {n,s,r,w,t} _
+
 '''])
 
 Problem('''

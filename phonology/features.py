@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+secondStress = "secondStress"
 palatal = "palatal"
 palletized = "palletized"
 sibilant = "sibilant"
@@ -214,6 +215,7 @@ sophisticatedFeatureMap = {
     u"r̥̃": [liquid,trill,coronal,sonorant,continuant],
     u"ř": [liquid,flap,voice,coronal,sonorant,continuant],
     u"l": [liquid,lateral,voice,coronal,sonorant,continuant],
+    u"l`": [liquid,secondStress,lateral,voice,coronal,sonorant,continuant],
     u"l̥": [liquid,lateral,coronal,sonorant,continuant],
     u"ʎ": [liquid,lateral,voice,palatal,sonorant,continuant],
     u"ł": [liquid,lateral,voice,back,high,sonorant,continuant],
@@ -328,6 +330,7 @@ simpleFeatureMap = {
     u"r̥̃": [liquid,trill,retroflex],
     u"ř": [liquid,flap,voice,retroflex],
     u"l": [liquid,lateral,voice],
+    u"l`": [secondStress,liquid,lateral,voice],
     u"l̥": [liquid,lateral],
     u"ʎ":  [liquid,lateral,palatal,voice],
     u"ł": [liquid,lateral,voice,velar],
