@@ -110,7 +110,12 @@ class IncrementalSolver(UnderlyingProblem):
                 print "Incremental solver has adaptively set the window size to",window
         self.windowSize = window
 
-        if wordsPerDataPoint >= 12:
+        if self.problemName in Problem.named and \
+           Problem.named[problemName].parameters is not None and \
+            "fixedMorphologyThreshold" in Problem.named[problemName].parameters:
+            self.fixedMorphologyThreshold = Problem.named[problemName].parameters["fixedMorphologyThreshold"]
+            print "Using custom fixed morphology threshold of",self.fixedMorphologyThreshold
+        elif wordsPerDataPoint >= 12:
             self.fixedMorphologyThreshold = 1
         else:
             self.fixedMorphologyThreshold = 2

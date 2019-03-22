@@ -1298,6 +1298,7 @@ Japanese Halle 127
      (u"kau",    u"kawanai",  u"kaitai",   u"katta",  u"kaoo"),      #'buy'
      
 ],
+        parameters={"fixedMorphologyThreshold": 3},
 solutions=[u'''
 stem + ru
 stem + anai
