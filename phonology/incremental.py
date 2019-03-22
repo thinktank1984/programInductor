@@ -586,7 +586,7 @@ class SupervisedIncremental(IncrementalSolver):
                 print "Incremental solver is taking custom default window",window
             else:                
                 # Adaptively set the window size
-                if len(data) <= 8: window = len(self.data)
+                if len(data) <= 8: window = len(data)
                 else: window = 2
                 print "Incremental solver has adaptively set the window size to",window
         
