@@ -20,6 +20,7 @@ for name,problem in Problem.named.iteritems():
 def ke():
     system("pkill -9 pypy")
     system("pkill -9  -f driver.py")
+    system("pkill -9  -f command_server.py")
     system("pkill -9 lt-cegis")
     system("rm  -rf ~/.sketch/tmp/* /scratch/ellisk/*")
     
