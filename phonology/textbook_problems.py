@@ -784,7 +784,8 @@ Verlan Roca 31
 	(u"ãkyle",		u"leãky"),		# sod
 	(u"degölas",	u"lasdegö"),	# disgusting
 	(u"karate",		u"tekara"),		# karate
-	], 
+	],
+    supervised=True,
 	solutions = [u'''
 # No solution
 # Syllable inversion
