@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# BIN_DIR=/afs/csail.mit.edu/@sys/local/bin
+# KINIT=/usr/bin/kinit
+# AKLOG=/usr/bin/aklog
+# AUTHLOOP=$BIN_DIR/authloop
+# KRB5CCNAME=/tmp/krb5cc_$$.longjob
+# OUTFILE=/tmp/$USER.job.$$
+# RENEW="-r 8d"
+# AUTHOUT=/tmp/$USER.auth.$$
+
+# $KINIT $KEYTAB $RENEW
+# $AKLOG
+# nohup $AUTHLOOP $KEYTAB >> $AUTHOUT &
+
+
+for language in "$@"
+do
+    
+    EXPORT=jobs/ug1/$language
+    echo "Output will be sent to $EXPORT"
+    echo "WARNING: deleting $EXPORT"
+    rm $EXPORT
+
+    export PYTHONIOENCODING=utf-8
+
+    python driver.py $language incremental --universal experimentOutputs/ug0.p -t 100 --timeout 24.0 --geometry  > $EXPORT 2>&1  &
+done
