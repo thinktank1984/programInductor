@@ -65,6 +65,21 @@ def randomlyPermute(l):
     random.shuffle(l)
     return l
 
+def partitionEvenly(l,n):
+    """partitions list l into n approximately equal portions"""
+    minimumSize = int(len(l)/n)
+    extras = len(l) - minimumSize*n
+
+    partitions = []
+    while len(l) > 0:
+        size = minimumSize + int(extras > 0)
+        partitions.append(l[:size])
+        extras -= 1
+        l = l[size:]
+    assert len(partitions) == n
+    return partitions
+        
+
 def everyBinaryVector(l,w):
     if l == 0:
         if w == 0: yield []

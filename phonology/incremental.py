@@ -428,9 +428,27 @@ class IncrementalSolver(UnderlyingProblem):
         for surfaces, stem in self.fixedUnderlyingForms.iteritems():
             print "UR",stem,"for",u" ~ ".join(map(unicode, surfaces))
         return j,solution
-    
 
-    def incrementallySolve(self, resume = False, k = 1):
+    def incrementallySolve(self, *a,**kw):
+        r = self._incrementallySolve(*a,**kw)
+        assert r.finalFrontier is not None
+        ff = r.finalFrontier
+        s = ff.MAP()
+
+        # hail mary - just try to transduce everything
+        for x in self.data:
+            if x in s.underlyingForms: continue
+            print "Hail Mary! try to transduce for",x
+            u = s.transduceUnderlyingForm(self.bank, x)
+            if u is None:
+                print "darn it."
+                continue
+            print "great success! ur = ",u
+            print 
+            ff.underlyingForms[x] = u
+        return r
+
+    def _incrementallySolve(self, resume = False, k = 1):
         if self.globalTimeout is not None: setGlobalTimeout(self.globalTimeout)
         result = Result(self.problemName)
 

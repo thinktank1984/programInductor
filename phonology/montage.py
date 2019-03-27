@@ -71,11 +71,12 @@ if __name__ == "__main__":
         
         bars.append(Bars(problem,bl,ul))
 
-    f, axes = plot.subplots(1,2)
-    b1 = bars[:len(bars)/2]
-    b2 = bars[len(bars)/2:]
+    columns = 3
+    f, axes = plot.subplots(1,columns)
+    # partition into columns
+    partitions = partitionEvenly(bars,columns)
     #f.yticks(rotation=45)
-    for bs,a in zip([b1,b2],axes):
+    for bs,a in zip(partitions,axes):
 
         a.barh(range(len(bs)),
                [b.universalHeight() for b in bs ],
