@@ -17,12 +17,19 @@ for name,problem in Problem.named.iteritems():
     print(name)
     names.append(name)
 
+def ke():
+    system("pkill -9 pypy")
+    system("pkill -9 python")
+    system("pkill -9 lt-cegis")
+    system("rm  -rf ~/.sketch/tmp/* /scratch/ellisk/*")
+    
 for n in names:
-    system("killEverything")
+    ke()
     system("sleep 5")
-    system("killEverything")
+    ke()
     system("sleep 600")
 
     system("./launchers/ug0 %s"%n)
     system("sleep 1d 5h")
+    ke()
     
