@@ -458,8 +458,13 @@ class IncrementalSolver(UnderlyingProblem):
             trainingData = self.data[:initialTrainingSize]
             print u"\n".join(u"\t~\t".join(map(unicode,w)) for w in trainingData)
             worker = self.restrict(trainingData)
-            solution = worker.sketchJointSolution(1,canAddNewRules = True,
-                                                  auxiliaryHarness = True)
+            try:
+                solution = worker.sketchJointSolution(1,canAddNewRules = True,
+                                                      auxiliaryHarness = True)
+            except SynthesisTimeout:
+                print "FATAL: Could not explain even the first %d examples within timeout."%initialTrainingSize
+                sys.exit(0)
+            
             solution = worker.lesionMorphologicalRules(solution)
             result.recordSolution(solution)
             j = initialTrainingSize

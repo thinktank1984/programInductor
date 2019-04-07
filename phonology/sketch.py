@@ -149,8 +149,14 @@ class useGlobalTimeout(object):
 
     def __exit__(self, type, value, traceback):
         dt = time() - self.start
+        print "Finished using global timeout. dt=%f"%dt
         global globalTimeoutCounter
-        if globalTimeoutCounter is not None: globalTimeoutCounter -= dt
+        if globalTimeoutCounter is not None:
+            globalTimeoutCounter -= dt
+            print "Global timeout counter is now %f"%globalTimeoutCounter
+        else:
+            print "We have no global timeout counter..."
+            sys.exit(0)
 
 lastFailureOutput = None
 lastSketchOutput = None

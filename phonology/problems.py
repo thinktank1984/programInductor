@@ -2034,7 +2034,8 @@ Sadzava Ukrainian Odden 4.11
 	(None,None,None,None,None,None,u"zámyiky",	u"zámətə"),#,	u"snowstorm"),#
 	(None,None,None,None,None,None,u"skátəryky",	u"skátərtə"),#,	u"tablecloth"),#
 	(None,None,None,None,None,None,u"kyísyky",	u"kóstə"),#,	u"bone"),#
-]))
+],
+                              parameters={"window": 3}))
 if False:
     MATRIXPROBLEMS.append(Problem('''Koromfe Odden 4.12
 	Koromfe has two kinds of vowels, [-ATR] ɩʊɛɔa and [+ATR] iueoʌ. Provide an analysis of the alternations in the following data, which involve singular and plural forms of nouns and different tense-inflections for verbs.
