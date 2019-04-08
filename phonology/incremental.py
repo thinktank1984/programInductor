@@ -269,7 +269,8 @@ class IncrementalSolver(UnderlyingProblem):
         # Only add in the cost of the new rules that we are synthesizing
         self.minimizeJointCost([ r for r,o in zip(rules,originalRules) if o is None],
                                stems, prefixes, suffixes,
-                               morphologicalCosts = morphologicalCosts)
+                               morphologicalCosts = morphologicalCosts,
+                               oldSolution=solution)
         self.excludeBoundaryAndInsertions(rules)
         self.conditionOnData(rules, stems, prefixes, suffixes,
                              observations = dataToConditionOn,
@@ -484,9 +485,12 @@ class IncrementalSolver(UnderlyingProblem):
                                      for i in range(self.numberOfInflections) ) and j > initialTrainingSize
                 if newInflection:
                     print "We are experiencing a new inflection!",self.data[j]
-                if (not newInflection) and self.verify(solution,self.data[j]):
-                    j += 1
-                    continue
+                if not newInflection:
+                    new_underlying = solution.transduceUnderlyingForm(self.bank, self.data[j])
+                    if new_underlying is not None:
+                        solution.underlyingForms[self.data[j]] = new_underlying
+                        j += 1
+                        continue
             except SynthesisTimeout: return result.lastSolutionIsFinal()
 
             trainingData = self.data[:j]
@@ -840,7 +844,6 @@ class SupervisedIncremental(IncrementalSolver):
         while j < len(self.data):
             # Can we explain the jth example?
             try:
-                
                 if self.verify(solution, *self.data[j]):
                     j += 1
                     continue

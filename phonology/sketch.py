@@ -180,9 +180,6 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
             print "Exhausted global timeout budget."
             raise SynthesisTimeout()
         timeout_str = ' --fe-timeout %d '%(int(this_timeout/60.0))
-    
-
-
 
     source = makeSketch(bank, maximumMorphLength, alternationProblem)
     source = """pragma options "--slv-p-cpus 1  --bnd-mbits %d -V 10 --bnd-unroll-amnt %d %s ";

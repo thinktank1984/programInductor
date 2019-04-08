@@ -315,8 +315,10 @@ class UnderlyingProblem(object):
         '''
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
     
-    def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None):
-        '''morphologicalCosts: a list of integers. Each integer is a guess as
+    def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None, oldSolution=None):
+        '''
+        oldSolution: optionally a solution that we will use to guess the size of underlying forms.
+        morphologicalCosts: a list of integers. Each integer is a guess as
 to the total size of the morphology for that inflection. If instead
 the integer is None then we have no guess for that one.'''
         if self.UG:
@@ -332,12 +334,15 @@ the integer is None then we have no guess for that one.'''
         approximateStemSize = []
         for ws in self.data:
             guess = None
-            for w,mc in zip(ws,morphologicalCosts):
-                if w is None or mc is None: continue
-                guess = min(len(w) - mc, guess) if guess is not None else len(w) - mc
-            if guess is None:
-                guess = min(len(w) for w in ws if w is not None ) - 4
-            guess = max(guess,0)
+            if oldSolution and ws in oldSolution.underlyingForms:
+                guess = len(oldSolution.underlyingForms[ws])
+            else:
+                for w,mc in zip(ws,morphologicalCosts):
+                    if w is None or mc is None: continue
+                    guess = min(len(w) - mc, guess) if guess is not None else len(w) - mc
+                if guess is None:
+                    guess = min(len(w) for w in ws if w is not None ) - 4
+                guess = max(guess,0)
             approximateStemSize.append(guess)
 
         print(zip(self.data,approximateStemSize))
