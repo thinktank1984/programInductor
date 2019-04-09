@@ -234,6 +234,7 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         if timedOut: raise SynthesisTimeout()
         else: raise SynthesisFailure()
     elif "Cannot allocate memory" in output: raise MemoryExhausted()
+    elif "There is insufficient memory" in output: raise MemoryExhausted()
     elif "Program Parse Error" in output:
         print "FATAL: Could not parse program"
         print source
