@@ -22,12 +22,21 @@ class Bars():
     def alternation(self):
         return self.problem.parameters and "alternations" in self.problem.parameters
 
+    @property
+    def language(self): return self.problem.languageName
+
     def universalHeight(self):
         if self.alternation: return 1.
         if self.problem.key == "Odden_2.4_Tibetan": return 1.
         if self.universal is None: return 0.
         n = len(self.problem.data)
         return float(len(self.universal.finalFrontier.underlyingForms))/n
+
+    def __str__(self):
+        return "Bars(%s,%f)"%(self.name, self.universalHeight())
+
+    def __repr__(self):
+        return str(self)
         
 
 if __name__ == "__main__":
@@ -72,6 +81,20 @@ if __name__ == "__main__":
         
         bars.append(Bars(problem,bl,ul))
 
+    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight()))
+
+    if False:
+        for n,b in enumerate(bars):
+            if b.alternation: b.name = b.problem.languageName + "*"
+            else:
+                if sum(b.language == o.language for o in bars if not b.alternation ) > 1:
+                    i = sum(b.language == o.language for o in bars[:n + 1]
+                            if not b.alternation)
+                    b.name = b.language + " (" + "I"*i + ")"
+                else:
+                    b.name = b.language
+
+
     columns = 3
     f, axes = plot.subplots(1,columns)
     # partition into columns
@@ -79,6 +102,7 @@ if __name__ == "__main__":
     #f.yticks(rotation=45)
     for bs,a in zip(partitions,axes):
 
+        bs.reverse()
         a.barh(range(len(bs)),
                [b.universalHeight() for b in bs ],
                tick_label=[b.name for b in bs ])
