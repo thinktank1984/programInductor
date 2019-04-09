@@ -16,6 +16,7 @@ class Bars():
         self.universal = universal
         self.name = "%s (%s)"%(self.problem.languageName, self.problem.source)
         print self.name, self.baseline is None, self.universal is None
+        #self.name = self.problem.languageName
 
     @property
     def alternation(self):

@@ -432,6 +432,7 @@ class IncrementalSolver(UnderlyingProblem):
 
     def incrementallySolve(self, *a,**kw):
         r = self._incrementallySolve(*a,**kw)
+        setGlobalTimeout(None)
         assert r.finalFrontier is not None
         ff = r.finalFrontier
         s = ff.MAP()
