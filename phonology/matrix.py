@@ -377,7 +377,7 @@ the integer is None then we have no guess for that one.'''
         return totalCost
 
     def sketchJointSolution(self, depth, canAddNewRules = False, costUpperBound = None,
-                            fixedRules = None, auxiliaryHarness = False):
+                            fixedRules = None, auxiliaryHarness = False, oldSolution=None):
         try:
             Model.Global()
             if fixedRules == None:
@@ -400,7 +400,8 @@ the integer is None then we have no guess for that one.'''
             morphologicalCosts = [ None if m == None else len(m[0]) + len(m[1])
                                    for m in self.fixedMorphology ]
 
-            self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound, morphologicalCosts)
+            self.minimizeJointCost(rules, stems, prefixes, suffixes, costUpperBound, morphologicalCosts,
+                                   oldSolution=oldSolution)
 
             self.conditionOnData(rules, stems, prefixes, suffixes,
                                  auxiliaryHarness = auxiliaryHarness)
@@ -423,7 +424,8 @@ the integer is None then we have no guess for that one.'''
                 depth += 1
                 print "Expanding rule depth to %d"%depth
                 return self.sketchJointSolution(depth, canAddNewRules = canAddNewRules,
-                                                auxiliaryHarness = auxiliaryHarness)
+                                                auxiliaryHarness = auxiliaryHarness,
+                                                oldSolution=oldSolution)
             else:
                 return None
         # pass this exception onto the caller
@@ -478,7 +480,8 @@ the integer is None then we have no guess for that one.'''
             solverTime = time() # time to sketch the solution
             # expand the rule set until we can fit the training data
             try:
-                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, auxiliaryHarness = True)
+                solution = self.restrict(trainingData).sketchJointSolution(depth, canAddNewRules = True, auxiliaryHarness = True,
+                                                                           oldSolution=solution)
                 result.recordSolution(solution)
                 depth = solution.depth() # update depth because it might have grown
                 solverTime = time() - solverTime
@@ -496,7 +499,8 @@ the integer is None then we have no guess for that one.'''
                 worker = self.restrict(trainingData)
                 try:
                     expandedSolution = worker.sketchJointSolution(depth + 1,
-                                                                  auxiliaryHarness = True)
+                                                                  auxiliaryHarness = True,
+                                                                  oldSolution=solution)
                 except SynthesisTimeout: return result
                 if not any( r.doesNothing() for r in expandedSolution.rules ) and \
                    expandedSolution.cost() <= solution.cost():
