@@ -110,7 +110,8 @@ def handleProblem(p):
     elif arguments.task == 'CEGIS':
         ss = problem
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
-        result = ss.counterexampleSolution(k = arguments.top)
+        result = ss.counterexampleSolution(k = arguments.top,
+                                           globalTimeout=arguments.timeout*60*60 if arguments.timeout is not None else None)
     elif arguments.task == 'exact':
         if arguments.alignment: problem.loadAlignment('precomputedAlignments/%s.p'%(p.key))
         result = Result(p.key)

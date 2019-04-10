@@ -430,7 +430,9 @@ the integer is None then we have no guess for that one.'''
         #except SynthesisTimeout:
 
 
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3):
+    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3, globalTimeout=None):
+        if globalTimeout is not None: setGlobalTimeout(globalTimeout)
+        
         result = Result(self.problemName)
         
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
