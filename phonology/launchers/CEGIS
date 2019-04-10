@@ -1,0 +1,15 @@
+#!/bin/bash
+for language in "$@"
+do
+
+
+    EXPORT=jobs/CEGIS/$language
+    mkdir  -p jobs/CEGIS
+    echo "Output will be sent to $EXPORT"
+    echo "WARNING: deleting $EXPORT"
+    rm $EXPORT
+
+    export PYTHONIOENCODING=utf-8
+
+    python driver.py $language CEGIS -t 100 --timeout 24.0 --geometry  > $EXPORT 2>&1  &
+done
