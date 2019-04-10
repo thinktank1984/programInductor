@@ -430,9 +430,37 @@ the integer is None then we have no guess for that one.'''
         #except SynthesisTimeout:
 
 
-    def counterexampleSolution(self, k = 1, threshold = float('inf'), initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3, globalTimeout=None):
+    def finalTransduction(self, s):
+        """Given the final solution, do a Hail Mary and try to transduce whatever stems we can. Destructively modifies solution."""
+        for x in self.data:
+            if x in s.underlyingForms: continue
+            print "Hail Mary! try to transduce for",x
+            u = s.transduceUnderlyingForm(self.bank, x)
+            if u is None:
+                print "darn it."
+                continue
+            print "great success! ur = ",u
+            print 
+            s.underlyingForms[x] = u
+        return s
+
+    def finalizeResult(self, k, result):
+        """do a final Hail Mary transduction of underlying forms and then expand the frontier"""
+        setGlobalTimeout(None)
+        s = result.solutionSequence[-1][0]
+        s = self.finalTransduction(s)
+        f = self.expandFrontier(s, k)
+        result.recordFinalFrontier(f)        
+
+    def counterexampleSolution(self, k = 1, initialTrainingSize = 2, initialDepth = 1, maximumDepth = 7, globalTimeout=None):
         if globalTimeout is not None: setGlobalTimeout(globalTimeout)
+        result = self._counterexampleSolution(initialTrainingSize=initialTrainingSize,
+                                              initialDepth=initialDepth,
+                                              maximumDepth=maximumDepth)
+        self.finalizeResult(k, result)
+        return result
         
+    def _counterexampleSolution(self, initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3):
         result = Result(self.problemName)
         
         if self.numberOfInflections == 1 or initialTrainingSize == 0:
@@ -459,7 +487,7 @@ the integer is None then we have no guess for that one.'''
                 if counterexample != None:
                     trainingData.append(counterexample)
                     continue
-            except SynthesisTimeout: return result.lastSolutionIsFinal()
+            except SynthesisTimeout: return result
             
             # we found a solution that had no counterexamples
 
@@ -469,7 +497,7 @@ the integer is None then we have no guess for that one.'''
                 try:
                     expandedSolution = worker.sketchJointSolution(depth + 1,
                                                                   auxiliaryHarness = True)
-                except SynthesisTimeout: return solution.toFrontier()
+                except SynthesisTimeout: return result
                 if not any( r.doesNothing() for r in expandedSolution.rules ) and \
                    expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
@@ -477,7 +505,7 @@ the integer is None then we have no guess for that one.'''
                     print "Better compression achieved by expanding to %d rules"%(depth + 1)
                     depth += 1
                     try: counterexample = self.findCounterexample(expandedSolution, trainingData)
-                    except SynthesisTimeout: return result.lastSolutionIsFinal()
+                    except SynthesisTimeout: return result
                     
                     if counterexample != None:
                         trainingData.append(counterexample)
@@ -490,10 +518,6 @@ the integer is None then we have no guess for that one.'''
                     
             print "Final solutions:"
             print solution
-            try: solution = self.solveUnderlyingForms(solution)
-            except SynthesisTimeout: return result.lastSolutionIsFinal()
-
-            result.recordFinalFrontier(self.expandFrontier(solution, k))
             return result
 
     def computeSolutionScores(self,solution,invariant):

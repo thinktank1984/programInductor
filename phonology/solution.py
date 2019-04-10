@@ -244,7 +244,9 @@ class Solution(object):
                         
 
         try: output = solveSketch(bank,bound,bound)
-        except SynthesisFailure: return None
+        except SynthesisFailure:
+            assert len(data) == 1
+            return None
         return {surfaces: Morph.parse(bank, output, stem)
                 for surfaces, stem in zip(data, stems) }
 

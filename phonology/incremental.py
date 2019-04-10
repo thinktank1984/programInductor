@@ -432,22 +432,7 @@ class IncrementalSolver(UnderlyingProblem):
 
     def incrementallySolve(self, *a,**kw):
         r = self._incrementallySolve(*a,**kw)
-        setGlobalTimeout(None)
-        assert r.finalFrontier is not None
-        ff = r.finalFrontier
-        s = ff.MAP()
-
-        # hail mary - just try to transduce everything
-        for x in self.data:
-            if x in s.underlyingForms: continue
-            print "Hail Mary! try to transduce for",x
-            u = s.transduceUnderlyingForm(self.bank, x)
-            if u is None:
-                print "darn it."
-                continue
-            print "great success! ur = ",u
-            print 
-            ff.underlyingForms[x] = u
+        self.finalizeResult(r)
         return r
 
     def _incrementallySolve(self, resume = False, k = 1):
@@ -492,7 +477,7 @@ class IncrementalSolver(UnderlyingProblem):
                         solution.underlyingForms[self.data[j]] = new_underlying
                         j += 1
                         continue
-            except SynthesisTimeout: return result.lastSolutionIsFinal()
+            except SynthesisTimeout: return result
 
             trainingData = self.data[:j]
 
@@ -513,7 +498,7 @@ class IncrementalSolver(UnderlyingProblem):
                     print "Global timeout exhausted."
                     print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
                                                               100.*float(j)/len(self.data))
-                    return result.lastSolutionIsFinal()
+                    return result
 
                 try:
                     worker = self.restrict(trainingData + window)
@@ -575,9 +560,9 @@ class IncrementalSolver(UnderlyingProblem):
                         print "Can't shrink the window anymore so I'm just going to return"
                         print "Covers %d/%d = %f%% of the input"%(j, len(self.data),
                                                                   100.*float(j)/len(self.data))
-                        return result.lastSolutionIsFinal()
+                        return result
                     continue # retreat back to the loop over different radii
-                except SynthesisTimeout: return result.lastSolutionIsFinal()
+                except SynthesisTimeout: return result
 
                 # Successfully explained a new data item
 
@@ -594,9 +579,6 @@ class IncrementalSolver(UnderlyingProblem):
         print "Converges to the final solution:"
         print solution
         print "Expanding to a frontier of size",k
-        setGlobalTimeout(None)
-        result.recordFinalFrontier(self.expandFrontier(self.solveUnderlyingForms(solution), k,
-                                                       CPUs = self.numberOfCPUs))
         return result
 
 class SupervisedIncremental(IncrementalSolver):
