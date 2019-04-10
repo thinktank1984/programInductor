@@ -224,6 +224,8 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
     if os.path.exists(temporaryCleanupPath):
         #print "Removing temporary files ",temporaryCleanupPath
         os.system("rm -rf " + temporaryCleanupPath)
+    else:
+        print "warning, could not find temporary sketch path", temporaryCleanupPath
 
     lastSketchOutput = output
 
@@ -233,6 +235,9 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         lastFailureOutput = source+"\n"+output
         if timedOut: raise SynthesisTimeout()
         else: raise SynthesisFailure()
+    elif "Disk quota exceeded" in output:
+        print "FATAL: Disk quota exceeded."
+        sys.exit(0)
     elif "Cannot allocate memory" in output: raise MemoryExhausted()
     elif "There is insufficient memory" in output: raise MemoryExhausted()
     elif "Program Parse Error" in output:
