@@ -263,7 +263,8 @@ class UnderlyingProblem(object):
         
         xs.append([ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
                     for x in self.data
-                    for i in range(self.numberOfInflections) ])
+                    for i in range(self.numberOfInflections)
+                    if x in solution.underlyingForms])
         untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[x]))
                         for x in self.data
                         for i in range(self.numberOfInflections) ]

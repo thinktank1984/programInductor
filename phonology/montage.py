@@ -24,7 +24,10 @@ class Bars():
     def alternation(self):
         return self.problem.parameters and "alternations" in self.problem.parameters
 
-
+    @property
+    def numberOfBars(self):
+        if self.alternation: return 1
+        return int(len(self.universal) > 0) + sum(b is not None for b in self.baselines)
 
     @property
     def language(self): return self.problem.languageName
@@ -32,9 +35,9 @@ class Bars():
     def universalHeight(self):
         if self.alternation: return 1.
         if self.problem.key == "Odden_2.4_Tibetan": return 1.
-        if self.universal is None: return 0.
+        if len(self.universal) == 0: return 0.
         n = len(self.problem.data)
-        return float(len(self.universal.finalFrontier.underlyingForms))/n
+        return float(max(len(u.finalFrontier.underlyingForms) for u in self.universal))/n
 
     def baselineHeight(self, b):
         if self.alternation: return 1.
@@ -73,8 +76,8 @@ if __name__ == "__main__":
             else: bl = None
             bl_1 = bl
             bl_2 = bl
-            if os.path.exists(ul): ul = loadPickle(ul)
-            else: ul = None
+            if os.path.exists(ul): ul = [loadPickle(ul)]
+            else: ul = []
         elif problem.parameters and "alternations" in problem.parameters:
             if os.path.exists("experimentOutputs/alternation/%s.p"%name):
                 p = loadPickle("experimentOutputs/alternation/%s.p"%name)
@@ -82,9 +85,10 @@ if __name__ == "__main__":
                 p = None
             bl_1 = p
             bl_2 = p
-            ul = p
+            ul = [p]
             if p is None:
                 print "Missing alternation",name
+                
         else:
             bl_1 = None
             for b in baselinePath_1:
@@ -96,10 +100,10 @@ if __name__ == "__main__":
                 if os.path.exists(b%name):
                     bl_2 = loadPickle(b%name)
                     break
-            ul = None
+            ul = []
             for u in universalPath:
                 if os.path.exists(u%name):
-                    ul = loadPickle(u%name)
+                    ul.append(loadPickle(u%name))
         
         bars.append(Bars(problem,ul,bl_1,bl_2))
 
@@ -131,6 +135,8 @@ if __name__ == "__main__":
         a.barh(ys,
                [b.universalHeight() for b in bs ],
                W,
+               # [ W*2 if b.numberOfBars < 2 else W
+               #   for b in bs],
                color='b'*len(bs))
 #               tick_label=[b.name for b in bs ])
         a.barh(ys + W,
