@@ -267,7 +267,8 @@ class UnderlyingProblem(object):
                     if x in solution.underlyingForms])
         untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[x]))
                         for x in self.data
-                        for i in range(self.numberOfInflections) ]
+                        for i in range(self.numberOfInflections)
+                        if x in solution.underlyingForms]
         for r in solution.rules:
             assert len(xs[-1]) == len(untilSuffix)
             ys.append(parallelMap(CPUs, lambda (x,us): self.applyRuleUsingSketch(r,x,us),
