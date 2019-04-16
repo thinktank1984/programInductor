@@ -17,7 +17,7 @@ class Bars():
         self.baselines = baselines
         self.universal = universal
         self.name = "%s (%s)"%(self.problem.languageName, self.problem.source)
-        print self.name, any( b is None for b in baselines), self.universal is None
+        print self.name, "Missing baseline?", any( b is None for b in baselines), "Missing full model?", self.universal is None
         #self.name = self.problem.languageName
 
     @property
@@ -62,7 +62,8 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
 
     baselinePath_1 = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=False.p"]
-    baselinePath_2 = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated.p"]
+    baselinePath_2 = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated.p",
+                      "experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated_geometry=True.p"]
     universalPath = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_ug.p",
                      "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"]
     bars = []
@@ -94,12 +95,18 @@ if __name__ == "__main__":
             for b in baselinePath_1:
                 if os.path.exists(b%name):
                     bl_1 = loadPickle(b%name)
+                    print "Loaded",b%name
                     break
+                else:
+                    print "Failed to load",b%name
             bl_2 = None
             for b in baselinePath_2:
                 if os.path.exists(b%name):
+                    print "Loaded",b%name
                     bl_2 = loadPickle(b%name)
                     break
+                else:
+                    print "Failed to load",b%name
             ul = []
             for u in universalPath:
                 if os.path.exists(u%name):
