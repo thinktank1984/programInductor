@@ -114,7 +114,11 @@ class UnderlyingProblem(object):
         condition(wordEqual(result,applyRule(_r,u.makeConstant(self.bank),
                                              Constant(untilSuffix), len(u) + 2)))
         try:
-            output = self.solveSketch(maximumMorphLength=len(u) + 2)
+            output = solveSketch(self.bank,
+                                 max(self.maximumObservationLength, len(u)) + 2,
+                                 len(u) + 2,
+                                 showSource=False, minimizeBound=31,
+                                 timeout=None)
         except SynthesisFailure:
             print "applyRuleUsingSketch: UNSATISFIABLE for %s %s %s"%(u,r,untilSuffix)
             printSketchFailure()
@@ -280,7 +284,8 @@ class UnderlyingProblem(object):
                 print a," > ",b
 
         # Now that we have the training data, we can solve for each of the rules' frontier
-        frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j])).topK(k,r),
+        frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j]),
+                                                                      bank=self.bank).topK(k,r),
                                 enumerate(solution.rules))
 
         return Frontier(frontiers,
@@ -450,6 +455,13 @@ the integer is None then we have no guess for that one.'''
 
     def finalizeResult(self, k, result):
         """do a final Hail Mary transduction of underlying forms and then expand the frontier"""
+        if len(result.solutionSequence) == 0:
+            emptySolution = Solution(prefixes=[Morph(u"")]*self.numberOfInflections,
+                                     suffixes=[Morph(u"")]*self.numberOfInflections,
+                                     rules=[], underlyingForms={})
+            result.recordSolution(emptySolution)
+            return result.lastSolutionIsFinal()
+        
         setGlobalTimeout(None)
         s = result.solutionSequence[-1][0]
         s = self.finalTransduction(s)

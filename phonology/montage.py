@@ -107,6 +107,7 @@ if __name__ == "__main__":
                     break
                 else:
                     print "Failed to load",b%name
+            if bl_2 is None: print "MISSINGCEGIS",name
             ul = []
             for u in universalPath:
                 if os.path.exists(u%name):
