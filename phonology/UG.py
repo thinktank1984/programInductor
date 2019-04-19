@@ -53,6 +53,10 @@ def worker(arguments):
             for rs,r in zip(frontier.frontiers,MAP):
                 eq.append(rs)
                 print "frontier size",len(rs),"MAP",r
+                print "alternatives..."
+                for r in rs:
+                    print r
+                print 
 
     
 

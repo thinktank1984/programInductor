@@ -402,6 +402,11 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
             bestScore = float('inf')
         else:
             (bestScore,bestGrammar) = min(candidates)
+            # for os,og in candidates:
+            #     if os == bestScore:
+            #         print "This is as good as the best:"
+            #         print og
+                    
         if candidates != [] and bestScore <= previousDescriptionLength:
             previousDescriptionLength = bestScore
             currentGrammar = bestGrammar
