@@ -430,9 +430,10 @@ class IncrementalSolver(UnderlyingProblem):
             print "UR",stem,"for",u" ~ ".join(map(unicode, surfaces))
         return j,solution
 
-    def incrementallySolve(self, *a,**kw):
-        r = self._incrementallySolve(*a,**kw)
-        self.finalizeResult(r)
+    def incrementallySolve(self, k=1)
+        r = self._incrementallySolve(k=k)
+        
+        self.finalizeResult(k,r)
         return r
 
     def _incrementallySolve(self, resume = False, k = 1):
