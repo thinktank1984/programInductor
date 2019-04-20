@@ -156,7 +156,7 @@ def parallelMapCallBack(j):
     try:
         return f(*[ x[j] for x in xs ])
     except Exception as e:
-        eprint("Exception in worker during lightweight parallel map:\n%s"%(traceback.format_exc()))
+        print("Exception in worker during lightweight parallel map:\n%s"%(traceback.format_exc()))
         raise e
 
 

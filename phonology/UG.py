@@ -51,10 +51,10 @@ def worker(arguments):
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
             MAP = frontier.MAP().rules
             for rs,r in zip(frontier.frontiers,MAP):
-                eq.append(rs)
                 print "frontier size",len(rs),"MAP",r
+                eq.append(list({r.makeGeometric() for r in rs}))
                 print "alternatives..."
-                for r in rs:
+                for r in eq[-1]:
                     print r
                 print 
 

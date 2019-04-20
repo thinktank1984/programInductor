@@ -48,6 +48,7 @@ class VariableFragment(Fragment):
     def numberOfVariables(self): return 1
     def hasConstants(self): return False
     def isDegenerate(self): return False
+    def violatesGeometry(self): return False
 
 class RuleFragment(Fragment):
     CONSTRUCTOR = Rule
@@ -55,6 +56,8 @@ class RuleFragment(Fragment):
         self.focus, self.change, self.left, self.right = focus, change, left, right
         self.logPrior = focus.logPrior + change.logPrior + left.logPrior + right.logPrior
         assert isNumber(self.logPrior)
+    def violatesGeometry(self):
+        return self.focus.violatesGeometry() or self.left.violatesGeometry() or self.right.violatesGeometry()
     def match(self,program):
         return self.focus.match(program.focus) + self.change.match(program.structuralChange) + self.left.match(program.leftTriggers) + self.right.match(program.rightTriggers)
     def __unicode__(self):
@@ -124,6 +127,7 @@ class FCFragment(Fragment):
     def sketchCost(self,v,b):
         assert isinstance(self.child,EmptySpecification)
         return (['(%s == null)'%v],[])
+    def violatesGeometry(self): return self.child.violatesGeometry()
 
     @staticmethod
     def abstract(p,q):
@@ -155,6 +159,8 @@ class SpecificationFragment(Fragment):
     def match(self, program):
         return self.child.match(program)
 
+    def violatesGeometry(self): return self.child.violatesGeometry()
+
     def numberOfVariables(self): return self.child.numberOfVariables()
     def hasConstants(self): return self.child.hasConstants()
 
@@ -184,6 +190,9 @@ class MatrixFragment(Fragment):
         self.childUnicode = unicode(child)
         self.logPrior = child.logPrior if logPrior == None else logPrior
         assert isNumber(self.logPrior)
+        if self.violatesGeometry():
+            self.logPrior -= 10.0
+
 
     def __unicode__(self): return self.childUnicode
 
@@ -194,6 +203,7 @@ class MatrixFragment(Fragment):
     def numberOfVariables(self): return 0
     def hasConstants(self): return True
     def isDegenerate(self): return self.child.isDegenerate()
+    def violatesGeometry(self): return self.child.violatesGeometry()
 
     @staticmethod
     def fromFeatureMatrix(m):
@@ -219,6 +229,7 @@ class ConstantFragment(Fragment):
     CONSTRUCTOR = ConstantPhoneme
     def __init__(self): raise Exception('should never make a constant fragment')
     def __unicode__(self): raise Exception('should never try to print the constant fragment')
+    def violatesGeometry(self): return False
     @staticmethod
     def abstract(p,q):
         return [VariableFragment(ConstantPhoneme)]
@@ -240,6 +251,9 @@ class GuardFragment(Fragment):
 
     def isDegenerate(self):
         return any( s.isDegenerate() for s in self.specifications )
+
+    def violatesGeometry(self):
+        return any( s.violatesGeometry() for s in self.specifications )
 
     def __unicode__(self):
         parts = map(unicode, self.specifications)
@@ -390,7 +404,9 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
         newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
                      estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
         newScore = newGrammar.AIC(ruleEquivalenceClasses)
+        bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
         newGrammar.clearCaches()
+        if bestUses <= 1.1: newScore = float('inf')
         return newScore, newGrammar
     
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
@@ -561,6 +577,7 @@ class FragmentGrammar():
             raise Exception('boundaryLogLikelihood: did not get boundary')
 
     def matrixSizeLogLikelihood(self,l):
+        return log(0.25) # uniform prior
         if l == 0: return log(0.3)
         if l == 1: return log(0.6)
         return log(0.05)
@@ -632,7 +649,8 @@ class FragmentGrammar():
     def frontierLikelihood(self, frontier):
         '''frontier: list of rules.
            returns log sum P[r|G]'''
-        return lseList([ self.ruleLogLikelihood(r)[0] for r in frontier ])
+        #return lseList([ self.ruleLogLikelihood(r)[0] for r in frontier ])
+        return max( self.ruleLogLikelihood(r)[0] for r in frontier )
     def frontiersLikelihood(self,frontiers):
         return sum([self.frontierLikelihood(f) for f in frontiers ])
     def logPrior(self):
@@ -641,6 +659,13 @@ class FragmentGrammar():
         return self.frontiersLikelihood(frontiers) + priorWeight*self.logPrior()
     def AIC(self, frontiers, alpha = 0.1):
         return alpha*len(self.fragments) - self.frontiersLogJoint(frontiers)
+    def MAP_uses(self, frontiers, fragment):
+        """returns the number of times that this fragment is used in the map rules"""
+        uses = 0
+        for frontier in frontiers:
+            bestUses = max([self.ruleLogLikelihood(r) for r in frontier], key=lambda lu: lu[0])[1]
+            uses += bestUses.get(fragment,0.)
+        return uses
 
     def export(self,f):
         dumpPickle(self.fragments, f)

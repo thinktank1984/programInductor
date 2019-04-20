@@ -93,6 +93,9 @@ class ConstantPhoneme(Specification,FC):
 
     def isDegenerate(self): return False
 
+    def violatesGeometry(self): return False
+    def makeGeometric(self): return self
+
     def share(self, table):
         k = ('CONSTANT',unicode(self))
         if k in table: return table[k]
@@ -142,6 +145,9 @@ class EmptySpecification(FC):
 
     def isDegenerate(self): return False
 
+    def violatesGeometry(self): return True
+    def makeGeometric(self): return self
+
     def share(self, table):
         k = ('EMPTYSPECIFICATION',unicode(self))
         if k in table: return table[k]
@@ -185,6 +191,9 @@ class OffsetSpecification(FC):
 
     def isDegenerate(self): return False
 
+    def violatesGeometry(self): return False
+    def makeGeometric(self): return self
+
     def share(self, table):
         k = ('OFFSETSPECIFICATION',unicode(self))
         if k in table: return table[k]
@@ -227,6 +236,9 @@ class PlaceSpecification(FC):
 
     def isDegenerate(self): return False
 
+    def violatesGeometry(self): return False
+    def makeGeometric(self): return self
+
     def share(self, table):
         k = ('PLACESPECIFICATION',unicode(self))
         if k in table: return table[k]
@@ -267,6 +279,9 @@ class BoundarySpecification(Specification):
     def extension(self,_): return "+"
 
     def isDegenerate(self): return False
+
+    def violatesGeometry(self): return False
+    def makeGeometric(self): return self
 
     def share(self, table):
         k = ('BOUNDARYSPECIFICATION',unicode(self))
@@ -309,6 +324,19 @@ class FeatureMatrix(Specification,FC):
         else:
             fp = (choice([True,False]),choice(bank.features))
             return FeatureMatrix(list(set(self.featuresAndPolarities + [fp])))
+
+    def violatesGeometry(self):
+        fs = {f for _,f in self.featuresAndPolarities}
+        vowelFeatures = {"rounded", "tense", "highTone"}
+        if len(fs&vowelFeatures) > 0 and "vowel" not in fs: return True
+        return False
+        
+    def makeGeometric(self):
+        if (True, "rounded") in self.featuresAndPolarities or \
+           (True, "tense") in self.featuresAndPolarities or \
+           (True,"highTone") in self.featuresAndPolarities:
+            return FeatureMatrix(list({(True,"vowel")}|set(self.featuresAndPolarities)))
+        return self
 
     def isDegenerate(self):
         if self.doesNothing: return False
@@ -451,6 +479,12 @@ class Guard():
         self.specifications = [ s for s in specifications if s != None ]
         assert len(self.specifications) <= 2
         self.representation = None # Unicode representation
+
+    def violatesGeometry(self):
+        return any( s.violatesGeometry for s in self.specifications )
+    def makeGeometric(self):
+        return Guard(self.side, self.endOfString, self.optionalEnding, self.starred,
+                     [s.makeGeometric() for s in self.specifications])
 
     def mutate(self,bank):
         endOfString = self.endOfString
@@ -635,6 +669,15 @@ class Rule():
             assert isinstance(self.structuralChange,EmptySpecification)
             assert self.focus.offset == 1
 
+
+    def violatesGeometry(self):
+        return self.focus.violatesGeometry() or \
+            self.leftTriggers.violatesGeometry() or \
+            self.rightTriggers.violatesGeometry()
+    def makeGeometric(self):
+        return Rule(self.focus.makeGeometric(), self.structuralChange,
+                    self.leftTriggers.makeGeometric(), self.rightTriggers.makeGeometric())
+    
     def isDegenerate(self):
         return self.focus.isDegenerate() or self.structuralChange.isDegenerate() or \
             self.leftTriggers.isDegenerate() or self.rightTriggers.isDegenerate()
