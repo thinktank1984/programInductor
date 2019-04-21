@@ -2,7 +2,7 @@
 
 ### Produce UG1
 pypy UG.py --export experimentOutputs/ug0.p \
-experimentOutputs/Odden_105_Bukusu_incremental_disableClean=False_features=sophisticated_geometry=True.p \
+experimentOutputs/Odden_105_Bukusu_incremental_disableClean=False_features=sophisticated_geometry=True.p \ # nasal place assimilate
 experimentOutputs/Odden_1.12_English_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_2.1_Hungarian_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_2.2_Kikuria_incremental_disableClean=False_features=sophisticated_geometry=True.p \

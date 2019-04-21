@@ -268,11 +268,11 @@ class UnderlyingProblem(object):
         xs.append([ solution.prefixes[i] + solution.underlyingForms[x] + solution.suffixes[i]
                     for x in self.data
                     for i in range(self.numberOfInflections)
-                    if x in solution.underlyingForms])
+                    if x in solution.underlyingForms and x[i] is not None])
         untilSuffix = [ Constant(len(solution.prefixes[i] + solution.underlyingForms[x]))
                         for x in self.data
                         for i in range(self.numberOfInflections)
-                        if x in solution.underlyingForms]
+                        if x in solution.underlyingForms and x[i] is not None]
         for r in solution.rules:
             assert len(xs[-1]) == len(untilSuffix)
             ys.append(parallelMap(CPUs, lambda (x,us): self.applyRuleUsingSketch(r,x,us),
