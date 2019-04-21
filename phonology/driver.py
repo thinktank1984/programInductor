@@ -126,7 +126,8 @@ def handleProblem(p):
         result = loadPickle(seed)
         assert isinstance(result, Result)
         worker = problem
-        seed = worker.solveUnderlyingForms(result.finalFrontier.MAP())
+        seed = worker.solveUnderlyingForms(result.finalFrontier.MAP(),
+                                           batchSize=1)
         frontier = worker.expandFrontier(seed, k = arguments.top)
         result.finalFrontier = frontier
         print frontier

@@ -250,7 +250,7 @@ class Solution(object):
 
         try: output = solveSketch(bank,bound,bound)
         except SynthesisFailure:
-            assert len(data) == 1
+            assert len(data) == 1,"transduction failed with batch size greater than one"
             return None
         return {surfaces: Morph.parse(bank, output, stem)
                 for surfaces, stem in zip(data, stems) }
@@ -262,7 +262,7 @@ class Solution(object):
         completed = 0
         while completed < len(data):
             b = data[completed:completed+batchSize]
-            stems.update(self._transduceManyStems(bank, b))
+            stems.update(self._transduceManyStems(bank, b) or {})
             completed += batchSize        
 
         return Solution(rules = self.rules,
