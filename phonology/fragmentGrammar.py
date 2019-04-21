@@ -599,6 +599,8 @@ class FragmentGrammar():
         key = unicode(m)
         if key in self.guardTable: return self.guardTable[key]
         ll,u = self.fragmentLikelihood(m, self.guardFragments)
+        if m.optionalEnding:
+            ll -= 1.
         self.guardTable[key] = (ll,u)
         return ll,u
 
@@ -691,6 +693,10 @@ baseType2fragmentType = dict((k.CONSTRUCTOR,k)\
 
 if __name__ == '__main__':
     from parseSPE import parseRule
+    r = parseRule('[ -tense ] ---> 0 /  _ {#,[ -sonorant ]}')
+    print EMPTYFRAGMENTGRAMMAR.ruleLogLikelihood(r)[1]
+    print r.rightTriggers
+    assert False
     ruleSets = [[parseRule('e > a / # _ [ -voice ]* h #')],
                 [parseRule('e > 0 / # _ [ -voice ]* [ +vowel ]#')]]
     proposeFragments(ruleSets,verbose = True)

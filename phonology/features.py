@@ -359,6 +359,9 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
 # feature set only apply to vowels
 VOWELFEATURES = {rounded, tense, longVowel, risingTone, lowTone, highTone, middleTone}
 
+# feature set only apply to consonants
+CONSONANTFEATURES = {aspirated,palletized}
+
 # features that always apply to vowels
 DEFAULTVOWELFEATURES = {sonorant,continuant}
 

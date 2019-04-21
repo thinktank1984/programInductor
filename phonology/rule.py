@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
-from features import FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES
+from features import FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES,CONSONANTFEATURES
 from morph import Morph
 from utilities import *
 
@@ -681,9 +681,16 @@ class Rule():
         # check to see if change could only ever apply to vowels
         if isinstance(change,FeatureMatrix) and isinstance(focus,FeatureMatrix):
            fs = {f for _,f in change.featuresAndPolarities}
-           if len(fs&VOWELFEATURES) > 0:
+           if len(fs&VOWELFEATURES) > 0 and len(fs) < 3:
                newFocus = {(True,"vowel")}|set(focus.featuresAndPolarities)
                focus = FeatureMatrix(list(newFocus)).makeGeometric()
+        # check if the change could only ever apply to consonants
+        if isinstance(change,FeatureMatrix) and isinstance(focus,FeatureMatrix):
+            fs = {f for _,f in change.featuresAndPolarities}
+            if len(fs&CONSONANTFEATURES) > 0 and len(fs) < 3:
+               newFocus = {(False,"vowel")}|set(focus.featuresAndPolarities)
+               focus = FeatureMatrix(list(newFocus)).makeGeometric()
+            
         return Rule(focus, change,
                     self.leftTriggers.makeGeometric(), self.rightTriggers.makeGeometric())
     
