@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
-from features import FeatureBank,featureMap,tokenize
+from features import FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES
 from morph import Morph
 from utilities import *
 
@@ -327,15 +327,16 @@ class FeatureMatrix(Specification,FC):
 
     def violatesGeometry(self):
         fs = {f for _,f in self.featuresAndPolarities}
-        vowelFeatures = {"rounded", "tense", "highTone"}
-        if len(fs&vowelFeatures) > 0 and "vowel" not in fs: return True
+        if len(fs&VOWELFEATURES) > 0 and "vowel" not in fs: return True
         return False
         
     def makeGeometric(self):
-        if (True, "rounded") in self.featuresAndPolarities or \
-           (True, "tense") in self.featuresAndPolarities or \
-           (True,"highTone") in self.featuresAndPolarities:
-            return FeatureMatrix(list({(True,"vowel")}|set(self.featuresAndPolarities)))
+        if any( (True, vf) in self.featuresAndPolarities for vf in VOWELFEATURES ):
+            self = FeatureMatrix(list({(True,"vowel")}|set(self.featuresAndPolarities)))
+        # remove redundant features
+        if (True,"vowel") in self.featuresAndPolarities:
+            self = FeatureMatrix([(p,f) for p,f in self.featuresAndPolarities
+                                  if f not in DEFAULTVOWELFEATURES])
         return self
 
     def isDegenerate(self):
@@ -675,7 +676,15 @@ class Rule():
             self.leftTriggers.violatesGeometry() or \
             self.rightTriggers.violatesGeometry()
     def makeGeometric(self):
-        return Rule(self.focus.makeGeometric(), self.structuralChange,
+        focus = self.focus.makeGeometric()
+        change = self.structuralChange
+        # check to see if change could only ever apply to vowels
+        if isinstance(change,FeatureMatrix) and isinstance(focus,FeatureMatrix):
+           fs = {f for _,f in change.featuresAndPolarities}
+           if len(fs&VOWELFEATURES) > 0:
+               newFocus = {(True,"vowel")}|set(focus.featuresAndPolarities)
+               focus = FeatureMatrix(list(newFocus)).makeGeometric()
+        return Rule(focus, change,
                     self.leftTriggers.makeGeometric(), self.rightTriggers.makeGeometric())
     
     def isDegenerate(self):

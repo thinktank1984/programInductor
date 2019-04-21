@@ -45,14 +45,14 @@ def worker(arguments):
                 result = loadPickle(source)
             except:
                 assert False, "Failure loading %s"%source
-            frontier = result.finalFrontier
+            frontier = result.finalFrontier.makeGeometric()
             frontiers.append(frontier)
             problems.append(result.problem)
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
             MAP = frontier.MAP().rules
             for rs,r in zip(frontier.frontiers,MAP):
                 print "frontier size",len(rs),"MAP",r
-                eq.append(list({r.makeGeometric() for r in rs}))
+                eq.append(rs)
                 print "alternatives..."
                 for r in eq[-1]:
                     print r

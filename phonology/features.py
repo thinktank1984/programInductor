@@ -356,6 +356,11 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
         features = featureMap[k]
         if k in vs:
             features.append(vowel)
+# feature set only apply to vowels
+VOWELFEATURES = {rounded, tense, longVowel, risingTone, lowTone, highTone, middleTone}
+
+# features that always apply to vowels
+DEFAULTVOWELFEATURES = {sonorant,continuant}
 
 # Include vowel/consonants diacritics
 vs = [ k for k in featureMap if vowel in featureMap[k] ]
@@ -363,8 +368,7 @@ cs = [ k for k in featureMap if not (vowel in featureMap[k]) ]
 for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
     for v in vs:
         if fm == sophisticatedFeatureMap:
-            fm[v] += [sonorant]
-            fm[v] += [continuant]
+            fm[v] += list(DEFAULTVOWELFEATURES)
         fm[v + u"́"] = fm[v] + [highTone]
         fm[v + u"`"] = fm[v] + [lowTone]
         fm[v + u"¯"] = fm[v] + [middleTone]
@@ -377,6 +381,8 @@ v = u"ʌ"
 for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
     fm[v + u"̃́"] = fm[v] + [nasal,highTone]
     fm[v + u"̃́:"] = fm[v] + [nasal,highTone,longVowel]
+
+
 
 # palletization
 for fm in [simpleFeatureMap, sophisticatedFeatureMap]:

@@ -29,6 +29,11 @@ class Frontier(object):
 
         assert isinstance(underlyingForms,dict)
 
+    def makeGeometric(self):
+        return Frontier([[r.makeGeometric() for r in rs]
+                         for rs in self.frontiers],
+                        self.prefixes, self.suffixes, self.underlyingForms)
+
     def __unicode__(self):
         rs = [ u"rule %d alternatives: \n\t%s"%(j+1,u"\n\t".join(map(unicode,f)))
                for j,f in enumerate(self.frontiers) ]
