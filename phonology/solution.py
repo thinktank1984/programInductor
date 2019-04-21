@@ -30,7 +30,7 @@ class Frontier(object):
         assert isinstance(underlyingForms,dict)
 
     def makeGeometric(self):
-        return Frontier([list({r.makeGeometric() for r in rs}),
+        return Frontier([list({r.makeGeometric() for r in rs})
                          for rs in self.frontiers],
                         self.prefixes, self.suffixes, self.underlyingForms)
 
