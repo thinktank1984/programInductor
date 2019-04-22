@@ -1239,6 +1239,8 @@ Serbo-Croatian Odden 4.1
             (u"križan",	u"križana",	u"križano",	u"križani",None,None,None,None),#	cross
             (u"sunčan", 	u"sunčana", 	u"sunčano", 	u"sunčani",None,None,None,None),#	sunny
             (u"svečan", 	u"svečana", 	u"svečano", 	u"svečani",None,None,None,None),#	formal
+            (u"bogat",	u"bogata",	u"bogato",	u"bogati",None,None,None,None),#	rich
+            (u"rapav",	u"rapava",	u"rapavo",	u"rapavi",None,None,None,None),#	rough
             (u"mlád",	u"mladá",	u"mladó",	u"mladí",None,None,None,None),#	young
             (u"túp",	u"tupá",	u"tupó",	u"tupí",None,None,None,None),#	blunt
             (u"blág",	u"blagá",	u"blagó",	u"blagí",None,None,None,None),#	mild
@@ -1252,8 +1254,6 @@ Serbo-Croatian Odden 4.1
             (u"dalék",	u"daleká", 	u"dalekó", 	u"dalekí",None,None,None,None),#	far
             (u"visók",	u"visoká", 	u"visokó", 	u"visokí",None,None,None,None),#	high
             (u"dubók",	u"duboká",	u"dubokó",	u"dubokí",None,None,None,None),#	deep
-            (u"bogat",	u"bogata",	u"bogato",	u"bogati",None,None,None,None),#	rich
-            (u"rapav",	u"rapava",	u"rapavo",	u"rapavi",None,None,None,None),#	rough
             (u"yásan",	u"yasná",	u"yasnó",	u"yasní",None,None,None,None),#	clear
             (u"vážan",	u"važná",	u"važnó",	u"važní",None,None,None,None),#	important
             (u"sítan",	u"sitná",	u"sitnó",	u"sitní",None,None,None,None),#	tiny

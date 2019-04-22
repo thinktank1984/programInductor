@@ -379,7 +379,6 @@ the integer is None then we have no guess for that one.'''
 
         ruleSize = sum([ruleCost(r) for r in rules ])
         totalCost = define("int",ruleSize + stemSize + affixSize)
-        print(ruleSize + stemSize + affixSize)
         if costUpperBound != None:
             if getVerbosity() > 1: print "conditioning upon total cost being less than",costUpperBound
             condition(totalCost < costUpperBound)
