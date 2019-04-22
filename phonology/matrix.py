@@ -56,6 +56,9 @@ class UnderlyingProblem(object):
         self.fixedMorphology = fixedMorphology
         assert len(self.fixedMorphology) == self.numberOfInflections
 
+        self.inflectionsPerObservation = sum(x is not None
+                                             for xs in self.data for x in xs )/len(self.data)
+
         self.pervasiveTimeout = None
 
         self.precomputedAlignment = None
@@ -357,7 +360,7 @@ the integer is None then we have no guess for that one.'''
         for j in range(self.numberOfInflections):
             adjustment = 0
             if morphologicalCosts != None and morphologicalCosts[j] != None: adjustment = morphologicalCosts[j]                
-            elif self.numberOfInflections > 5: # heuristic: adjust when there are at least five inflections
+            elif self.inflectionsPerObservation > 5: # heuristic: adjust when there are at least five inflections
                 for Lex,stemSize in zip(self.data,approximateStemSize):
                     if Lex[j] != None:  # this lexeme was annotated for this inflection; use it as a guess
                         adjustment = len(Lex[j]) - stemSize
