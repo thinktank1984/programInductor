@@ -105,8 +105,7 @@ def handleProblem(p):
               globalTimeout=arguments.timeout*60*60 if arguments.timeout is not None else None).\
              restrict(restriction)
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
-        result = ss.incrementallySolve(resume = arguments.resume,                                
-                                   k = arguments.top)
+        result = ss.incrementallySolve(k = arguments.top)
     elif arguments.task == 'CEGIS':
         ss = problem
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))

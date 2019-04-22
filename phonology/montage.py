@@ -37,6 +37,11 @@ class Bars():
         if self.problem.key == "Odden_2.4_Tibetan": return 1.
         if len(self.universal) == 0: return 0.
         n = len(self.problem.data)
+        if "Somali" in self.language and False:
+            u = self.universal[0]
+            print(n)
+            print(u.finalFrontier.MAP())
+            print(len(u.finalFrontier.underlyingForms))
         return float(max(len(u.finalFrontier.underlyingForms) for u in self.universal))/n
 
     def baselineHeight(self, b):
@@ -115,9 +120,9 @@ if __name__ == "__main__":
         
         bars.append(Bars(problem,ul,bl_1,bl_2))
 
-    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight()))
+    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -b.baselineHeight(1)))
 
-    if False:
+    if True:
         for n,b in enumerate(bars):
             if b.alternation: b.name = b.problem.languageName + "*"
             else:
