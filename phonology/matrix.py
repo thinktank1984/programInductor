@@ -364,6 +364,7 @@ the integer is None then we have no guess for that one.'''
                         break
             else: adjustment = 0
             affixAdjustment.append(adjustment)
+            print "affix adjustment",adjustment
                 
         affixSize = sum([ wordLength(prefixes[j]) + wordLength(suffixes[j]) - affixAdjustment[j]
                           for j in range(self.numberOfInflections) ])
