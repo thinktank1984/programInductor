@@ -1236,13 +1236,13 @@ Serbo-Croatian Odden 4.1
 #	Adjectives
 #	Masc.	Fem.	Neut.	Pl.
 	[
+            (u"križan",	u"križana",	u"križano",	u"križani",None,None,None,None),#	cross
+            (u"sunčan", 	u"sunčana", 	u"sunčano", 	u"sunčani",None,None,None,None),#	sunny
+            (u"svečan", 	u"svečana", 	u"svečano", 	u"svečani",None,None,None,None),#	formal
             (u"mlád",	u"mladá",	u"mladó",	u"mladí",None,None,None,None),#	young
             (u"túp",	u"tupá",	u"tupó",	u"tupí",None,None,None,None),#	blunt
             (u"blág",	u"blagá",	u"blagó",	u"blagí",None,None,None,None),#	mild
             (u"grúb",	u"grubá",	u"grubó",	u"grubí",None,None,None,None),#	coarse
-            (u"križan",	u"križana",	u"križano",	u"križani",None,None,None,None),#	cross
-            (u"sunčan", 	u"sunčana", 	u"sunčano", 	u"sunčani",None,None,None,None),#	sunny
-            (u"svečan", 	u"svečana", 	u"svečano", 	u"svečani",None,None,None,None),#	formal
             (u"béo",	u"belá",	u"beló",	u"belí",None,None,None,None),#	white
             (u"veseo",	u"vesela",	u"veselo",	u"veseli",None,None,None,None),#	gay
             (u"debéo",	u"debelá",	u"debeló",	u"debelí",None,None,None,None),#	fat
