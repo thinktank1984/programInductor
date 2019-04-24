@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir  -p jobs/ug0
+for language in "$@"
+do
+    timestamp="$(date +"%F_%T")"
+    EXPORT=jobs/ug0/"$language"_$timestamp
+    echo "Running language $language and exporting to $EXPORT"
+
+    export PYTHONIOENCODING=utf-8
+
+    python driver.py $language incremental -t 100 --timeout 24.0 --geometry  > $EXPORT 2>&1  
+done
