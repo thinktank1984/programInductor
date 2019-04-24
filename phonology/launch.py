@@ -18,7 +18,7 @@ def branch():
 
 def launchGoogleCloud(size, name):
     name = name.replace('_','-').replace('.','-').lower()
-    os.system("gcloud compute --project tenenbaumlab disks create %s --size 30 --zone us-east1-b --source-snapshot dreamcoder-jan26 --type pd-standard"%name)
+    os.system("gcloud compute --project tenenbaumlab disks create %s --size 30 --zone us-east1-b --source-snapshot phonology-snapshot --type pd-standard"%name)
     output = \
         subprocess.check_output(["/bin/bash", "-c",
                                  "gcloud compute --project=tenenbaumlab instances create %s --zone=us-east1-b --machine-type=%s --subnet=default --network-tier=PREMIUM --maintenance-policy=MIGRATE --service-account=150557817012-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --disk=name=%s,device-name=%s,mode=rw,boot=yes,auto-delete=yes"%(name,size, name, name)])
@@ -76,6 +76,9 @@ def sendCommand(
         copyCheckpoint = "mv ~/%s ~/ec/experimentOutputs" % checkpoint
 
     preamble = """#!/bin/bash
+python programInductor/phonology/command_server.py KILL
+export PATH="$PATH:/home/ellisk/sketch-1.7.5/sketch-frontend"
+export SKETCH_HOME="/home/ellisk/sketch-1.7.5/sketch-frontend/runtime"
 cd ~/programInductor/
 %s
 git fetch
@@ -110,6 +113,7 @@ UPLOADPID=$!
     if upload:
         script += """
 kill -9 $UPLOADPID
+cd ..
 %s
 """ % (uploadCommand)
     if shutdown:
@@ -205,10 +209,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument('-u', "--upload",
                         default={
-                            "ellisk": "ellisk@openmind7.mit.edu:/om2/user/ellisk/ec",
-                            "lucasem": "lucasem@rig.lucasem.com:repo/ec",
-                            "mnye": "mnye@openmind7.mit.edu:/om/user/mnye/ec_aws_logs",
-                            "catwong": "zyzzyva@openmind7.mit.edu:/om2/user/zyzzyva/ec"
+                            "ellisk": "ellisk@openmind7.mit.edu:/om2/user/ellisk/phonology",
                         }.get(user(), None))
     parser.add_argument('-z', "--size",
                         default="t2.micro")
