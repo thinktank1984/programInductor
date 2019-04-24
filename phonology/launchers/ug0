@@ -13,7 +13,7 @@
 # $AKLOG
 # nohup $AUTHLOOP $KEYTAB >> $AUTHOUT &
 
-
+mkdir  -p jobs/ug0
 for language in "$@"
 do
     

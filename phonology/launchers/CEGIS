@@ -1,4 +1,7 @@
 #!/bin/bash
+
+mkdir  -p jobs/CEGIS
+
 for language in "$@"
 do
 
