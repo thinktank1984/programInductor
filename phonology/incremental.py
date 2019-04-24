@@ -287,11 +287,11 @@ class IncrementalSolver(UnderlyingProblem):
             raise MemoryExhausted()
         loss = parseMinimalCostValue(output)
         if loss is None:
-            print "WARNING: None loss"
-            print output
-            printLastSketchOutput()
-            print makeSketchSkeleton()
-            assert False
+            print "WARNING: None loss - interpreting this as a timeout."
+            raise SynthesisTimeout()
+            # print output
+            # print makeSketchSkeleton()
+            # assert False
 
         underlyingForms = dict(zip(dataToConditionOn, [Morph.parse(self.bank, output, s)
                                                        for s in stems ]))

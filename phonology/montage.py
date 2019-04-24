@@ -63,7 +63,7 @@ class Bars():
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description = "Graphs the the system on all of the languages")
-    
+    parser.add_argument("--final","-f",action='store_true',default=False)
     arguments = parser.parse_args()
 
     baselinePath_1 = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=False.p"]
@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -b.baselineHeight(1)))
 
-    if True:
+    if arguments.final:
         for n,b in enumerate(bars):
             if b.alternation: b.name = b.problem.languageName + "*"
             else:
@@ -159,5 +159,8 @@ if __name__ == "__main__":
         a.set(yticks=ys + W,
               yticklabels=[b.name for b in bs ])
 
-    plot.show()
+    if not arguments.final:
+        plot.show()
+    else:
+        plot.savefig("/tmp/language_montage.png")
 
