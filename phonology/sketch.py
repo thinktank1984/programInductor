@@ -248,8 +248,9 @@ def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = F
         assert False,"Sketch parse error"
     else:
         if actualTime > 5*60 and actualTime < 15*60:
-            print "This sketch should be sent to Armando!"
-            sendItToArmando(source, actualTime)
+            if os.path.exists("phonologySketches"):
+                print "This sketch should be sent to Armando!"
+                sendItToArmando(source, actualTime)
         return output
 
 

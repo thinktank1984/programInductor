@@ -1059,7 +1059,13 @@ Russian Halle 149
 	(u"blaxá", u"blóx", u"blax^yɛ́", u"blóx^yi") # flea
 	],
 	solutions = [u'''
-# No solution
+stem + á
+stem
+stem + ɛ́
+stem + ɨ
+        [-sonorant] > [-voice] / _ #
+        C > [+palletized] / _ ɛ́
+        V > [-highTone] / _ C* [+highTone]
 
 	''']
 	))

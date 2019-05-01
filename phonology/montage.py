@@ -51,7 +51,7 @@ class Bars():
         b = self.baselines[b]
         if b is None: return 0.
         n = len(self.problem.data)
-        return float(len(b.finalFrontier.underlyingForms))/n
+        return max(float(len(b.finalFrontier.underlyingForms))/n,0.02)
 
     def __str__(self):
         return "Bars(%s,%f)"%(self.name, self.universalHeight())
