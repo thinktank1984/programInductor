@@ -32,6 +32,11 @@ class Bars():
     @property
     def language(self): return self.problem.languageName
 
+    def universalTime(self):
+        if not self.alternation and self.universal:
+            print self.name, "solved in", min(r.solutionSequence[-1][1] for r in self.universal), "seconds"
+        
+
     def universalHeight(self):
         if self.alternation: return 1.
         if self.problem.key == "Odden_2.4_Tibetan": return 1.
@@ -72,6 +77,7 @@ if __name__ == "__main__":
     universalPath = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_ug.p",
                      "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"]
     bars = []
+
     for name, problem in Problem.named.iteritems():
         if "Kevin" in name: continue
 
@@ -120,6 +126,10 @@ if __name__ == "__main__":
         
         bars.append(Bars(problem,ul,bl_1,bl_2))
 
+    # for b in bars:
+    #     b.universalTime()
+    # assert False
+
     bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -b.baselineHeight(1)))
 
     if arguments.final:
@@ -159,7 +169,7 @@ if __name__ == "__main__":
         a.set(yticks=ys + W,
               yticklabels=[b.name for b in bs ])
 
-    if not arguments.final:
+    if not arguments.final or str:
         plot.show()
     else:
         plot.savefig("/tmp/language_montage.png")

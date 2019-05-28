@@ -14,7 +14,9 @@ experimentOutputs/Odden_2.2_Kikuria_incremental_disableClean=False_features=soph
 experimentOutputs/Odden_2.5_Makonde_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_3.1_Kerewe_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_116_Armenian_incremental_disableClean=False_features=sophisticated.p \
-experimentOutputs/Odden_3.2_Polish_incremental_disableClean=False_features=sophisticated_geometry=True.p \
+experimentOutputs/Odden_4.1_Serbo_Croatian_incremental_disableClean=False_features=sophisticated_geometry=True.p \
+experimentOutputs/Odden_4.4_Latin_incremental_disableClean=False_features=sophisticated_geometry=True.p \
+experimentOutputs/Odden_3.5_Catalan_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_3.3_Ancient_Greek_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_68_69_Russian_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Odden_76_77_Kerewe_incremental_disableClean=False_features=sophisticated_geometry=True.p \
@@ -26,6 +28,10 @@ experimentOutputs/Roca_16_German_incremental_disableClean=False_features=sophist
 experimentOutputs/Roca_89_Lumasaaba_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Roca_104_Tunica_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 experimentOutputs/Halle_85_Turkish_incremental_disableClean=False_features=sophisticated_geometry=True.p \
-experimentOutputs/Halle_109_Russian_incremental_disableClean=False_features=sophisticated_geometry=True.p
+experimentOutputs/Halle_109_Russian_incremental_disableClean=False_features=sophisticated_geometry=True.p \
+ 2>&1 | tee jobs/UNIVERSALGEOMETRY
+
+# non- nasal
+experimentOutputs/Odden_3.2_Polish_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 
 ### Multilingual montage
