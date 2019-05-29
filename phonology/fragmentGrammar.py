@@ -359,8 +359,13 @@ def proposeFragments(ruleSets, verbose = False):
                             if pt != qt: continue
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             newFragments = [ f for f in abstractFragments[pt](pf,qf)
-                                             if (f not in badFragments[pt]) and (not f.isDegenerate()) and (not f.violatesGeometry())
+                                             if (f not in badFragments[pt]) and (not f.isDegenerate())
                             ]
+                            for nf in newFragments:
+                                if nf.violatesGeometry():
+                                    print "VIOLATION",nf
+                            newFragments = [f for f in newFragments
+                                            if not f.violatesGeometry()]
                             
                             # if [ f for f in newFragments if "instance at" in str(f) ]:
                             #     print pt,pf
