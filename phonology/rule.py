@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
-from features import FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES,CONSONANTFEATURES
+from features import *#FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES,CONSONANTFEATURES
 from morph import Morph
 from utilities import *
 
@@ -337,6 +337,9 @@ class FeatureMatrix(Specification,FC):
         if (True,"vowel") in self.featuresAndPolarities:
             self = FeatureMatrix([(p,f) for p,f in self.featuresAndPolarities
                                   if f not in DEFAULTVOWELFEATURES])
+
+        if any( (True, vf) in self.featuresAndPolarities for vf in CONSONANTPLACEFEATURES ):
+            self = FeatureMatrix(list({(False,"vowel")}|set(self.featuresAndPolarities)))
         return self
 
     def isDegenerate(self):

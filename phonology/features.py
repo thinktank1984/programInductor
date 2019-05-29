@@ -362,6 +362,8 @@ VOWELFEATURES = {rounded, tense, longVowel, risingTone, lowTone, highTone, middl
 # feature set only apply to consonants
 CONSONANTFEATURES = {aspirated,palletized}
 
+CONSONANTPLACEFEATURES = {anterior,coronal}
+
 # features that always apply to vowels
 DEFAULTVOWELFEATURES = {sonorant,continuant}
 
