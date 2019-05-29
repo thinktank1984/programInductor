@@ -361,11 +361,9 @@ def proposeFragments(ruleSets, verbose = False):
                             newFragments = [ f for f in abstractFragments[pt](pf,qf)
                                              if (f not in badFragments[pt]) and (not f.isDegenerate())
                             ]
-                            for nf in newFragments:
-                                if nf.violatesGeometry():
-                                    print "VIOLATION",nf
-                            newFragments = [f for f in newFragments
-                                            if not f.violatesGeometry()]
+
+                            # newFragments = [f for f in newFragments
+                                            # if not f.violatesGeometry()]
                             
                             # if [ f for f in newFragments if "instance at" in str(f) ]:
                             #     print pt,pf
@@ -380,6 +378,12 @@ def proposeFragments(ruleSets, verbose = False):
                     completedPairs, numberOfPairs, int(float(completedPairs)/numberOfPairs*100),
                     time() - startTime,
                     (numberOfPairs - completedPairs)/(completedPairs/(time() - startTime)))
+    for fs in fragments.values():
+        for f in fs:
+            if f.violatesGeometry():
+                print "VIOLATION",f
+    fragments = {tp: {f for f in fs if not f.violatesGeometry() }
+                 for tp,fs in fragments.iteritems()} 
 
 
     totalNumberOfFragments = sum([len(v) for v in fragments.values() ])
