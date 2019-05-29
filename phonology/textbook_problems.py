@@ -718,9 +718,10 @@ Zoque Roca 25
 	(u"faha", 			u"faha"),			# belt
 	(u"šapun", 			u"šapun"),			# soap
 	], 
-	solutions = [u'''
+	solutions = [
+u'''
 stem
-m + stem
+ɲ + stem
         [+nasal] > 0 / #_[-sonorant +continuant -voice]
         [+nasal] > place+1 / #_ C
         C > [+voice] / #[+nasal]C*_

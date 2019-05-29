@@ -347,7 +347,7 @@ int specification_cost(Specification s) {
   case ConstantPhoneme:{ return 2; }
   case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
   case Offset:{ return 1; }
-  case Place:{ return 1; }
+  case Place:{ return 2; }
   case Vector:{
     int c = 1 + VECTORCOST(s);
     // Alternation problems basically have their specification already given
