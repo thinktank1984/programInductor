@@ -106,6 +106,12 @@ def handleProblem(p):
              restrict(restriction)
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
         result = ss.incrementallySolve(k = arguments.top)
+        if result.finalFrontier is not None:
+            print "Final frontier:"
+            print result.finalFrontier
+        else:
+            print "No final frontier."
+            
     elif arguments.task == 'CEGIS':
         ss = problem
         if arguments.alignment: ss.loadAlignment('precomputedAlignments/%s.p'%(p.key))
