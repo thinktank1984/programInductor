@@ -1108,14 +1108,25 @@ in between sonants voiced fricatives become stops
 	(u"dulen",	u"dulentə"),#	‘bad’
 	(u"əstuðian",	u"əstuðiantə"),#	‘student’
 	(u"blaŋ",	u"blaŋkə")],#	‘white’
-    solutions = [u''' + stem + 
- + stem + ə
-    [-sonorant] > [-voice] / _ #
-    [-sonorant +voice] > [+continuant] / [+sonorant -nasal] _ [+sonorant]
-    [+sonorant -lateral +coronal] > 0 / _ #
-    [+coronal -sonorant] > 0 / [+coronal +sonorant] _ #
-    k > 0 /  ŋ _ #
-    [+vowel] > 0 / [+vowel] [-vowel]* _ [+vowel] #''']))
+    solutions = [u'''
+stem
+stem + ə
+ [ +coronal ] ---> ñ / [ -vowel ] _ #
+ č ---> place-1 /  _ 
+ [ -sonorant ] ---> [ -voice ] /  _ #
+ [ +voice -sonorant ] ---> [ +continuant ] / [  ] [ +continuant ] _ 
+ [ +vowel ] ---> Ø / [ -sonorant ] _ ə
+ [ +coronal +voice -lateral ] ---> Ø /  _ #
+'''
+ #        u''' + stem + 
+ # + stem + ə
+ #    [-sonorant] > [-voice] / _ #
+ #    [-sonorant +voice] > [+continuant] / [+sonorant -nasal] _ [+sonorant]
+ #    [+sonorant -lateral +coronal] > 0 / _ #
+ #    [+coronal -sonorant] > 0 / [+coronal +sonorant] _ #
+ #    k > 0 /  ŋ _ #
+ #    [+vowel] > 0 / [+vowel] [-vowel]* _ [+vowel] #'''
+    ]))
 
 MATRIXPROBLEMS.append(Problem(
     '''Finnish  Odden 3.6
