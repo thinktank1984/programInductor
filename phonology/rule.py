@@ -338,7 +338,9 @@ class FeatureMatrix(Specification,FC):
             self = FeatureMatrix([(p,f) for p,f in self.featuresAndPolarities
                                   if f not in DEFAULTVOWELFEATURES])
 
-        if any( (True, vf) in self.featuresAndPolarities for vf in CONSONANTPLACEFEATURES ):
+        if any( (True, vf) in self.featuresAndPolarities for vf in CONSONANTPLACEFEATURES ) and \
+           not sonorant in {f for _,f in self.featuresAndPolarities } and \
+           len(self.featuresAndPolarities) < 3:
             self = FeatureMatrix(list({(False,"vowel")}|set(self.featuresAndPolarities)))
         return self
 
@@ -690,7 +692,8 @@ class Rule():
         # check if the change could only ever apply to consonants
         if isinstance(change,FeatureMatrix) and isinstance(focus,FeatureMatrix):
             fs = {f for _,f in change.featuresAndPolarities}
-            if len(fs&CONSONANTFEATURES) > 0 and len(fs) < 3 and not "sonorant" in fs:
+            focus_fs = {f for _,f in focus.featuresAndPolarities}
+            if len(fs&CONSONANTFEATURES) > 0 and len(fs) < 3 and len(focus_fs&{sonorant}) == 0:
                newFocus = {(False,"vowel")}|set(focus.featuresAndPolarities)
                focus = FeatureMatrix(list(newFocus)).makeGeometric()
             
