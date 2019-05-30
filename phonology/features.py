@@ -510,17 +510,27 @@ class FeatureBank():
         placeFeatures = [anterior, coronal, high, back, low]
         target = self.featureMap[target]
         if u"ŋ" in self.phonemes and nasal in target and source == u"h": return u"ŋ"
-        if u"ɲ" in self.phonemes and nasal in target and source in [u"ç",u"ɉ"]: return u"ɲ"
         if u"ɲ̩" in self.phonemes and nasal in target and source in [u"ǰ"]:
             if syllabic in target: return u"ɲ̩"
             else: return u"ɲ"
+        if u"ɲ" in self.phonemes and nasal in target and source in [u"ç",u"ɉ",u"ǰ",u"č"]: return u"ɲ"
+        
         source = self.featureMap[source]
+        
         for f in placeFeatures:
             if f in source: target = target + [f]
             else: target = [_f for _f in target if f != _f ]
         target = set(target)
+        
         destination,_ = min(list(self.featureMap.iteritems()),
-                          key=lambda pf: len(target^set(pf[1])))
+                            key=lambda pf: len(target^set(pf[1])))
+        if False:
+            lowest_score = len(target^set(self.featureMap[destination]))
+            for pf in self.featureMap.iteritems():
+                score = len(target^set(pf[1]))
+                if score == lowest_score and pf[0] != destination:
+                    print "ambiguity: target=",targetPhoneme,"source=",sourcePhoneme,"gt=",destination,"vs=",pf[0]
+        
         return destination
 
     def calculatePlaceMapping(self):
