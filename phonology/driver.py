@@ -132,7 +132,6 @@ def handleProblem(p):
         assert isinstance(result, Result)
         worker = problem
         print result.finalFrontier
-        assert False
         seed = worker.solveUnderlyingForms(result.finalFrontier.MAP(),
                                            batchSize=1)
         frontier = worker.expandFrontier(seed, k = arguments.top)
