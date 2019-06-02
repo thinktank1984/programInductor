@@ -605,7 +605,7 @@ the integer is None then we have no guess for that one.'''
         #for r in rules: condition(Not(ruleDoesNothing(r)))
 
         stemCostExpression = sum([ wordLength(u) for u in stems ]) - stemBaseline
-        stemCostVariable = unknownInteger()#(numberOfBits = minimizeBits)
+        stemCostVariable = unknownInteger(numberOfBits = minimizeBits)
         condition(stemCostVariable == stemCostExpression)
         minimize(stemCostExpression)
         ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])

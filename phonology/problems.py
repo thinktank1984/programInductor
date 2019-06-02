@@ -964,23 +964,28 @@ This is the same as the other Polish problem but modified for better illustratio
 ''',
     #singular	plural		singular	plural
 	[
+            (u"klup",	u"klubi"),#	‘club’
+            (u"trup",	u"trupi"),#	‘corpse’
+	    (u"dom",	u"domi"),#	‘house’
+            (u"snop",	u"snopi"),#	‘sheaf’
+	    (u"žwup",	u"žwobi"),#	‘crib’
+            (u"trut",	u"trudi"),#	‘labor’
+	    (u"dzvon",	u"dzvoni"),#	‘bell’
+            (u"kot",	u"koti"),#	‘cat’
+	    (u"lut",	u"lodi"),#	‘ice’
+            (u"grus",	u"gruzi"),#	‘rubble’
+	    (u"nos",	u"nosi"),#	‘nose’
+            (u"vus",	u"vozi"),#	‘cart’
 	    (u"wuk",	u"wugi"),#	‘lye’
             (u"wuk",	u"wuki"),#	‘bow’
-            (u"lut",	u"lodi"),#	‘ice’
-#            (u"klup",	u"klubi"),#	‘club’
-	    (u"dom",	u"domi"),#	‘house’
-            (u"vus",	u"vozi"),#	‘cart’
-            (u"kot",	u"koti"),#	‘cat’
+	    (u"sok",	u"soki"),#	‘juice’
             (u"ruk",	u"rogi"),#	‘horn’
-	    # (u"sok",	u"soki"),#	‘juice’
-            # (u"ruk",	u"rogi"),#	‘horn’
-	    # (u"bur",	u"bori"),#	‘forest’
+	    (u"bur",	u"bori"),#	‘forest’
             (u"vuw",	u"vowi"),#	‘ox’
-	    # (u"sul",	u"soli"),#	‘salt’
-            # (u"buy",	u"boyi"),#	‘fight’
+	    (u"sul",	u"soli"),#	‘salt’
+            (u"buy",	u"boyi"),#	‘fight’
 	    (u"šum",	u"šumi"),#	‘noise’
-            # (u"žur",	u"žuri")
-        ],#	‘soup’
+            (u"žur",	u"žuri")],#	‘soup’
     solutions = [u'''
  + stem + 
  + stem + i
