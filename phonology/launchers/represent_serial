@@ -1,15 +1,15 @@
 #!/bin/bash
 
-mkdir  -p jobs/ug0
+mkdir  -p jobs/represent
 for language in "$@"
 do
     
-    EXPORT=jobs/ug0/$language
+    EXPORT=jobs/represent/$language
     echo "Output will be sent to $EXPORT"
     echo "WARNING: deleting $EXPORT"
     rm $EXPORT
 
     export PYTHONIOENCODING=utf-8
 
-    python driver.py $language incremental -t 100 --timeout 24.0 --geometry  > $EXPORT 2>&1  &
+    python driver.py $language incremental --timeout 24.0 --disableClean --features none  > $EXPORT 2>&1  
 done
