@@ -32,6 +32,9 @@ experimentOutputs/Halle_85_Turkish_incremental_disableClean=False_features=sophi
 experimentOutputs/Halle_109_Russian_incremental_disableClean=False_features=sophisticated_geometry=True.p \
  2>&1 | tee jobs/UNIVERSALGEOMETRY
 
+# maybe bad?
+Odden_2.2_Kikuria
+
 # non- nasal
 experimentOutputs/Odden_3.2_Polish_incremental_disableClean=False_features=sophisticated_geometry=True.p \
 

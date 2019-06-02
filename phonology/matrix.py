@@ -604,10 +604,10 @@ the integer is None then we have no guess for that one.'''
         # actually we want this
         #for r in rules: condition(Not(ruleDoesNothing(r)))
 
-        stemCostExpression = sum([ wordLength(u) for u in stems ])
-        stemCostVariable = unknownInteger(numberOfBits = minimizeBits)
+        stemCostExpression = sum([ wordLength(u) for u in stems ]) - stemBaseline
+        stemCostVariable = unknownInteger()#(numberOfBits = minimizeBits)
         condition(stemCostVariable == stemCostExpression)
-        minimize(stemCostExpression - stemBaseline)
+        minimize(stemCostExpression)
         ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])
         ruleCostVariable = unknownInteger()
         condition(ruleCostVariable == ruleCostExpression)
@@ -623,14 +623,14 @@ the integer is None then we have no guess for that one.'''
                     # This condition just says that it has to be a
                     # different trade-off. Gets things a little bit off of
                     # the front
-                    condition(And([ruleCostVariable == rc,stemCostVariable == uc]) == 0)
+                    condition(And([ruleCostVariable == rc,stemCostVariable == (uc - stemBaseline)]) == 0)
                 else:
                     # This condition says that it has to actually be on
                     # the pareto - a stronger constraint
-                    condition(Or([ruleCostVariable < rc, stemCostVariable < uc]))
+                    condition(Or([ruleCostVariable < rc, stemCostVariable < (uc - stemBaseline)]))
 
             try:
-                output = self.solveSketch(minimizeBound = 31)
+                output = self.solveSketch(minimizeBound = int(2**minimizeBits - 1))
             except SynthesisFailure:
                 print "Exiting Pareto procedure early due to unsatisfied"
                 break
@@ -650,7 +650,7 @@ the integer is None then we have no guess for that one.'''
             uc = sum([len(u) for u in s.underlyingForms.values() ])
             rc = int(rc + 0.5)
             print "Costs:",(rc,uc)
-            actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable))
+            actualCosts = (parseInteger(output, ruleCostVariable), parseInteger(output, stemCostVariable) + stemBaseline)
             print "Actual costs:",actualCosts
             if not (actualCosts == (rc,uc)):
                 print output
