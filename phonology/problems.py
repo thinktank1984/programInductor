@@ -957,6 +957,37 @@ What two tone rules are motivated by the following data; explain what order the 
 [  ] ---> [ +highTone ] / [ +highTone ] [  ] _ [  ]
 ''']))
 
+Problem(
+    '''Polish Kevin 99
+
+This is the same as the other Polish problem but modified for better illustration of Pareto frontier. only a subset of data is included.
+''',
+    #singular	plural		singular	plural
+	[
+	    (u"wuk",	u"wugi"),#	‘lye’
+            (u"wuk",	u"wuki"),#	‘bow’
+            (u"lut",	u"lodi"),#	‘ice’
+#            (u"klup",	u"klubi"),#	‘club’
+	    (u"dom",	u"domi"),#	‘house’
+            (u"vus",	u"vozi"),#	‘cart’
+            (u"kot",	u"koti"),#	‘cat’
+            (u"ruk",	u"rogi"),#	‘horn’
+	    # (u"sok",	u"soki"),#	‘juice’
+            # (u"ruk",	u"rogi"),#	‘horn’
+	    # (u"bur",	u"bori"),#	‘forest’
+            (u"vuw",	u"vowi"),#	‘ox’
+	    # (u"sul",	u"soli"),#	‘salt’
+            # (u"buy",	u"boyi"),#	‘fight’
+	    (u"šum",	u"šumi"),#	‘noise’
+            # (u"žur",	u"žuri")
+        ],#	‘soup’
+    solutions = [u'''
+ + stem + 
+ + stem + i
+o ---> u /  _ [ -nasal +voice ] #
+[ -sonorant ] ---> [ -voice ] /  _ #
+'''])
+
 MATRIXPROBLEMS.append(Problem(
     '''Polish Odden 3.2
 

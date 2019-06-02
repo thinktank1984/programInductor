@@ -580,7 +580,8 @@ the integer is None then we have no guess for that one.'''
     
 
     def paretoFront(self, depth, k, temperature, useMorphology = False,
-                    morphologicalCoefficient = 3):
+                    morphologicalCoefficient = 3,
+                    stemBaseline=0, minimizeBits=7):
         # no idea why we want this
         #self.maximumObservationLength += 1
 
@@ -604,9 +605,9 @@ the integer is None then we have no guess for that one.'''
         #for r in rules: condition(Not(ruleDoesNothing(r)))
 
         stemCostExpression = sum([ wordLength(u) for u in stems ])
-        stemCostVariable = unknownInteger(numberOfBits = 7)
+        stemCostVariable = unknownInteger(numberOfBits = minimizeBits)
         condition(stemCostVariable == stemCostExpression)
-        minimize(stemCostExpression - 50)
+        minimize(stemCostExpression - stemBaseline)
         ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])
         ruleCostVariable = unknownInteger()
         condition(ruleCostVariable == ruleCostExpression)

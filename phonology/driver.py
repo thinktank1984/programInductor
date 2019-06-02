@@ -151,8 +151,6 @@ def handleProblem(p):
 
 
 def paretoFrontier(p):
-    from time import time
-    
     print p.description
     name = p.key
     random.seed(0)
@@ -164,14 +162,17 @@ def paretoFrontier(p):
         data = data[arguments.restrict[0] : arguments.restrict[1]]
         print "\n".join(map(str,data))
     p = UnderlyingProblem(data)
-    paretoFront = p.paretoFront(3, 10, 1,
+    paretoFront = p.paretoFront(2, 10, 1,
                                 morphologicalCoefficient=1,
-                                useMorphology=True)
-    if arguments.pickleDirectory is not None:
-        t = int(time())
-        path = arguments.pickleDirectory + "/" + name + "_" + str(t) + "_paretoFrontier.p"
-        dumpPickle(paretoFront, path)
-        print "Exported Pareto frontier to",path
+                                useMorphology=True,
+                                stemBaseline=arguments.stemBaseline,
+                                minimizeBits=arguments.minimizeBits)
+    path = "paretoFrontier/" + arguments.problem
+    if arguments.restrict:
+        path = path + "_restrict" + str(arguments.restrict[0]) + "_" + str(arguments.restrict[1])
+    path = path + "_mb=" + str(arguments.minimizeBits) + "_sb=" + str(arguments.stemBaseline) + ".p"
+    dumpPickle(paretoFront, path)
+    print "Exported Pareto frontier to",path
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Solve jointly for morphology and phonology given surface inflected forms of lexemes')
@@ -211,6 +212,10 @@ if __name__ == '__main__':
     parser.add_argument('--debug', default = None, type = lambda s: unicode(s,'utf8'))
     parser.add_argument('--restrict', default = None, type = str)
     parser.add_argument('--samples', default = 30, type = int)
+    parser.add_argument('--stemBaseline', default = 30, type = int,
+                        help="when enumerating praetor frontier, subtract this from stem cost.")
+    parser.add_argument('--minimizeBits', default = 5, type = int,
+                        help="when enumerating praetor frontier, in code objectives using this many minimize bits")
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
     arguments = parser.parse_args()
