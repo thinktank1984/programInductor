@@ -162,7 +162,7 @@ def paretoFrontier(p):
         data = data[arguments.restrict[0] : arguments.restrict[1]]
         print "\n".join(map(str,data))
     p = UnderlyingProblem(data)
-    paretoFront = p.paretoFront(2, 10, 1,
+    paretoFront = p.paretoFront(arguments.maximumDepth, 10, 1,
                                 morphologicalCoefficient=1,
                                 useMorphology=True,
                                 stemBaseline=arguments.stemBaseline,
@@ -170,7 +170,7 @@ def paretoFrontier(p):
     path = "paretoFrontier/" + arguments.problem
     if arguments.restrict:
         path = path + "_restrict" + str(arguments.restrict[0]) + "_" + str(arguments.restrict[1])
-    path = path + "_mb=" + str(arguments.minimizeBits) + "_sb=" + str(arguments.stemBaseline) + ".p"
+    path = path + "_depth=" + str(arguments.maximumDepth) + "_mb=" + str(arguments.minimizeBits) + "_sb=" + str(arguments.stemBaseline) + ".p"
     dumpPickle(paretoFront, path)
     print "Exported Pareto frontier to",path
     
@@ -216,6 +216,8 @@ if __name__ == '__main__':
                         help="when enumerating praetor frontier, subtract this from stem cost.")
     parser.add_argument('--minimizeBits', default = 5, type = int,
                         help="when enumerating praetor frontier, in code objectives using this many minimize bits")
+    parser.add_argument('--maximumDepth', default = 3, type = int,
+                        help="when enumerating praetor frontier, this is the maximum number of rules")
     parser.add_argument('-V','--verbosity', default = 0, type = int)
 
     arguments = parser.parse_args()
