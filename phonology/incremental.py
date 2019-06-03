@@ -603,6 +603,7 @@ class SupervisedIncremental(IncrementalSolver):
         
                 
         IncrementalSolver.__init__(self, data, problemName=problemName,
+                                   globalTimeout=globalTimeout,
                                    bank = bank, UG = UG,
                                    window=window)
 

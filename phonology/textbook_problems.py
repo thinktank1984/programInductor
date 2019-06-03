@@ -1343,6 +1343,7 @@ Mohawk Halle 121
      (u"yeʌ̃khrekʔ",        u"yɔ́kregeʔ"),         #'I will push it'
 ], supervised=True,
 solutions=[u'''
+h > 0 / # _
 ∅ --> e / [-sonorant] __ ʔ in the final syllable 
 '''
 ])
