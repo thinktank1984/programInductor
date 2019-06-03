@@ -29,6 +29,17 @@ class Frontier(object):
 
         assert isinstance(underlyingForms,dict)
 
+    def merge(self,o):
+        assert len(self.prefixes) == len(o.prefixes)
+        assert len(self.suffixes) == len(o.suffixes)
+        assert all( x == y for x,y in zip(self.prefixes, o.prefixes)  )
+        assert all( x == y for x,y in zip(self.suffixes, o.suffixes)  )
+        return Frontier(frontiers=[
+            list(set(xs)|set(ys))
+            for xs,ys in zip(self.frontiers,o.frontiers)
+        ],
+                        prefixes=self.prefixes,suffixes=self.suffixes,underlyingForms=self.underlyingForms)
+
     def makeGeometric(self):
         return Frontier([list({r.makeGeometric() for r in rs})
                          for rs in self.frontiers],

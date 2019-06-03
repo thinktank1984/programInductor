@@ -8,9 +8,12 @@ from sketch import *
 from solution import *
 
 class SupervisedProblem():
-    def __init__(self, examples, bank = None, syllables = False, problemName=None):
+    def __init__(self, examples, bank = None, syllables = False, problemName=None,
+                 UG=None):
         '''examples: either [(Morph, int|Expression, Morph)] or [(Morph, Morph)]
         The inner int|Expression is the distance to the suffix'''
+
+        self.UG = UG
 
         self.problemName = problemName
 
@@ -96,7 +99,8 @@ class SupervisedProblem():
                 print a," > ",b
 
         # Now that we have the training data, we can solve for each of the rules' frontier
-        frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j])).topK(k,r),
+        frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j]),
+                                                                      UG=self.UG).topK(k,r),
                                 enumerate(solution.rules))
 
         return Frontier(frontiers,
@@ -111,6 +115,8 @@ class SupervisedProblem():
             rule = Rule.sample()
             for other in solutions:
                 condition(ruleEqual(rule, other.makeConstant(self.bank)) == 0)
+            
+            if self.UG: self.UG.sketchUniversalGrammar(self.bank)            
             minimize(ruleCost(rule))
 
             for x,us,y in self.examples:
@@ -131,6 +137,7 @@ class SupervisedProblem():
     def solve(self, d):
         Model.Global()
         rules = [ Rule.sample() for _ in range(d) ]
+        if self.UG: self.UG.sketchUniversalGrammar(self.bank)
         minimize(sum([ ruleCost(r) for r in rules ]))
 
         for x,us,y in self.examples:

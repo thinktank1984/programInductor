@@ -33,7 +33,9 @@ class VariableFragment(Fragment):
         self.ty = ty
         self.logPrior = -1.6
     def __unicode__(self): return unicode(self.ty.__name__)
-    def latex(self): return {"Guard":"Trigger"}.get(self.ty.__name__,self.ty.__name__)
+    def latex(self,_=None): return {"Guard":"Trigger",
+                                    "PlaceSpecification":"$\\alpha\\text{place}$",
+                                    "BoundarySpecification":"+"}.get(self.ty.__name__,self.ty.__name__)
     def match(self, program):
         if isinstance(program,self.ty):
             return [(self.ty,program)]
@@ -76,12 +78,12 @@ class RuleFragment(Fragment):
         if haveLeft and haveRight:
             return "\\phonb{%s}{%s}{%s}{%s}"%(self.focus.latex(),
                                               self.change.latex(),
-                                              self.left.latex(),
+                                              self.left.latex(True),
                                               self.right.latex())
         if haveLeft and not haveRight:
             return "\\phonl{%s}{%s}{%s}"%(self.focus.latex(),
                                           self.change.latex(),
-                                          self.left.latex())
+                                          self.left.latex(True))
         if not haveLeft and haveRight:
             return "\\phonr{%s}{%s}{%s}"%(self.focus.latex(),
                                           self.change.latex(),
@@ -177,6 +179,9 @@ class SpecificationFragment(Fragment):
         assert isNumber(self.logPrior)
 
     def __unicode__(self): return unicode(self.child)
+
+    def latex(self):
+        return self.child.latex()
 
     def match(self, program):
         return self.child.match(program)
@@ -276,6 +281,13 @@ class GuardFragment(Fragment):
 
     def isDegenerate(self):
         return any( s.isDegenerate() for s in self.specifications )
+
+    def latex(self, l=False):
+        pieces = [s.latex() for s in self.specifications]
+        if self.starred: pieces[0] = pieces[0] + "*"
+        if self.endOfString: pieces.append("\\\\#")
+        if l: pieces.reverse()
+        return " ".join(pieces)        
 
     def violatesGeometry(self):
         return any( s.violatesGeometry() for s in self.specifications )

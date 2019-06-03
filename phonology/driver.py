@@ -69,7 +69,8 @@ def handleProblem(p):
         problem = CountingProblem(p.data, p.parameters, problemName=p.key)
         arguments.task = 'exact'
     elif isSupervisedProblem:
-        problem = SupervisedIncremental(p.data, problemName=p.key)
+        problem = SupervisedIncremental(p.data, problemName=p.key,
+                                        UG=ug)
         arguments.task = 'incremental'
     else:
         problem = UnderlyingProblem(p.data, problemName=p.key, UG = ug).restrict(restriction)
@@ -135,6 +136,8 @@ def handleProblem(p):
         seed = worker.solveUnderlyingForms(result.finalFrontier.MAP(),
                                            batchSize=1)
         frontier = worker.expandFrontier(seed, k = arguments.top)
+        if arguments.mergeFrontiers:
+            frontier = frontier.merge(result.finalFrontier)
         result.finalFrontier = frontier
         print frontier
         fn = arguments.save or arguments.restore or exportPath()
@@ -219,6 +222,8 @@ if __name__ == '__main__':
     parser.add_argument('--maximumDepth', default = 3, type = int,
                         help="when enumerating praetor frontier, this is the maximum number of rules")
     parser.add_argument('-V','--verbosity', default = 0, type = int)
+    parser.add_argument("--mergeFrontiers",default=False,action='store_true',
+                        help="when expanding frontiers, should we merged the new rules with the old?")
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
