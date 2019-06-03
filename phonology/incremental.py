@@ -630,8 +630,8 @@ class SupervisedIncremental(IncrementalSolver):
                   for rule in rules ]
 
         for x,y in self.data:
-            x = x.makeConstant(self.bank)
-            yh = applyRules(rules, x, wordLength(x), len(y) + 1)
+            xv = x.makeConstant(self.bank)
+            yh = applyRules(rules, xv, Constant(-1), Constant(max(len(y),len(x)) + 1))
             auxiliaryCondition(wordEqual(y.makeConstant(self.bank),yh))
                                
         # Only add in the cost of the new rules that we are synthesizing
@@ -719,9 +719,9 @@ class SupervisedIncremental(IncrementalSolver):
         Model.Global()
         rs = [r.makeDefinition(self.bank)
               for r in solution.rules ]
-        x = x.makeConstant(self.bank)
+        xv = x.makeConstant(self.bank)
         yh = Morph.sample()
-        condition(wordEqual(applyRules(rs, x, Constant(-1), len(y) + 1),
+        condition(wordEqual(applyRules(rs, xv, Constant(-1), Constant(max(len(y),len(x)) + 1)),
                             yh))
         try:
             o = self.solveSketch()
