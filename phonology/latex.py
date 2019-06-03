@@ -229,6 +229,25 @@ def exportLatexDocument(source, path):
     #os.system('pdflatex %s -output-directory %s'%(path,directory))
 
 if __name__ == "__main__":
+    from fragmentGrammar import *
+    import argparse
+    parser = argparse.ArgumentParser(description = "")
+    parser.add_argument("--universal","-u",default=None)
+    parser.add_argument("--checkpoints", nargs="+")                        
+    arguments = parser.parse_args()
+    
+    universal = arguments.universal
+    if universal is not None:
+        
+        universal = FragmentGrammar(loadPickle(universal))
+        for l,_,f in universal.fragments:
+            print f.latex()
+
+        print(universal)
+        assert False
+
+    
+    
     latexFeatures(simpleFeatureMap)
     assert False
     source = "\n\n\\pagebreak\n\n".join(# [ latexSolutionAndProblem("pickles/alternation_%d.p"%j)

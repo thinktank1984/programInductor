@@ -33,6 +33,7 @@ class VariableFragment(Fragment):
         self.ty = ty
         self.logPrior = -1.6
     def __unicode__(self): return unicode(self.ty.__name__)
+    def latex(self): return {"Guard":"Trigger"}.get(self.ty.__name__,self.ty.__name__)
     def match(self, program):
         if isinstance(program,self.ty):
             return [(self.ty,program)]
@@ -68,7 +69,28 @@ class RuleFragment(Fragment):
     def isDegenerate(self):
         return any( f.isDegenerate() for f in [self.focus, # self.change, 
                                                self.left, self.right] )
-    
+
+    def latex(self):
+        haveLeft = len(unicode(self.left)) > 0
+        haveRight = len(unicode(self.right)) > 0
+        if haveLeft and haveRight:
+            return "\\phonb{%s}{%s}{%s}{%s}"%(self.focus.latex(),
+                                              self.change.latex(),
+                                              self.left.latex(),
+                                              self.right.latex())
+        if haveLeft and not haveRight:
+            return "\\phonl{%s}{%s}{%s}"%(self.focus.latex(),
+                                          self.change.latex(),
+                                          self.left.latex())
+        if not haveLeft and haveRight:
+            return "\\phonr{%s}{%s}{%s}"%(self.focus.latex(),
+                                          self.change.latex(),
+                                          self.right.latex())
+        if not haveLeft and not haveRight:
+            return "\\phonr{%s}{%s}"%(self.focus.latex(),
+                                      self.change.latex())
+        assert False
+            
     @staticmethod
     def abstract(p,q):
         return [
@@ -222,6 +244,9 @@ class MatrixFragment(Fragment):
     def sketchCost(self,v,b):
         assert isinstance(self.child,FeatureMatrix)
         return ([self.child.sketchEquals(v,b)],[])
+
+    def latex(self):
+        return self.child.latex()
 
 MatrixFragment.BASEPRODUCTIONS = [] #VariableFragment(FeatureMatrix)]
 
