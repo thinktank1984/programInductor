@@ -1327,8 +1327,10 @@ Mohawk Halle 121
      (u"hraketas",          u"ragé:das"),         #'he scrapes'
      (u"waʔhraketʔ",       u"wahá:gedeʔ"),       #'he scraped'
      (u"owisʔ",             u"ó:wizeʔ"),          #'ice, glass'
+    # only stress
      (u"wakenuhweʔuneʔ",   u"wagenuhweʔú:neʔ"),  #'I had liked it'
      (u"ʌ̃khʌ̃teʔ",          u"ʌ̃khʌ̃́:deʔ"),         #'I shall go ahead'
+    # bunch of stuff
      (u"yaknirʌ̃notʔ",    u"yagenirɔ́:nodeʔ"),   #'we two (exclusive) 
                                                     #are singing'
      (u"yakniehyaraʔs",   u"yagenehyá:raʔs"),   #'we two (exclusive)'

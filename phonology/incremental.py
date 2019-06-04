@@ -118,7 +118,7 @@ class IncrementalSolver(UnderlyingProblem):
         elif wordsPerDataPoint >= 12:
             self.fixedMorphologyThreshold = 1
         else:
-            self.fixedMorphologyThreshold = 2
+            self.fixedMorphologyThreshold = 3
         # Map from inflection_index to Maybe (prefix, suffix, count)
         self.morphologyHistory = [None for _ in xrange(self.numberOfInflections) ]
         
