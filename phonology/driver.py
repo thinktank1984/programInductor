@@ -164,9 +164,14 @@ def paretoFrontier(p):
                                                                   arguments.restrict[1])
         data = data[arguments.restrict[0] : arguments.restrict[1]]
         print "\n".join(map(str,data))
+    if arguments.resume:
+        oldSolutions = loadPickle(arguments.resume)
+    else:
+        oldSolutions = None
     p = UnderlyingProblem(data)
     paretoFront = p.paretoFront(arguments.maximumDepth, 10, 1,
                                 morphologicalCoefficient=1,
+                                oldSolutions=oldSolutions,
                                 useMorphology=True,
                                 stemBaseline=arguments.stemBaseline,
                                 minimizeBits=arguments.minimizeBits)

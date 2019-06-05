@@ -11,5 +11,5 @@ do
 
     export PYTHONIOENCODING=utf-8
 
-    python driver.py $language incremental --timeout 24.0 --disableClean --features none  > $EXPORT 2>&1  
+    python driver.py $language CEGIS --timeout 24.0 --disableClean --features none  > $EXPORT 2>&1  
 done
