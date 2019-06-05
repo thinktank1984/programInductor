@@ -164,8 +164,8 @@ def paretoFrontier(p):
                                                                   arguments.restrict[1])
         data = data[arguments.restrict[0] : arguments.restrict[1]]
         print "\n".join(map(str,data))
-    if arguments.resume:
-        oldSolutions = loadPickle(arguments.resume)
+    if arguments.restore:
+        oldSolutions = loadPickle(arguments.restore)
     else:
         oldSolutions = None
     p = UnderlyingProblem(data)
