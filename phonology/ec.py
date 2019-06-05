@@ -31,7 +31,9 @@ training = [
     "Halle_85_Turkish",
     "Halle_109_Russian",
     "Halle_149_Russian",
-    "Odden_114_Lithuanian"
+    "Odden_114_Lithuanian",
+    # not solving this but if we did we would get palletized
+    #"Odden_4.2_Standard_Ukrainian"
 ]
 
 ### Produce UG1

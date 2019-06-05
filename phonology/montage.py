@@ -71,9 +71,8 @@ if __name__ == "__main__":
     parser.add_argument("--final","-f",action='store_true',default=False)
     arguments = parser.parse_args()
 
-    baselinePath_1 = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=False.p"]
-    baselinePath_2 = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated.p",
-                      "experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated_geometry=True.p"]
+    baselinePath_1 = ["experimentOutputs/%s_CEGIS_disableClean=True_features=none.p"]
+    baselinePath_2 = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated_geometry=True.p"]
     universalPath = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_ug.p",
                      "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"]
     bars = []
@@ -130,7 +129,7 @@ if __name__ == "__main__":
     #     b.universalTime()
     # assert False
 
-    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -b.baselineHeight(1)))
+    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -(b.baselineHeight(1) - b.baselineHeight(0))))
 
     if arguments.final:
         for n,b in enumerate(bars):
@@ -149,23 +148,25 @@ if __name__ == "__main__":
     # partition into columns
     partitions = partitionEvenly(bars,columns)
     #f.yticks(rotation=45)
+    number_of_baselines = 2
     for bs,a in zip(partitions,axes):
         bs.reverse()
         
-        W = 0.4
+        W = (1 - 0.2)/(number_of_baselines + 1)
         ys = np.arange((len(bs)))
         
         a.barh(ys,
                [b.universalHeight() for b in bs ],
                W,
-               # [ W*2 if b.numberOfBars < 2 else W
-               #   for b in bs],
                color='b'*len(bs))
-#               tick_label=[b.name for b in bs ])
         a.barh(ys + W,
                [b.baselineHeight(1) for b in bs ],
                W,
                color='g')
+        a.barh(ys + W*2,
+               [b.baselineHeight(0) for b in bs ],
+               W,
+               color='y')
         a.set(yticks=ys + W,
               yticklabels=[b.name for b in bs ])
 
