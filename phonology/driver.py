@@ -39,6 +39,7 @@ def handleProblem(p):
     print p.description
     isCountingProblem = isinstance(p.parameters, list) \
                         and all( isinstance(parameter,int) for parameter in p.parameters  )
+    assert not isCountingProblem
     isAlternationProblem = isinstance(p.parameters, dict) and p.parameters.get("type",None) == "alternation"
     isSupervisedProblem = p.supervised
     if isAlternationProblem:

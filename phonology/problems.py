@@ -824,26 +824,47 @@ Give the underlying forms for the following nouns, and say what phonological rul
  + stem + an
 g ---> 0 / e _ #''']))
 
-MATRIXPROBLEMS.append(Problem(
+# MATRIXPROBLEMS.append(Problem(
+#     u'''Tibetan Odden 2.4
+# Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
+#     ''',
+#     [
+# 	u"ǰu",#	‘10’
+# 	u"ǰig",#	‘1’
+#         u"ǰugǰig",#	‘11’
+# 	u"ši",#	‘4’
+# 	u"ǰubši",#	‘14’
+#         u"šibǰu",#	‘40’
+# 	u"gu",#	‘9’
+# 	u"ǰurgu",#	‘19’
+# 	u"gubǰu",#	‘90’
+# 	u"ŋa",#	‘5’
+# 	u"ǰuŋa",#	‘15’
+# 	u"ŋabǰu"],#	‘50’
+#     parameters = [10,1,11,4,14,40,9,19,90,5,15,50],
+#     solutions = [u'''
+# C > 0/#_C''']))
+
+Problem(
     u'''Tibetan Odden 2.4
 Numbers between 11 and 19 are formed by placing the appropriate digit after the number 10, and multiples of 10 are formed by placing the appropriate multiplier before the number 10. What are the underlying forms of the basic numerals, and what phonological rule is involved in accounting for these data?
     ''',
     [
-	u"ǰu",#	‘10’
-	u"ǰig",#	‘1’
-        u"ǰugǰig",#	‘11’
-	u"ši",#	‘4’
-	u"ǰubši",#	‘14’
-        u"šibǰu",#	‘40’
-	u"gu",#	‘9’
-	u"ǰurgu",#	‘19’
-	u"gubǰu",#	‘90’
-	u"ŋa",#	‘5’
+        (u"ǰu",None,None),#	‘10’
+	(u"ǰig",#	‘1’
+         u"ǰugǰig",
+         None),#	‘11’
+	(u"ši",#	‘4’
+	 u"ǰubši",#	‘14’
+         u"šibǰu"),#	‘40’
+	(u"gu",#	‘9’
+	 u"ǰurgu",#	‘19’
+	 u"gubǰu"),#	‘90’
+	(u"ŋa",#	‘5’
 	u"ǰuŋa",#	‘15’
-	u"ŋabǰu"],#	‘50’
-    parameters = [10,1,11,4,14,40,9,19,90,5,15,50],
+	 u"ŋabǰu")],#	‘50’
     solutions = [u'''
-C > 0/#_C''']))
+C > 0/#_C'''])
 
 MATRIXPROBLEMS.append(Problem(
     u'''

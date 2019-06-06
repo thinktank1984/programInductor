@@ -32,6 +32,7 @@ class UnderlyingProblem(object):
                  fixedMorphology = None):
         self.problemName = problemName
         self.UG = UG
+        self.countingProblem = problemName == "Odden_2.4_Tibetan"
 
       
         if bank != None: self.bank = bank
@@ -324,6 +325,16 @@ class UnderlyingProblem(object):
         Otherwise it returns False.
         '''
         return solution.transduceUnderlyingForm(self.bank, inflections) != None
+
+    def tibetanCountingConstraints(self, stems, prefixes, suffixes):
+        condition(wordLength(prefixes[0]) == 0)
+        condition(wordLength(suffixes[0]) == 0)
+        condition(wordLength(suffixes[1]) == 0)
+        condition(wordLength(prefixes[2]) == 0)
+        for n,inflections in enumerate(self.data):
+            if inflections == (Morph(u"ǰu"),None,None): # 10
+                condition(wordEqual(stems[n],prefixes[1]))
+                condition(wordEqual(stems[n],suffixes[2]))
     
     def minimizeJointCost(self, rules, stems, prefixes, suffixes, costUpperBound = None, morphologicalCosts = None, oldSolution=None):
         '''
@@ -355,6 +366,9 @@ the integer is None then we have no guess for that one.'''
                 guess = max(guess,0)
             approximateStemSize.append(guess)
 
+        if self.countingProblem:
+            self.tibetanCountingConstraints(stems, prefixes, suffixes)
+
         print(zip(self.data,approximateStemSize))
         affixAdjustment = []
         for j in range(self.numberOfInflections):
@@ -378,7 +392,10 @@ the integer is None then we have no guess for that one.'''
                          for j,m in enumerate(stems) ])
 
         ruleSize = sum([ruleCost(r) for r in rules ])
-        totalCost = define("int",ruleSize + stemSize + affixSize)
+        if not self.countingProblem:
+            totalCost = define("int",ruleSize + stemSize + affixSize)
+        else:
+            totalCost = define("int",ruleSize + stemSize)
         if costUpperBound != None:
             if getVerbosity() > 1: print "conditioning upon total cost being less than",costUpperBound
             condition(totalCost < costUpperBound)

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from sketchSyntax import *
 from sketch import *
 from utilities import *
@@ -212,6 +214,12 @@ class Solution(object):
         prefixes = [p.makeConstant(bank) for p in self.prefixes ]
         suffixes = [p.makeConstant(bank) for p in self.suffixes ]
         stem = Morph.sample()
+        
+        countingProblem = tuple(surfaces) == (Morph(u"ǰu"),None,None)
+        if countingProblem:
+            condition(wordEqual(stem, prefixes[1]))
+            condition(wordEqual(stem, suffixes[2]))
+        
         traces = []
         for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
             if s != None:
@@ -246,6 +254,11 @@ class Solution(object):
         suffixes = [p.makeConstant(bank) for p in self.suffixes ]
         stems = [ Morph.sample() for _ in data ]
         for surfaces, stem in zip(data, stems):
+            countingProblem = tuple(surfaces) == (Morph(u"ǰu"),None,None)
+            if countingProblem:
+                condition(wordEqual(stem, prefixes[1]))
+                condition(wordEqual(stem, suffixes[2]))
+
             minimize(wordLength(stem))
             haveMainCondition = False
             for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
