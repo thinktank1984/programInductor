@@ -28,6 +28,7 @@ Roca_104_Tunica
 Halle_85_Turkish
 Halle_109_Russian
 
+python ec.py 2>&1 | tee jobs/ec
 
 ### Produce UG1
 pypy UG.py --export experimentOutputs/ug0.p \
