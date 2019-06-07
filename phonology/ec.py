@@ -50,7 +50,7 @@ promises = []
 for t in training:
     oldPath = "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"%t
     newPath = "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_expanded.p"%t
-    command = "python driver.py %s frontier --geometry -t 10 --mergeFrontiers --restore %s --save %s -u experimentOutputs/ug0.p"%(t,
+    command = "python driver.py %s frontier --geometry -t 100 --mergeFrontiers --restore %s --save %s -u experimentOutputs/ug0.p"%(t,
                                                                                                                                    oldPath,
                                                                                                                                    newPath)
     print "Will execute:",command

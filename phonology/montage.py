@@ -39,7 +39,6 @@ class Bars():
 
     def universalHeight(self):
         if self.alternation: return 1.
-        if self.problem.key == "Odden_2.4_Tibetan": return 1.
         if len(self.universal) == 0: return 0.
         n = len(self.problem.data)
         if "Somali" in self.language and False:
@@ -52,7 +51,6 @@ class Bars():
     def baselineHeight(self, b):
         if self.alternation: return 1.
         assert not self.alternation
-        if self.problem.key == "Odden_2.4_Tibetan": return 1.
         b = self.baselines[b]
         if b is None: return 0.
         n = len(self.problem.data)
@@ -80,16 +78,17 @@ if __name__ == "__main__":
     for name, problem in Problem.named.iteritems():
         if "Kevin" in name: continue
 
-        if name == "Odden_2.4_Tibetan":
-            bl = "experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated.p"
-            ul = "experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated_geometry=True.p"
-            if os.path.exists(bl): bl = loadPickle(bl)
-            else: bl = None
-            bl_1 = bl
-            bl_2 = bl
-            if os.path.exists(ul): ul = [loadPickle(ul)]
-            else: ul = []
-        elif problem.parameters and "alternations" in problem.parameters:
+        # if name == "Odden_2.4_Tibetan":
+        #     bl = "experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated.p"
+        #     ul = "experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated_geometry=True.p"
+        #     if os.path.exists(bl): bl = loadPickle(bl)
+        #     else: bl = None
+        #     bl_1 = bl
+        #     bl_2 = bl
+        #     if os.path.exists(ul): ul = [loadPickle(ul)]
+        #     else: ul = []
+        # el
+        if problem.parameters and "alternations" in problem.parameters:
             if os.path.exists("experimentOutputs/alternation/%s.p"%name):
                 p = loadPickle("experimentOutputs/alternation/%s.p"%name)
             else:
