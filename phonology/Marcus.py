@@ -23,7 +23,8 @@ TEMPERATURE = 2.0
 stimuliFromLiterature = {
     "aax": [u"leledi",u"wiwidi",u"jijidi",u"dededi"],
     "aab": [u"leledi",u"wiwije",u"jijili",u"dedewe"],
-    "aba": [u"ledile",u"wijewi",u"jiliji",u"dewede"]
+    "aba": [u"ledile",u"wijewi",u"jiliji",u"dewede"],
+    "Chinese": [u"manmandə",u"leledə",u"xawxawdə"]
     }
 
 def sampleVowel():
@@ -82,7 +83,7 @@ if __name__ == '__main__':
     start_server(1)
     parser = argparse.ArgumentParser(description = 'Generate and analyze synthetic rule learning problems ala Gary Marcus ABA/ABB patterns')
     parser.add_argument('-p','--problem', default = 'abb',
-                        choices = ["aba","aab","abb","abx","aax"],
+                        choices = ["aba","aab","abb","abx","aax","Chinese"],
                         type = str)
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-d','--depth', default = 3, type = int)

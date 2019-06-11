@@ -239,7 +239,7 @@ Sound apply_specification(Specification specification, Sound sound) {
 
 #ifdef SYLLABLEBOUNDARYFEATURE
 #define MAXIMUMONSET 2
-int syllable_starting_at([int l],Sound[l] u, int e) {
+int syllable_starting_at([int l],Sound[l] u, int e, int untilSuffix) {
   if (e < 0 || e >= l) return -1;
   // returns a negative number if there is no syllable starting at e
   // returns the index of the end of the syllable otherwise
@@ -266,18 +266,21 @@ int syllable_starting_at([int l],Sound[l] u, int e) {
   // the return value is end of string
   for (int d = 1; d < MAXIMUMONSET + 1; d++) {
     int test_index = nucleus + d;
+    if (test_index == untilSuffix) return test_index - 1;
     if (test_index == l) return l - 1;
     if (u[test_index].vowel) return nucleus;
   }
   assert 0;
 }
-bit is_syllable_starting_at([int l],Sound[l] u,int e){ return syllable_starting_at(u,e) != -1; }
-bit are_two_syllables_starting_at([int l],Sound[l] u,int e){
-  e = syllable_starting_at(u,e);
-  if (e == -1) return 0;
-  return syllable_starting_at(u,e + 1) != -1;
+bit is_syllable_starting_at([int l],Sound[l] u,int e,int untilSuffix){
+  return syllable_starting_at(u,e,untilSuffix) != -1;
 }
-int syllable_ending_at([int l],Sound[l] u, int e) {
+bit are_two_syllables_starting_at([int l],Sound[l] u,int e,int untilSuffix){
+  e = syllable_starting_at(u,e,untilSuffix);
+  if (e == -1) return 0;
+  return syllable_starting_at(u,e + 1,untilSuffix) != -1;
+}
+int syllable_ending_at([int l],Sound[l] u, int e,int untilSuffix) {
   if (e < 0 || e >= l) return -1;
   // returns a negative number if there is no syllable ending at e
   // returns the index of the start of the syllable otherwise
@@ -293,13 +296,18 @@ int syllable_ending_at([int l],Sound[l] u, int e) {
     }
     assert have_nucleus;
   } else {
-    if (!u[e].vowel) return -1;
+    // Make sure it is either a vowel, or occurs @ morph boundary
+    if (!u[e].vowel && e != untilSuffix - 1) return -1;
+    // Make sure we find a vowel to the right, because we are not the final syllable
     bit to_the_right = 0;
     for (int d = 1; d < MAXIMUMONSET + 1; d++) {
       to_the_right = to_the_right || (e + d < l && u[e + d].vowel);
     }
     if (!to_the_right) return -1;
-    nucleus = e;
+    if (u[e].vowel) 
+      nucleus = e;
+    else
+      nucleus = e - 1;
   }
   for (int d = 1; d < MAXIMUMONSET; d++) {
     if (nucleus - d < 0) return 0;
@@ -308,11 +316,13 @@ int syllable_ending_at([int l],Sound[l] u, int e) {
 	
   assert 0;
 }
-bit is_syllable_ending_at([int l],Sound[l] u,int e) { return syllable_ending_at(u,e) == -1; }
-bit are_two_syllables_ending_at([int l],Sound[l] u,int e){
-  e = syllable_ending_at(u,e);
+bit is_syllable_ending_at([int l],Sound[l] u,int e,int untilSuffix) {
+  return syllable_ending_at(u,e,untilSuffix) == -1;
+}
+bit are_two_syllables_ending_at([int l],Sound[l] u,int e,int untilSuffix){
+  e = syllable_ending_at(u,e,untilSuffix);
   if (e != -1) return 0;
-  return syllable_ending_at(u,e - 1) != -1;
+  return syllable_ending_at(u,e - 1,untilSuffix) != -1;
 }
 bit is_syllable_specification(Specification s) {
   if (s == null) { return 0; }
@@ -601,9 +611,9 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
 #ifdef SYLLABLEBOUNDARYFEATURE
       if (is_syllable_specification(r1)) {
 	if (!R)
-	  a1 = is_syllable_ending_at(u, index2sound(j)) && (!g.endOfString || 0 == syllable_ending_at(u, index2sound(j)));
+	  a1 = is_syllable_ending_at(u, index2sound(j), untilSuffix) && (!g.endOfString || 0 == syllable_ending_at(u, index2sound(j), untilSuffix));
 	else
-	  a1 = is_syllable_starting_at(u, index2sound(j)) && (!g.endOfString || l - 1 == syllable_starting_at(u, index2sound(j)));
+	  a1 = is_syllable_starting_at(u, index2sound(j), untilSuffix) && (!g.endOfString || l - 1 == syllable_starting_at(u, index2sound(j), untilSuffix));
       } else {
 #endif
 
@@ -627,11 +637,11 @@ bit[l+1] apply_guard_sophisticated([int l], Sound[l] u, Guard g, int untilSuffix
 #ifdef SYLLABLEBOUNDARYFEATURE
       if (is_syllable_specification(g.spec)) {
 	if (!R) {
-	  int e = syllable_ending_at(u, j - 1);
+	  int e = syllable_ending_at(u, j - 1, untilSuffix);
 	  if (e != -1) a2 = A1[e];
 	  else a2 = 0;
 	} else {
-	  int e = syllable_starting_at(u, l - j);
+	  int e = syllable_starting_at(u, l - j, untilSuffix);
 	  if (e != -1) a2 = A1[l - e - 1];
 	  else a2 = 0;
 	}
@@ -845,17 +855,17 @@ Word apply_rule(Rule r, Word u, int untilSuffix, int unrollBound) {
 	  int starting, ending; // we will copy the syllable which begins at index starting and ends at index ending. Includes the content at ending.
 	  if (get_offset(structural_change) > 0) { // grab a syllable to the right
 	    starting = j;
-	    ending = syllable_starting_at(u.s,j);
+	    ending = syllable_starting_at(u.s,j,untilSuffix);
 	    if (get_offset(structural_change) == 2) {
 	      starting = ending + 1;
-	      ending = syllable_starting_at(u.s,starting);
+	      ending = syllable_starting_at(u.s,starting,untilSuffix);
 	    }
 	  } else { // grab a syllable to the left
-	    starting = syllable_ending_at(u.s,j - 1);
+	    starting = syllable_ending_at(u.s,j - 1,untilSuffix);
 	    ending = j - 1;
 	    if (get_offset(structural_change) == -2) {
 	      ending = starting - 1;
-	      starting = syllable_ending_at(u.s,ending);
+	      starting = syllable_ending_at(u.s,ending,untilSuffix);
 	    }
 	  }
 	  // copy the syllable from starting to ending
