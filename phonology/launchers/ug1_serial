@@ -12,5 +12,5 @@ do
 
     export PYTHONIOENCODING=utf-8
 
-    python driver.py $language incremental --universal experimentOutputs/ug1.p -t 100 --timeout 24.0 --geometry  > $EXPORT 2>&1  &
+    python driver.py $language incremental --universal experimentOutputs/ug1.p -t 100 --timeout 24.0 --geometry  > $EXPORT 2>&1 
 done
