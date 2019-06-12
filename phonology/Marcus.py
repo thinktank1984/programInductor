@@ -120,13 +120,12 @@ if __name__ == '__main__':
         assert not arguments.quiet
         costToSolution = loadPickle(arguments.load)
     else:
-        for d in range(0,arguments.depth + 1):
-            worker = UnderlyingProblem([(w,) for w in trainingData ],
-                                       useSyllables = not arguments.noSyllables)
-            solutions, costs = worker.paretoFront(d, arguments.top, TEMPERATURE,
-                                                  useMorphology = True,
-                                                  morphologicalCoefficient = 4)
-            for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
+        worker = UnderlyingProblem([(w,) for w in trainingData ],
+                                   useSyllables = not arguments.noSyllables)
+        solutions, costs = worker.paretoFront(arguments.depth, arguments.top, TEMPERATURE,
+                                              useMorphology = True,
+                                              morphologicalCoefficient = 4)
+        for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
 
     if arguments.save != None:
         assert arguments.load == None
