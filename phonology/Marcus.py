@@ -120,9 +120,10 @@ if __name__ == '__main__':
     else:
         worker = UnderlyingProblem([(w,) for w in trainingData ],
                                    useSyllables = not arguments.noSyllables)
-        solutions, costs = worker.paretoFront(arguments.depth, arguments.top, TEMPERATURE,
+        solutions, costs = worker.paretoFront(arguments.depth, (arguments.top+1)//2, TEMPERATURE,
                                               useMorphology = True,
-                                              morphologicalCoefficient = 4)
+                                              morphologicalCoefficient = 4,
+                                              offFront=arguments.top//2)
         for solution, cost in zip(solutions, costs): costToSolution[cost] = solution
 
     if arguments.save != None:

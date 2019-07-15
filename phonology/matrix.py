@@ -597,6 +597,7 @@ the integer is None then we have no guess for that one.'''
     
 
     def paretoFront(self, depth, k, temperature, useMorphology = False,
+                    offFront=0,
                     oldSolutions=[],
                     morphologicalCoefficient = 3,
                     stemBaseline=0, minimizeBits=7):
@@ -637,10 +638,10 @@ the integer is None then we have no guess for that one.'''
         if oldSolutions:
             solutions = oldSolutions[0]
             solutionCosts = oldSolutions[1]
-        for _ in range(k):
+        for solutionIndex in range(k + offFront):
             # Excludes solutions we have already found
             for rc,uc in solutionCosts:
-                if oldSolutions:
+                if oldSolutions or solutionIndex >= k:
                     # This condition just says that it has to be a
                     # different trade-off. Gets things a little bit off of
                     # the front
