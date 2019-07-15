@@ -9,8 +9,6 @@ from sketch import *
 from matrix import UnderlyingProblem
 
 from random import choice,seed
-import matplotlib.pyplot as plot
-import matplotlib.cm as cm
 import numpy as np
 import argparse
 
@@ -132,6 +130,9 @@ if __name__ == '__main__':
         assert str(arguments.number) in arguments.save
         assert arguments.problem in arguments.save
         dumpPickle(costToSolution, arguments.save)
+
+    import matplotlib.pyplot as plot
+    import matplotlib.cm as cm        
         
     colors = cm.rainbow(np.linspace(0, 1, 1))
     if not arguments.quiet:
