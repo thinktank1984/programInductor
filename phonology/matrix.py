@@ -638,6 +638,8 @@ the integer is None then we have no guess for that one.'''
         if oldSolutions:
             solutions = oldSolutions[0]
             solutionCosts = oldSolutions[1]
+        solutionIndex = 0
+        while solutionIndex < k + offFront:
         for solutionIndex in range(k + offFront):
             # Excludes solutions we have already found
             for rc,uc in solutionCosts:
@@ -654,8 +656,13 @@ the integer is None then we have no guess for that one.'''
             try:
                 output = self.solveSketch(minimizeBound = int(2**minimizeBits - 1))
             except SynthesisFailure:
-                print "Exiting Pareto procedure early due to unsatisfied"
-                break
+                if offFront > 0 and solutionIndex < k:
+                    solutionIndex = k
+                    print "Nothing on front, moving to things just off of front..."
+                    continue
+                else:
+                    print "Exiting Pareto procedure early due to unsatisfied"
+                    break
             except SynthesisTimeout:
                 print "Exiting Pareto procedure early due to timeout"
                 break
@@ -679,6 +686,8 @@ the integer is None then we have no guess for that one.'''
             assert actualCosts == (rc,uc)
             (rc,uc) = actualCosts
             solutionCosts.append((rc,uc))
+
+            solutionIndex += 1
 
         print " pareto: got %d solutions of depth %d"%(len(solutions),depth)
         

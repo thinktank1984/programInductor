@@ -169,7 +169,7 @@ if __name__ == "__main__":
         a.set(yticks=ys + W,
               yticklabels=[b.name for b in bs ])
 
-    if not arguments.final or str:
+    if not arguments.final or True:
         plot.show()
     else:
         plot.savefig("/tmp/language_montage.png")

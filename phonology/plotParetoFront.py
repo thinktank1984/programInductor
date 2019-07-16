@@ -11,7 +11,7 @@ from matrix import UnderlyingProblem
 from random import choice,seed
 import matplotlib.pyplot as plot
 import matplotlib.cm as cm
-from adjustText import adjust_text
+#from adjustText import adjust_text
 import numpy as np
 import argparse
 import pickle
@@ -53,7 +53,7 @@ def plotParetoFront(solutions, solutionCosts):
     dx = W/5.
     text = []
     ax = plot.gca()
-    if arguments.correct:
+    if arguments.correct is not None:
         correct = list(sorted(costToSolution.iteritems()))[arguments.correct][1]
     else:
         correct = None
@@ -73,7 +73,9 @@ def plotParetoFront(solutions, solutionCosts):
             if solution is correct: color = "red"
             elif any( r == rp
                       for rp in correct.rules
-                      for r in solution.rules ):
+                      for r in solution.rules ) or \
+                          all( correct.prefixes[i] == solution.prefixes[i] and correct.suffixes[i] == solution.suffixes[i]
+                              for i in range(len(correct.prefixes)) ):
                 color = "pink"
         labelProperties = dict(boxstyle='round', facecolor=color, alpha=0.7)
         onFront = all( (xp == x1 and yp == y1) or yp < y1 or xp < x1
@@ -106,7 +108,7 @@ def plotParetoFront(solutions, solutionCosts):
         examples = list(sorted(solutions[0].underlyingForms.keys()))
         examples = [u" ~ ".join(u"".join(ps.phonemes) for ps in examples[i])
                     for i in arguments.examples ]
-        examples = u"\n".join(["Examples:"] + examples + ["..."])
+        examples = u"\n".join(["Examples:"] + examples + (["..."] if len(examples) < len(solutions[0].underlyingForms) else []))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         # place a text box in upper left in axes coords
         plot.text(0.05, 0.05, examples, transform=ax.transAxes,
@@ -141,4 +143,6 @@ if __name__ == "__main__":
     
     with open(arguments.checkpoint,'rb') as handle:
         pf = pickle.load(handle)
+        if isinstance(pf,dict):
+            pf = (list(pf.values()), list(pf.keys()))
     plotParetoFront(pf[0],pf[1])
