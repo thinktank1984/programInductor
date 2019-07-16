@@ -640,7 +640,6 @@ the integer is None then we have no guess for that one.'''
             solutionCosts = oldSolutions[1]
         solutionIndex = 0
         while solutionIndex < k + offFront:
-        for solutionIndex in range(k + offFront):
             # Excludes solutions we have already found
             for rc,uc in solutionCosts:
                 if oldSolutions or solutionIndex >= k:
