@@ -62,7 +62,9 @@ def plotParetoFront(solutions, solutionCosts):
         labels = {int(labelParameters[0]): (float(labelParameters[1]),float(labelParameters[2]),labelParameters[3],labelParameters[4])
                   for l in arguments.label
                   for labelParameters in [l.split("_")]}
-    
+    else:
+        labels = []
+        
     for si,((x1,y1),solution) in enumerate(sorted(costToSolution.iteritems())):
         print "Solution #",si
         print solution

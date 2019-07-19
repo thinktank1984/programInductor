@@ -18,6 +18,34 @@ class Bars():
         self.universal = universal
         self.name = "%s (%s)"%(self.problem.languageName, self.problem.source)
         print self.name, "Missing baseline?", any( b is None for b in baselines), "Missing full model?", self.universal is None
+
+        self.Nadia = None # do not have a Nadia solution
+        if self.alternation:
+            if os.path.exists("CSV/"+self.problem.key+".output"):
+                with open("CSV/"+self.problem.key+".output","r") as handle:
+                    for ln in handle:
+                        if "Successfully discovered rule" in ln:
+                            self.Nadia = 1.
+                            break
+                        if "Could not discover rule" in ln:
+                            self.Nadia = 0.
+                            break
+                assert self.Nadia is not None
+        else:
+            fn1 = "CSV/"+self.problem.key+".output"
+            fn2 = "CSV/"+self.problem.key+"_cc0.output"
+            if os.path.exists(fn1) and os.path.exists(fn2):
+                for fn in [fn1,fn2]:
+                    with open(fn,"r") as handle:
+                        for ln in handle:
+                            if "Successful" in ln:
+                                self.Nadia = 1.
+                                return
+                            if "dictionary could not be made bigger" in ln:
+                                self.Nadia = None
+                                return
+                self.Nadia = 0.
+                
         #self.name = self.problem.languageName
 
     @property
@@ -48,6 +76,12 @@ class Bars():
             print(len(u.finalFrontier.underlyingForms))
         return float(max(len(u.finalFrontier.underlyingForms) for u in self.universal))/n
 
+    def NadiaHeight(self):
+        if self.Nadia is None: return 0.
+        if self.Nadia == 0.: return 0.02
+        if self.Nadia == 1.: return 1.
+        assert False
+
     def baselineHeight(self, b):
         if self.alternation: return 1.
         assert not self.alternation
@@ -76,6 +110,8 @@ if __name__ == "__main__":
     bars = []
 
     for name, problem in Problem.named.iteritems():
+        if problem.supervised: continue
+        
         if "Kevin" in name: continue
 
         # if name == "Odden_2.4_Tibetan":
@@ -147,7 +183,7 @@ if __name__ == "__main__":
     # partition into columns
     partitions = partitionEvenly(bars,columns)
     #f.yticks(rotation=45)
-    number_of_baselines = 2
+    number_of_baselines = 3
     for bs,a in zip(partitions,axes):
         bs.reverse()
         
@@ -166,7 +202,11 @@ if __name__ == "__main__":
                [b.baselineHeight(0) for b in bs ],
                W,
                color='y')
-        a.set(yticks=ys + W,
+        a.barh(ys + W*3,
+               [b.NadiaHeight() for b in bs ],
+               W,
+               color='k')
+        a.set(yticks=ys + 2*W,
               yticklabels=[b.name for b in bs ])
 
     if not arguments.final or True:

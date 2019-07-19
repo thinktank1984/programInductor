@@ -266,7 +266,7 @@ What rule governs the distribution of [d] versus [ð] in the following data?
      u"ðíe",#		"you"),
      u"daštú",#		"to bite"),
      u"ðíški"],#		"to wash")])
-    {"alternations": [{u"ð": u"d"}]}))
+    {"type": "alternation", "alternations": [{u"ð": u"d"}]}))
 
 alternationProblems.append(Problem(
     u'''
@@ -305,7 +305,7 @@ System discovers:
         u"aššɛ",#		"he rubbed"),
 	u"bəkk’ələ",#	"it germinated"),
         u"šɛməggələ"],#	"he became old")])
-    {"alternations": [{u"ɛ": u"ə"}]}))
+    {"type": "alternation", "alternations": [{u"ɛ": u"ə"}]}))
 
 
 alternationProblems.append(Problem(
@@ -352,7 +352,7 @@ These are all coronal
      u"etro",#"scale"),
      u"eñrɔ̃",#"spitting cobra"),
      u"ǰro"],#,   "hint")])
-    {"alternations": [{u"l": u"r"}]}))
+    {"type": "alternation", "alternations": [{u"l": u"r"}]}))
 
 alternationProblems.append(Problem(
 u'''
@@ -392,7 +392,8 @@ Unaspirated stops occur in similar right contexts but don't occur next to voicel
 	u"n̥t^humbii",# "monkey"),
 	u"ŋok^huŋguni",# "bedbug"),
 	u"m̥p^heho"],#"wind")
-    {"alternations": [{u"n̥": u"n",
+    {"type": "alternation",
+     "alternations": [{u"n̥": u"n",
                       u"m̥": u"m"}]}))
 
 
@@ -446,7 +447,8 @@ The obstruents of Thai are illustrated below. Determine what the obstruent phone
      u"tit̚",#   "get stuck"),
      u"sip̚",#   "ten"),
      u"pen"],#,   "alive")])
-    {"alternations": [{u"p̚": u"p",
+    {"type": "alternation",
+     "alternations": [{u"p̚": u"p",
                        u"t̚": u"t",
                        u"k̚": u"k"}]}))
 
@@ -484,7 +486,8 @@ todo: incorporate optional rules
      u"məðəŋei",	#"knew"
      u"uðouθ",	#"money"
      u"olðak"],	#"put together"
-    {"alternations": [{u"θ": u"d"}]}))
+    {"type": "alternation",
+     "alternations": [{u"θ": u"d"}]}))
 
 alternationProblems.append(Problem(
     u'''
@@ -546,7 +549,8 @@ Quechua (Cuzco dialect) Odden A10
         u"waleX",	#"poor"
 	u"t^hakay",	#"drop"
         u"reXsisqa"],#	"known"
-    {"alternations": [{u"ŋ": u"N"},
+    {"type": "alternation",
+     "alternations": [{u"ŋ": u"N"},
                       {u"o": u"u"},
                       {u"i": u"e"},
                       ]}))
@@ -610,7 +614,8 @@ Lhasa Tibetan Odden A11
 	u"pɛɛβãã",	#"frog"
 	u"simGãã", #"build a house"
         ],
-    {"alternations": [{u"q": u"k",
+    {"type": "alternation",
+     "alternations": [{u"q": u"k",
                        u"G": u"g",
                        u"N": u"ŋ"},
                       {u"b": u"p",

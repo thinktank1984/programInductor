@@ -289,6 +289,7 @@ class UnderlyingProblem(object):
 
         # Now that we have the training data, we can solve for each of the rules' frontier
         frontiers = parallelMap(CPUs, lambda (j,r): SupervisedProblem(zip(xs[j],untilSuffix,ys[j]),
+                                                                      UG=self.UG,
                                                                       bank=self.bank).topK(k,r),
                                 enumerate(solution.rules))
 
