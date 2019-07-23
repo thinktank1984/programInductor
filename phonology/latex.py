@@ -7,11 +7,15 @@ from parseSPE import *
 #from solution import *
 from morph import *
 from problems import *
+from textbook_problems import *
 
 import cPickle as pickle
 import os
 
 latexMap = {
+    u"ɲ": "\\textltailn ",
+    u"ɉ": "J",
+    u"ç": "\\c{c}",
     u"ɨ": '1',
     u"ɯ": 'W',
     u"ɩ": '\\textiota ',
@@ -244,7 +248,26 @@ if __name__ == "__main__":
             print f.latex()
 
         print(universal)
-        assert False
+
+    for ck in arguments.checkpoints:
+        result = loadPickle(ck)
+        print(latexMatrix(Problem.named[result.problem].data))
+        ff = result.finalFrontier
+        for prefix, suffix in zip(ff.prefixes, ff.suffixes):
+            if len(prefix) == 0:
+                print "stem+\\textipa{%s}"%latexWord(suffix),
+            elif len(suffix) == 0:
+                print "\\textipa{%s}+stem"%latexWord(prefix),
+            else:
+                print "\\textipa{%s}+stem+\\textipa{%s}"%(latexWord(prefix),latexWord(suffix)),
+            print " $\\sim$ ",
+
+        for f in ff.frontiers:
+            for r in f:
+                print(r)
+                print(r.latex())
+        print(ff)
+    assert False
 
     
     
