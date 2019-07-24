@@ -2051,65 +2051,64 @@ Sadzava Ukrainian Odden 4.11
 ''',[
 #	Declension I
 #	Nom. sg.	Gen. sg.	Loc. sg.	Gloss
-    (u"plást",	u"plastá",	u"plasykyí",None,None,None,None,None),#	layer
-	(u"skorúx",	u"skoruxá",	u"skorusyí",None,None,None,None,None),#	mountain ash
-	(u"ɣyryíx",	u"ɣyryixá",	u"ɣyryisyí",None,None,None,None,None),#	sin
-	(u"pastúx",	u"pastuxá",	u"pastusyí",None,None,None,None,None),#	herdsman
-	(u"mynyúx",	u"mynyúxa",	u"mynyúsyi",None,None,None,None,None),#	fish sp.
-	(u"plúɣ",	u"plúɣa",	u"plúzyi",None,None,None,None,None),#	plow
-	(u"sytyíɣ",	u"stóɣa",	u"stózyi",None,None,None,None,None),#	stack
-	(u"sák",	u"sáka",	u"sátsyi",None,None,None,None,None),#	fishnet
-	(u"bék",	u"bəká",	u"bətsyí",None,None,None,None,None),#	bull
-	(u"lést",	u"ləstá",	u"ləsykyí",None,None,None,None,None),#	letter
-	(u"lést",	u"lésta",	u"lésykyi",None,None,None,None,None),#	leaf
-	(u"pylyít",	u"plóta",	u"plókyi",None,None,None,None,None),#	wicker fence
-	(u"symyryíd",	u"smróda",	u"smrógyi",None,None,None,None,None),#	stench
-	(u"fyíst",	u"fostá",	u"fosykyí",None,None,None,None,None),#	tail
-	(u"myíst",	u"mósta",	u"mósykyi",None,None,None,None,None),#	bridge
-	(u"lyíd",	u"lǽdu",	u"lədú",None,None,None,None,None),#	ice
-	(u"dyryít",	u"dróta",	u"drókyi",None,None,None,None,None),#	thick wire
-	(u"myíd",	u"mǽdu",	u"mədú",None,None,None,None,None),#	honey
-	(u"vyíl",	u"volá",	u"volyí",None,None,None,None,None),#	ox
-	(u"vyíz",	u"vóza",	u"vózyi",None,None,None,None,None),#	cart
-	(u"sér",	u"séra",	u"séryi",None,None,None,None,None),#	cottage cheese
-	(u"synyíp",	u"snopá",	u"snopyí",None,None,None,None,None),#	sheaf
-	(u"ɣréb",	u"ɣrəbá",	u"ɣrəbyí",None,None,None,None,None),#	mushroom
-	(u"lǽbyid",	u"lǽbəda",	u"lǽbəgyi",None,None,None,None,None),#	swan
-	(u"bǽryiɣ",	u"bǽrəɣa",	u"bǽrəzyi",None,None,None,None,None),#	shore
-	(u"pəryíɣ",	u"pəróɣa",	u"pərózyi",None,None,None,None,None),#	dumpling
-	(u"poryíɣ",	u"poróɣa",	u"porózyi",None,None,None,None,None),#	threshhold
-	(u"bolyék",	u"bolyəká",	u"bolyətsyí",None,None,None,None,None),#	abcess
-	(u"vóryiɣ",	u"vóroɣa",	u"vórozyi",None,None,None,None,None),#	enemy
-	(u"kónək",	u"kónəka",	u"kónətsyi",None,None,None,None,None),#	grasshopper
-	(u"pótyik",	u"potóka",	u"potótsyi",None,None,None,None,None),#	stream
-	(u"tyík",	u"tóka",	u"tótsyi",None,None,None,None,None),#	current
-	(u"kyíl",	u"kolá",	u"kolyí",None,None,None,None,None),#	stake
+    (u"plast",	u"plasta",	u"plas^yk^yi",None,None,None,None,None),#	la^yer
+	(u"skorux",	u"skoruxa",	u"skorus^yi",None,None,None,None,None),#	mountain ash
+	(u"ɣ^yr^yix",	u"ɣ^yr^yixa",	u"ɣ^yr^yis^yi",None,None,None,None,None),#	sin
+	(u"pastux",	u"pastuxa",	u"pastus^yi",None,None,None,None,None),#	herdsman
+	(u"m^yn^yux",	u"m^yn^yuxa",	u"m^yn^yus^yi",None,None,None,None,None),#	fish sp.
+	(u"pluɣ",	u"pluɣa",	u"pluz^yi",None,None,None,None,None),#	plow
+	(u"s^yt^yiɣ",	u"stoɣa",	u"stoz^yi",None,None,None,None,None),#	stack
+	(u"sak",	u"saka",	u"sats^yi",None,None,None,None,None),#	fishnet
+	(u"bek",	u"bəka",	u"bəts^yi",None,None,None,None,None),#	bull
+	(u"lest",	u"ləsta",	u"ləs^yk^yi",None,None,None,None,None),#	letter
+	(u"lest",	u"lesta",	u"les^yk^yi",None,None,None,None,None),#	leaf
+	(u"p^yl^yit",	u"plota",	u"plok^yi",None,None,None,None,None),#	wicker fence
+	(u"s^ym^yr^yid",	u"smroda",	u"smrog^yi",None,None,None,None,None),#	stench
+	(u"f^yist",	u"fosta",	u"fos^yk^yi",None,None,None,None,None),#	tail
+	(u"m^yist",	u"mosta",	u"mos^yk^yi",None,None,None,None,None),#	bridge
+	(u"l^yid",	u"lædu",	u"lədu",None,None,None,None,None),#	ice
+	(u"d^yr^yit",	u"drota",	u"drok^yi",None,None,None,None,None),#	thick wire
+	(u"m^yid",	u"mædu",	u"mədu",None,None,None,None,None),#	hone^y
+	(u"v^yil",	u"vola",	u"vol^yi",None,None,None,None,None),#	ox
+	(u"v^yiz",	u"voza",	u"voz^yi",None,None,None,None,None),#	cart
+	(u"ser",	u"sera",	u"ser^yi",None,None,None,None,None),#	cottage cheese
+	(u"s^yn^yip",	u"snopa",	u"snop^yi",None,None,None,None,None),#	sheaf
+	(u"ɣreb",	u"ɣrəba",	u"ɣrəb^yi",None,None,None,None,None),#	mushroom
+	(u"læb^yid",	u"læbəda",	u"læbəg^yi",None,None,None,None,None),#	swan
+	(u"bær^yiɣ",	u"bærəɣa",	u"bærəz^yi",None,None,None,None,None),#	shore
+	(u"pər^yiɣ",	u"pəroɣa",	u"pəroz^yi",None,None,None,None,None),#	dumpling
+	(u"por^yiɣ",	u"poroɣa",	u"poroz^yi",None,None,None,None,None),#	threshhold
+	(u"bol^yek",	u"bol^yəka",	u"bol^yəts^yi",None,None,None,None,None),#	abcess
+	(u"vor^yiɣ",	u"voroɣa",	u"voroz^yi",None,None,None,None,None),#	enem^y
+	(u"konək",	u"konəka",	u"konəts^yi",None,None,None,None,None),#	grasshopper
+	(u"pot^yik",	u"potoka",	u"potots^yi",None,None,None,None,None),#	stream
+	(u"t^yik",	u"toka",	u"tots^yi",None,None,None,None,None),#	current
+	(u"k^yil",	u"kola",	u"kol^yi",None,None,None,None,None),#	stake
 
 #	Declension II
 #	Nom. sg.	Gen. sg.	Loc. sg.	Gloss
-	(None,None,None,u"kovály",	u"kovalyé",	u"kovalé",None,None),#	blacksmith
-	(None,None,None,u"ǰmyíly",	u"ǰmyilyé",	u"ǰmyilé",None,None),#	bumblebee
-	(None,None,None,u"kyryíly",	u"kyryilyé",	u"kyryilé",None,None),#	rabbit
-	(None,None,None,u"učétəly",	u"učétəlyə",	u"učétələ",None,None),#	teacher
-	(None,None,None,u"grǽbyiny",	u"grǽbənyə",	u"grǽbənə",None,None),#	comb
-	(None,None,None,u"óləny", u"ólənyə", u"ólənə",None,None),#	deer
-	(None,None,None,u"yačymyíny",	u"yačmǽnyə",	u"yačmǽnə",None,None),#	barley
-	(None,None,None,u"yásyiny",	u"yásənyə",	u"yásənə",None,None),#	ash tree
-	(None,None,None,u"zyéky",	u"zyékyə",	u"zyétə",None,None),#	son-in-law
+	(None,None,None,u"koval^y",	u"koval^ye",	u"kovale",None,None),#	blacksmith
+	(None,None,None,u"ǰm^yil^y",	u"ǰm^yil^ye",	u"ǰm^yile",None,None),#	bumblebee
+	(None,None,None,u"k^yr^yil^y",	u"k^yr^yil^ye",	u"k^yr^yile",None,None),#	rabbit
+	(None,None,None,u"učetəl^y",	u"učetəl^yə",	u"učetələ",None,None),#	teacher
+	(None,None,None,u"græb^yin^y",	u"græbən^yə",	u"græbənə",None,None),#	comb
+	(None,None,None,u"olən^y", u"olən^yə", u"olənə",None,None),#	deer
+	(None,None,None,u"yač^ym^yin^y",	u"yačmæn^yə",	u"yačmænə",None,None),#	barle^y
+	(None,None,None,u"yas^yin^y",	u"yasən^yə",	u"yasənə",None,None),#	ash tree
+	(None,None,None,u"z^yek^y",	u"z^yek^yə",	u"z^yetə",None,None),#	son-in-law
 
 #	Declension III
 #	Nom. sg.	Gen. sg.	Gloss
-	(None,None,None,None,None,None,u"másyky",	u"mástə"),#	u"fat"),#
-	(None,None,None,None,None,None,u"symyíryky",	u"smǽrtə"),#,	u"death"),#
-	(None,None,None,None,None,None,u"vyísyky",	u"vyístə"),#,	u"news"),#
-	(None,None,None,None,None,None,u"rágyisyky",	u"rádostə"),#,	u"joy"),#
-	(None,None,None,None,None,None,u"syíly",	u"sólə"),#,	u"salt"),#
-	(None,None,None,None,None,None,u"póšyisyky",	u"póšəstə"),#,	u"epidemic"),#
-	(None,None,None,None,None,None,u"zámyiky",	u"zámətə"),#,	u"snowstorm"),#
-	(None,None,None,None,None,None,u"skátəryky",	u"skátərtə"),#,	u"tablecloth"),#
-	(None,None,None,None,None,None,u"kyísyky",	u"kóstə"),#,	u"bone"),#
-],
-                              parameters={"window": 3}))
+	(None,None,None,None,None,None,u"mas^yk^y",	u"mastə"),#	u"fat"),#
+	(None,None,None,None,None,None,u"s^ym^yir^yk^y",	u"smærtə"),#,	u"death"),#
+	(None,None,None,None,None,None,u"v^yis^yk^y",	u"v^yistə"),#,	u"news"),#
+	(None,None,None,None,None,None,u"rag^yis^yk^y",	u"radostə"),#,	u"jo^y"),#
+	(None,None,None,None,None,None,u"s^yil^y",	u"solə"),#,	u"salt"),#
+	(None,None,None,None,None,None,u"poš^yis^yk^y",	u"pošəstə"),#,	u"epidemic"),#
+	(None,None,None,None,None,None,u"zam^yik^y",	u"zamətə"),#,	u"snowstorm"),#
+	(None,None,None,None,None,None,u"skatər^yk^y",	u"skatərtə"),#,	u"tablecloth"),#
+	(None,None,None,None,None,None,u"k^yis^yk^y",	u"kostə"),#,	u"bone"),#
+]))
 if False:
     MATRIXPROBLEMS.append(Problem('''Koromfe Odden 4.12
 	Koromfe has two kinds of vowels, [-ATR] ɩʊɛɔa and [+ATR] iueoʌ. Provide an analysis of the alternations in the following data, which involve singular and plural forms of nouns and different tense-inflections for verbs.

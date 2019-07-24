@@ -10,6 +10,7 @@ from morph import Morph
 from sketchSyntax import Expression,makeSketchSkeleton
 from sketch import *
 from supervised import SupervisedProblem
+from textbook_problems import *
 from latex import latexMatrix
 
 from pathos.multiprocessing import ProcessingPool as Pool
@@ -487,7 +488,23 @@ the integer is None then we have no guess for that one.'''
         s = result.solutionSequence[-1][0]
         s = self.finalTransduction(s)
         f = self.expandFrontier(s, k)
-        result.recordFinalFrontier(f)        
+        result.recordFinalFrontier(f)
+
+    def guessWindow(self):
+        totalNumberOfWords = sum( x is not None for i in self.data for x in i )
+        wordsPerDataPoint = float(totalNumberOfWords)/len(self.data)
+        if self.problemName in Problem.named and \
+           Problem.named[self.problemName].parameters is not None and \
+           "window" in Problem.named[self.problemName].parameters:
+            window = Problem.named[self.problemName].parameters["window"]
+            print "solver is taking custom default window",window
+        else:                
+            # Adaptively set the window size
+            if wordsPerDataPoint <= 3.0: window = 3
+            elif wordsPerDataPoint <= 4.0: window = 2
+            else: window = 1
+            print "Solver has adaptively set the window size to",window
+        return window
 
     def counterexampleSolution(self, k = 1, initialTrainingSize = 2, initialDepth = 1, maximumDepth = 7, globalTimeout=None):
         if globalTimeout is not None: setGlobalTimeout(globalTimeout)
@@ -500,7 +517,7 @@ the integer is None then we have no guess for that one.'''
     def _counterexampleSolution(self, initialTrainingSize = 2, initialDepth = 1, maximumDepth = 3):
         result = Result(self.problemName)
         
-        if self.numberOfInflections == 1 or initialTrainingSize == 0:
+        if initialTrainingSize == 0:
             initialTrainingSize = len(self.data)
         trainingData = self.data[:initialTrainingSize]
 
@@ -523,7 +540,11 @@ the integer is None then we have no guess for that one.'''
 
                 counterexample = self.findCounterexample(solution, trainingData)
                 if counterexample != None:
-                    trainingData.append(counterexample)
+                    if self.numberOfInflections > 1:
+                        trainingData.append(counterexample)
+                    else:
+                        ci = self.data.index(counterexample)
+                        trainingData.extend(self.data[ci:ci+initialTrainingSize])
                     continue
             except SynthesisTimeout: return result
             

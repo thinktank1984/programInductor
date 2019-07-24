@@ -76,7 +76,9 @@ class Bars():
             print(len(u.finalFrontier.underlyingForms))
         return float(max(len(u.finalFrontier.underlyingForms) for u in self.universal))/n
 
-    def NadiaHeight(self,cc0):
+    def NadiaHeight(self,cc0=None):
+        if cc0 is None: return max(self.NadiaHeight(True), self.NadiaHeight(False))
+        
         if cc0: Nadia = self.Nadia_cc0
         else: Nadia = self.Nadia
         if Nadia is None: return 0.
@@ -185,7 +187,7 @@ if __name__ == "__main__":
     # partition into columns
     partitions = partitionEvenly(bars,columns)
     #f.yticks(rotation=45)
-    number_of_baselines = 4
+    number_of_baselines = 3
     for bs,a in zip(partitions,axes):
         bs.reverse()
         
@@ -205,14 +207,19 @@ if __name__ == "__main__":
                W,
                color='k')
         a.barh(ys + W*3,
-               [b.NadiaHeight(False) for b in bs ],
+               [b.NadiaHeight() for b in bs ],
                W,
                color='y')
-        a.barh(ys + W*4,
-               [b.NadiaHeight(True) for b in bs ],
-               W,
-               color='y',
-               hatch="+")
+
+        # a.barh(ys + W*3,
+        #        [b.NadiaHeight(False) for b in bs ],
+        #        W,
+        #        color='y')
+        # a.barh(ys + W*4,
+        #        [b.NadiaHeight(True) for b in bs ],
+        #        W,
+        #        color='y',
+        #        hatch="+")
 
         a.set(yticks=ys + 2*W,
               yticklabels=[b.name for b in bs ])

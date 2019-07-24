@@ -1162,7 +1162,8 @@ Swahili Halle 133
 	solutions = [u'''
 u + stem
 m̩ + stem
-        [+nasal] > 0 / [+aspirated]_
+ma + stem
+        [+nasal] > 0 / _[+aspirated]
         [+aspirated] > [-aspirated] / [ ] _
         [+nasal] > place+1 / #_C
 	''']
