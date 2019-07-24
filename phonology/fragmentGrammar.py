@@ -434,9 +434,29 @@ def proposeFragments(ruleSets, verbose = False):
 
     return [ (t, f) for t in fragments for f in fragments[t] ] # if t != Rule ] #and t != 'GUARD' ]
 
-
+GLOBALCANDIDATEDATA = None
+def scoreCandidate((currentFragments,t,f)):
+    global GLOBALCANDIDATEDATA
+    smoothing = GLOBALCANDIDATEDATA["smoothing"]
+    ruleEquivalenceClasses = GLOBALCANDIDATEDATA["ruleEquivalenceClasses"]
+    newGrammar = FragmentGrammar(currentFragments + [(t,0,f)]).\
+                 estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
+    newScore = newGrammar.AIC(ruleEquivalenceClasses)
+    bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
+    newGrammar.clearCaches()
+    if bestUses <= 1.1: newScore = float('inf')
+    return newScore, newGrammar.fragments    
+    
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
                           CPUs = 1):
+    # Fork workers for evaluating candidates
+    # They will need some global data
+    global GLOBALCANDIDATEDATA
+    GLOBALCANDIDATEDATA = GLOBALCANDIDATEDATA or {}
+    GLOBALCANDIDATEDATA["ruleEquivalenceClasses"] = ruleEquivalenceClasses
+    GLOBALCANDIDATEDATA["smoothing"] = smoothing
+    workers = Pool(CPUs) # create this before we propose of fragments to save memory
+    
     startTime = time()
     
     fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
@@ -446,24 +466,26 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
 
     typeOrdering = [Specification,Guard,Rule]
 
-    def scoreCandidate((t,f)):
-        newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
-                     estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
-        newScore = newGrammar.AIC(ruleEquivalenceClasses)
-        bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
-        newGrammar.clearCaches()
-        if bestUses <= 1.1: newScore = float('inf')
-        return newScore, newGrammar
+    # def scoreCandidate((t,f)):
+    #     newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
+    #                  estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
+    #     newScore = newGrammar.AIC(ruleEquivalenceClasses)
+    #     bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
+    #     newGrammar.clearCaches()
+    #     if bestUses <= 1.1: newScore = float('inf')
+    #     return newScore, newGrammar
     
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
-        possibleNewFragments = [ (t,f) for (t,f) in fragments
+        possibleNewFragments = [ (currentGrammar.fragments,t,f)
+                                 for (t,f) in fragments
                                  if t == typeOrdering[0] and not currentGrammar.hasFragment(f) ]
-        candidates = lightweightParallelMap(CPUs, scoreCandidate, possibleNewFragments)
+        candidates = workers.map(scoreCandidate, possibleNewFragments)
 
         if candidates == []:
             bestScore = float('inf')
         else:
             (bestScore,bestGrammar) = min(candidates)
+            bestGrammar = FragmentGrammar(bestGrammar)
             # for os,og in candidates:
             #     if os == bestScore:
             #         print "This is as good as the best:"
