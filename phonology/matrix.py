@@ -558,6 +558,7 @@ the integer is None then we have no guess for that one.'''
                                                                   auxiliaryHarness = True,
                                                                   oldSolution=solution)
                 except SynthesisTimeout: return result
+                if expandedSolution is None: return solution
                 if not any( r.doesNothing() for r in expandedSolution.rules ) and \
                    expandedSolution.cost() <= solution.cost():
                     solution = expandedSolution
