@@ -54,7 +54,6 @@ class Bars():
 
     @property
     def numberOfBars(self):
-        if self.alternation: return 1
         return int(len(self.universal) > 0) + sum(b is not None for b in self.baselines)
 
     @property
@@ -87,8 +86,10 @@ class Bars():
         assert False
 
     def baselineHeight(self, b):
-        if self.alternation: return 1.
-        assert not self.alternation
+        if self.alternation:
+            if b >= len(self.baselines) or self.baselines is None: return 0.
+            if self.baselines[b] == "FAILURE": return 0.02
+            else: return 1.
         b = self.baselines[b]
         if b is None: return 0.
         n = len(self.problem.data)
@@ -133,8 +134,13 @@ if __name__ == "__main__":
                 p = loadPickle("experimentOutputs/alternation/%s.p"%name)
             else:
                 p = None
-            bl_1 = p
-            bl_2 = p
+
+            if os.path.exists("experimentOutputs/alternation/%s_ablation.p"%name):
+                bl_1 = loadPickle("experimentOutputs/alternation/%s_ablation.p"%name)
+                if bl_1 is None: bl_1 = "FAILURE"
+            else:
+                bl_1 = None                
+            bl_2 = None
             ul = [p]
             if p is None:
                 print "Missing alternation",name

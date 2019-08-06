@@ -10,7 +10,8 @@ from fragmentGrammar import getEmptyFragmentGrammar
 import math
 
 class AlternationSolution(object):
-    def __init__(self, data, substitution, rules):
+    def __init__(self, data, substitution, rules, time):
+        self.time = time
         self.data = data
         self.substitution = substitution
         self.rules = rules

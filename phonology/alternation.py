@@ -7,6 +7,7 @@ from rule import Rule
 from sketch import *
 from solution import *
 
+import time
 from command_server import *
 from problems import *
 
@@ -143,11 +144,19 @@ class AlternationProblem():
         return rules, sub
 
 def handleProblem(problem):
+    if not areFeaturesDisabled():
+        fn = "experimentOutputs/alternation/"+problem+".p"
+    else:
+        fn = "experimentOutputs/alternation/"+problem+"_ablation"+".p"
+    
+    problem = Problem.named[problem]
     print problem.description
 
     compositeSubstitution = []
     allTheRules = []
     data = problem.data
+    haveFailure = False
+    start = time.time()
     for j, alternation in enumerate(problem.parameters["alternations"]):
         print "Analyzing alternation:"
         for k in alternation:
@@ -157,27 +166,52 @@ def handleProblem(problem):
         if solutions != []:
             allTheRules += solutions[0][0]
             compositeSubstitution += solutions[0][1]
+        else:
+            haveFailure = True
+            
+    if haveFailure:
+        composite = None
+    else:
+        composite = AlternationSolution(map(Morph,data),dict(compositeSubstitution),allTheRules,
+                                        time=time.time() - start)
         
-    if len(solutions) > 0:
-        composite = AlternationSolution(map(Morph,data),dict(compositeSubstitution),allTheRules)
-        fn = "experimentOutputs/alternation/"+arguments.problem+".p"
-        os.system("mkdir  -p experimentOutputs/alternation")
-        print "Exporting to",fn
-        dumpPickle(composite, fn)
+
+    os.system("mkdir  -p experimentOutputs/alternation")
+    print "Exporting to",fn
+    dumpPickle(composite, fn)
             
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Analyze an alternation to determine whether it is valid and how much it compresses the data.')
-    parser.add_argument('problem')
+    parser.add_argument('problem',nargs='+')
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-m','--cores', default = 1, type = int)
+    parser.add_argument('--features',
+                        choices = ["none","sophisticated","simple"],
+                        default = "sophisticated",
+                        type = str,
+                        help = "What features the solver allowed to use")
+    parser.add_argument('--disableClean', default = False, action = 'store_true',
+                        help = 'disable kleene star')
+
+
     
     arguments = parser.parse_args()
     start_server(arguments.cores)
     
-    try:
-        problem = Problem.named[arguments.problem]
-    except:
-        print("Could not find problem %s"%problem)
-        sys.exit(0)            
+    if arguments.features == "none":
+        disableFeatures()
+    else:
+        print "Using the `%s` feature set"%(arguments.features)
+        switchFeatures(arguments.features)
+        
+    if arguments.disableClean:
+        print "Disabling kleene"
+        disableClean()
 
-    handleProblem(problem)
+    for p in arguments.problem:
+        assert p in Problem.named, ("Could not find problem %s"%p)
+
+    parallelMap(min(arguments.cores,len(arguments.problem)), handleProblem, arguments.problem)
+    
+        
+    
