@@ -1,6 +1,19 @@
 import os
 import subprocess
 
+import sys
+
+DUMMY = len(sys.argv) > 1 and sys.argv[1] == "DUMMY"
+def system(command):
+    global DUMMY
+    if DUMMY:
+        print "Would now execute:"
+        print command
+    else:
+        print "Will now execute:"
+        print command
+        os.system(command)
+
 training = [
     "Odden_105_Bukusu",
     "Odden_81_Koasati",
@@ -41,9 +54,7 @@ command = "pypy UG.py --export experimentOutputs/ug0.p"
 for t in training:
     command += " experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"%t
 
-print "executing:"
-print command
-os.system(command)
+system(command)
 
 print "expanding frontiers with new universal grammar!"
 promises = []
@@ -55,14 +66,14 @@ for t in training:
                                                                                                                                    newPath)
     print "Will execute:",command
     promises.append(command)
-promises = [subprocess.Popen(p, shell=True)
-            for p in promises]
-for p in promises: p.wait()
+
+if not DUMMY:
+    promises = [subprocess.Popen(p, shell=True)
+                for p in promises]
+    for p in promises: p.wait()
 print "Reestimate universal grammar!"
 command = "pypy UG.py --export experimentOutputs/ug1.p"
 for t in training:
     command += " experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_expanded.p"%t
 
-print "executing:"
-print command
-os.system(command)
+system(command)
