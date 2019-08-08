@@ -8,6 +8,7 @@ import sys
 
 import numpy as np
 
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plot
 
 
@@ -16,7 +17,7 @@ class Bars():
         self.problem = problem
         self.baselines = baselines
         self.universal = universal
-        self.name = "%s (%s)"%(self.problem.languageName, self.problem.source)
+        self.name = "%s (%s)"%(self.language, self.problem.source)
         print self.name, "Missing baseline?", any( b is None for b in baselines), "Missing full model?", self.universal is None
 
         self.Nadia = None # do not have a Nadia solution
@@ -57,7 +58,7 @@ class Bars():
         return int(len(self.universal) > 0) + sum(b is not None for b in self.baselines)
 
     @property
-    def language(self): return self.problem.languageName
+    def language(self): return self.problem.languageName.replace(u" (Cuzco dialect)","")#self.problem.languageName
 
     def universalTime(self):
         if not self.alternation and self.universal:
@@ -186,6 +187,7 @@ if __name__ == "__main__":
                     b.name = b.language + " (" + "I"*i + ")"
                 else:
                     b.name = b.language
+            b.name = b.name.replace(" (Cuzco dialect)","")
 
 
     columns = 3
@@ -194,28 +196,33 @@ if __name__ == "__main__":
     partitions = partitionEvenly(bars,columns)
     #f.yticks(rotation=45)
     number_of_baselines = 3
-    for bs,a in zip(partitions,axes):
+    colors = [("ours (full)", "r"),
+              ("ours (CEGIS)", "g"),
+              ("-representation", "k"),
+              ("Barke et al.", "gold")]
+    colormap = dict(colors)
+    for pi,(bs,a) in enumerate(zip(partitions,axes)):
         bs.reverse()
         
         W = (1 - 0.2)/(number_of_baselines + 1)
         ys = np.arange((len(bs)))
         
-        a.barh(ys,
+        a.barh(ys + W*3,
                [b.universalHeight() for b in bs ],
                W,
-               color='b'*len(bs))
-        a.barh(ys + W,
+               color=colormap["ours (full)"])
+        a.barh(ys + W*2,
                [b.baselineHeight(1) for b in bs ],
                W,
-               color='g')
-        a.barh(ys + W*2,
+               color=colormap["ours (CEGIS)"])
+        a.barh(ys + W,
                [b.baselineHeight(0) for b in bs ],
                W,
-               color='k')
-        a.barh(ys + W*3,
+               color=colormap["-representation"])
+        a.barh(ys,
                [b.NadiaHeight() for b in bs ],
                W,
-               color='y')
+               color=colormap["Barke et al."])
 
         # a.barh(ys + W*3,
         #        [b.NadiaHeight(False) for b in bs ],
@@ -226,9 +233,20 @@ if __name__ == "__main__":
         #        W,
         #        color='y',
         #        hatch="+")
+        print "names",[b.name for b in bs ]
 
         a.set(yticks=ys + 2*W,
               yticklabels=[b.name for b in bs ])
+        if pi == int(columns/2):
+            a.set_xlabel('% data covered')
+
+    
+
+    f.legend([Line2D([0],[0],color=c,lw=4)
+                 for _,c in colors],
+                [n for n,_ in colors ],
+                ncol=len(colors),
+             loc='lower center')
 
     if not arguments.final or True:
         plot.show()

@@ -9,6 +9,9 @@ import itertools
 import traceback
 import heapq
 
+def average(l):
+    return sum(l)/len(l)
+
 def displayTimestamp(job):
     import datetime
     print job, '@', datetime.datetime.now()

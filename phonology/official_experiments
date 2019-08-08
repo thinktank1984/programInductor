@@ -1,3 +1,5 @@
+for language in aax aab aba abb ; do for i in `seq 1 4`; do python Marcus.py  --quiet  -t 30  -d 3 -n $i --save paretoFrontier/"$language""$i".p   -p $language; done; done
+for language in aax aab aba abb ; do for i in `seq 1 4`; do python Marcus.py  --quiet  -t 30  -d 3 -n $i --save paretoFrontier/"$language""$i"_noSyllable.p   -p $language --noSyllables & done; done
 
 Odden_105_Bukusu
 Odden_81_Koasati

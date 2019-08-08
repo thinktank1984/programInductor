@@ -216,7 +216,7 @@ class Solution(object):
         suffixes = [p.makeConstant(bank) for p in self.suffixes ]
         stem = Morph.sample()
         
-        countingProblem = tuple(surfaces) == (Morph(u"ǰu"),None,None)
+        countingProblem = len(surfaces) == 3 and tuple(surfaces) == (Morph(u"ǰu"),None,None)
         if countingProblem:
             condition(wordEqual(stem, prefixes[1]))
             condition(wordEqual(stem, suffixes[2]))

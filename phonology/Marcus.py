@@ -56,16 +56,16 @@ def sampleAAB(n):
         s,d = sampleAB()
         l.append(s + s + d)
     return l
-def sampleABX(n):
+def sampleABX(n,X=None):
     l = []
-    x = sampleSyllable()
+    x = X or sampleSyllable()
     for _ in range(n):
         s,d = sampleAB()
         l.append(s + d + x)
     return l
-def sampleAAX(n):
+def sampleAAX(n,X=None):
     l = []
-    x = sampleSyllable()
+    x = X or sampleSyllable()
     for _ in range(n):
         a = sampleSyllable()
         l.append(a + a + x)
