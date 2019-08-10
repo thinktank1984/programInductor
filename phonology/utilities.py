@@ -9,9 +9,15 @@ import itertools
 import traceback
 import heapq
 
+def sigmoid(x):
+    return 1./(1. + math.exp(-x))
+
 def average(l):
     return sum(l)/len(l)
 
+def standardDeviation(l):
+    u = average(l)
+    return average([(x - u)**2 for x in l ])**0.5
 def displayTimestamp(job):
     import datetime
     print job, '@', datetime.datetime.now()

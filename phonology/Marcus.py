@@ -28,7 +28,7 @@ stimuliFromLiterature = {
 def sampleVowel():
     return choice([u"i",u"ɩ",u"e",u"ə",u"ɛ",u"æ",u"a",u"u",u"ʊ",u"o",u"ɔ"])
 def sampleConsonant():
-    return choice([u"p",u"b",u"f",u"v",u"m",u"θ",u"d",u"t",u"ð",u"z",u"ǰ",u"s",u"n",u"š",u"k",u"g",u"ŋ",u"h",u"w",u"y",u"r",u"l"])
+    return choice([u"p",u"b",u"f",u"v",u"m",u"θ",u"d",u"t",u"ð",u"z",u"ǰ",u"s",u"n",u"š",u"k",u"g",u"ŋ",u"h",u"w",u"r",u"l"])
 def sampleSyllable():
     v = sampleVowel()
     k = sampleConsonant()
@@ -63,6 +63,13 @@ def sampleABX(n,X=None):
         s,d = sampleAB()
         l.append(s + d + x)
     return l
+def sampleAXA(n,X=None):
+    l = []
+    x = X or sampleSyllable()
+    for _ in range(n):
+        a = sampleSyllable()
+        l.append(a + x + a)
+    return l
 def sampleAAX(n,X=None):
     l = []
     x = X or sampleSyllable()
@@ -81,7 +88,7 @@ if __name__ == '__main__':
     start_server(1)
     parser = argparse.ArgumentParser(description = 'Generate and analyze synthetic rule learning problems ala Gary Marcus ABA/ABB patterns')
     parser.add_argument('-p','--problem', default = 'abb',
-                        choices = ["aba","aab","abb","abx","aax","Chinese"],
+                        choices = ["aba","aab","abb","abx","aax", "axa","Chinese"],
                         type = str)
     parser.add_argument('-t','--top', default = 1, type = int)
     parser.add_argument('-d','--depth', default = 3, type = int)
@@ -99,6 +106,8 @@ if __name__ == '__main__':
                 'abb': sampleABB,
                 'abx': sampleABX,
                 'aax': sampleAAX,
+                'axa': sampleAXA,
+                'aab': sampleAAB,
                 }
     constantPrefix = arguments.problem.startswith('x')
     constantSuffix = arguments.problem.endswith('x')
