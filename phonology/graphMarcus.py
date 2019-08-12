@@ -25,37 +25,38 @@ def cachedTransduction(s, word):
     TRANSDUCTIONTABLE[key] = s.transduceUnderlyingForm(BANK,(Morph(word),))
     return TRANSDUCTIONTABLE[key]
 
-def posteriorPredictiveLikelihood(posterior, testWord):
-    b = FeatureBank([ s
-                      for ss in posterior[0].underlyingForms.keys()
-                      for s in ss ] + [Morph(testWord), u"-"])
-    
-    # compute posterior probabilities for each element in posterior
-    logPosterior = []
-    for solution in posterior:
-        getEmptyFragmentGrammar().numberOfFeatures = len(b.features)
-        getEmptyFragmentGrammar().numberOfPhonemes = len(b.phonemes)
-        lp = -sum(len(stem) * math.log(len(b.phonemes))
-                  for stem in solution.prefixes + solution.suffixes + solution.underlyingForms.values() ) + \
-                      sum(getEmptyFragmentGrammar().ruleLogLikelihood(r)[0]
-                       for r in solution.rules)/10
-        logPosterior.append(lp)
+def solutionJoint(solution):
+    b = FeatureBank(list({ s
+                          for ss in solution.underlyingForms.keys()
+                           for s in ss } | {u"-"}))
+    getEmptyFragmentGrammar().numberOfFeatures = len(b.features)
+    getEmptyFragmentGrammar().numberOfPhonemes = len(b.phonemes)    
 
+    lexicon = -sum(len(stem) for stem in solution.underlyingForms.values() )
+    morphology = -sum(len(stem) for stem in solution.suffixes + solution.prefixes)
+    rules = sum(getEmptyFragmentGrammar().ruleLogLikelihood(r)[0]
+                for r in solution.rules)
+    rules_symbols = -sum(r.cost() for r in solution.rules)
+
+    return math.log(len(b.phonemes))*(lexicon + morphology) + rules/5
+
+def calculatePosterior(solutions):
+    # compute posterior probabilities for each element in posterior
+    logPosterior = [solutionJoint(solution) for solution in solutions ]
     z = lseList(logPosterior)
     logPosterior = [lp - z for lp in logPosterior ]
 
-    if True:
-        print "Posterior (test word = %s)"%testWord
-        for s,lp in sorted(zip(posterior, logPosterior),
-                           key=lambda(s,p):-p):
-            print lp
-            print s
-            print
+    return list(sorted(zip(solutions, logPosterior), key=lambda sp: -sp[1]))
 
-    stems = [cachedTransduction(s, testWord) for s in posterior]
+def posteriorPredictiveLikelihood(solutions, testWord):
+    b = FeatureBank([ s
+                      for solution in solutions
+                      for ss in solution.underlyingForms.keys()
+                      for s in ss ] + [u"-"])
 
     logMarginal = float('-inf')
-    for lp, stem in zip(logPosterior, stems):
+    for solution, lp in calculatePosterior(solutions):
+        stem = cachedTransduction(solution, testWord)
         if stem is None: continue
 
         logMarginal = lse(logMarginal, lp - len(stem)*math.log(len(b.phonemes)))
@@ -66,8 +67,8 @@ def posteriorPredictiveLikelihood(posterior, testWord):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = 'Analyze and plot Marcus patterns on held out data')
     pairings = ["%s,%s"%(x,y)
-                for x in ["aba","aab","abb","abx","aax","Chinese"]
-                for y in ["aba","aab","abb","abx","aax","Chinese"]
+                for x in ["aba","aab","abb","abx","aax","Chinese","axa"]
+                for y in ["aba","aab","abb","abx","aax","Chinese","axa"]
                 if x != y]
     parser.add_argument('testCases',
                         choices = pairings,
@@ -79,6 +80,7 @@ if __name__ == "__main__":
                         help="Plot sigmoid(log-odds/T), --sigmoid T ")
     parser.add_argument('-j','--jitter', default=0., type=float)
     parser.add_argument('--export', default = None, type = str)
+    parser.add_argument('--debug', default = False, action='store_true')
 
     random.seed(0)
 
@@ -131,9 +133,14 @@ if __name__ == "__main__":
             w = Morph(sampling[consistent](1)[0])
             if w not in allTrainingExamples: testConsistent.append(w)
 
+        random.seed(0)
         testInconsistent = []
         while len(testInconsistent) < arguments.samples:
             w = Morph(sampling[inconsistent](1)[0])
+            # If we train on e.g. aax, and test on aab, make sure that it doesn't accidentally conform to the training pattern
+            if 'x' in consistent and 'x' not in inconsistent:
+                if X in u"".join(w.phonemes): continue
+            
             if w not in allTrainingExamples: testInconsistent.append(w)
 
         for n in range(1,arguments.number+1):
@@ -169,6 +176,19 @@ if __name__ == "__main__":
     COLORS = ["r","g","b","cyan"]
 
     for color, (consistent, inconsistent) in zip(COLORS,arguments.testCases):
+        if arguments.debug:
+            for n in range(1,arguments.number+1):
+                print("After training on %d examples w/ syllables, posterior is:"%(n))
+                for s,lp in calculatePosterior(withSyllables[consistent,n]):
+                    print("Posterior probability",lp)
+                    print(s)
+                    for e in consistentExamples[consistent, inconsistent]:
+                        print("consistent\tlog P(%s | theory) = %s"%(e,cachedTransduction(s,e)))
+                    for e in inconsistentExamples[consistent, inconsistent]:
+                        print("inconsistent\tlog P(%s | theory) = %s"%(e,cachedTransduction(s,e)))
+            
+                    
+            
         for syllables in [withSyllables, withoutSyllables]:
             ys = [0.5] if sigmoid else [0]
             deviations = [0]
@@ -196,23 +216,42 @@ if __name__ == "__main__":
                 deviations.append(s)
             jxs = [x + arguments.jitter*(2*(random.random() - 0.5))
                    for x in xs ]
-            plot.errorbar(jxs,ys,yerr=deviations,color=color,
-                          ls='-' if syllables is withSyllables else '--')
+            if len(arguments.testCases) > 1:
+                plot.errorbar(jxs,ys,yerr=deviations,color=color,
+                              ls='-' if syllables is withSyllables else '--')
+            else:
+                plot.errorbar(jxs,ys,yerr=deviations,
+                              color=COLORS[int(syllables is withSyllables)])
 
-    #plot.ylim(bottom=0.)
+    
     plot.xlabel("# training examples")
     plot.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
     if arguments.sigmoid:
-        plot.ylabel(r"$\sigma(\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$")
+        plot.ylim(bottom=0.,top=1.2)
+        plot.ylabel(r"$\sigma(1/%i\times\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$"%(int(arguments.sigmoid)))
     else:
         plot.ylabel(r"$\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})}$")
-    plot.legend([Line2D([0],[0],color=c,lw=2)
-                 for c,_ in zip(COLORS,arguments.testCases)] + \
-                [Line2D([0],[0],color='k',lw=2),
-                 Line2D([0],[0],color='k',lw=2,ls='--')],
-                ["train %s, test %s (consistent) / %s (inconsistent)"%(c,c,i)
-                 for c,i in arguments.testCases ] + \
-                ["w/ syllables", "w/o syllables"],
-                ncol=1,
-                loc='best')
-    plot.show()
+    if len(arguments.testCases) > 1:
+        plot.legend([Line2D([0],[0],color=c,lw=2)
+                     for c,_ in zip(COLORS,arguments.testCases)] + \
+                    [Line2D([0],[0],color='k',lw=2),
+                     Line2D([0],[0],color='k',lw=2,ls='--')],
+                    ["train %s, test %s (consistent) / %s (inconsistent)"%(c,c,i)
+                     for c,i in arguments.testCases ] + \
+                    ["w/ syllables", "w/o syllables"],
+                    ncol=1,
+                    loc='best')
+    else:
+        c = arguments.testCases[0][0]
+        i = arguments.testCases[0][1]
+        plot.title("train %s, test %s (consistent) / %s (inconsistent)"%(c,c,i))
+        plot.legend([Line2D([0],[0],color=COLORS[1],lw=2),
+                     Line2D([0],[0],color=COLORS[0],lw=2)],
+                    ["w/ syllables", "w/o syllables"],
+                    ncol=1,
+                    loc='best')
+
+    if arguments.export:
+        plot.savefig(arguments.export)
+    else:
+        plot.show()

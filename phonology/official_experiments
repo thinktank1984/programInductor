@@ -1,6 +1,10 @@
-for language in aax aab aba abb ; do for i in `seq 1 4`; do python Marcus.py  --quiet  -t 30  -d 3 -n $i --save paretoFrontier/"$language""$i".p   -p $language & done; done
-for language in aax aab aba abb ; do for i in `seq 1 4`; do python Marcus.py  --quiet  -t 30  -d 2 -n $i --save paretoFrontier/"$language""$i"_depth2.p   -p $language & done; done
-for language in aax aab aba abb ; do for i in `seq 1 4`; do python Marcus.py  --quiet  -t 30  -d 3 -n $i --save paretoFrontier/"$language""$i"_depth2_noSyllable.p   -p $language --noSyllables & done; done
+AGL Experiments:
+
+for language in aax aab abx axa aba abb ; do for i in `seq 1 5`; do python Marcus.py  --quiet  -t 30  -d 2 -n $i --save paretoFrontier/"$language""$i".p   -p $language & done; done
+for language in aax aab abx axa aba abb ; do for i in `seq 1 5`; do python Marcus.py  --quiet  -t 30  -d 2 -n $i --save paretoFrontier/"$language""$i"_noSyllable.p   -p $language --noSyllables & done; done
+
+AGL Visualization:
+for X in aax aab abx axa aba abb ; do for Y in aax aab abx axa aba abb ; do if [ $X != $Y ] ; then python graphMarcus.py "$X","$Y" -n 5 --samples 4 --sigmoid 5. --export figures/AGL/"$X"_"$Y".png; fi; done; done
 
 Odden_105_Bukusu
 Odden_81_Koasati

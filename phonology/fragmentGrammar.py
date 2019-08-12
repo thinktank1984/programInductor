@@ -628,7 +628,7 @@ class FragmentGrammar():
 
     def offsetLogLikelihood(self, o):
         if isinstance(o,OffsetSpecification):
-            return -log(4.0), {}
+            return -log(1.), {}
         else:
             raise Exception('offsetLogLikelihood: did not get offset')
 
