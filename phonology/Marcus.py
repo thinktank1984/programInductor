@@ -117,10 +117,10 @@ if __name__ == '__main__':
         if len(trainingData) < arguments.number:
             if 'x' in arguments.problem:
                 assert arguments.problem == 'aax'
-            else:
                 trainingData += sampling[arguments.problem](arguments.number - len(trainingData),
                                                             X='di')
-            trainingData += sampling[arguments.problem](arguments.number - len(trainingData))
+            else:
+                trainingData += sampling[arguments.problem](arguments.number - len(trainingData))
     else:
         trainingData = sampling[arguments.problem](arguments.number)
     
