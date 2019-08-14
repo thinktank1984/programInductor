@@ -130,6 +130,8 @@ class FCFragment(Fragment):
 
     def __unicode__(self): return unicode(self.child)
 
+    def latex(self): return self.child.latex()
+
     def isDegenerate(self):
         return self.child.isDegenerate()
 

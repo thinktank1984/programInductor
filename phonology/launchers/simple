@@ -1,0 +1,16 @@
+#!/bin/bash
+
+mkdir  -p jobs/simple
+for language in "$@"
+do
+    
+    EXPORT=jobs/simple/$language
+    echo "Output will be sent to $EXPORT"
+    echo "WARNING: deleting $EXPORT"
+    rm $EXPORT
+
+    export PYTHONIOENCODING=utf-8
+
+    python driver.py $language CEGIS --timeout 24.0 --features simple  > $EXPORT 2>&1  &
+    sleep 5
+done

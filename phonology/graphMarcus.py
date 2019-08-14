@@ -74,6 +74,10 @@ if __name__ == "__main__":
                         choices = pairings,
                         type = str,
                         nargs='+')
+    parser.add_argument('--colors',
+                        type = str,
+                        default=None,
+                        nargs='+')
     parser.add_argument('-n','--number', default = 4, type = int)
     parser.add_argument('-s','--samples', default=1, type=int)
     parser.add_argument('--sigmoid', default=False, type=float,
@@ -171,9 +175,10 @@ if __name__ == "__main__":
         os.system("mv %s %s"%(temporaryFile, transductionCashFile))
     
 
-    plot.figure()
+    
+    plot.figure(figsize=(8,3))
     xs = range(0,arguments.number+1)
-    COLORS = ["r","g","b","cyan"]
+    COLORS = arguments.colors or ["r","g","b","cyan"]
 
     for color, (consistent, inconsistent) in zip(COLORS,arguments.testCases):
         if arguments.debug:
@@ -227,7 +232,7 @@ if __name__ == "__main__":
     plot.xlabel("# training examples")
     plot.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
     if arguments.sigmoid:
-        plot.ylim(bottom=0.,top=1.2)
+        plot.ylim(bottom=0.,top=1.1)
         plot.ylabel(r"$\sigma(1/%i\times\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$"%(int(arguments.sigmoid)))
     else:
         plot.ylabel(r"$\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})}$")

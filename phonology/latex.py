@@ -244,8 +244,9 @@ if __name__ == "__main__":
     if universal is not None:
         
         universal = FragmentGrammar(loadPickle(universal))
-        for l,_,f in universal.fragments:
-            print f.latex()
+        for l,t,f in universal.fragments:
+            print l,f.latex()
+        assert False
 
         print(universal)
 
@@ -267,6 +268,8 @@ if __name__ == "__main__":
                 print(r)
                 print(r.latex())
         print(ff)
+        for _,uf in ff.underlyingForms.iteritems():
+            print latexWord(uf),"\\\\"
     assert False
 
     
