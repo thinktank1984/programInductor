@@ -281,7 +281,7 @@ simpleFeatureMap = {
     u"t^h": [alveolar, stop,aspirated],
     u"ṭ": [alveolar, stop,retroflex],
     u"ḍ": [alveolar, stop,voice,retroflex],
-    u"ṛ": [alveolar, stop,retroflex,voice],
+    u"ṛ": [alveolar, fricative,retroflex,voice],
     u"ð": [dental, fricative, voice],
     u"z": [fricative, voice, alveolar],
     u"ǰ": [voice,alveopalatal,affricate],

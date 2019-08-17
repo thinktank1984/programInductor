@@ -69,12 +69,10 @@ class Bars():
         if self.alternation: return 1.
         if len(self.universal) == 0: return 0.
         n = len(self.problem.data)
-        if "Somali" in self.language and False:
-            u = self.universal[0]
-            print(n)
-            print(u.finalFrontier.MAP())
-            print(len(u.finalFrontier.underlyingForms))
         return float(max(len(u.finalFrontier.underlyingForms) for u in self.universal))/n
+
+    def averageBaselineHeight(self):
+        return (self.NadiaHeight() + sum(self.baselineHeight(b) for b in range(len(self.baselines)) ))/(len(self.baselines)+1)
 
     def NadiaHeight(self,cc0=None):
         if cc0 is None: return max(self.NadiaHeight(True), self.NadiaHeight(False))
@@ -109,8 +107,12 @@ if __name__ == "__main__":
     parser.add_argument("--final","-f",action='store_true',default=False)
     arguments = parser.parse_args()
 
-    baselinePath_1 = ["experimentOutputs/%s_CEGIS_disableClean=True_features=none.p"]
-    baselinePath_2 = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated_geometry=True.p"]
+    baselinePaths = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated_geometry=True.p",
+                     "experimentOutputs/%s_CEGIS_disableClean=False_features=simple.p",
+                     "experimentOutputs/%s_CEGIS_disableClean=True_features=none.p"                     ]
+    alternationBaselines = ["experimentOutputs/alternation/%s.p", # CEGIS, whatever
+                            "experimentOutputs/alternation/%s_simple.p",
+                            "experimentOutputs/alternation/%s_ablation.p"]
     universalPath = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_ug.p",
                      "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"]
     bars = []
@@ -120,62 +122,43 @@ if __name__ == "__main__":
         
         if "Kevin" in name: continue
 
-        # if name == "Odden_2.4_Tibetan":
-        #     bl = "experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated.p"
-        #     ul = "experimentOutputs/Odden_2.4_Tibetan_exact_disableClean=False_features=sophisticated_geometry=True.p"
-        #     if os.path.exists(bl): bl = loadPickle(bl)
-        #     else: bl = None
-        #     bl_1 = bl
-        #     bl_2 = bl
-        #     if os.path.exists(ul): ul = [loadPickle(ul)]
-        #     else: ul = []
-        # el
+        baselines = []
+        universals = []
         if problem.parameters and "alternations" in problem.parameters:
             if os.path.exists("experimentOutputs/alternation/%s.p"%name):
-                p = loadPickle("experimentOutputs/alternation/%s.p"%name)
+                universals.append(loadPickle("experimentOutputs/alternation/%s.p"%name))
             else:
-                p = None
-
-            if os.path.exists("experimentOutputs/alternation/%s_ablation.p"%name):
-                bl_1 = loadPickle("experimentOutputs/alternation/%s_ablation.p"%name)
-                if bl_1 is None: bl_1 = "FAILURE"
-            else:
-                bl_1 = None                
-            bl_2 = None
-            ul = [p]
-            if p is None:
+                universals.append(None)
                 print "Missing alternation",name
-                
+
+            for pathTemplate in alternationBaselines:
+                if os.path.exists(pathTemplate%name):
+                    bl = loadPickle(pathTemplate%name)
+                    if bl is None: bl = "FAILURE"
+                else:
+                    bl = None
+                baselines.append(bl)
         else:
-            bl_1 = None
-            for b in baselinePath_1:
-                if os.path.exists(b%name):
-                    bl_1 = loadPickle(b%name)
-                    print "Loaded",b%name
-                    break
+            for pathTemplate in baselinePaths:
+                if os.path.exists(pathTemplate%name):
+                    bl = loadPickle(pathTemplate%name)
+                    print "Loaded", pathTemplate%name
                 else:
-                    print "Failed to load",b%name
-            bl_2 = None
-            for b in baselinePath_2:
-                if os.path.exists(b%name):
-                    print "Loaded",b%name
-                    bl_2 = loadPickle(b%name)
-                    break
-                else:
-                    print "Failed to load",b%name
-            if bl_2 is None: print "MISSINGCEGIS",name
-            ul = []
+                    bl = None
+                    print "Missing baseline",pathTemplate%name
+                baselines.append(bl)
+            
             for u in universalPath:
                 if os.path.exists(u%name):
-                    ul.append(loadPickle(u%name))
+                    universals.append(loadPickle(u%name))
         
-        bars.append(Bars(problem,ul,bl_1,bl_2))
+        bars.append(Bars(problem,universals,*baselines))
 
     # for b in bars:
     #     b.universalTime()
     # assert False
 
-    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -(b.baselineHeight(1) - b.baselineHeight(0))))
+    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -(b.averageBaselineHeight())))
 
     if arguments.final:
         for n,b in enumerate(bars):
@@ -195,11 +178,12 @@ if __name__ == "__main__":
     # partition into columns
     partitions = partitionEvenly(bars,columns)
     #f.yticks(rotation=45)
-    number_of_baselines = 3
-    colors = [("ours (full)", "r"),
-              ("ours (CEGIS)", "g"),
-              ("-representation", "k"),
+    colors = [("ours (full)", "b"),
+              ("ours (CEGIS)", "mediumslateblue"),
+              ("ours (simple features)", "purple"),
+              ("-representation", "teal"),
               ("Barke et al.", "gold")]
+    number_of_baselines = len(colors) - 1
     colormap = dict(colors)
     for pi,(bs,a) in enumerate(zip(partitions,axes)):
         bs.reverse()
@@ -207,18 +191,27 @@ if __name__ == "__main__":
         W = (1 - 0.2)/(number_of_baselines + 1)
         ys = np.arange((len(bs)))
         
-        a.barh(ys + W*3,
+        a.barh(ys + W*number_of_baselines,
                [b.universalHeight() for b in bs ],
                W,
                color=colormap["ours (full)"])
-        a.barh(ys + W*2,
-               [b.baselineHeight(1) for b in bs ],
-               W,
-               color=colormap["ours (CEGIS)"])
-        a.barh(ys + W,
-               [b.baselineHeight(0) for b in bs ],
-               W,
-               color=colormap["-representation"])
+        for bi,(_,c) in enumerate(colors[1:-1]):
+            a.barh(ys + W*(number_of_baselines - 1 - bi),
+                   [b.baselineHeight(bi) for b in bs ],
+                   W,
+                   color=c)
+        # a.barh(ys + W*3,
+        #        [b.baselineHeight(1) for b in bs ],
+        #        W,
+        #        color=colormap["ours (CEGIS)"])
+        # a.barh(ys + W*2,
+        #        [b.baselineHeight(0) for b in bs ],
+        #        W,
+        #        color=colormap["-representation"])
+        # a.barh(ys + W,
+        #        [b.baselineHeight(2) for b in bs ],
+        #        W,
+        #        color=colormap["ours (simple features)"])
         a.barh(ys,
                [b.NadiaHeight() for b in bs ],
                W,

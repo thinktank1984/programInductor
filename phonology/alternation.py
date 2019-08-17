@@ -145,7 +145,10 @@ class AlternationProblem():
 
 def handleProblem(problem):
     if not areFeaturesDisabled():
-        fn = "experimentOutputs/alternation/"+problem+".p"
+        if arguments.features == "sophisticated":
+            fn = "experimentOutputs/alternation/"+problem+".p"
+        else:
+            fn = "experimentOutputs/alternation/"+problem+"_simple.p"
     else:
         fn = "experimentOutputs/alternation/"+problem+"_ablation"+".p"
     

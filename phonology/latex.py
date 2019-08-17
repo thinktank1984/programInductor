@@ -263,7 +263,8 @@ if __name__ == "__main__":
                 print "\\textipa{%s}+stem+\\textipa{%s}"%(latexWord(prefix),latexWord(suffix)),
             print " $\\sim$ ",
 
-        for f in ff.frontiers:
+        for ri,f in enumerate(ff.frontiers):
+            print("Rule %d"%ri)
             for r in f:
                 print(r)
                 print(r.latex())
