@@ -10,8 +10,13 @@ import random
 from matplotlib.lines import Line2D
 from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plot
+import matplotlib.pylab as pylab
 
-BANK = None 
+pylab.rcParams.update({'axes.labelsize': 14,
+                       'xtick.labelsize': 12,
+                       'ytick.labelsize': 12})
+
+BANK = None
 
 transductionCashFile = ".MarcusTransductionTable.p"
 
@@ -82,6 +87,8 @@ if __name__ == "__main__":
     parser.add_argument('-s','--samples', default=1, type=int)
     parser.add_argument('--sigmoid', default=False, type=float,
                         help="Plot sigmoid(log-odds/T), --sigmoid T ")
+    parser.add_argument('--deviation', default=1., type=float,
+                        help="scales the error bars by this factor.")
     parser.add_argument('-j','--jitter', default=0., type=float)
     parser.add_argument('--export', default = None, type = str)
     parser.add_argument('--debug', default = False, action='store_true')
@@ -180,6 +187,7 @@ if __name__ == "__main__":
     xs = range(0,arguments.number+1)
     COLORS = arguments.colors or ["r","g","b","cyan"]
 
+    random.seed() # use the current time for jittering
     for color, (consistent, inconsistent) in zip(COLORS,arguments.testCases):
         if arguments.debug:
             for n in range(1,arguments.number+1):
@@ -194,7 +202,7 @@ if __name__ == "__main__":
             
                     
             
-        for syllables in [withSyllables, withoutSyllables]:
+        for syllables in [withoutSyllables, withSyllables]:
             ys = [0.5] if sigmoid else [0]
             deviations = [0]
             for n in range(1,arguments.number+1):
@@ -218,12 +226,14 @@ if __name__ == "__main__":
 
                 ys.append(y)
 
-                deviations.append(s)
+                deviations.append(s*arguments.deviation)
             jxs = [x + arguments.jitter*(2*(random.random() - 0.5))
                    for x in xs ]
             if len(arguments.testCases) > 1:
                 plot.errorbar(jxs,ys,yerr=deviations,color=color,
-                              ls='-' if syllables is withSyllables else '--')
+                              ls='--' if syllables is withSyllables else ':',
+                              linewidth=5 if syllables is withSyllables else 3,
+                              alpha=0.9)
             else:
                 plot.errorbar(jxs,ys,yerr=deviations,
                               color=COLORS[int(syllables is withSyllables)])
@@ -233,19 +243,23 @@ if __name__ == "__main__":
     plot.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
     if arguments.sigmoid:
         plot.ylim(bottom=0.,top=1.1)
-        plot.ylabel(r"$\sigma(1/%i\times\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$"%(int(arguments.sigmoid)))
+        if False and abs(arguments.sigmoid - 1) > 0.1:
+            plot.ylabel(r"$\sigma(1/%i\times\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$"%(int(arguments.sigmoid)))
+        else:
+            plot.ylabel(r"$\sigma(\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$")
     else:
         plot.ylabel(r"$\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})}$")
     if len(arguments.testCases) > 1:
         plot.legend([Line2D([0],[0],color=c,lw=2)
                      for c,_ in zip(COLORS,arguments.testCases)] + \
-                    [Line2D([0],[0],color='k',lw=2),
-                     Line2D([0],[0],color='k',lw=2,ls='--')],
+                    [Line2D([0],[0],color='k',lw=5,ls='--'),
+                     Line2D([0],[0],color='k',lw=3,ls=':')],
                     ["train %s, test %s (consistent) / %s (inconsistent)"%(c,c,i)
                      for c,i in arguments.testCases ] + \
                     ["w/ syllables", "w/o syllables"],
-                    ncol=1,
-                    loc='best')
+                    ncol=2,
+                    loc='lower center',#                    loc='best',
+                    fontsize=8)
     else:
         c = arguments.testCases[0][0]
         i = arguments.testCases[0][1]
@@ -253,10 +267,11 @@ if __name__ == "__main__":
         plot.legend([Line2D([0],[0],color=COLORS[1],lw=2),
                      Line2D([0],[0],color=COLORS[0],lw=2)],
                     ["w/ syllables", "w/o syllables"],
-                    ncol=1,
+                    ncol=2,
                     loc='best')
 
     if arguments.export:
+        plot.tight_layout()        
         plot.savefig(arguments.export)
     else:
         plot.show()
