@@ -194,8 +194,9 @@ def induceBoundary():
     
 @test
 def suffixBoundary():
-    data = sevenProblems[1].data[:3] + sevenProblems[1].data[5:6]
-    s = IncrementalSolver(sevenProblems[1].data,2).restrict(data)
+    problem = Problem.named["Odden_4.2_Standard_Ukrainian"]
+    data = problem.data[:3] + problem.data[5:6]
+    s = IncrementalSolver(problem.data,2).restrict(data)
     solution = parseSolution(''' + stem + 
  + stem + am
  + stem + ov^yi
@@ -212,7 +213,7 @@ o > e / [+palletized] + _ ;; i is the only thing that is [+vowel +high -back]. "
 ''')
     s.fixedMorphology = zip(solution.prefixes, solution.suffixes)
     new = s.sketchChangeToSolution(solution, [solution.rules[0],None,solution.rules[2]])
-    assert new != None, "Should be able to incrementally change to accommodate an example"
+    assert new is not None, "Should be able to incrementally change to accommodate an example"
     assert new.cost() <= solution.cost(), "Should have found an optimal solution"
     for d in data:
         assert s.verify(solution, [Morph(x) if x != None else None

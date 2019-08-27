@@ -1467,16 +1467,15 @@ ḍ > ṛ / _o#
 	(u"daan",	u"daanta",	u"daano",None,None,None),#	river bank
 	(u"saan",	u"saanta",	u"saano",None,None,None),#	hide
 	(u"nirig",	u"nirigta",	u"nirgo",None,None,None),#	baby female camel
-	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo",None,None,None),#	girl
+    	(u"yirid",	u"yirida",	u"yirdo",None,None,None),#	trunk
 	(u"hoɣol",	u"hoɣoša",	u"hoglo",None,None,None),#	downpour
+    	(u"gaβaḍ",	u"gaβaḍa",	u"gabḍo",None,None,None),#	girl
 	(u"baɣal",	u"baɣaša",	u"baglo",None,None,None),#	mule
 	(u"waħar",	u"waħarta",	u"waħaro",None,None,None),#	female kid
 	(u"irbad",	u"irbada",	u"irbaðo",None,None,None),#	needle
 	(u"kefed",	u"kefeda",	u"kefeðo",None,None,None),#	pan
 	(u"šilin",	u"šilinta",	u"šilino",None,None,None),#	female dwarf
 	(u"bohol",	u"bohoša",	u"boholo",None,None,None),#	hole
-    # todo: figure out what /j/ is supposed to be
-	#(u"jirid",	u"jirida",	u"jirdo"),#	trunk
 	(u"ʔaayad",	u"ʔaayada",	u"ʔaayaðo",None,None,None),#	miracle
 	(u"gaʕan",	u"gaʕanta",	u"gaʕmo",None,None,None),#	hand
 	(u"ʔinan",	u"ʔinanta",	u"ʔinano",None,None,None),#	daughter
