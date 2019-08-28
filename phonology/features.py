@@ -363,7 +363,7 @@ for fm in [simpleFeatureMap, sophisticatedFeatureMap]:
         if k in vs:
             features.append(vowel)
 # feature set only apply to vowels
-VOWELFEATURES = {rounded, tense, longVowel, risingTone, lowTone, highTone, middleTone}
+VOWELFEATURES = {rounded, tense, low, longVowel, risingTone, lowTone, highTone, middleTone}
 
 # feature set only apply to consonants
 CONSONANTFEATURES = {aspirated,palletized}
