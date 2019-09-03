@@ -309,6 +309,15 @@ class GuardFragment(Fragment):
         if self.endOfString != program.endOfString or self.starred != program.starred or len(self.specifications) != len(program.specifications):
             raise MatchFailure()
 
+        # This is subtle:
+        # We do not support optional end of string within the fragment grammar.
+        # But some of the rules have optional end of string.
+        # They need to match with something.
+        # They should never match with a learned fragment;
+        # but we can try and match them with the closest non-learned template
+        if program.optionalEndOfString and not any( self is b for b in GuardFragment.BASEPRODUCTIONS ):
+            raise MatchFailure()
+            
         return [ binding for f,p in zip(self.specifications,program.specifications)
                  for binding in f.match(p) ]
 
@@ -317,7 +326,7 @@ class GuardFragment(Fragment):
 
     @staticmethod
     def abstract(p,q):
-        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications):
+        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEndOfString or q.optionalEndOfString:
             return [VariableFragment(Guard)]
         if len(p.specifications) == 0:
             return [GuardFragment([],p.endOfString,False)]
