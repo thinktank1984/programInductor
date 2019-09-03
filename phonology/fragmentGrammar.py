@@ -326,7 +326,7 @@ class GuardFragment(Fragment):
 
     @staticmethod
     def abstract(p,q):
-        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEndOfString or q.optionalEnding:
+        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEnding or q.optionalEnding:
             return [VariableFragment(Guard)]
         if len(p.specifications) == 0:
             return [GuardFragment([],p.endOfString,False)]
