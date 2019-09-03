@@ -315,7 +315,7 @@ class GuardFragment(Fragment):
         # They need to match with something.
         # They should never match with a learned fragment;
         # but we can try and match them with the closest non-learned template
-        if program.optionalEndOfString and not any( self is b for b in GuardFragment.BASEPRODUCTIONS ):
+        if program.optionalEnding and not any( self is b for b in GuardFragment.BASEPRODUCTIONS ):
             raise MatchFailure()
             
         return [ binding for f,p in zip(self.specifications,program.specifications)
@@ -326,7 +326,7 @@ class GuardFragment(Fragment):
 
     @staticmethod
     def abstract(p,q):
-        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEndOfString or q.optionalEndOfString:
+        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEndOfString or q.optionalEnding:
             return [VariableFragment(Guard)]
         if len(p.specifications) == 0:
             return [GuardFragment([],p.endOfString,False)]
