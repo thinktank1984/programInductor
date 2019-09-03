@@ -269,10 +269,12 @@ ConstantFragment.BASEPRODUCTIONS = [] #VariableFragment(ConstantPhoneme)]
 
 class GuardFragment(Fragment):
     CONSTRUCTOR = Guard
-    def __init__(self, specifications, endOfString, starred):
+    def __init__(self, specifications, endOfString, starred, optionalEnding):
         self.logPrior = sum([s.logPrior for s in specifications ])
         if starred: self.logPrior -= 1.0
         if endOfString: self.logPrior -= 1.0
+        if optionalEnding: self.logPrior -= 2.0
+        assert not (optionalEnding and endOfString)
         # if optionalEndOfString: self.logPrior -= 1.0
         # assert not (endOfString and optionalEndOfString
         assert isNumber(self.logPrior)
@@ -280,6 +282,7 @@ class GuardFragment(Fragment):
         self.specifications = specifications
         self.starred = starred
         self.endOfString = endOfString
+        self.optionalEnding = optionalEnding
 
     def isDegenerate(self):
         return any( s.isDegenerate() for s in self.specifications )
@@ -288,6 +291,7 @@ class GuardFragment(Fragment):
         pieces = [s.latex() for s in self.specifications]
         if self.starred: pieces[0] = pieces[0] + "*"
         if self.endOfString: pieces.append("\\\\#")
+        if self.optionalEnding: pieces[-1] = "{#,%s}"%(pieces[-1])
         if l: pieces.reverse()
         return " ".join(pieces)        
 
@@ -298,15 +302,17 @@ class GuardFragment(Fragment):
         parts = map(unicode, self.specifications)
         if self.starred: parts[-2] += u'*'
         if self.endOfString: parts += [u'#']
+        if self.optionalEnding: parts[-1] = u"{#,%s}"%(parts[-1])
         return u" ".join(parts)
     def leftUnicode(self):
         parts = map(unicode, self.specifications)
         if self.starred: parts[-2] += u'*'
+        if self.optionalEnding: parts[-1] = u"{#,%s}"%(parts[-1])
         if self.endOfString: parts += [u'#']
         return u" ".join(reversed(parts))
 
     def match(self, program):
-        if self.endOfString != program.endOfString or self.starred != program.starred or len(self.specifications) != len(program.specifications):
+        if self.endOfString != program.endOfString or self.starred != program.starred or len(self.specifications) != len(program.specifications) or self.optionalEnding != program.optionalEnding:
             raise MatchFailure()
 
         # This is subtle:
@@ -315,8 +321,9 @@ class GuardFragment(Fragment):
         # They need to match with something.
         # They should never match with a learned fragment;
         # but we can try and match them with the closest non-learned template
-        if program.optionalEnding and not any( self is b for b in GuardFragment.BASEPRODUCTIONS ):
-            raise MatchFailure()
+        # if program.optionalEnding and not any( self is b for b in GuardFragment.BASEPRODUCTIONS ):
+        #     print "look at me", self, program
+        #     raise MatchFailure()
             
         return [ binding for f,p in zip(self.specifications,program.specifications)
                  for binding in f.match(p) ]
@@ -326,15 +333,15 @@ class GuardFragment(Fragment):
 
     @staticmethod
     def abstract(p,q):
-        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEnding or q.optionalEnding:
+        if p.endOfString != q.endOfString or p.starred != q.starred or len(p.specifications) != len(q.specifications) or p.optionalEnding != q.optionalEnding:
             return [VariableFragment(Guard)]
         if len(p.specifications) == 0:
-            return [GuardFragment([],p.endOfString,False)]
+            return [GuardFragment([],p.endOfString,False,p.optionalEnding)]
         if len(p.specifications) == 1:
-            return [GuardFragment([s1],p.endOfString,p.starred)
+            return [GuardFragment([s1],p.endOfString,p.starred,p.optionalEnding)
                     for s1 in SpecificationFragment.abstract(p.specifications[0],q.specifications[0]) ]
         if len(p.specifications) == 2:
-            return [GuardFragment([s1,s2],p.endOfString,p.starred)
+            return [GuardFragment([s1,s2],p.endOfString,p.starred,p.optionalEnding)
                     for s1 in SpecificationFragment.abstract(p.specifications[0],q.specifications[0])
                     for s2 in SpecificationFragment.abstract(p.specifications[1],q.specifications[1])]
         raise Exception('GuardFragment.abstract: should never reach this point. p=%s ; q=%s ; %s ; %s'%(p,q,
@@ -343,19 +350,23 @@ class GuardFragment(Fragment):
 
     def sketchCost(self,v,b):
         checks = ['(%s.endOfString == %d)'%(v,int(self.endOfString)),
-                  '(%s.starred == %d)'%(v,int(self.starred))]
+                  '(%s.starred == %d)'%(v,int(self.starred)),
+                  '(%s.optionalEndOfString == %d)'%(v,int(self.optionalEnding))]
         expenses = []
         for component, suffix in zip(self.specifications,['spec','spec2']):
             k,e = component.sketchCost('%s.%s'%(v,suffix),b)
             checks += k
             expenses += e
-        expenses += ['(%s.optionalEndOfString ? 2 : 0)'%v]
+        #expenses += ['(%s.optionalEndOfString ? 2 : 0)'%v]
         if len(self.specifications) < 1: checks += ['(%s.spec == null)'%v]
         if len(self.specifications) < 2: checks += ['(%s.spec2 == null)'%v]
         return (checks, expenses)
-GuardFragment.BASEPRODUCTIONS = [GuardFragment([VariableFragment(Specification)]*s,e,starred)
+GuardFragment.BASEPRODUCTIONS = [GuardFragment([VariableFragment(Specification)]*s,e,starred,o)
                                  for e in [True,False]
+                                 for o in [True,False]
+                                 if not (e and o)
                                  for s in range(3)
+                                 if (not o or s > 0)
                                  for starred in ([True,False] if s > 1 else [False]) ]    
 
 def programSubexpressions(program):
@@ -494,6 +505,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
 
         if candidates == []:
             bestScore = float('inf')
+            print("No candidates.")
         else:
             (bestScore,bestGrammar) = min(candidates)
             bestGrammar = FragmentGrammar(bestGrammar)
