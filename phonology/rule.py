@@ -330,7 +330,7 @@ class FeatureMatrix(Specification,FC):
         if len(fs&VOWELFEATURES) > 0 and "vowel" not in fs: return True
         return False
         
-    def makeGeometric(self):
+    def makeGeometric(self, bank=None):
         if any( (True, vf) in self.featuresAndPolarities for vf in VOWELFEATURES ):
             self = FeatureMatrix(list({(True,"vowel")}|set(self.featuresAndPolarities)))
         # remove redundant features
@@ -342,6 +342,7 @@ class FeatureMatrix(Specification,FC):
            not sonorant in {f for _,f in self.featuresAndPolarities } and \
            len(self.featuresAndPolarities) < 3:
             self = FeatureMatrix(list({(False,"vowel")}|set(self.featuresAndPolarities)))
+
         return self
 
     def isDegenerate(self):
@@ -680,7 +681,7 @@ class Rule():
         return self.focus.violatesGeometry() or \
             self.leftTriggers.violatesGeometry() or \
             self.rightTriggers.violatesGeometry()
-    def makeGeometric(self):
+    def makeGeometric(self, bank=None):
         focus = self.focus.makeGeometric()
         change = self.structuralChange
         # check to see if change could only ever apply to vowels
@@ -696,7 +697,18 @@ class Rule():
             if len(fs&CONSONANTFEATURES) > 0 and len(fs) < 3 and len(focus_fs&{sonorant}) == 0:
                newFocus = {(False,"vowel")}|set(focus.featuresAndPolarities)
                focus = FeatureMatrix(list(newFocus)).makeGeometric()
-            
+
+        # Check for redundant structural change
+        if isinstance(focus, FeatureMatrix) and isinstance(change, FeatureMatrix):
+            # Remove any features which are always true for phonemes matching the focus
+            bank = bank or FeatureBank.GLOBAL            
+            matches = focus.extension(bank)
+            change = {(polarity, feature)
+                      for polarity, feature in change.featuresAndPolarities
+                      if any( (feature in bank.featureMap[p] and not polarity) or \
+                              (feature not in bank.featureMap[p] and polarity)
+                              for p in matches)}
+            change = FeatureMatrix(list(change))            
         return Rule(focus, change,
                     self.leftTriggers.makeGeometric(), self.rightTriggers.makeGeometric())
     
