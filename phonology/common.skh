@@ -675,17 +675,18 @@ bit rule_does_nothing(Rule r){
 
 int rule_cost(Rule r) {
   if (rule_does_nothing(r)) return 0;
+  if (is_place(r.structural_change)) {
+    if (get_place_offset(r.structural_change) == 1) {
+      assert r.right_trigger.spec != null;
+      assert !r.right_trigger.optionalEndOfString || r.right_trigger.spec2 != null;
+    } else {
+      assert r.left_trigger.spec != null;
+      assert !r.left_trigger.optionalEndOfString || r.left_trigger.spec2 != null;
+    }
+  }
 #ifdef UNIVERSALRULEGRAMMAR
   UNIVERSALRULEGRAMMAR
 #endif
-    if (is_place(r.structural_change)) {
-      if (get_place_offset(r.structural_change) == 1) {
-	assert r.right_trigger.spec != null;
-      } else {
-	assert r.left_trigger.spec != null;
-      }
-    }
-	
   return validateCost(guard_cost(r.right_trigger) + guard_cost(r.left_trigger) +
 		      specification_cost(r.focus) + specification_cost(r.structural_change));
 }
