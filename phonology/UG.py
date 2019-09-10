@@ -49,7 +49,7 @@ def worker(arguments):
             for rs in frontier.frontiers:
                 for r in rs:
                     if isinstance(r.structuralChange,PlaceSpecification):
-                        g = r.leftTrigger if r.structuralChange.offset < 0 else r.rightTrigger
+                        g = r.leftTriggers if r.structuralChange.offset < 0 else r.rightTriggers
                         assert not g.optionalEnding, str(r)
             frontiers.append(frontier)
             problems.append(result.problem)
