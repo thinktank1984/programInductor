@@ -46,10 +46,11 @@ def worker(arguments):
             except:
                 assert False, "Failure loading %s"%source
             frontier = result.finalFrontier.makeGeometric()
-            for r in frontier.frontiers:
-                if isinstance(r.structuralChange,PlaceSpecification):
-                    g = r.leftTrigger if r.structuralChange.offset < 0 else r.rightTrigger
-                    assert not g.optionalEnding, str(r)
+            for rs in frontier.frontiers:
+                for r in rs:
+                    if isinstance(r.structuralChange,PlaceSpecification):
+                        g = r.leftTrigger if r.structuralChange.offset < 0 else r.rightTrigger
+                        assert not g.optionalEnding, str(r)
             frontiers.append(frontier)
             problems.append(result.problem)
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
