@@ -47,6 +47,7 @@ class VariableFragment(Fragment):
         calculator[FeatureMatrix] = 'specification_cost'
         calculator[ConstantPhoneme] = 'specification_cost'
         calculator[PlaceSpecification] = 'specification_cost'
+        calculator[OffsetSpecification] = 'specification_cost'
         return ([], ['%s(%s)'%(calculator[self.ty],v)])
     def numberOfVariables(self): return 1
     def hasConstants(self): return False

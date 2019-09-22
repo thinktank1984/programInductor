@@ -7,6 +7,8 @@
 #endif
 int validateCost(int c) { assert c < MAXIMUMCOST; return c; }
 
+#define always_return_zero(IGNOREME) 0
+
 #define True 1
 #define False 0
 

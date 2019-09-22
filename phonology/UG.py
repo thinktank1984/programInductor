@@ -50,7 +50,8 @@ def worker(arguments):
                 for r in rs:
                     if isinstance(r.structuralChange,PlaceSpecification):
                         g = r.leftTriggers if r.structuralChange.offset < 0 else r.rightTriggers
-                        assert not g.optionalEnding, str(r)
+                        if g.optionalEnding:
+                            print "FAILURE",r,source
             frontiers.append(frontier)
             problems.append(result.problem)
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
