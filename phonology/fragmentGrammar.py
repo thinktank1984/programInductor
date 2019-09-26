@@ -414,14 +414,15 @@ def proposeFragments(ruleSets, verbose = False):
             for p in ruleSets[i]:
                 for q in ruleSets[j]:
                     for pt,pf in programSubexpressions(p):
+                        if pt != Specification: continue
+                        if len(pf.featuresAndPolarities) > 2: continue                        
+                        if "+lateral" not in str(pf): continue
                         fragments[pt] = fragments.get(pt,set([]))
                         for qt,qf in programSubexpressions(q):
                             if pt != qt: continue
                             # DEBUGGING
-                            if pt != Specification: continue
-                            if "lateral" not in str(qf) or "lateral" not in str(pf): continue
-                            if "contin" not in str(qf) or "contin" not in str(pf): continue
-                            
+                            if "+lateral" not in str(qf): continue
+                            if len(qf.featuresAndPolarities) > 2: continue
                             # the extra condition here is to avoid fragments like "GUARD -> GUARD"
                             newFragments = [ f for f in abstractFragments[pt](pf,qf)
                                              if (f not in badFragments[pt]) and (not f.isDegenerate())
