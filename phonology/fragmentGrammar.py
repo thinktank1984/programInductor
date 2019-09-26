@@ -467,7 +467,10 @@ def scoreCandidate((currentFragments,t,f)):
     newScore = newGrammar.AIC(ruleEquivalenceClasses)
     bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
     newGrammar.clearCaches()
-    if bestUses <= 1.1: newScore = float('inf')
+    if bestUses <= 1.1:
+        newScore = float('inf')
+        if t == Specification:
+            print "bestUses=%f\t%s"%(bestUses, f)
     return newScore, newGrammar.fragments    
     
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
