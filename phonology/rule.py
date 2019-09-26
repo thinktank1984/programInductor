@@ -331,7 +331,9 @@ class FeatureMatrix(Specification,FC):
         return False
         
     def makeGeometric(self, bank=None):
-        if any( (True, vf) in self.featuresAndPolarities for vf in VOWELFEATURES ):
+        original = self
+        if any( (True, vf) in self.featuresAndPolarities for vf in VOWELFEATURES ) and \
+           "vowel" not in [f for _,f in self.featuresAndPolarities ]:
             self = FeatureMatrix(list({(True,"vowel")}|set(self.featuresAndPolarities)))
         # remove redundant features
         if (True,"vowel") in self.featuresAndPolarities:
@@ -339,9 +341,14 @@ class FeatureMatrix(Specification,FC):
                                   if f not in DEFAULTVOWELFEATURES])
 
         if any( (True, vf) in self.featuresAndPolarities for vf in CONSONANTPLACEFEATURES ) and \
-           not sonorant in {f for _,f in self.featuresAndPolarities } and \
+           sonorant not in {f for _,f in self.featuresAndPolarities } and \
+           "vowel" not in {f for _,f in self.featuresAndPolarities } and \
            len(self.featuresAndPolarities) < 3:
             self = FeatureMatrix(list({(False,"vowel")}|set(self.featuresAndPolarities)))
+
+        if (False,"vowel") in self.featuresAndPolarities and (True,"vowel") in self.featuresAndPolarities:
+            print "Got an impossible feature matrix namely",self,"starting from",original
+            assert False
 
         return self
 
@@ -692,10 +699,13 @@ class Rule():
                focus = FeatureMatrix(list(newFocus)).makeGeometric()
         # check if the change could only ever apply to consonants
         if isinstance(change,FeatureMatrix) and isinstance(focus,FeatureMatrix):
-            fs = {f for _,f in change.featuresAndPolarities}
-            focus_fs = {f for _,f in focus.featuresAndPolarities}
+            fs = {f for p,f in change.featuresAndPolarities if p }
+            focus_fs = {f for p,f in focus.featuresAndPolarities}
             if len(fs&CONSONANTFEATURES) > 0 and len(fs) < 3 and len(focus_fs&{sonorant}) == 0:
                newFocus = {(False,"vowel")}|set(focus.featuresAndPolarities)
+               if {(False,"vowel"),(True,"vowel")} <= newFocus:
+                   print "generated impossible vowel constraints:\t", focus, change, "\tvs:\t", newFocus
+                   assert False
                focus = FeatureMatrix(list(newFocus)).makeGeometric()
 
         # Check for redundant structural change

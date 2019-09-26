@@ -65,7 +65,7 @@ def worker(arguments):
                 print 
 
     
-
+    
     g = induceFragmentGrammar(eq, CPUs=arguments.CPUs)
     for frontier, problem in zip(frontiers, problems):
         print "Problem",problem,"is solved by the following solution according to this UG:"
