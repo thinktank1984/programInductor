@@ -60,7 +60,7 @@ def worker(arguments):
                 print "frontier size",len(rs),"MAP",r
                 eq.append(rs)
                 print "alternatives..."
-                for r in eq[-1]:
+                for r in sorted(eq[-1],key=lambda rrr: r.cost()):
                     print r
                 print 
 
