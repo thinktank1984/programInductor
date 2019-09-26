@@ -414,6 +414,7 @@ def proposeFragments(ruleSets, verbose = False):
             for p in ruleSets[i]:
                 for q in ruleSets[j]:
                     for pt,pf in programSubexpressions(p):
+                        if pt != Specification: continue
                         fragments[pt] = fragments.get(pt,set([]))
                         for qt,qf in programSubexpressions(q):
                             if pt != qt: continue
@@ -466,11 +467,11 @@ def scoreCandidate((currentFragments,t,f)):
                  estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
     newScore = newGrammar.AIC(ruleEquivalenceClasses)
     bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
+    if t == Specification and isinstance(f,MatrixFragment) and (True,"lateral") in f.child.featuresAndPolarities:
+        print "Fragment",f,"gives joint",newGrammar.frontiersLikelihood(ruleEquivalenceClasses),"and gives prior",newGrammar.logPrior()
     newGrammar.clearCaches()
     if bestUses <= 1.1:
         newScore = float('inf')
-        if t == Specification:
-            print "bestUses=%f\t%s"%(bestUses, f)
     return newScore, newGrammar.fragments    
     
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
@@ -492,15 +493,6 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
 
     typeOrdering = [Specification,Guard,Rule]
 
-    # def scoreCandidate((t,f)):
-    #     newGrammar = FragmentGrammar(currentGrammar.fragments + [(t,0,f)]).\
-    #                  estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
-    #     newScore = newGrammar.AIC(ruleEquivalenceClasses)
-    #     bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
-    #     newGrammar.clearCaches()
-    #     if bestUses <= 1.1: newScore = float('inf')
-    #     return newScore, newGrammar
-    
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
         possibleNewFragments = [ (currentGrammar.fragments,t,f)
                                  for (t,f) in fragments
