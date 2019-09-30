@@ -694,7 +694,7 @@ class Rule():
         # check to see if change could only ever apply to vowels
         if isinstance(change,FeatureMatrix) and isinstance(focus,FeatureMatrix):
            fs = {f for _,f in change.featuresAndPolarities}
-           if len({f for p,f in change.featuresAndPolarities if p}&VOWELFEATURES) > 0 and len(fs) < 3:
+           if len({f for p,f in change.featuresAndPolarities if p}&(VOWELFEATURES|{"vowel"})) > 0 and len(fs) < 3:
                newFocus = {(True,"vowel")}|set(focus.featuresAndPolarities)
                focus = FeatureMatrix(list(newFocus)).makeGeometric()
         # check if the change could only ever apply to consonants
