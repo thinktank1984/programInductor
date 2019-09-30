@@ -5,6 +5,7 @@ from time import time
 from math import log
 from utilities import *
 
+import traceback
 from os import system
 import cProfile
 from multiprocessing import Pool
@@ -414,7 +415,7 @@ def proposeFragments(ruleSets, verbose = False):
             for p in ruleSets[i]:
                 for q in ruleSets[j]:
                     for pt,pf in programSubexpressions(p):
-                        if pt != Specification: continue
+                        #if pt != Specification: continue
                         fragments[pt] = fragments.get(pt,set([]))
                         for qt,qf in programSubexpressions(q):
                             if pt != qt: continue
@@ -460,19 +461,24 @@ def proposeFragments(ruleSets, verbose = False):
 
 GLOBALCANDIDATEDATA = None
 def scoreCandidate((currentFragments,t,f)):
-    global GLOBALCANDIDATEDATA
-    smoothing = GLOBALCANDIDATEDATA["smoothing"]
-    ruleEquivalenceClasses = GLOBALCANDIDATEDATA["ruleEquivalenceClasses"]
-    newGrammar = FragmentGrammar(currentFragments + [(t,0,f)]).\
-                 estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
-    newScore = newGrammar.AIC(ruleEquivalenceClasses)
-    bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
-    if t == Specification and isinstance(f,MatrixFragment) and (True,"lateral") in f.child.featuresAndPolarities:
-        print "Fragment",f,"gives joint",newGrammar.frontiersLikelihood(ruleEquivalenceClasses),"and gives prior",newGrammar.logPrior()
-    newGrammar.clearCaches()
-    if bestUses <= 1.1:
-        newScore = float('inf')
-    return newScore, newGrammar.fragments    
+    try:
+        global GLOBALCANDIDATEDATA
+        smoothing = GLOBALCANDIDATEDATA["smoothing"]
+        ruleEquivalenceClasses = GLOBALCANDIDATEDATA["ruleEquivalenceClasses"]
+        newGrammar = FragmentGrammar(currentFragments + [(t,0,f)]).\
+                     estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
+        newScore = newGrammar.AIC(ruleEquivalenceClasses)
+        bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
+        if t == Specification and isinstance(f,MatrixFragment) and (True,"lateral") in f.child.featuresAndPolarities:
+            print "Fragment",f,"(wp",newGrammar.productionLikelihood(f,t), ")","gives joint",newGrammar.frontiersLikelihood(ruleEquivalenceClasses),"and gives prior",newGrammar.logPrior()
+        newGrammar.clearCaches()
+        if bestUses <= 1.1:
+            newScore = float('inf')
+        return newScore, newGrammar.fragments
+    except Exception as e:
+        print("Exception in worker during lightweight parallel map:\n%s"%(traceback.format_exc()))
+        raise e
+
     
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
                           CPUs = 1):
@@ -515,6 +521,10 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
             currentGrammar = bestGrammar
             print "Updated grammar to (overall score = %.2f):"%(bestScore)
             print bestGrammar
+            system("mkdir -p grammarCheckpoints")
+            checkpointPath = makeTemporaryFile(".p", d="grammarCheckpoints")
+            print "Exporting grammar induction checkpoint to %s"%checkpointPath
+            bestGrammar.export(checkpointPath)
         else:
             print "No improvement possible using fragments of type",typeOrdering[0]
             typeOrdering = typeOrdering[1:]
@@ -565,6 +575,13 @@ class FragmentGrammar():
         
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
+
+    def productionLikelihood(self,f,t=None):
+        for tp,l,fp in self.fragments:
+            if f == fp:
+                if t is None: return l
+                elif t == tp: return l
+        return None
 
     def clearCaches(self):
         self.ruleTable = {}
@@ -733,7 +750,8 @@ class FragmentGrammar():
         '''frontiers: list of list of rules.
         returns a new fragment grammar with the same structure but different probabilities'''
         flatFragments = [(t,0.0,f) for t,_,f in self.fragments ]
-        return FragmentGrammar(flatFragments).insideOutside(frontiers, smoothing = smoothing)
+        smoothing = 0.001
+        return FragmentGrammar(flatFragments).insideOutside(frontiers, smoothing = smoothing).insideOutside(frontiers, smoothing = smoothing)
 
     def frontierLikelihood(self, frontier):
         '''frontier: list of rules.
@@ -744,7 +762,7 @@ class FragmentGrammar():
         return sum([self.frontierLikelihood(f) for f in frontiers ])
     def logPrior(self):
         return sum([ f.logPrior for _,_,f in self.fragments ])
-    def frontiersLogJoint(self,frontiers, priorWeight = 0.05):
+    def frontiersLogJoint(self,frontiers, priorWeight = 0.2):
         return self.frontiersLikelihood(frontiers) + priorWeight*self.logPrior()
     def AIC(self, frontiers, alpha = 0.1):
         return alpha*len(self.fragments) - self.frontiersLogJoint(frontiers)

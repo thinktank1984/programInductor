@@ -328,6 +328,12 @@ class FeatureMatrix(Specification,FC):
     def violatesGeometry(self):
         fs = {f for _,f in self.featuresAndPolarities}
         if len(fs&VOWELFEATURES) > 0 and "vowel" not in fs: return True
+        negativeFeatures = {f for p,f in self.featuresAndPolarities if not p}
+        if len(negativeFeatures&(CONSONANTPLACEFEATURES|CONSONANTFEATURES)) > 0:
+            # this would appear to be excluding vowels!
+            # we better make sure that it actually excludes them :)
+            extension = self.extension(FeatureBank.GLOBAL)
+            if any( "vowel" in FeatureBank.GLOBAL.featureMap[p] for p in extension ): return True
         return False
         
     def makeGeometric(self, bank=None):
