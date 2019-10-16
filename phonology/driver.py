@@ -2,6 +2,7 @@ from sketch import disableFeatures, disableClean, enableGeometry
 from features import switchFeatures
 from problems import *
 from textbook_problems import *
+from opaque_problems import *
 from countingProblems import CountingProblem
 from utilities import *
 from parseSPE import parseSolution

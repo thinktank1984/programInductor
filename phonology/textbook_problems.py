@@ -1207,7 +1207,7 @@ ma + stem
 # ''' 
 # ])
 
-if False:
+if True:
     Problem('''
     Ewe Halle 49
     ''',
@@ -1221,7 +1221,7 @@ if False:
          u"gblaa",         #'wide'
          u"lolo",          #'to be large'
          u"wlu",           #'to dig'
-         u"βla",           #'suddenly'
+         u"β|la",           #'suddenly'
          u"srɔ̃",           #'wife'
          u"lãkle",         #'leopard'
          u"hle",           #'to spread out'
@@ -1235,7 +1235,7 @@ if False:
          u"ɣla",           #'to hide'
          u"xloloo",        #'rough'
          u"tsro",          #'bark' (of tree)
-         u"φle",           #'to buy'
+         u"φ|le",           #'to buy'
          u"blema",         #'formerly'
          u"dɔlele",        #'illness'
          u"ŋlɔ",           #'to write'
@@ -1253,8 +1253,7 @@ if False:
     ],
     parameters={"type": "alternation", "alternations": [{u"l":u"r"}]})
 
-if False:
-    Problem('''
+Problem('''
     Ganda Halle 51
     ''',
     [
@@ -1262,7 +1261,7 @@ if False:
          u"kola",          #'do'
          u"lwana",         #'fight'
          u"buulira",       #'tell'
-         u"lya",           #'eat'
+         u"lja",           #'eat'
          u"luula",         #'sit'
          u"omugole",       #'bride'
          u"lumonde",       #'sweet potato'
@@ -1272,7 +1271,7 @@ if False:
          u"wulira",        #'hear'
          u"beera",         #'help'
          u"jjukira",       #'remember'
-         u"eryato",        #'canoe'
+         u"erjato",        #'canoe'
          u"omuliro",       #'fire'
          u"effirimbi",     #'whistle'
          u"emmeeri",       #'ship'
@@ -1280,7 +1279,7 @@ if False:
          u"wawaabira",     #'accuse'
          u"lagira",        #'command'
          u"ebendera",      #'flag'
-         u"leerwe",        #'railway'
+         u"leerwe",        #'railwaj'
          u"luula",         #'ruler'
          u"ssaffaali",     #'safari'
     ],
