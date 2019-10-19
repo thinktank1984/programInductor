@@ -66,7 +66,8 @@ def worker(arguments):
 
     
     
-    g = induceFragmentGrammar(eq, CPUs=arguments.CPUs)
+    g = induceFragmentGrammar(eq, CPUs=arguments.CPUs,
+                              restore=arguments.restore)
     for frontier, problem in zip(frontiers, problems):
         print "Problem",problem,"is solved by the following solution according to this UG:"
         solution = frontier.MAP(g)
@@ -93,6 +94,8 @@ if __name__ == '__main__':
     parser.add_argument('load', type = str, default = [], nargs='+',
                         help="This is a list of problems / paths to experiment outputs.")
     parser.add_argument('--CPUs', type = int, default = numberOfCPUs())
+    parser.add_argument('--restore', default=None,
+                        help="restore grammar induction from a checkpoint")
     parser.add_argument('--empty', default=False, action='store_true',
                         help="allow the empty feature matrix to be part of UG")
     

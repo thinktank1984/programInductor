@@ -481,6 +481,7 @@ def scoreCandidate((currentFragments,t,f)):
 
     
 def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
+                          restore=None,
                           CPUs = 1):
     # Fork workers for evaluating candidates
     # They will need some global data
@@ -489,15 +490,28 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
     GLOBALCANDIDATEDATA["ruleEquivalenceClasses"] = ruleEquivalenceClasses
     GLOBALCANDIDATEDATA["smoothing"] = smoothing
     workers = Pool(CPUs) # create this before we propose of fragments to save memory
-    
+
     startTime = time()
-    
-    fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
+    if restore:
+        restore = loadPickle(restore)
+        if isinstance(restore, list): # the grammar was saved
+            currentGrammar = FragmentGrammar(restore)
+            previousDescriptionLength = float('inf')
+        elif isinstance(restore, tuple):
+            (currentGrammar, previousDescriptionLength, fragments) = restore
+            currentGrammar = FragmentGrammar(currentGrammar)
+    else:    
+        fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
+        currentGrammar = EMPTYFRAGMENTGRAMMAR
+        previousDescriptionLength = float('inf')
 
-    currentGrammar = EMPTYFRAGMENTGRAMMAR
-    previousDescriptionLength = float('inf')
-
-    typeOrdering = [Specification,Guard,Rule]
+    typeOrdering = [Rule]
+    # we haven't even started on rules
+    if len(currentGrammar.ruleFragments) == len(EMPTYFRAGMENTGRAMMAR.ruleFragments):
+        typeOrdering = [Guard] + typeOrdering
+    # we haven't even started on specifications
+    if len(currentGrammar.guardFragments) == len(EMPTYFRAGMENTGRAMMAR.guardFragments):
+        typeOrdering = [Specification] + typeOrdering
 
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
         possibleNewFragments = [ (currentGrammar.fragments,t,f)
@@ -524,7 +538,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
             system("mkdir -p grammarCheckpoints")
             checkpointPath = makeTemporaryFile(".p", d="grammarCheckpoints")
             print "Exporting grammar induction checkpoint to %s"%checkpointPath
-            bestGrammar.export(checkpointPath)
+            dumpPickle((bestGrammar.fragments, previousDescriptionLength, fragments), checkpointPath)
         else:
             print "No improvement possible using fragments of type",typeOrdering[0]
             typeOrdering = typeOrdering[1:]
