@@ -495,6 +495,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
     if restore:
         restore = loadPickle(restore)
         if isinstance(restore, list): # the grammar was saved
+            fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
             currentGrammar = FragmentGrammar(restore)
             previousDescriptionLength = float('inf')
         elif isinstance(restore, tuple):
