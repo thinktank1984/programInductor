@@ -41,6 +41,13 @@ class VariableFragment(Fragment):
         if isinstance(program,self.ty):
             return [(self.ty,program)]
         raise MatchFailure()
+    def matchFragment(self, fragment):
+        if isinstance(fragment,VariableFragment):
+            return [] # TODO: technically incorrect
+        if issubclass(fragment.__class__.CONSTRUCTOR,self.ty):
+            return [(self.ty,fragment)]
+        raise MatchFailure()
+        
     def sketchCost(self,v,b):
         calculator = {}
         calculator[FC] = 'specification_cost'
@@ -65,6 +72,9 @@ class RuleFragment(Fragment):
         return self.focus.violatesGeometry() or self.left.violatesGeometry() or self.right.violatesGeometry()
     def match(self,program):
         return self.focus.match(program.focus) + self.change.match(program.structuralChange) + self.left.match(program.leftTriggers) + self.right.match(program.rightTriggers)
+    def matchFragment(self,fragment):
+        assert isinstance(fragment,RuleFragment)
+        return self.focus.matchFragment(fragment.focus) + self.change.matchFragment(fragment.change) + self.left.matchFragment(fragment.left) + self.right.matchFragment(fragment.right)
     def __unicode__(self):
         return u"{} ---> {} / {} _ {}".format(self.focus,
                                               self.change,
@@ -148,6 +158,20 @@ class FCFragment(Fragment):
                 raise MatchFailure()
             else:
                 return self.child.match(program)
+    def matchFragment(self, fragment):
+        """the base grammar contains Fc fragments with either variables as their child or the empty specification"""
+        """proposal process only makes empty specifications as child"""
+        if isinstance(fragment, FCFragment):
+            assert isinstance(fragment.child, EmptySpecification)
+            if isinstance(self.child, EmptySpecification):
+                return []
+            else:
+                raise MatchFailure()
+            
+        if isinstance(self.child, EmptySpecification):
+            raise MatchFailure()
+        else:
+            return self.child.matchFragment(fragment)
     # The only FC ever created should be in the base grammar
     def numberOfVariables(self): raise Exception('FCFragment: numberOfVariables should never be called')
     def hasConstants(self): raise Exception('FCFragment: hasConstants should never be called')
@@ -162,8 +186,8 @@ class FCFragment(Fragment):
         fragments = []
         if unicode(p) != unicode(q):
             fragments += [VariableFragment(FC)]
-        if isinstance(p,OffsetSpecification) and isinstance(q,OffsetSpecification):
-            fragments += [VariableFragment(OffsetSpecification)]
+        # if isinstance(p,EmptySpecification) and isinstance(q,EmptySpecification):
+        #     fragments += [FCFragment(EmptySpecification(),-1)]
         if isinstance(p,PlaceSpecification) and isinstance(q,PlaceSpecification):
             fragments += [VariableFragment(PlaceSpecification)]
         if isinstance(p,Specification) and isinstance(q,Specification):
@@ -189,6 +213,8 @@ class SpecificationFragment(Fragment):
 
     def match(self, program):
         return self.child.match(program)
+    def matchFragment(self, fragment):
+        return self.child.matchFragment(fragment)
 
     def violatesGeometry(self): return self.child.violatesGeometry()
 
@@ -229,6 +255,10 @@ class MatrixFragment(Fragment):
 
     def match(self, program):
         if unicode(program) == self.childUnicode: return []
+        raise MatchFailure()
+    def matchFragment(self, fragment):
+        if isinstance(fragment, MatrixFragment) and unicode(self.child) == unicode(fragment.child):
+            return []
         raise MatchFailure()
 
     def numberOfVariables(self): return 0
@@ -317,18 +347,20 @@ class GuardFragment(Fragment):
         if self.endOfString != program.endOfString or self.starred != program.starred or len(self.specifications) != len(program.specifications) or self.optionalEnding != program.optionalEnding:
             raise MatchFailure()
 
-        # This is subtle:
-        # We do not support optional end of string within the fragment grammar.
-        # But some of the rules have optional end of string.
-        # They need to match with something.
-        # They should never match with a learned fragment;
-        # but we can try and match them with the closest non-learned template
-        # if program.optionalEnding and not any( self is b for b in GuardFragment.BASEPRODUCTIONS ):
-        #     print "look at me", self, program
-        #     raise MatchFailure()
-            
         return [ binding for f,p in zip(self.specifications,program.specifications)
                  for binding in f.match(p) ]
+
+    def matchFragment(self, fragment):
+        if isinstance(fragment, VariableFragment):
+            # we can't match with this!
+            # because we are always forcing a concrete skeleton for a guard
+            assert fragment.ty == Guard
+            raise MatchFailure()
+        if self.endOfString != fragment.endOfString or self.starred != fragment.starred or len(self.specifications) != len(fragment.specifications) or self.optionalEnding != fragment.optionalEnding:
+            raise MatchFailure()
+
+        return [ binding for f,p in zip(self.specifications, fragment.specifications)
+                 for binding in f.matchFragment(p) ]
 
     def numberOfVariables(self): return sum( s.numberOfVariables() for s in self.specifications)
     def hasConstants(self): return any(s.hasConstants() for s in self.specifications)
@@ -442,7 +474,7 @@ def proposeFragments(ruleSets, verbose = False):
                     (numberOfPairs - completedPairs)/(completedPairs/(time() - startTime)))
     for fs in fragments.values():
         for f in fs:
-            if f.violatesGeometry():
+            if f.violatesGeometry() and False:
                 print "VIOLATION",f
     fragments = {tp: {f for f in fs if not f.violatesGeometry() }
                  for tp,fs in fragments.iteritems()} 
@@ -460,21 +492,26 @@ def proposeFragments(ruleSets, verbose = False):
     return [ (t, f) for t in fragments for f in fragments[t] ] # if t != Rule ] #and t != 'GUARD' ]
 
 GLOBALCANDIDATEDATA = None
-def scoreCandidate((currentFragments,t,f)):
+def scoreCandidate((currentGrammar,t,f)):
     try:
         global GLOBALCANDIDATEDATA
         smoothing = GLOBALCANDIDATEDATA["smoothing"]
         ruleEquivalenceClasses = GLOBALCANDIDATEDATA["ruleEquivalenceClasses"]
-        newGrammar = FragmentGrammar(currentFragments + [(t,0,f)]).\
-                     estimateParameters(ruleEquivalenceClasses,smoothing = smoothing)
-        newScore = newGrammar.AIC(ruleEquivalenceClasses)
+
+        #print "PRIOR", t,f,
+        prior = currentGrammar.fragmentLogPrior(t,f)
+        #print prior
+        
+        newGrammar = currentGrammar.extend(t,0.,f).accumulatePrior(prior).\
+                     estimateParameters(ruleEquivalenceClasses, smoothing = smoothing)
+        newScore = newGrammar.AIC(ruleEquivalenceClasses,priorWeight=1.)
         bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
-        if t == Specification and isinstance(f,MatrixFragment) and (True,"lateral") in f.child.featuresAndPolarities:
-            print "Fragment",f,"(wp",newGrammar.productionLikelihood(f,t), ")","gives joint",newGrammar.frontiersLikelihood(ruleEquivalenceClasses),"and gives prior",newGrammar.logPrior()
+        
         newGrammar.clearCaches()
         if bestUses <= 1.1:
             newScore = float('inf')
-        return newScore, newGrammar.fragments
+            
+        return newScore, newGrammar
     except Exception as e:
         print("Exception in worker during lightweight parallel map:\n%s"%(traceback.format_exc()))
         raise e
@@ -495,12 +532,9 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
     if restore:
         restore = loadPickle(restore)
         if isinstance(restore, list): # the grammar was saved
-            fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
-            currentGrammar = FragmentGrammar(restore)
-            previousDescriptionLength = float('inf')
+            assert False, "deprecated"
         elif isinstance(restore, tuple):
             (currentGrammar, previousDescriptionLength, fragments) = restore
-            currentGrammar = FragmentGrammar(currentGrammar)
     else:    
         fragments = proposeFragments(ruleEquivalenceClasses, verbose = False)
         currentGrammar = EMPTYFRAGMENTGRAMMAR
@@ -515,7 +549,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
         typeOrdering = [Specification] + typeOrdering
 
     while len(currentGrammar.fragments) - len(EMPTYFRAGMENTGRAMMAR.fragments) < maximumGrammarSize:
-        possibleNewFragments = [ (currentGrammar.fragments,t,f)
+        possibleNewFragments = [ (currentGrammar,t,f)
                                  for (t,f) in fragments
                                  if t == typeOrdering[0] and not currentGrammar.hasFragment(f) ]
         candidates = workers.map(scoreCandidate, possibleNewFragments)
@@ -525,7 +559,6 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
             print("No candidates.")
         else:
             (bestScore,bestGrammar) = min(candidates)
-            bestGrammar = FragmentGrammar(bestGrammar)
             # for os,og in candidates:
             #     if os == bestScore:
             #         print "This is as good as the best:"
@@ -534,12 +567,12 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
         if candidates != [] and bestScore <= previousDescriptionLength:
             previousDescriptionLength = bestScore
             currentGrammar = bestGrammar
-            print "Updated grammar to (overall score = %.2f):"%(bestScore)
+            print "Updated grammar to (overall score = %.2f\tprior = %.2f):"%(bestScore,bestGrammar.prior)
             print bestGrammar
             system("mkdir -p grammarCheckpoints")
             checkpointPath = makeTemporaryFile(".p", d="grammarCheckpoints")
             print "Exporting grammar induction checkpoint to %s"%checkpointPath
-            dumpPickle((bestGrammar.fragments, previousDescriptionLength, fragments), checkpointPath)
+            dumpPickle((bestGrammar, previousDescriptionLength, fragments), checkpointPath)
         else:
             print "No improvement possible using fragments of type",typeOrdering[0]
             typeOrdering = typeOrdering[1:]
@@ -554,7 +587,9 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
             
 
 class FragmentGrammar():
-    def __init__(self, fragments = []):
+    def __init__(self, fragments = [], prior=0.):
+        self.prior = prior
+        
         self.featureLogLikelihoods = {}
 
         # memorization table for likelihood calculations
@@ -574,7 +609,18 @@ class FragmentGrammar():
         self.likelihoodCalculator[BoundarySpecification] = lambda o: self.boundaryLogLikelihood(o)
         self.likelihoodCalculator[OffsetSpecification] = lambda o: self.offsetLogLikelihood(o)
         self.likelihoodCalculator[PlaceSpecification] = lambda o: self.placeLogLikelihood(o)
-        
+
+        self.priorCalculator = {}
+        self.priorCalculator[Rule] = lambda r: self.ruleLogPrior(r)
+        self.priorCalculator[Specification] = lambda s: self.specificationLogPrior(s)
+        self.priorCalculator[Guard] = lambda g: self.guardLogPrior(g)
+        self.priorCalculator[ConstantPhoneme] = lambda k: self.constantLogPrior(k)
+        self.priorCalculator[FeatureMatrix] = lambda m: self.matrixLogPrior(m)
+        self.priorCalculator[FC] = lambda fc:  self.fCLogPrior(fc)
+        self.priorCalculator[BoundarySpecification] = lambda o: self.boundaryLogPrior(o)
+        self.priorCalculator[OffsetSpecification] = lambda o: self.offsetLogPrior(o)
+        self.priorCalculator[PlaceSpecification] = lambda o: self.placeLogPrior(o)
+
         # different types of fragments
         # fragments of type rule, etc
         self.ruleFragments = normalizeLogDistribution([ f for f in fragments if f[0] == Rule ],
@@ -586,13 +632,25 @@ class FragmentGrammar():
         self.focusChangeFragments = normalizeLogDistribution([ f for f in fragments if f[0] == FC ],
                                                              index = 1)
         assert len(fragments) == len(self.ruleFragments) + len(self.guardFragments) + len(self.specificationFragments) + len(self.focusChangeFragments)
-        self.fragments = self.ruleFragments + self.guardFragments + self.specificationFragments + self.focusChangeFragments
+        # we might want to preserve the ordering, because it corresponds to the order in which the rules were added
+        # for now let's not do it
+        fs = self.ruleFragments + self.guardFragments + self.specificationFragments + self.focusChangeFragments
+        self.fragments = fs# = [(t,self.productionLikelihood(f,t,fs=fs),f)
+                          #for t,_,f in fragments ]
         
         self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
 
-    def productionLikelihood(self,f,t=None):
-        for tp,l,fp in self.fragments:
+    def __setstate__(self, state):
+        self.__init__(state['fragments'],
+                      state['prior'])
+    def __getstate__(self):
+        return {'fragments': self.fragments,
+                'prior': self.prior}
+
+    def productionLikelihood(self,f,t=None,fs=None):
+        fs = fs or self.fragments
+        for tp,l,fp in fs:
             if f == fp:
                 if t is None: return l
                 elif t == tp: return l
@@ -617,8 +675,12 @@ class FragmentGrammar():
             for k,v in correspondence:
                 n = n.replace(k,v)
             return n
+        def ordering((t,l,f)):
+            t = [Rule,Guard,Specification,FC].index(t)
+            notLearned = EMPTYFRAGMENTGRAMMAR.hasFragment(f)
+            return (t,notLearned,-l)
         return formatTable([ map(makingNamingIntuitive, ["%f"%l,"%s"%t.__name__ + " ::= ", str(f) ])
-                             for t,l,f in self.fragments])
+                             for t,l,f in sorted(self.fragments,key=ordering)])
 
     def hasFragment(self,f):
         return any(_f == f for _,_,_f in self.fragments)
@@ -648,6 +710,32 @@ class FragmentGrammar():
             expectedUses = mergeCounts(expectedUses, scaleDictionary(probabilityOfTheseUses, u))
         return z,expectedUses
 
+    def fragmentLogPrior(self,t,f):
+        if t == Rule: lp = self.fragmentPrior(f,self.ruleFragments)
+        elif t == Guard: lp = self.fragmentPrior(f,self.guardFragments)
+        elif t == Specification: lp = self.fragmentPrior(f,self.specificationFragments)
+        else:
+            assert False
+
+        lp -= 1.5*f.numberOfVariables()
+        return lp
+
+    def fragmentPrior(self, candidate, fragments):
+        '''returns log prior of candidate fragment given current grammar'''
+        z = float('-inf')
+        for concreteClass,lf,fragment in fragments:
+            try:
+                m = fragment.matchFragment(candidate)
+            except MatchFailure:
+                continue
+            
+            fragmentLikelihood = 0.0
+            for childType,child in m:
+                childLikelihood = self.priorCalculator[childType](child)
+                fragmentLikelihood += childLikelihood
+            z = lse(z, fragmentLikelihood + lf)
+        return z
+
     def ruleLogLikelihood(self, r):
         key = unicode(r)
         if key in self.ruleTable:
@@ -657,12 +745,18 @@ class FragmentGrammar():
         self.ruleTable[key] = (ll,u)
         return ll,u
 
+    def ruleLogPrior(self, r):
+        return self.fragmentPrior(r, self.ruleFragments)
+
     def fCLogLikelihood(self,s):
         key = unicode(s)
         if key in self.fCTable: return self.fCTable[key]
         ll,u = self.fragmentLikelihood(s, self.focusChangeFragments)
         self.fCTable[key] = ll,u
         return ll,u
+
+    def fCLogPrior(self,s):
+        return self.fragmentPrior(s,self.focusChangeFragments)
     
     def specificationLogLikelihood(self, s):
         key = unicode(s)
@@ -671,11 +765,18 @@ class FragmentGrammar():
         self.specificationTable[key] = (ll,u)
         return ll,u
 
+    def specificationLogPrior(self,s):
+        return self.fragmentPrior(s, self.specificationFragments)
+
     def constantLogLikelihood(self, k):
         if isinstance(k,ConstantPhoneme):
             return -log(float(self.numberOfPhonemes)), {}
         else:
             raise Exception('constantLogLikelihood: did not get a constant')
+
+    def constantLogPrior(self,k):
+        import pdb; pdb.set_trace()
+        
 
     def offsetLogLikelihood(self, o):
         if isinstance(o,OffsetSpecification):
@@ -683,17 +784,29 @@ class FragmentGrammar():
         else:
             raise Exception('offsetLogLikelihood: did not get offset')
 
+    def offsetLogPrior(self,o):
+        import pdb; pdb.set_trace()
+        
+
     def placeLogLikelihood(self, o):
         if isinstance(o,PlaceSpecification):
             return -log(2.0), {}
         else:
             raise Exception('placeLogLikelihood: did not get offset')
 
+    def placeLogPrior(self,o):
+        import pdb; pdb.set_trace()
+        
+
     def boundaryLogLikelihood(self, o):
         if isinstance(o,BoundarySpecification):
             return 0.0, {}
         else:
             raise Exception('boundaryLogLikelihood: did not get boundary')
+
+    def boundaryLogPrior(self,o):
+        import pdb; pdb.set_trace()
+        
 
     def matrixSizeLogLikelihood(self,l):
         return log(0.25) # uniform prior
@@ -707,6 +820,10 @@ class FragmentGrammar():
             return len(m.featuresAndPolarities)*(-log(float(self.numberOfFeatures))) + self.matrixSizeLogLikelihood(len(m.featuresAndPolarities)),{}
         else:
             raise Exception('matrixLogLikelihood')
+
+    def matrixLogPrior(self, m):
+        assert isinstance(m, MatrixFragment)
+        return self.matrixLogLikelihood(m.child)[0] # cf specificationLogPrior
 
     def guardLengthLogLikelihood(self,l):
         if l == 0: return log(0.5)
@@ -722,6 +839,9 @@ class FragmentGrammar():
             ll -= 1.
         self.guardTable[key] = (ll,u)
         return ll,u
+
+    def guardLogPrior(self,m):
+        return self.fragmentPrior(m,self.guardFragments)
 
     def sketchUniversalGrammar(self,bank):
         from sketchSyntax import definePreprocessor
@@ -759,14 +879,14 @@ class FragmentGrammar():
                                                   for w,u in normalizeLogDistribution(weightedUses) ])
         newFragments = [ (k, safeLog(uses.get(f,0.0) + smoothing), f) for k,_,f in self.fragments ]
 
-        return FragmentGrammar(newFragments)
+        return FragmentGrammar(newFragments,self.prior)
 
     def estimateParameters(self, frontiers, smoothing = 0):
         '''frontiers: list of list of rules.
         returns a new fragment grammar with the same structure but different probabilities'''
         flatFragments = [(t,0.0,f) for t,_,f in self.fragments ]
         smoothing = 0.001
-        return FragmentGrammar(flatFragments).insideOutside(frontiers, smoothing = smoothing).insideOutside(frontiers, smoothing = smoothing)
+        return FragmentGrammar(flatFragments,self.prior).insideOutside(frontiers, smoothing = smoothing).insideOutside(frontiers, smoothing = smoothing)
 
     def frontierLikelihood(self, frontier):
         '''frontier: list of rules.
@@ -776,11 +896,12 @@ class FragmentGrammar():
     def frontiersLikelihood(self,frontiers):
         return sum([self.frontierLikelihood(f) for f in frontiers ])
     def logPrior(self):
+        assert False,"deprecated"
         return sum([ f.logPrior for _,_,f in self.fragments ])
     def frontiersLogJoint(self,frontiers, priorWeight = 0.2):
-        return self.frontiersLikelihood(frontiers) + priorWeight*self.logPrior()
-    def AIC(self, frontiers, alpha = 0.1):
-        return alpha*len(self.fragments) - self.frontiersLogJoint(frontiers)
+        return self.frontiersLikelihood(frontiers) + priorWeight*self.prior
+    def AIC(self, frontiers, alpha = 0.1, priorWeight = 0.2):
+        return alpha*len(self.fragments) - self.frontiersLogJoint(frontiers, priorWeight=priorWeight)
     def MAP_uses(self, frontiers, fragment):
         """returns the number of times that this fragment is used in the map rules"""
         uses = 0
@@ -789,11 +910,18 @@ class FragmentGrammar():
             uses += bestUses.get(fragment,0.)
         return uses
 
+    def extend(self,t,l,f):
+        return FragmentGrammar(self.fragments + [(t,l,f)],
+                               self.prior)
+    
+    def accumulatePrior(self,lp):
+        return FragmentGrammar(self.fragments,self.prior + lp)
+
     def export(self,f):
-        dumpPickle(self.fragments, f)
+        dumpPickle(self, f)
     @staticmethod
     def load(f):
-        return FragmentGrammar(loadPickle(f))
+        return loadPickle(f)
         
 
 
@@ -813,9 +941,13 @@ baseType2fragmentType = dict((k.CONSTRUCTOR,k)\
 
 if __name__ == '__main__':
     from parseSPE import parseRule
-    r = parseRule('[ -tense ] ---> 0 /  _ {#,[ -sonorant ]}')
-    print EMPTYFRAGMENTGRAMMAR.ruleLogLikelihood(r)[1]
-    print r.rightTriggers
+    g = EMPTYFRAGMENTGRAMMAR
+    r1 = parseRule('[ -tense ] ---> 0 /  _ #')
+    r2 = parseRule('[ -high ] ---> 0 /  _ #')
+    for f in RuleFragment.abstract(r1,r2):
+        print f
+    assert False
+    
     assert False
     ruleSets = [[parseRule('e > a / # _ [ -voice ]* h #')],
                 [parseRule('e > 0 / # _ [ -voice ]* [ +vowel ]#')]]

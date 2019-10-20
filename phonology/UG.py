@@ -62,9 +62,18 @@ def worker(arguments):
                 print "alternatives..."
                 for r in sorted(eq[-1],key=lambda rrr: rrr.cost()):
                     print r
+                    
+                    # fragment = RuleFragment.abstract(r,r)
+                    # if len(fragment) == 0:
+                    #     print("no fragments")
+                    #     continue
+                    
+                    # fragment = fragment[0]
+                    # g = getEmptyFragmentGrammar()
+                    # print g.fragmentPrior(fragment,g.ruleFragments)
+                    # print g.ruleLogLikelihood(r)[0]
                 print 
 
-    
     
     g = induceFragmentGrammar(eq, CPUs=arguments.CPUs,
                               restore=arguments.restore)
