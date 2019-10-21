@@ -59,6 +59,7 @@ class VariableFragment(Fragment):
         return ([], ['%s(%s)'%(calculator[self.ty],v)])
     def numberOfVariables(self): return 1
     def hasConstants(self): return False
+    def countConstants(self): return 0
     def isDegenerate(self): return False
     def violatesGeometry(self): return False
 
@@ -72,6 +73,8 @@ class RuleFragment(Fragment):
         return self.focus.violatesGeometry() or self.left.violatesGeometry() or self.right.violatesGeometry()
     def match(self,program):
         return self.focus.match(program.focus) + self.change.match(program.structuralChange) + self.left.match(program.leftTriggers) + self.right.match(program.rightTriggers)
+    def countConstants(self):
+        return self.focus.countConstants() + self.change.countConstants() + self.left.countConstants() + self.right.countConstants()
     def matchFragment(self,fragment):
         assert isinstance(fragment,RuleFragment)
         return self.focus.matchFragment(fragment.focus) + self.change.matchFragment(fragment.change) + self.left.matchFragment(fragment.left) + self.right.matchFragment(fragment.right)
@@ -147,6 +150,10 @@ class FCFragment(Fragment):
     def isDegenerate(self):
         return self.child.isDegenerate()
 
+    def countConstants(self):
+        if isinstance(self.child,VariableFragment): return 0
+        return 1
+
     def match(self, program):
         if isinstance(program, EmptySpecification):
             if isinstance(self.child, EmptySpecification):
@@ -208,6 +215,8 @@ class SpecificationFragment(Fragment):
 
     def __unicode__(self): return unicode(self.child)
 
+    def countConstants(self): return self.child.countConstants()
+
     def latex(self):
         return self.child.latex()
 
@@ -252,6 +261,8 @@ class MatrixFragment(Fragment):
 
 
     def __unicode__(self): return self.childUnicode
+
+    def countConstants(self): return 1
 
     def match(self, program):
         if unicode(program) == self.childUnicode: return []
@@ -318,6 +329,9 @@ class GuardFragment(Fragment):
 
     def isDegenerate(self):
         return any( s.isDegenerate() for s in self.specifications )
+
+    def countConstants(self):
+        return sum(s.countConstants() for s in self.specifications )
 
     def latex(self, l=False):
         pieces = [s.latex() for s in self.specifications]
@@ -464,6 +478,9 @@ def proposeFragments(ruleSets, verbose = False):
                             #     print qt,qf
                             #     print [ str(f) for f in newFragments if "instance at" in str(f) ]
                             #     assert False
+                            if pt == Rule:
+                                newFragments = [_f for _f in newFragments
+                                                if _f.countConstants() > 1]
                             fragments[pt] = fragments[pt] | set(newFragments)
 
             completedPairs += 1
