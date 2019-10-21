@@ -495,20 +495,27 @@ generator Guard unknown_guard() {
   Specification s2 = unknown_guard_specification();
   return new Guard(endOfString = ??, optionalEndOfString = ??, starred = ??, spec = {| null | s |}, spec2 = {| null | s2 |});
 }
-generator Specification unknown_FC_specification() {
+generator Specification unknown_C_specification() {
 #ifdef PLACEASSIMILATION
   return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null | new Place(place_offset = {| 1 | -1 |}) |};
 #else
   return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null |};
 #endif  
 }
+generator Specification unknown_F_specification() {
+#ifdef PLACEASSIMILATION
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null | new Place(place_offset = {| 1 | -1 |}) |};
+#else
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) | null |};
+#endif  
+}
 generator Specification unknown_guard_specification() {
-  return {| global_boundary_specification | new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
+  return {| new Vector(UNKNOWNVECTOR) | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) |};
 }
   
 generator Rule unknown_rule() {
-  return new Rule(focus = unknown_FC_specification(),
-		  structural_change = unknown_FC_specification(),
+  return new Rule(focus = unknown_F_specification(),
+		  structural_change = unknown_C_specification(),
 		  left_trigger = unknown_guard(),
 		  right_trigger = unknown_guard());
 }
