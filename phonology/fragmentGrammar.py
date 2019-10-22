@@ -521,7 +521,7 @@ def scoreCandidate((currentGrammar,t,f)):
         
         newGrammar = currentGrammar.extend(t,0.,f).accumulatePrior(prior).\
                      estimateParameters(ruleEquivalenceClasses, smoothing = smoothing)
-        newScore = newGrammar.AIC(ruleEquivalenceClasses,priorWeight=1.)
+        newScore = newGrammar.AIC(ruleEquivalenceClasses,priorWeight=GLOBALCANDIDATEDATA["priorWeight"])
         bestUses = newGrammar.MAP_uses(ruleEquivalenceClasses,f)
         
         newGrammar.clearCaches()
@@ -534,7 +534,8 @@ def scoreCandidate((currentGrammar,t,f)):
         raise e
 
     
-def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoothing = 1.0,
+def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 99, smoothing = 1.0,
+                          priorWeight=1.,
                           restore=None,
                           CPUs = 1):
     # Fork workers for evaluating candidates
@@ -543,6 +544,7 @@ def induceFragmentGrammar(ruleEquivalenceClasses, maximumGrammarSize = 40, smoot
     GLOBALCANDIDATEDATA = GLOBALCANDIDATEDATA or {}
     GLOBALCANDIDATEDATA["ruleEquivalenceClasses"] = ruleEquivalenceClasses
     GLOBALCANDIDATEDATA["smoothing"] = smoothing
+    GLOBALCANDIDATEDATA["priorWeight"] = priorWeight
     workers = Pool(CPUs) # create this before we propose of fragments to save memory
 
     startTime = time()

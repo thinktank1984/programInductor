@@ -76,6 +76,8 @@ def worker(arguments):
 
     
     g = induceFragmentGrammar(eq, CPUs=arguments.CPUs,
+                              priorWeight=arguments.priorWeight,
+                              smoothing=arguments.smoothing,
                               restore=arguments.restore)
     for frontier, problem in zip(frontiers, problems):
         print "Problem",problem,"is solved by the following solution according to this UG:"
@@ -107,6 +109,8 @@ if __name__ == '__main__':
                         help="restore grammar induction from a checkpoint")
     parser.add_argument('--empty', default=False, action='store_true',
                         help="allow the empty feature matrix to be part of UG")
+    parser.add_argument('--priorWeight',default=1.,type=float)
+        parser.add_argument('--smoothing',default=1.,type=float)
     
     arguments = parser.parse_args()
     if arguments.empty: enableUniversalEmpty()
