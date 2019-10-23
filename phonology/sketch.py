@@ -145,7 +145,10 @@ def disableGeometry():
 def enableCV():
     global enabledCV
     enabledCV = True
-
+def isCVEnabled():
+    global enabledCV
+    return enabledCV
+    
 class useGlobalTimeout(object):
     def __init__(self):
         pass

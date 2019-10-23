@@ -139,7 +139,9 @@ class EmptySpecification(FC):
 
     def doesNothing(self): return False
     def skeleton(self): return "0"
-    def cost(self): return 2
+    def cost(self):
+        if isCVEnabled(): return 1
+        return 2
     def latex(self): return '$\\varnothing$'
     def mutate(self,_): return self
 
@@ -384,6 +386,9 @@ class FeatureMatrix(Specification,FC):
         return len(self.featuresAndPolarities) == 0
 
     def cost(self):
+        if isCVEnabled():
+            if len(self.featuresAndPolarities) == 1:
+                if list(self.featuresAndPolarities)[0][1] == 'vowel': return 1
         return 1 + len(self.featuresAndPolarities)
 
     def skeleton(self):
