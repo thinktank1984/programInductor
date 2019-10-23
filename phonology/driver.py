@@ -232,9 +232,15 @@ if __name__ == '__main__':
     parser.add_argument('-V','--verbosity', default = 0, type = int)
     parser.add_argument("--mergeFrontiers",default=False,action='store_true',
                         help="when expanding frontiers, should we merged the new rules with the old?")
+    parser.add_argument('--cv', default=False,action='store_true',
+                        help="counts consonants/vowels as 1 cost")
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
+
+    if arguments.cv:
+        enableCV()
+        print "Counting C/V as having cost 1"
 
     if arguments.cores is None:
         arguments.cores = numberOfCPUs()

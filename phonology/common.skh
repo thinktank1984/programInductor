@@ -354,7 +354,11 @@ int specification_cost(Specification s) {
 #ifdef UNIVERSALSPECIFICATIONGRAMMAR
   UNIVERSALSPECIFICATIONGRAMMAR
 #endif
+#ifdef CV
+  if (s == null) return 1;
+#else
   if (s == null) return 2;
+#endif
   switch(s) {
   case ConstantPhoneme:{ return 2; }
   case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
@@ -362,6 +366,9 @@ int specification_cost(Specification s) {
   case Place:{ return 1; }
   case Vector:{
     int c = 1 + VECTORCOST(s);
+#ifdef CV
+    if (c == 2 && s.vowel_specified) c = 1;
+#endif
     // Alternation problems basically have their specification already given
     // So don't limit it
 #ifndef ALTERNATIONPROBLEM    

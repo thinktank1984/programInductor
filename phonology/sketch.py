@@ -71,6 +71,7 @@ def makeConstantWord(bank, w):
     
 
 def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
+    global enabledCV
     global featuresAreDisabled
     global cleanIsDisabled
     global geometryIsEnabled
@@ -81,6 +82,8 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
         h += "#define DISABLEFEATURES\n"
     if cleanIsDisabled:
         h += "#define DISABLECLEAN\n"
+    if enabledCV:
+        h += "#define CV"
     h += "#define MAXIMUMMORPHLENGTH %d\n"%maximumMorphLength
     h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
     h += "#define True 1\n#define False 0\n"
@@ -120,6 +123,7 @@ def getGlobalSketchTime():
 cleanIsDisabled = False
 featuresAreDisabled = False
 geometryIsEnabled = False
+enabledCV = False
 def disableFeatures():
     global featuresAreDisabled
     featuresAreDisabled = True
@@ -138,7 +142,10 @@ def enableGeometry():
 def disableGeometry():
     global geometryIsEnabled
     geometryIsEnabled = False
-    
+def enableCV():
+    global enabledCV
+    enabledCV = True
+
 class useGlobalTimeout(object):
     def __init__(self):
         pass
