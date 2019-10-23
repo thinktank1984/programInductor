@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant, isCVEnabled
+from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
+from sketch import isCVEnabled
 from features import *#FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES,CONSONANTFEATURES
 from morph import Morph
 from utilities import *
