@@ -83,7 +83,7 @@ def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
     if cleanIsDisabled:
         h += "#define DISABLECLEAN\n"
     if enabledCV:
-        h += "#define CV"
+        h += "#define CV\n"
     h += "#define MAXIMUMMORPHLENGTH %d\n"%maximumMorphLength
     h += "#define NUMBEROFFEATURES %d\n" % len(bank.features)
     h += "#define True 1\n#define False 0\n"
