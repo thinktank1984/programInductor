@@ -73,7 +73,7 @@ def sendCommand(
     else:
         if '/' in checkpoint:
             checkpoint = os.path.split(checkpoint)[1]
-        copyCheckpoint = "mv ~/%s ~/ec/experimentOutputs" % checkpoint
+        copyCheckpoint = "mv ~/%s ~/programInductor/phonology" % checkpoint
 
     preamble = """#!/bin/bash
 python programInductor/phonology/command_server.py KILL
@@ -84,6 +84,7 @@ cd ~/programInductor/
 git fetch
 git checkout %s
 git pull
+sudo apt-get install  -y pypy
 """%(copyCheckpoint,br)
     preamble += "mv ~/patch ~/programInductor/patch\n"
     preamble += "git apply patch \n"
@@ -245,7 +246,7 @@ if __name__ == "__main__":
                      tail=arguments.tail,
                      resume=arguments.resume,
                      size=arguments.size,
-                     upload=arguments.upload,
+                     upload=arguments.upload if arguments.upload != "None" else None,
                      ssh_key=arguments.ssh_key,
                      tar=arguments.tar,
                      checkpoint=arguments.checkpoint)
