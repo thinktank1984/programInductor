@@ -79,6 +79,7 @@ def sendCommand(
 python programInductor/phonology/command_server.py KILL
 export PATH="$PATH:/home/ellisk/sketch-1.7.5/sketch-frontend"
 export SKETCH_HOME="/home/ellisk/sketch-1.7.5/sketch-frontend/runtime"
+export PYTHONIOENCODING=utf8
 cd ~/programInductor/
 %s
 git fetch
