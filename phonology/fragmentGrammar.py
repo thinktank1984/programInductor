@@ -657,7 +657,7 @@ class FragmentGrammar():
         self.fragments = fs# = [(t,self.productionLikelihood(f,t,fs=fs),f)
                           #for t,_,f in fragments ]
         
-        self.numberOfPhonemes = 40 # should this be the number of phonemes? or number of phonemes in a data set?
+        self.numberOfPhonemes = 80 # should this be the number of phonemes? or number of phonemes in a data set?
         self.numberOfFeatures = 40 # same thing
 
     def __setstate__(self, state):
