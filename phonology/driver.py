@@ -161,12 +161,11 @@ def paretoFrontier(p):
     name = p.key
     random.seed(0)
     data = randomlyPermute(p.data)
-    print "\n".join(map(str,data))
     if arguments.restrict:
         print "(Restricting problem data to interval: %d -- %d)"%(arguments.restrict[0],
                                                                   arguments.restrict[1])
         data = data[arguments.restrict[0] : arguments.restrict[1]]
-        print "\n".join(map(str,data))
+    print "\n".join([u"\t~\t".join(xs) for xs in data])
     if arguments.restore:
         oldSolutions = loadPickle(arguments.restore)
     else:
