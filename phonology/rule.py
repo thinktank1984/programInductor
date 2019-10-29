@@ -338,6 +338,15 @@ class FeatureMatrix(Specification,FC):
             extension = self.extension(FeatureBank.GLOBAL)
             if any( "vowel" in FeatureBank.GLOBAL.featureMap[p] for p in extension ): return True
         return False
+
+    def __lt__(self,o):
+        assert isinstance(o, FeatureMatrix)
+        
+        if len(self.featuresAndPolarities) >= len(o.featuresAndPolarities): return False
+        for fp in self.featuresAndPolarities:
+            if fp not in o.featuresAndPolarities:
+                return False
+        return True
         
     def makeGeometric(self, bank=None):
         original = self
@@ -695,6 +704,13 @@ class Rule():
             assert isinstance(self.structuralChange,EmptySpecification)
             assert self.focus.offset == 1
 
+    def __lt__(self,o):
+        assert isinstance(o,Rule)
+        return isinstance(self.structuralChange,FeatureMatrix) and \
+            isinstance(o.structuralChange,FeatureMatrix) and \
+            self.structuralChange < o.structuralChange and \
+            str(self.focus) == str(o.focus)  and str(self.leftTriggers) == str(o.leftTriggers) and \
+            str(self.rightTriggers) == str(o.rightTriggers)
 
     def violatesGeometry(self):
         return self.focus.violatesGeometry() or \

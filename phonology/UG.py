@@ -57,6 +57,8 @@ def worker(arguments):
             print "Loading",len(frontier.frontiers),"rule equivalence classes from",source
             MAP = frontier.MAP().rules
             for rs,r in zip(frontier.frontiers,MAP):
+                rs = [aRule for aRule in rs
+                      if not any( anotherRule < aRule for anotherRule in rs )]
                 print "frontier size",len(rs),"MAP",r
                 eq.append(rs)
                 print "alternatives..."

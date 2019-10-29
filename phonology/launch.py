@@ -18,7 +18,7 @@ def branch():
 
 def launchGoogleCloud(size, name):
     name = name.replace('_','-').replace('.','-').lower()
-    os.system("gcloud compute --project tenenbaumlab disks create %s --size 30 --zone us-east1-b --source-snapshot phonology-snapshot --type pd-standard"%name)
+    os.system("gcloud compute --project tenenbaumlab disks create %s --size 30 --zone us-east1-b --source-snapshot phonologyoctober28 --type pd-standard"%name)
     output = \
         subprocess.check_output(["/bin/bash", "-c",
                                  "gcloud compute --project=tenenbaumlab instances create %s --zone=us-east1-b --machine-type=%s --subnet=default --network-tier=PREMIUM --maintenance-policy=MIGRATE --service-account=150557817012-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --disk=name=%s,device-name=%s,mode=rw,boot=yes,auto-delete=yes"%(name,size, name, name)])
@@ -171,8 +171,7 @@ def launchExperiment(
     job_id = "{}_{}_{}".format(name, user(), datetime.now().strftime("%FT%T"))
     job_id = job_id.replace(":", ".")
     if upload is None and shutdown:
-        print("You didn't specify an upload host, and also specify that the machine should shut down afterwards. These options are incompatible because this would mean that you couldn't get the experiment outputs.")
-        sys.exit(1)
+        print("WARNING: You didn't specify an upload host, and also specify that the machine should shut down afterwards.")
 
     if resume and "resume" not in command:
         print("You said to resume, but didn't give --resume to your python command. I am assuming this is a mistake.")
