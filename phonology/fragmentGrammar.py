@@ -70,7 +70,16 @@ class RuleFragment(Fragment):
         self.logPrior = focus.logPrior + change.logPrior + left.logPrior + right.logPrior
         assert isNumber(self.logPrior)
     def violatesGeometry(self):
-        return self.focus.violatesGeometry() or self.left.violatesGeometry() or self.right.violatesGeometry()
+        if self.focus.violatesGeometry() or self.left.violatesGeometry() or self.right.violatesGeometry():
+            return True
+        if isinstance(self.focus,MatrixFragment) and isinstance(self.change,MatrixFragment):
+            # geometry constraint: do not cross vowels
+            changeFeatures = {f for _,f in self.change.child.featuresAndPolarities}
+            if len(changeFeatures & VOWELFEATURES) > 0:
+                if (True,"vowel") not in self.focus.child.featuresAndPolarities:
+                    return True
+        return False
+                
     def match(self,program):
         return self.focus.match(program.focus) + self.change.match(program.structuralChange) + self.left.match(program.leftTriggers) + self.right.match(program.rightTriggers)
     def countConstants(self):

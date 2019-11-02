@@ -1,3 +1,12 @@
+the UG on the cloud:
+  python launch.py  -j --checkpoint checkpoints.tgz ecphonology "tar xzvf checkpoints.tgz&&python ec.py" -z n1-highmem-64
+
+
+
+
+
+
+
 AGL Experiments:
 
 for language in aax aab abx axa aba abb ; do for i in `seq 1 5`; do python Marcus.py  --quiet  -t 30  -d 2 -n $i --save paretoFrontier/"$language""$i".p   -p $language & done; done

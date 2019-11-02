@@ -98,7 +98,12 @@ sudo apt-get install  -y pypy
         # Of course it also means that if anyone were to pull the keys off of AWS,
         # they would then have access to every machine that you have access to
         UPLOADFREQUENCY = 60 * 3  # every 3 minutes
-        uploadCommand = """\
+        if arguments.onlyJob:
+            uploadCommand = """\
+rsync  -e 'ssh  -o StrictHostKeyChecking=no' -avz \
+phonology/jobs {}""".format(upload)
+        else:
+            uploadCommand = """\
 rsync  -e 'ssh  -o StrictHostKeyChecking=no' -avz \
 phonology/jobs phonology/experimentOutputs {}""".format(upload)
         preamble += """
@@ -228,6 +233,9 @@ if __name__ == "__main__":
     parser.add_argument('-c', "--google",
                         default=True,
                         action="store_true")
+    parser.add_argument('-j', "--onlyJob", default=False,
+                        action="store_true",
+                        help="Only upload job text output, and not the experiment outputs")
     parser.add_argument('-g', "--gpuImage", default=False, action='store_true')
     parser.add_argument(
         '-t',
