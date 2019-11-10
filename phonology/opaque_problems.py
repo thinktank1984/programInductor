@@ -11,7 +11,8 @@ def load_problem(name, path, substitution=None):
             if substitution:
                 for k,v in substitution.iteritems():
                     l = l.replace(k,v)
-            l = l.strip().split("\t")
+            l = l[:-1].split("\t")
+            l = [w if len(w) > 0 else None for w in l ]
             data.append(tuple(l))
     random.shuffle(data)
     return Problem(u"interaction Kevin %s"%name, data)
