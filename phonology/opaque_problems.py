@@ -21,6 +21,7 @@ load_problem("1cb","opaque/dataset1-CB4.txt")
 load_problem("1f","opaque/dataset1-F4.txt")
 load_problem("1cf","opaque/dataset1-CF4.txt")
 
+
 load_problem("2b","opaque/dataset2-B.txt")
 load_problem("2cb","opaque/dataset2-CB.txt")
 load_problem("2f","opaque/dataset2-F.txt")
@@ -30,3 +31,15 @@ load_problem("3b","opaque/Faroese_NEW_B.txt",
              {u"z": u"ð"})
 load_problem("3cb","opaque/Faroese_OLD_CB.txt",
              {u"z": u"ð"})
+
+
+load_problem("1b_new","opaque/dataset1-b.txt")
+load_problem("1cb_new","opaque/dataset1-cb.txt")
+load_problem("1f_new","opaque/dataset1-f.txt")
+load_problem("1cf_new","opaque/dataset1-cf.txt")
+
+
+load_problem("2cf_new","opaque/dataset2-cf.txt")
+load_problem("2f_new","opaque/dataset2-f.txt")
+
+load_problem("3sdf","opaque/dataset3-sdf.txt")
