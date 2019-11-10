@@ -7,7 +7,7 @@ def load_problem(name, path, substitution=None):
     data = []
     with codecs.open(path, encoding='utf-8') as handle:
         for l in handle:
-            l = l.replace(u"γ",u"ɣ").replace(u"dʒ",u"ǰ").replace(u"tʃ",u"č")
+            l = l.replace(u"γ",u"ɣ").replace(u"dʒ",u"ǰ").replace(u"tʃ",u"č").replace(u"E",u"ɛ").replace(u"S",u"ʃ").replace(u"ʃ",u"š")
             if substitution:
                 for k,v in substitution.iteritems():
                     l = l.replace(k,v)
