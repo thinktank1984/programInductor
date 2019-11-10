@@ -240,6 +240,8 @@ if __name__ == "__main__":
                 [n for n,_ in colors ],
                 ncol=len(colors),
              loc='lower center')
+    print len(bars),"data sets"
+    print len({b.language for b in bars }),"distinct languages"
 
     if not arguments.final or True:
         plot.show()

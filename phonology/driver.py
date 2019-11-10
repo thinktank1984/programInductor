@@ -233,6 +233,8 @@ if __name__ == '__main__':
                         help="when expanding frontiers, should we merged the new rules with the old?")
     parser.add_argument('--cv', default=False,action='store_true',
                         help="counts consonants/vowels as 1 cost")
+    parser.add_argument('--noConstant', default=False,action='store_true',
+                        help="disallow constant phonemes in rules")
 
     arguments = parser.parse_args()
     setVerbosity(arguments.verbosity)
@@ -240,6 +242,10 @@ if __name__ == '__main__':
     if arguments.cv:
         enableCV()
         print "Counting C/V as having cost 1"
+
+    if arguments.noConstant:
+        disableConstantPhonemes()
+        print "Disabling constant phonemes inside of rules"
 
     if arguments.cores is None:
         arguments.cores = numberOfCPUs()
