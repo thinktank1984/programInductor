@@ -360,13 +360,20 @@ int specification_cost(Specification s) {
   if (s == null) return 2;
 #endif
   switch(s) {
-  case ConstantPhoneme:{ return 2; }
+  case ConstantPhoneme:{
+#ifdef NOCONSTANT
+    return 1;
+#else
+    return 2;
+#endif
+  }
   case Boundary:{ assert 0; } // specification_cost is invoked on the focus/change
   case Offset:{ return 1; }
   case Place:{ return 1; }
   case Vector:{
     int c = 1 + VECTORCOST(s);
 #ifdef CV
+    assert c > 1;
     if (c == 2 && s.vowel_specified) c = 1;
 #endif
     // Alternation problems basically have their specification already given
@@ -514,7 +521,7 @@ generator Guard unknown_guard() {
 #endif
 
 generator Specification unknown_C_specification() {
-  return {| new Vector(UNKNOWNVECTOR) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null UNKNOWNCONSTANTGENERATOR PLACEASSIMILATIONGENERATOR |};
+  return {| new Vector(UNKNOWNVECTOR) | new Offset(offset = {| 1 | -1 | -2 | 2 |}) | null | new ConstantPhoneme(phoneme = UNKNOWNCONSTANTSPECIFICATION) PLACEASSIMILATIONGENERATOR |};
 }
 generator Specification unknown_F_specification() {
   return {| new Vector(UNKNOWNVECTOR) | null PLACEASSIMILATIONGENERATOR UNKNOWNCONSTANTGENERATOR |};
@@ -698,6 +705,11 @@ bit rule_does_nothing(Rule r){
 
 int rule_cost(Rule r) {
   if (rule_does_nothing(r)) return 0;
+#ifdef NOCONSTANT
+  // you are allowed to have a constant, only in the structural change,
+  // and only if you are doing insertion
+  assert is_insertion_rule(r) || (!constant_specification(r.structural_change));
+#endif
   if (is_place(r.structural_change)) {
     if (get_place_offset(r.structural_change) == 1) {
       assert r.right_trigger.spec != null;
