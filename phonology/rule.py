@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sketchSyntax import define, FunctionCall, Constant, Variable, getGeneratorDefinition, globalConstant
-from sketch import isCVEnabled
+from sketch import isCVEnabled,getLastOutput
 from features import *#FeatureBank,featureMap,tokenize,VOWELFEATURES,DEFAULTVOWELFEATURES,CONSONANTFEATURES
 from morph import Morph
 from utilities import *
@@ -940,7 +940,15 @@ class Rule():
 
     # Produces a rule object from a sketch output
     @staticmethod
-    def parse(bank, output, variable):
+    def parse(*arguments):
+        if len(arguments) == 1:
+            variable = arguments[0]
+            bank, output = FeatureBank.ACTIVE, getLastOutput()
+        elif len(arguments) == 2:
+            output, variable = arguments[0],arguments[1]
+            bank = FeatureBank.ACTIVE
+        elif len(arguments) == 3:
+            bank, output, variable = tuple(arguments)
         if variable.definingFunction != None:
             # Search for the global definition, get the unique variable name it corresponds to, and parse that
             variable, output = getGeneratorDefinition(variable.definingFunction, output)

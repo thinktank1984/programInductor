@@ -746,6 +746,7 @@ class FeatureBank():
         return h
 
 FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
+FeatureBank.ACTIVE = None
 
 def switchFeatures(f):
     global featureMap

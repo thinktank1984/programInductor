@@ -16,8 +16,16 @@ import re
 @sketchImplementation("alternation_cost")
 def alternationCost(r): pass
 
-def applyRule(rule,i,untilSuffix, unrollBound):
-    return FunctionCall("apply_rule", [rule,i, untilSuffix, Constant(unrollBound)])
+def applyRule(rule,i, *furtherArguments):
+    if len(furtherArguments) == 1:
+        unrollBound = Constant(furtherArguments[0])
+        untilSuffix = Constant(0)
+    elif len(furtherArguments) == 2:
+        untilSuffix = Constant(furtherArguments[0])
+        unrollBound = Constant(furtherArguments[1])
+    else:
+        assert False, "applyRule: You should either give me one argument are two arguments after the rule & in the input"
+    return FunctionCall("apply_rule", [rule,i, untilSuffix, unrollBound])
 def applyRules(rules,d, untilSuffix, b, doNothing = None):
     for j,r in enumerate(rules):
         if doNothing == None or (not doNothing[j]):
@@ -68,6 +76,12 @@ def makeConstantMatrix(m):
 def makeConstantWord(bank, w):
     w = bank.variablesOfWord(w)
     return Constant('(new Word(l = %d, s = {%s}))'%(len(w),",".join(w)))
+
+def globalModel(words):
+    from morph import Morph
+    Model.Global()
+    words = [w if isinstance(w,Morph) else Morph(w) for w in words  ]
+    FeatureBank.ACTIVE = FeatureBank(words)
     
 
 def makeSketch(bank, maximumMorphLength = 9, alternationProblem = False):
@@ -177,9 +191,14 @@ class useGlobalTimeout(object):
 
 lastFailureOutput = None
 lastSketchOutput = None
+def getLastOutput():
+    global lastSketchOutput
+    return lastSketchOutput
 def solveSketch(bank, unroll = 8, maximumMorphLength = 9, alternationProblem = False, showSource = False, minimizeBound = None, timeout = None):
     from command_server import send_to_command_server
     global lastFailureOutput,lastSketchOutput,globalTimeoutCounter,leaveSketches,globalSketchTime
+
+    bank = bank or FeatureBank.ACTIVE
 
     leavitt = leaveSketches
     

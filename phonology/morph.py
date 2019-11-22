@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant, And, Or, Constant
-from sketch import makeConstantWord, getGeneratorDefinition, indexWord, wordLength
+from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant, And, Or, Constant,condition
+from sketch import makeConstantWord, getGeneratorDefinition, indexWord, wordLength, wordEqual, getLastOutput
 from features import FeatureBank,featureMap,tokenize
 from utilities import *
 
@@ -74,7 +74,16 @@ class Morph():
 
     
     @staticmethod
-    def parse(bank, output, variable):
+    def parse(*arguments):
+        if len(arguments) == 3:
+            bank, output, variable = tuple(arguments)
+        elif len(arguments) == 2:
+            output, variable = tuple(arguments)
+            bank = FeatureBank.ACTIVE
+        elif len(arguments) == 1:
+            variable = arguments[0]
+            bank = FeatureBank.ACTIVE
+            output = getLastOutput()
         if variable.definingFunction != None:
             # Search for the global definition, get the unique variable name it corresponds to, and parse that
             variable, output = getGeneratorDefinition(variable.definingFunction, output)
@@ -96,3 +105,10 @@ class Morph():
                 raise Exception('Could not find %dth phoneme of %s'%(p,variable))
             phones.append(bank.phonemes[int(m.group(1))])
         return Morph(phones)
+
+def observeWord(surface, predicted, bank=None):
+    """adds an extra condition that the prediction must be equal to the surface form"""
+    bank = bank or FeatureBank.ACTIVE
+    if not isinstance(surface,Morph):
+        surface = Morph(surface)
+    condition(wordEqual(predicted, Morph.makeConstant(surface, bank)))

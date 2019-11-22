@@ -14,6 +14,7 @@ for language in aax aab abx axa aba abb ; do for i in `seq 1 5`; do python Marcu
 
 AGL Visualization:
 python graphMarcus.py  aab,aba aba,aab abb,aab aab,abb -n 5 --samples 4 --sigmoid 2. --export figures/AGL/main.png --colors gold green purple pink --deviation 0 -j 0.2&&cp figures/AGL/main.png  ../../phonology/figures/AGL/
+python graphMarcus.py  aab,aba aba,aab abb,aab aab,abb -n 4 --samples 4 --export figures/AGL/mainBar.png --colors gold green purple pink --deviation 2 -b&&cp figures/AGL/mainBar.png ../../phonology/figures/AGL
 for X in aax aab abx axa aba abb ; do for Y in aax aab abx axa aba abb ; do if [ $X != $Y ] ; then python graphMarcus.py "$X","$Y" -n 4 --samples 4 --sigmoid 5. --export figures/AGL/"$X"_"$Y".png; fi; done; done
 for fn in `ls figures/AGL`; do convert -trim figures/AGL/$fn figures/AGL/$fn; done
 

@@ -7,6 +7,7 @@ from collections import defaultdict
 import os
 import random
 
+import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plot
@@ -92,6 +93,7 @@ if __name__ == "__main__":
     parser.add_argument('-j','--jitter', default=0., type=float)
     parser.add_argument('--export', default = None, type = str)
     parser.add_argument('--debug', default = False, action='store_true')
+    parser.add_argument('--bar', '-b', default = False, action='store_true')
 
     random.seed(0)
 
@@ -183,8 +185,13 @@ if __name__ == "__main__":
     
 
     
-    plot.figure(figsize=(8,3))
-    xs = range(0,arguments.number+1)
+    plot.figure(figsize=(8,3),
+                frameon=False)
+
+    if arguments.bar:
+        xs = range(1,arguments.number+1)
+    else:
+        xs = range(0,arguments.number+1)
     COLORS = arguments.colors or ["r","g","b","cyan"]
 
     random.seed() # use the current time for jittering
@@ -203,8 +210,13 @@ if __name__ == "__main__":
                     
             
         for syllables in [withoutSyllables, withSyllables]:
-            ys = [0.5] if sigmoid else [0]
-            deviations = [0]
+            if arguments.bar:
+                ys = []
+                deviations = []
+                #plot.subplot(1,2,1 + int(syllables is withSyllables))
+            else:
+                ys = [0.5] if sigmoid else [0]
+                deviations = [0]
             for n in range(1,arguments.number+1):
                 # with syllables after n examples
                 consistentLikelihoods = \
@@ -230,17 +242,51 @@ if __name__ == "__main__":
             jxs = [x + arguments.jitter*(2*(random.random() - 0.5))
                    for x in xs ]
             if len(arguments.testCases) > 1:
-                plot.errorbar(jxs,ys,yerr=deviations,color=color,
-                              ls='--' if syllables is withSyllables else ':',
-                              linewidth=5 if syllables is withSyllables else 3,
-                              alpha=0.9)
+                if not arguments.bar:
+                    plot.errorbar(jxs,ys,yerr=deviations,color=color,
+                                  ls='--' if syllables is withSyllables else ':',
+                                  linewidth=5 if syllables is withSyllables else 3,
+                                  alpha=0.9)
+                else:
+                    # if syllables is withSyllables:
+                    #     plot.title("with syllables")
+                    # else:
+                    #     plot.title("without syllables")
+                    assert arguments.jitter == 0.
+
+                    # calculate which bar we are within each example-count
+                    index = 2*arguments.testCases.index((consistent, inconsistent)) + int(syllables is withoutSyllables)
+                    maximum_index = 2*len(arguments.testCases)
+                    print(index,maximum_index)
+                    width = 1./(len(arguments.testCases)*2)
+                    shifted_x_coordinate = [xc + 0.9*width*(index + 0.5 - maximum_index/2)
+                                            for xc in jxs ]
+                    # make sure that we can see the bar
+                    if syllables is withoutSyllables:
+                        bottom_threshold = 0.15
+                        if ys[0] <= bottom_threshold:
+                            ys[0] = bottom_threshold
+                    
+                    plot.bar(shifted_x_coordinate, ys, width*0.9,
+                             yerr=deviations,
+                             hatch=('//' if syllables is withoutSyllables else "+"),
+                             color=color)
             else:
+                assert not arguments.bar, "not currently supported"
                 plot.errorbar(jxs,ys,yerr=deviations,
                               color=COLORS[int(syllables is withSyllables)])
 
-    
-    plot.xlabel("# training examples")
-    plot.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    if not arguments.bar:
+        plot.xlabel("# training examples")
+        plot.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    else:
+        plot.gca().set_xticks(xs)
+        plot.gca().set_xticklabels(["%d examples"%x if x != 1 else "1 example"
+                                    for x in xs ])
+        plot.gca().spines['right'].set_visible(False)
+        plot.gca().spines['top'].set_visible(False)
+        #,labels=["%d examples"%x for x in xs ])
+        
     if arguments.sigmoid:
         plot.ylim(bottom=0.,top=1.1)
         if False and abs(arguments.sigmoid - 1) > 0.1:
@@ -248,9 +294,13 @@ if __name__ == "__main__":
         else:
             plot.ylabel(r"$\sigma(\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})})$")
     else:
-        plot.ylabel(r"$\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})}$")
+        if arguments.bar:
+            plot.ylabel("log odds ratio")
+        else:
+            plot.ylabel(r"$\log\frac{\mathrm{P}(\mathrm{consistent}|\mathrm{train})}{\mathrm{P}(\mathrm{inconsistent}|\mathrm{train})}$")
     if len(arguments.testCases) > 1:
-        plot.legend([Line2D([0],[0],color=c,lw=2)
+        if not arguments.bar:
+            plot.legend([Line2D([0],[0],color=c,lw=2)
                      for c,_ in zip(COLORS,arguments.testCases)] + \
                     [Line2D([0],[0],color='k',lw=5,ls='--'),
                      Line2D([0],[0],color='k',lw=3,ls=':')],
@@ -260,6 +310,17 @@ if __name__ == "__main__":
                     ncol=2,
                     loc='lower center',#                    loc='best',
                     fontsize=8)
+        else:
+            plot.legend([mpatches.Patch(color=c)
+                     for c,_ in zip(COLORS,arguments.testCases)] + \
+                    [mpatches.Patch(color='k',fill=False,hatch='++'),
+                     mpatches.Patch(color='k',fill=False,hatch='///')],
+                    ["train %s, test %s (consistent) / %s (inconsistent)"%(c,c,i)
+                     for c,i in arguments.testCases ] + \
+                    ["with syllables", "without syllables"],
+                        loc='best',#'lower center',#                    loc='best',
+                        fontsize=10,
+                        frameon=False)
     else:
         c = arguments.testCases[0][0]
         i = arguments.testCases[0][1]

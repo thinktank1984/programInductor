@@ -242,10 +242,14 @@ if __name__ == "__main__":
     
     universal = arguments.universal
     if universal is not None:
+
+        universal = loadPickle(universal)
+        #import pdb; pdb.set_trace()
         
-        universal = FragmentGrammar(loadPickle(universal))
+        #universal = FragmentGrammar(universal)
         for l,t,f in universal.fragments:
-            print l,f.latex()
+            l = str(l).replace("rule.","").replace("Guard","Trigger").replace("Specification","FeatureMatrix")
+            print "%s::=&%s\\\\"%(l,f.latex())
         assert False
 
         print(universal)

@@ -58,7 +58,9 @@ class Bars():
         return int(len(self.universal) > 0) + sum(b is not None for b in self.baselines)
 
     @property
-    def language(self): return self.problem.languageName.replace(u" (Cuzco dialect)","")#self.problem.languageName
+    def language(self):
+        if "Ukrainian" in self.problem.languageName: return "Ukrainian"
+        return self.problem.languageName.replace(u" (Cuzco dialect)","")#self.problem.languageName
 
     def universalTime(self):
         if not self.alternation and self.universal:
@@ -105,6 +107,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description = "Graphs the the system on all of the languages")
     parser.add_argument("--final","-f",action='store_true',default=False)
+    parser.add_argument("--columns","-c",type=int,default=3)
     arguments = parser.parse_args()
 
     baselinePaths = ["experimentOutputs/%s_CEGIS_disableClean=False_features=sophisticated_geometry=True.p",
@@ -173,7 +176,7 @@ if __name__ == "__main__":
             b.name = b.name.replace(" (Cuzco dialect)","")
 
 
-    columns = 3
+    columns = arguments.columns
     f, axes = plot.subplots(1,columns)
     # partition into columns
     partitions = partitionEvenly(bars,columns)
