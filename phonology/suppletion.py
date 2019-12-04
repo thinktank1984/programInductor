@@ -12,6 +12,8 @@ from sketch import *
 from supervised import SupervisedProblem
 from textbook_problems import *
 from latex import latexMatrix
+import re
+import codecs
 
 from pathos.multiprocessing import ProcessingPool as Pool
 import random
@@ -23,33 +25,42 @@ import itertools
 import copy
 import os
 
-
-
-#filename = ""
-#with open(filename) as f:
-#    content = f.readlines()
-
 #from command_server import start_server
 #start_server(1)
+
+## setting up the cost functions
 disableConstantPhonemes()
 enableCV()
-os.system("python command_server.py 1&"); os.system("sleep 1")
 
-data = [(u"imit", u"imita", u"imiči", u"imiči"), (u"ulag", u"ulaga", u"ulagi", u"ulagi")]
+## creating a command server to run sketch
+os.system("python command_server.py 4&"); os.system("sleep 4")
 
-solutions = []
-solutionCosts = []
+## read and import data
+filename = "opaque/dataset1-f.txt"
+with codecs.open(filename, encoding='utf-8') as f:
+    content = f.read().splitlines()
+
+data = [tuple(content[i].split('\t')) for i in range( len(content) )]
+print(data)
+
+## setting up the model
+solutions = [] # a list of past solutions: element is Solution object (see solution.py for implementation)
+solutionCosts = [] # a list of past solution costs: (ruleCost, lexiconCost)
+
+# set up an arbitrary number of solutions to look for
 for i in range(5):
-	globalModel([w for ws in data for w in ws ])
-
-	affix1 = Morph.sample()
-	affix2 = Morph.sample()
-	affix3 = Morph.sample()
-
-	rule1 = Rule.sample()
-	rule2 = Rule.sample()
+	globalModel([w for ws in data for w in ws ]) # create model and feature bank
 
 	stems = [Morph.sample() for i in range( len(data) )]
+
+	#affix1 = Morph.sample()
+	#affix2 = Morph.sample()
+	#affix3 = Morph.sample()
+	suffixes = [Morph.sample() for i in range( len(data[0]) - 1 )] # create suffixes = to # of column -1 (one column is the stem in isolation)
+
+	#rule1 = Rule.sample()
+	#rule2 = Rule.sample()
+	rules = [Rule.sample() for i in range ( 2 )] # set up in advance how many rules to consider
 
 	# binary variables the model needs to reason about
 	suppletive = flip() # says third slot is its own form
@@ -58,62 +69,59 @@ for i in range(5):
 	condition(suppletive + onetwo + twoone == 1)
 	#condition(suppletive == 0) # <- if you change the cost of the morphemes, may end up choosing the intended phonological analysis
 						   	# e.g. increase cost of affixes
-	#output = solveSketch(None, unroll=10, maximumMorphLength=10)
-	#print(parseFlip(output, suppletive))
-	#print(parseFlip(output, onetwo))
-	#print(parseFlip(output, twoone))
 
 	new_data = zip(stems, data) # generates a list of tuples with each ith element corresponding to a tuple at position i in each list
 
-	actual_affix = ite(suppletive, affix3, ite(onetwo, concatenate(affix1, affix2), concatenate(affix2, affix1)))
+	actual_suffix = ite(  suppletive, suffixes[2], ite(onetwo, concatenate(suffixes[0], suffixes[1]), concatenate(suffixes[1], suffixes[0]))  ) # checks to see which of the binary variables is heads and sets the affix to be whatever that condition is
 
-	for stem, (surface1, surface2, surface3, surface4) in new_data:
-		maximumLength = max(len(surface1), len(surface2), len(surface3), len(surface4)) + 1
-		predicted_surface1 = applyRule(rule2, applyRule(rule1, stem, maximumLength), maximumLength) # first number specifies for morpheme boundaries (length of string until suffix (len(prefix + stem))); second number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
-		predicted_surface2 = applyRule(rule2, applyRule(rule1, concatenate(stem, affix1), maximumLength), maximumLength) # first number specifies for morpheme boundaries (length of string until suffix (len(prefix + stem))); second number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
-		predicted_surface3 = applyRule(rule2, applyRule(rule1, concatenate(stem, affix2), maximumLength), maximumLength)
-		predicted_surface4 = applyRule(rule2, applyRule(rule1, concatenate(stem, actual_affix), maximumLength), maximumLength)
+	for stem, (surface1, surface2, surface3, surface4) in new_data: # for each data point (paradigm)
+		maximumLength = max(len(surface1), len(surface2), len(surface3), len(surface4)) + 1 # set bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
+		predicted_surface1 = applyRule(rules[1], applyRule(rules[0], stem, maximumLength), maximumLength) # number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
+		predicted_surface2 = applyRule(rules[1], applyRule(rules[0], concatenate(stem, suffixes[0]), maximumLength), maximumLength) # first number specifies for morpheme boundaries (length of string until suffix (len(prefix + stem))); second number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
+		predicted_surface3 = applyRule(rules[1], applyRule(rules[0], concatenate(stem, suffixes[1]), maximumLength), maximumLength)
+		predicted_surface4 = applyRule(rules[1], applyRule(rules[0], concatenate(stem, actual_suffix), maximumLength), maximumLength)
 
 		observeWord(surface1, predicted_surface1)
 		observeWord(surface2, predicted_surface2)
 		observeWord(surface3, predicted_surface3)
 		observeWord(surface4, predicted_surface4)
 
-	#print(sum(wordLength(stem) for stem in stems))
-
-	minimize(ruleCost(rule1) + ruleCost(rule2)) # Cost of rules
-	minimize(sum(wordLength(stem) for stem in stems) + wordLength(affix1) + wordLength(affix2) + wordLength(affix3)) # Cost of lexicon
-
-	lexiconCostExpression = sum([ wordLength(u) for u in stems ]) + wordLength(affix1) + wordLength(affix2) + wordLength(affix3)
-	lexiconCostVariable = unknownInteger()
+	lexiconCostExpression = sum([ wordLength(u) for u in stems ]) + sum([ wordLength(s) for s in suffixes ])
+	lexiconCostVariable = unknownInteger() # so that we can recover the cost of the lexicon later
 	condition(lexiconCostVariable == lexiconCostExpression)
-	minimize(lexiconCostExpression)
+	minimize(lexiconCostExpression) # minimize the cost of the lexicon
 
-	ruleCostExpression = ruleCost(rule1) + ruleCost(rule2)
+	ruleCostExpression = sum([ ruleCost(r) for r in rules ])
 	ruleCostVariable = unknownInteger()
-	condition(ruleCostVariable == ruleCostExpression)
-	minimize(ruleCostExpression)
+	condition(ruleCostVariable == ruleCostExpression) # so that we can recover the cost of the lexicon later
+	minimize(ruleCostExpression) # minimize the cost of the lexicon
 
+	# compute pareto front; tell it to check if the rule cost / lexicon cost is greater than any of the old grammars, OR if it is the same
+	# to do standard thing, just get rid of the outer OR and AND
 	for rc, lc in solutionCosts:
-		condition(Or( [Or([ruleCostVariable < rc, lexiconCostVariable < lc]), And([ruleCostVariable == rc, lexiconCostVariable == lc])] ))
+		# condition(Or( [Or([ruleCostVariable < rc, lexiconCostVariable < lc]), And([ruleCostVariable == rc, lexiconCostVariable == lc])] ))
+		condition(Or([ruleCostVariable < rc, lexiconCostVariable < lc]))
 
-	for oldSolution in solutions:
-		condition( Not(And([ruleEqual(rule1, oldSolution.rules[0].makeConstant()),  ruleEqual(rule2, oldSolution.rules[1].makeConstant())])))
+	# check if both the rules posited are the same as in any of the old grammars (this is so that it can consider multiple different solutions)
+	# get rid of this if you only want one solution per point
+	#for oldSolution in solutions:
+	#	condition( Not(And([ruleEqual(rules[0], oldSolution.rules[0].makeConstant()),  ruleEqual(rules[1], oldSolution.rules[1].makeConstant())])))
 
+	# invoke the solver; break if it can't find a solution that matches the criterion above
 	try:
 		output = solveSketch(None, unroll=10, maximumMorphLength=10)
 	except SynthesisFailure:
 		break
 
-	# alternatively, push all this info into some data structure
+	# push all this info into some data structure
 	stems = [Morph.parse(stem) for stem in stems]
-	rules = [Rule.parse(rule1), Rule.parse(rule2)]
-	suffixes = [Morph.parse(affix1), Morph.parse(affix2), Morph.parse(affix3)]
+	rules = [Rule.parse(r) for r in rules]
+	suffixes = [Morph.parse(s) for s in suffixes]
 	prefixes = [Morph('')] * len(suffixes)
-	UR = dict(zip(data, stems))
+	underlyingForms = dict(zip(data, stems))
 	suppletion = (parseFlip(output, suppletive), parseFlip(output, onetwo), parseFlip(output, twoone))
 
-	sol = Solution(rules = rules, prefixes = prefixes, suffixes = suffixes, underlyingForms = UR)
+	sol = Solution(rules = rules, prefixes = prefixes, suffixes = suffixes, underlyingForms = underlyingForms)
 	sol.suppletion = suppletion
 
 	solutions.append(sol)
@@ -128,4 +136,4 @@ for solution in solutions:
 
 plotting_stuff = zip(solutionCosts, solutions)
 print(plotting_stuff)
-# dumpPickle(plotting_stuff, "experimentOutputs/suppletion_outputs.pkl")
+dumpPickle(plotting_stuff, "experimentOutputs/suppletion_outputs.pkl")
