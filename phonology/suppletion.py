@@ -41,7 +41,7 @@ with codecs.open(filename, encoding='utf-8') as f:
     content = f.read().splitlines()
 
 data = [tuple(content[i].split('\t')) for i in range( len(content) )]
-print(data)
+# print(data)
 
 ## setting up the model
 solutions = [] # a list of past solutions: element is Solution object (see solution.py for implementation)
@@ -49,7 +49,7 @@ solutionCosts = [] # a list of past solution costs: (ruleCost, lexiconCost)
 
 # set up an arbitrary number of solutions to look for
 for i in range(5):
-	globalModel([w for ws in data for w in ws ]) # create model and feature bank
+	globalModel([ w for ws in data for w in ws ]) # create model and feature bank
 
 	stems = [Morph.sample() for i in range( len(data) )]
 
@@ -87,7 +87,7 @@ for i in range(5):
 		observeWord(surface4, predicted_surface4)
 
 	lexiconCostExpression = sum([ wordLength(u) for u in stems ]) + sum([ wordLength(s) for s in suffixes ])
-	lexiconCostVariable = unknownInteger() # so that we can recover the cost of the lexicon later
+	lexiconCostVariable = unknownInteger(8) # so that we can recover the cost of the lexicon later, number corresponds to max number of bits to encode stems
 	condition(lexiconCostVariable == lexiconCostExpression)
 	minimize(lexiconCostExpression) # minimize the cost of the lexicon
 
@@ -101,6 +101,7 @@ for i in range(5):
 	for rc, lc in solutionCosts:
 		# condition(Or( [Or([ruleCostVariable < rc, lexiconCostVariable < lc]), And([ruleCostVariable == rc, lexiconCostVariable == lc])] ))
 		condition(Or([ruleCostVariable < rc, lexiconCostVariable < lc]))
+		# condition(ruleCostVariable + lexiconCostVariable == rc + lc)
 
 	# check if both the rules posited are the same as in any of the old grammars (this is so that it can consider multiple different solutions)
 	# get rid of this if you only want one solution per point
@@ -111,6 +112,7 @@ for i in range(5):
 	try:
 		output = solveSketch(None, unroll=10, maximumMorphLength=10)
 	except SynthesisFailure:
+		print("Failed to find solution")
 		break
 
 	# push all this info into some data structure
