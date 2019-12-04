@@ -50,7 +50,7 @@ class Specification():
     @staticmethod
     def sample(bank, canBeEmpty = False):
         import numpy as np
-        
+
         if canBeEmpty and random() < 0.3:
             return EmptySpecification()
 
@@ -61,7 +61,7 @@ class Specification():
             return FeatureMatrix([ (choice([True,False]),f)
                                    for f in np.random.choice(bank.features,size = numberOfFeatures,replace = False) ])
 
-    
+
     @staticmethod
     def parse(bank, output, variable):
         parsers = [FeatureMatrix.parse,EmptySpecification.parse,ConstantPhoneme.parse,BoundarySpecification.parse,OffsetSpecification.parse,PlaceSpecification.parse]
@@ -77,7 +77,7 @@ class Specification():
     @staticmethod
     def enumeration(b,cost):
         return ConstantPhoneme.enumeration(b,cost) + FeatureMatrix.enumeration(b,cost)
-        
+
 class ConstantPhoneme(Specification,FC):
     def __init__(self, p): self.p = p
     def __unicode__(self):
@@ -106,7 +106,7 @@ class ConstantPhoneme(Specification,FC):
     def merge(self, other):
         if isinstance(other, ConstantPhoneme) and other.p == self.p: return self
         return Braces(self, other)
-    
+
     @staticmethod
     def parse(bank, output, variable):
         pattern = " %s = new ConstantPhoneme\(phoneme=phoneme_([0-9]+)_" % str(variable)
@@ -128,7 +128,7 @@ class ConstantPhoneme(Specification,FC):
 
     def extension(self,b): return [self.p]
 
-    def isDegenerate(self): return False        
+    def isDegenerate(self): return False
 
     def sketchEquals(self,v,b):
         return "(extract_constant_sound(%s) == phoneme_%d)"%(v,b.phoneme2index[self.p])
@@ -302,7 +302,7 @@ class BoundarySpecification(Specification):
             return BoundarySpecification()
         else:
             raise Exception('Failure parsing boundary specification %s'%variable)
-    
+
     def makeConstant(self, bank):
         return "global_boundary_specification"
 
@@ -313,7 +313,7 @@ class BoundarySpecification(Specification):
 
     def sketchEquals(self,v,_):
         return "(boundary_specification(%s))"%(v)
-    
+
 class FeatureMatrix(Specification,FC):
     def __init__(self, featuresAndPolarities):
         self.featuresAndPolarities = featuresAndPolarities
@@ -341,13 +341,13 @@ class FeatureMatrix(Specification,FC):
 
     def __lt__(self,o):
         assert isinstance(o, FeatureMatrix)
-        
+
         if len(self.featuresAndPolarities) >= len(o.featuresAndPolarities): return False
         for fp in self.featuresAndPolarities:
             if fp not in o.featuresAndPolarities:
                 return False
         return True
-        
+
     def makeGeometric(self, bank=None):
         original = self
         if any( (True, vf) in self.featuresAndPolarities for vf in VOWELFEATURES ) and \
@@ -379,10 +379,10 @@ class FeatureMatrix(Specification,FC):
         # print "simplifications"
         # for s in simplifications:
         #     print s, frozenset(s.extension(FeatureBank.GLOBAL))
-        # print 
+        # print
         return any( e == frozenset(s.extension(FeatureBank.GLOBAL))
                     for s in simplifications )
-        
+
     @staticmethod
     def strPolarity(p): return '+' if p == True else ('-' if p == False else p)
     def __str__(self): return unicode(self).encode('utf-8')
@@ -426,7 +426,7 @@ class FeatureMatrix(Specification,FC):
                 fs = [ (x[f] if x[f] == y[f] else
                         FeatureMatrix.strPolarity(x[f])+'/'+FeatureMatrix.strPolarity(y[f]), f) for f in y ]
                 return FeatureMatrix(fs)
-        
+
         return Braces(self, other)
 
     @staticmethod
@@ -472,7 +472,7 @@ class FeatureMatrix(Specification,FC):
                     if f in k:
                         test = [_f for _f in test if ((not _f in k) or _f == f) ]
                         # Assumption: exclusive classes are themselves mutually exclusive
-                        break            
+                        break
             else:
                 test = [_f for _f in test if not _f == f ]
         return list(set(test))
@@ -556,7 +556,7 @@ class Guard():
 
     def cost(self):
         return int(self.starred) + int(self.endOfString) + sum([ s.cost() for s in self.specifications ]) + 1.9*int(self.optionalEnding)
-    
+
     def __str__(self): return unicode(self).encode('utf-8')
     def __unicode__(self):
         if not hasattr(self, 'representation') or self.representation == None:
@@ -586,8 +586,8 @@ class Guard():
         newSpecifications = list(self.specifications)
         newSpecifications[0] = ConstantPhoneme(p)
         return Guard('R', self.endOfString, False, newSpecifications)
-        
-    
+
+
     def skeleton(self):
         parts = []
         parts += map(lambda spec: spec.skeleton(),self.specifications)
@@ -611,7 +611,7 @@ class Guard():
                 parts[index - 1] += "\\textsubscript{i}"
         return " ".join(parts)
 
-    
+
     def share(self, table):
         k = ('GUARD',self.side,unicode(self))
         if k in table: return table[k]
@@ -653,7 +653,7 @@ class Guard():
         else:
             spec1 = "null"
             spec2 = "null"
-        
+
         return "new Guard(endOfString = %d, optionalEndOfString = %d, starred = %d, spec = %s, spec2 = %s)" % (1 if self.endOfString else 0,
                                                                                                                1 if self.optionalEnding else 0,
                                                                                      1 if self.starred else 0,
@@ -685,14 +685,14 @@ class Guard():
         if len(self.specifications) > 1:
             spec2 = self.specifications[1].sketchEquals(v + '.spec',b)
         else: spec2 = '%s.spec2 == null'%v
-        
+
         return "(%s.endOfString == %d && %s.optionalEndOfString == %d && %s.starred == %d && %s && %s)"%(v,int(self.endOfString),
                                                                                                          v,int(self.optionalEnding),
                                                                    v,int(self.starred),
                                                                    spec1,spec2)
-        
-        
-    
+
+
+
 class Rule():
     def __init__(self, focus, structuralChange, leftTriggers, rightTriggers):
         self.focus = focus
@@ -739,17 +739,17 @@ class Rule():
         # Check for redundant structural change
         if isinstance(focus, FeatureMatrix) and isinstance(change, FeatureMatrix):
             # Remove any features which are always true for phonemes matching the focus
-            bank = bank or FeatureBank.GLOBAL            
+            bank = bank or FeatureBank.GLOBAL
             matches = focus.extension(bank)
             change = {(polarity, feature)
                       for polarity, feature in change.featuresAndPolarities
                       if any( (feature in bank.featureMap[p] and not polarity) or \
                               (feature not in bank.featureMap[p] and polarity)
                               for p in matches)}
-            change = FeatureMatrix(list(change))            
+            change = FeatureMatrix(list(change))
         return Rule(focus, change,
                     self.leftTriggers.makeGeometric(), self.rightTriggers.makeGeometric())
-    
+
     def isDegenerate(self):
         return self.focus.isDegenerate() or self.structuralChange.isDegenerate() or \
             self.leftTriggers.isDegenerate() or self.rightTriggers.isDegenerate()
@@ -764,7 +764,7 @@ class Rule():
                     self.structuralChange.merge(other.structuralChange),
                     self.leftTriggers.merge(other.leftTriggers),
                     self.rightTriggers.merge(other.rightTriggers))
-                    
+
     def share(self, table):
         k = ('RULE',unicode(self))
         if k in table: return table[k]
@@ -778,7 +778,7 @@ class Rule():
         if self.doesNothing(): return 0
         return self.focus.cost() + self.structuralChange.cost() + self.leftTriggers.cost() + self.rightTriggers.cost()
     def alternationCost(self):
-        return self.leftTriggers.cost() + self.rightTriggers.cost()   
+        return self.leftTriggers.cost() + self.rightTriggers.cost()
 
     def doesNothing(self):
         '''Does this rule do nothing? Equivalently is it [  ] ---> [  ] /  _ '''
@@ -797,7 +797,7 @@ class Rule():
                                                                  unicode(self.leftTriggers),
                                                                  unicode(self.rightTriggers))
         return self.representation
-    
+
     def skeleton(self):
         return "{} ---> {} / {} _ {}".format(self.focus.skeleton(),
                                              self.structuralChange.skeleton(),
@@ -819,7 +819,7 @@ class Rule():
                 r = self.rightTriggers.latex(self.structuralChange.offset)
             else:
                 r = self.rightTriggers.latex(None)
-        
+
         if self.isCopyRule():
             if self.structuralChange.offset < 0:
                 c = self.leftTriggers.specifications[::-1][self.structuralChange.offset].latex()
@@ -838,7 +838,7 @@ class Rule():
         if l is None:
             return "\\phonr{%s}{%s}{%s}"%(f,c,r)
         return "\\phonb{%s}{%s}{%s}{%s}"%(f,c,l,r)
-    
+
 
     def pretty(self):
         # deletion & deGemini
@@ -864,12 +864,12 @@ class Rule():
         p = p.replace(u"[ -vowel ]","C")
         p = p.replace(u'  ',u" ")
         return p
-        
+
     def calculateCopyOffset(self):
         if isinstance(self.focus,OffsetSpecification): return self.focus.offset
         if isinstance(self.structuralChange,OffsetSpecification): return self.structuralChange.offset
         return 0
-    
+
     def mutate(self,bank):
         f = self.focus
         s = self.structuralChange
@@ -889,7 +889,7 @@ class Rule():
     def calculateMapping(self,bank):
         insertion = False
         deletion = isinstance(self.structuralChange,EmptySpecification)
-        
+
         # construct the input/output mapping
         if isinstance(self.focus,ConstantPhoneme):
             inputs = [self.focus.p]
@@ -921,9 +921,10 @@ class Rule():
 
         return dict([ (i,o) for (i,o) in zip(inputs, outputs) ])
 
-    
+
     # Produces sketch object
-    def makeConstant(self, bank):
+    def makeConstant(self, bank = None):
+        if bank is None: bank = FeatureBank.ACTIVE
         return Constant("new Rule(focus = %s, structural_change = %s, left_trigger = %s, right_trigger = %s)" % (self.focus.makeConstant(bank),
                                                                                                                                   self.structuralChange.makeConstant(bank),
                                                                                                                                   self.leftTriggers.makeConstant(bank),
@@ -932,7 +933,7 @@ class Rule():
     # Returns a variable that refers to a sketch object
     def makeDefinition(self, bank):
         return globalConstant("Rule", self.makeConstant(bank))
-                                         
+
     # Produces sketch object
     @staticmethod
     def sample():
@@ -989,7 +990,7 @@ class Rule():
                     for gr in Guard.enumeration('R',b,c1 - gl.cost()):
                         if isinstance(focus,EmptySpecification) and gl.doesNothing() and gr.doesNothing():
                             continue
-                        
+
                         results.append(Rule(focus,change,gl,gr,0))
         return results
 
@@ -1027,6 +1028,3 @@ EMPTYRULE = Rule(focus = FeatureMatrix([]),
                  leftTriggers = Guard('L',False,False,False,[]),
                  rightTriggers = Guard('R',False,False,False,[]))
 assert EMPTYRULE.doesNothing()
-
-
-
