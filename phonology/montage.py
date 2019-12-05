@@ -193,21 +193,25 @@ if __name__ == "__main__":
     columns = arguments.columns
     if arguments.universal:
         bars = [b for b in bars if b.fragment is not None]
+        for b in bars:
+            print(b.name,b.fragmentHeight(),b.universalHeight())
         ys = np.arange(len(bars))
         W = (1 - 0.2)/2
         colors = [("no learned ug","#bc5090"),
                   ("learned fragment grammar","#003f5c")]
-        plot.bar(ys, [b.universalHeight() for b in bars],W,color=colors[0][1])
-        geometryAverage = sum([b.universalHeight() for b in bars])/len(bars)
-        fragmentAverage = sum([b.fragmentHeight() for b in bars])/len(bars)
-        print(geometryAverage,fragmentAverage,fragmentAverage/geometryAverage)
-        plot.bar(ys + W, [b.fragmentHeight() for b in bars],W,color=colors[1][1])
-        plot.gca().set(xticks=ys,
+        plot.bar(ys - W/2, [b.universalHeight() for b in bars],W,color=colors[0][1])
+        plot.bar(ys + W/2, [b.fragmentHeight() for b in bars],W,color=colors[1][1])
+        plot.gca().set(xticks=ys - W,
                        xticklabels=[b.name for b in bars ])
         plot.xticks(rotation=45)
         plot.ylabel("% data covered")
         plot.gca().spines['right'].set_visible(False)
         plot.gca().spines['top'].set_visible(False)
+
+        geometryAverage = sum([b.universalHeight() for b in bars])/len(bars)
+        fragmentAverage = sum([b.fragmentHeight() for b in bars])/len(bars)
+        print(geometryAverage,fragmentAverage,fragmentAverage/geometryAverage)
+
 
         
         plot.legend([Line2D([0],[0],color=c,lw=4)

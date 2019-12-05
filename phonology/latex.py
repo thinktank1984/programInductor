@@ -250,9 +250,6 @@ if __name__ == "__main__":
         for l,t,f in universal.fragments:
             l = str(l).replace("rule.","").replace("Guard","Trigger").replace("Specification","FeatureMatrix")
             print "%s::=&%s\\\\"%(l,f.latex())
-        assert False
-
-        print(universal)
 
     for ck in arguments.checkpoints:
         result = loadPickle(ck)
@@ -273,6 +270,11 @@ if __name__ == "__main__":
                 print(r)
                 print(r.latex())
         print(ff)
+        if arguments.universal:
+            print("Here is the solution according to the universal grammar you provided:")
+            s = ff.MAP(universal)
+            for r in s.rules:
+                print r.latex()
         for _,uf in ff.underlyingForms.iteritems():
             print latexWord(uf),"\\\\"
     assert False
