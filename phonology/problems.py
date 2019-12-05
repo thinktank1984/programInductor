@@ -1363,8 +1363,8 @@ V > [-highTone]/_C*[+highTone]
 0 > a/C_C#
 l > o/_#
 [-sonorant] > [-voice]/_[-voice]
-    '''],
-    parameters={"window": 3}))
+    '''])),
+#    parameters={"window": 3}))
 
 
 MATRIXPROBLEMS.append(Problem('''Standard Ukrainian Odden 4.2

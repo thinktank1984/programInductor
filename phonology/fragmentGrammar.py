@@ -691,6 +691,8 @@ class FragmentGrammar():
         self.specificationTable = {}
         self.fCTable = {}
 
+    # def __str__(self):
+    #     return unicode(self).encode('utf-8')
 
     def __str__(self):
         def makingNamingIntuitive(n):

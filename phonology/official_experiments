@@ -1,6 +1,21 @@
 the UG on the cloud:
   python launch.py  -j --checkpoint checkpoints.tgz ecphonology "tar xzvf checkpoints.tgz&&python ec.py" -z n1-highmem-64
 
+Problems that we should resolve:
+Halle_115_Russian Roca_17_Dutch
+for n in Odden_4.11_Sadzava_Ukrainian Odden_170_Yawelmani Odden_4.5_Turkish Halle_149_Russian Odden_4.10_Sakha_Yakut Odden_4.9_Lardil Odden_3.7_Korean Roca_35_Icelandic Odden_4.2_Standard_Ukrainian Halle_133_Swahili Halle_127_Japanese Odden_4.6_Kera Odden_3.6_Finnish Roca_37_Anxiang; do python launch.py --checkpoint experimentOutputs/ug1.p ug1"$n" "mv ug1.p experimentOutputs/&&./launchers/ug1_serial $n"  -z custom-40-368640-ext -k ; done
+
+Odden_77_78_English
+
+solving from scratch with learned ug
+python launch.py -j  --checkpoint experimentOutputs/ug1.p ug1Somalian "mv ug1.p experimentOutputs/&&./launchers/ug1_serial Odden_4.3_Somali" -z n1-highmem-64 -k
+python launch.py -j  --checkpoint experimentOutputs/ug1.p ug1Latin "mv ug1.p experimentOutputs/&&./launchers/ug1_serial Odden_4.4_Latin" -z custom-40-368640-ext -k
+python launch.py -j  --checkpoint experimentOutputs/ug1.p ug1Catalan "mv ug1.p experimentOutputs/&&./launchers/ug1_serial Odden_3.5_Catalan" -z n1-highmem-64 -k
+
+checking to see if we can solve it with the default window
+python launch.py -j Croatianwindow -z n1-highmem-64 -k "./launchers/ug0_serial Odden_4.1_Serbo_Croatian"
+python launch.py -j Croatianwindow -z custom-40-368640-ext -k "./launchers/ug0_serial Odden_4.1_Serbo_Croatian"
+
 
 
 

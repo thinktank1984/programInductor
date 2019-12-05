@@ -294,5 +294,24 @@ if __name__ == '__main__':
 
     displayTimestamp("Executing driver")
     print "Command line", " ".join(sys.argv)
+    if False:
+        for problem  in Problem.named.values():
+            print(problem.key)
+            try:
+                problem = UnderlyingProblem(problem.data, problemName=problem.key)
+                totalNumberOfWords = sum( x is not None for i in problem.data for x in i )
+                wordsPerDataPoint = float(totalNumberOfWords)/len(problem.data)
+                if wordsPerDataPoint <= 4.:
+                    windowThatIWouldLike = 3
+                elif wordsPerDataPoint <= 4.5:
+                    windowThatIWouldLike = 2
+                else:
+                    windowThatIWouldLike = 1
+                w = problem.guessWindow()
+                if windowThatIWouldLike != w:
+                    print("this is the actual window that was used",w,"and I would like",windowThatIWouldLike,"and it's this many words per data point",wordsPerDataPoint)
+
+            except: print("some kind of exception")
+        assert False
     handleProblem(problem)
         

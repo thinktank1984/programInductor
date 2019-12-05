@@ -13,7 +13,8 @@ import matplotlib.pyplot as plot
 
 
 class Bars():
-    def __init__(self, problem, universal, *baselines):
+    def __init__(self, problem, universal, fragment, *baselines):
+        self.fragment = fragment
         self.problem = problem
         self.baselines = baselines
         self.universal = universal
@@ -96,6 +97,14 @@ class Bars():
         n = len(self.problem.data)
         return max(float(len(b.finalFrontier.underlyingForms))/n,0.02)
 
+    def fragmentHeight(self):
+        if self.alternation:
+            return 0.
+        b = self.fragment
+        if b is None: return 0.
+        n = len(self.problem.data)
+        return max(float(len(b.finalFrontier.underlyingForms))/n,0.02)
+
     def __str__(self):
         return "Bars(%s,%f)"%(self.name, self.universalHeight())
 
@@ -107,6 +116,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description = "Graphs the the system on all of the languages")
     parser.add_argument("--final","-f",action='store_true',default=False)
+    parser.add_argument("--universal","-u",action='store_true',default=False)
     parser.add_argument("--columns","-c",type=int,default=3)
     arguments = parser.parse_args()
 
@@ -116,8 +126,8 @@ if __name__ == "__main__":
     alternationBaselines = ["experimentOutputs/alternation/%s.p", # CEGIS, whatever
                             "experimentOutputs/alternation/%s_simple.p",
                             "experimentOutputs/alternation/%s_ablation.p"]
-    universalPath = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_ug.p",
-                     "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"]
+    universalPath = ["experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True.p"]
+    fragmentPath = "experimentOutputs/%s_incremental_disableClean=False_features=sophisticated_geometry=True_ug.p"
     bars = []
 
     for name, problem in Problem.named.iteritems():
@@ -127,6 +137,7 @@ if __name__ == "__main__":
 
         baselines = []
         universals = []
+        fragment = None
         if problem.parameters and "alternations" in problem.parameters:
             if os.path.exists("experimentOutputs/alternation/%s.p"%name):
                 universals.append(loadPickle("experimentOutputs/alternation/%s.p"%name))
@@ -154,14 +165,17 @@ if __name__ == "__main__":
             for u in universalPath:
                 if os.path.exists(u%name):
                     universals.append(loadPickle(u%name))
+
+            if os.path.exists(fragmentPath%name):
+                fragment = loadPickle(fragmentPath%name)
         
-        bars.append(Bars(problem,universals,*baselines))
+        bars.append(Bars(problem,universals,fragment,*baselines))
 
     # for b in bars:
     #     b.universalTime()
     # assert False
 
-    bars.sort(key=lambda b: (not b.alternation, -b.universalHeight(), -(b.averageBaselineHeight())))
+    bars.sort(key=lambda b: (b.fragment is not None,not b.alternation, -b.universalHeight(), -(b.averageBaselineHeight())))
 
     if arguments.final:
         for n,b in enumerate(bars):
@@ -177,6 +191,39 @@ if __name__ == "__main__":
 
 
     columns = arguments.columns
+    if arguments.universal:
+        bars = [b for b in bars if b.fragment is not None]
+        ys = np.arange(len(bars))
+        W = (1 - 0.2)/2
+        colors = [("no learned ug","#bc5090"),
+                  ("learned fragment grammar","#003f5c")]
+        plot.bar(ys, [b.universalHeight() for b in bars],W,color=colors[0][1])
+        geometryAverage = sum([b.universalHeight() for b in bars])/len(bars)
+        fragmentAverage = sum([b.fragmentHeight() for b in bars])/len(bars)
+        print(geometryAverage,fragmentAverage,fragmentAverage/geometryAverage)
+        plot.bar(ys + W, [b.fragmentHeight() for b in bars],W,color=colors[1][1])
+        plot.gca().set(xticks=ys,
+                       xticklabels=[b.name for b in bars ])
+        plot.xticks(rotation=45)
+        plot.ylabel("% data covered")
+        plot.gca().spines['right'].set_visible(False)
+        plot.gca().spines['top'].set_visible(False)
+
+        
+        plot.legend([Line2D([0],[0],color=c,lw=4)
+                     for _,c in colors],
+                    [n for n,_ in colors ],
+                    ncol=2,
+                    loc='lower center')
+        plot.show()
+        sys.exit()
+    ##003f5c
+#58508d
+#bc5090
+#ff6361
+#ffa600
+
+        
     f, axes = plot.subplots(1,columns)
     # partition into columns
     partitions = partitionEvenly(bars,columns)
@@ -185,50 +232,32 @@ if __name__ == "__main__":
               ("ours (CEGIS)", "mediumslateblue"),
               ("ours (simple features)", "purple"),
               ("-representation", "teal"),
+              ("FG","cyan"),
               ("Barke et al.", "gold")]
     number_of_baselines = len(colors) - 1
     colormap = dict(colors)
     for pi,(bs,a) in enumerate(zip(partitions,axes)):
         bs.reverse()
         
-        W = (1 - 0.2)/(number_of_baselines + 1)
+        W = (1 - 0.2)/(len(colors))
         ys = np.arange((len(bs)))
         
         a.barh(ys + W*number_of_baselines,
                [b.universalHeight() for b in bs ],
                W,
                color=colormap["ours (full)"])
-        for bi,(_,c) in enumerate(colors[1:-1]):
-            a.barh(ys + W*(number_of_baselines - 1 - bi),
-                   [b.baselineHeight(bi) for b in bs ],
+        for bi,(name,c) in enumerate(colors[1:-1]):
+            a.barh(ys + W*(len(colors) - 2 - bi),
+                   [b.fragmentHeight() if name == "FG" else b.baselineHeight(bi)
+                    for b in bs ],
                    W,
                    color=c)
-        # a.barh(ys + W*3,
-        #        [b.baselineHeight(1) for b in bs ],
-        #        W,
-        #        color=colormap["ours (CEGIS)"])
-        # a.barh(ys + W*2,
-        #        [b.baselineHeight(0) for b in bs ],
-        #        W,
-        #        color=colormap["-representation"])
-        # a.barh(ys + W,
-        #        [b.baselineHeight(2) for b in bs ],
-        #        W,
-        #        color=colormap["ours (simple features)"])
+
         a.barh(ys,
                [b.NadiaHeight() for b in bs ],
                W,
                color=colormap["Barke et al."])
 
-        # a.barh(ys + W*3,
-        #        [b.NadiaHeight(False) for b in bs ],
-        #        W,
-        #        color='y')
-        # a.barh(ys + W*4,
-        #        [b.NadiaHeight(True) for b in bs ],
-        #        W,
-        #        color='y',
-        #        hatch="+")
         print "names",[b.name for b in bs ]
 
         a.set(yticks=ys + 2*W,
