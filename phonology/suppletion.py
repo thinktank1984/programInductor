@@ -40,8 +40,29 @@ filename = "opaque/dataset1-f.txt"
 with codecs.open(filename, encoding='utf-8') as f:
     content = f.read().splitlines()
 
-data = [tuple(content[i].split('\t')) for i in range( len(content) )]
+all_data = [tuple(content[i].split('\t')) for i in range( len(content) )]
+data = all_data[:3] # start with just thefirst three examples
 # print(data)
+
+def getStem(solution, inflections):
+    s,ot,to = solution.suppletion
+    if s: thirdSuffix = solution.suffixes[2]
+    elif ot: thirdSuffix = solution.suffixes[0] + solution.suffixes[1]
+    elif to: thirdSuffix = solution.suffixes[1] + solution.suffixes[0]
+    solution = Solution(rules=solution.rules,
+                        prefixes=solution.prefixes,
+                        suffixes=[solution.suffixes[0],solution.suffixes[1],thirdSuffix])
+    print "Going to verify this data: ",inflections,"\nagainst this solution:\n",solution
+    inflections = [Morph(x) if isinstance(x,(unicode,str)) else x
+                   for x in inflections]
+    stem = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections)
+    if stem is not None:
+        print "Successfully verified: stem is",stem
+    else:
+        print "Could not verify"
+    return stem
+        
+    
 
 ## setting up the model
 solutions = [] # a list of past solutions: element is Solution object (see solution.py for implementation)
@@ -49,7 +70,7 @@ solutionCosts = [] # a list of past solution costs: (ruleCost, lexiconCost)
 
 # set up an arbitrary number of solutions to look for
 for i in range(5):
-	globalModel([ w for ws in data for w in ws ]) # create model and feature bank
+	globalModel([ w for ws in all_data for w in ws ]) # create model and feature bank
 
 	stems = [Morph.sample() for i in range( len(data) )]
 
@@ -128,6 +149,11 @@ for i in range(5):
 
 	solutions.append(sol)
 	solutionCosts.append((parseInteger(output, ruleCostVariable), parseInteger(output, lexiconCostVariable)))
+
+        for xs in all_data:
+            getStem(sol,xs)
+        
+        
 
 for solution in solutions:
 	print(solution.underlyingForms)
