@@ -164,6 +164,11 @@ class Solution(object):
         print "Phonological rules:"
         for r in self.rules: print r
 
+    def hasTones(self):
+        return any( "highTone" in sophisticatedFeatureMap[p]
+                    for m in self.prefixes + self.suffixes
+                    for p in m.phonemes )
+
     def mutate(self,bank):
         # mutate a phoneme
         if random() < 0.3:

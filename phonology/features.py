@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 secondStress = "secondStress"
 palatal = "palatal"
 palletized = "palletized"

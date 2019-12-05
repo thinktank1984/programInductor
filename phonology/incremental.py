@@ -514,6 +514,9 @@ class IncrementalSolver(UnderlyingProblem):
                     else:     costRanking = ['invariantCost','everythingCost']
                     print "Picking the model with the best cost as ordered by:",' > '.join(costRanking)
                     solutionScores = [ tuple([ scores[rk] + scores['modelCost'] for rk in costRanking ] + \
+                                             # preference for stress/tones not living in the affixes
+                                             # this is motivated by several problems which explicitly say that the UR is unmarked for these features
+                                             [ int(not scores['solution'].hasTones()) ] + \
                                              # Inject random tie-breaking
                                              [ random.random() ] + \
                                              [scores['solution']])
