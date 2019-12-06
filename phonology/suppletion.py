@@ -50,11 +50,13 @@ def getStem(solution, inflections):
     elif ot: thirdSuffix = solution.suffixes[0] + solution.suffixes[1]
     elif to: thirdSuffix = solution.suffixes[1] + solution.suffixes[0]
     solution = Solution(rules=solution.rules,
-                        prefixes=solution.prefixes,
-                        suffixes=[solution.suffixes[0],solution.suffixes[1],thirdSuffix])
+                        prefixes=[Morph(u"")] + solution.prefixes,
+                        suffixes=[Morph(u""),solution.suffixes[0],solution.suffixes[1],thirdSuffix])
+    inflections = tuple(Morph(x) if isinstance(x,(unicode,str)) else x
+                        for x in inflections)
+
     print "Going to verify this data: ",inflections,"\nagainst this solution:\n",solution
-    inflections = [Morph(x) if isinstance(x,(unicode,str)) else x
-                   for x in inflections]
+    
     stem = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections)
     if stem is not None:
         print "Successfully verified: stem is",stem
