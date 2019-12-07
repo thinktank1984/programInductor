@@ -17,6 +17,8 @@ python launch.py -j Croatianwindow -z n1-highmem-64 -k "./launchers/ug0_serial O
 python launch.py -j Croatianwindow -z custom-40-368640-ext -k "./launchers/ug0_serial Odden_4.1_Serbo_Croatian"
 
 
+the final expansion to give us some nice latex
+python launch.py finalExpansion -j  --checkpoint experimentOutputsBackup_December07.tgz "mv experimentOutputsBackup_December07.tgz experimentOutputs&&tar xzvf experimentOutputsBackup_December07.tgz&&./launchers/finalExpansion " -z n1-highmem-64 
 
 
 
