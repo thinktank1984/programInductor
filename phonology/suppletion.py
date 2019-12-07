@@ -41,8 +41,9 @@ with codecs.open(filename, encoding='utf-8') as f:
     content = f.read().splitlines()
 
 all_data = [tuple(content[i].split('\t')) for i in range( len(content) )]
-data = all_data[:3] # start with just thefirst three examples
-# print(data)
+#random.shuffle(all_data)
+data = all_data[:2] # start with just thefirst three examples
+print(data)
 
 def getStem(solution, inflections):
     s,ot,to = solution.suppletion
@@ -54,22 +55,21 @@ def getStem(solution, inflections):
                         suffixes=[solution.suffixes[0],solution.suffixes[1],thirdSuffix])
     print "Going to verify this data: ",inflections,"\nagainst this solution:\n",solution
     inflections = [Morph(x) if isinstance(x,(unicode,str)) else x
-                   for x in inflections]
+                   for x in inflections]; print(inflections)
     stem = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections)
     if stem is not None:
         print "Successfully verified: stem is",stem
     else:
         print "Could not verify"
     return stem
-        
-    
+
 
 ## setting up the model
 solutions = [] # a list of past solutions: element is Solution object (see solution.py for implementation)
 solutionCosts = [] # a list of past solution costs: (ruleCost, lexiconCost)
 
 # set up an arbitrary number of solutions to look for
-for i in range(5):
+for i in range(1):
 	globalModel([ w for ws in all_data for w in ws ]) # create model and feature bank
 
 	stems = [Morph.sample() for i in range( len(data) )]
@@ -150,10 +150,8 @@ for i in range(5):
 	solutions.append(sol)
 	solutionCosts.append((parseInteger(output, ruleCostVariable), parseInteger(output, lexiconCostVariable)))
 
-        for xs in all_data:
+        for xs in data:
             getStem(sol,xs)
-        
-        
 
 for solution in solutions:
 	print(solution.underlyingForms)
@@ -164,4 +162,4 @@ for solution in solutions:
 
 plotting_stuff = zip(solutionCosts, solutions)
 print(plotting_stuff)
-dumpPickle(plotting_stuff, "experimentOutputs/suppletion_outputs.pkl")
+# dumpPickle(plotting_stuff, "experimentOutputs/suppletion_outputs.pkl")
