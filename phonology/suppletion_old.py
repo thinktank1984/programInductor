@@ -3,6 +3,7 @@
 from result import *
 from compileRuleToSketch import compileRuleToSketch
 from utilities import *
+from problems import *
 from solution import *
 from features import FeatureBank, tokenize
 from rule import * # Rule,Guard,FeatureMatrix,EMPTYRULE
@@ -12,8 +13,11 @@ from sketch import *
 from supervised import SupervisedProblem
 from textbook_problems import *
 from latex import latexMatrix
+import matplotlib.pyplot as plt
+import numpy as np
 import re
 import codecs
+import itertools as it
 
 from pathos.multiprocessing import ProcessingPool as Pool
 import random
@@ -28,22 +32,35 @@ import os
 #from command_server import start_server
 #start_server(1)
 
-## setting up the cost functions
-disableConstantPhonemes()
-enableCV()
+## some utility functions
+## gets the rule costs from the list of solutions
+def get_x(ls):
+	return [ls[i][0] for i in range( len(ls) )]
 
-## creating a command server to run sketch
-os.system("python command_server.py 4&"); os.system("sleep 4")
+## gets the lexicon costs from the list of solutions
+def get_y(ls):
+	return [ls[i][1] for i in range( len(ls) )]
 
-## read and import data
-filename = "opaque/dataset1-f.txt"
-with codecs.open(filename, encoding='utf-8') as f:
-    content = f.read().splitlines()
+## gets a unicode representation of the grammar learned
+def get_components(s):
+	UR = ", ".join( [str(v) for k, v in s.underlyingForms.items()] )
+	suffix1, suffix2, suffix3 = s.suffixes
+	rule1, rule2 = s.rules
+	data = s.underlyingForms.keys() #  \nData explained: %s
 
-all_data = [tuple(content[i].split('\t')) for i in range( len(content) )]
-data = all_data[:3] # start with just thefirst three examples
-# print(data)
+	# check for which affix strategy is used
+	s, ot, to = s.suppletion
+	if s: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix3)
+	elif ot: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix1 + suffix2)
+	else: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix2 + suffix1)
 
+	# check if one or two rules are learned
+	if rule2 == "[  ] ---> [  ] /  _ ": out = out + "\nRule 1: %s" % (rule1)
+	else: out = out +  "\nRule 1: %s \nRule 2: %s" % (rule1, rule2)
+
+	return unicode(out, "utf-8")
+
+## checks to see whether the solution is able to account for the data point
 def getStem(solution, inflections):
     s,ot,to = solution.suppletion
     if s: thirdSuffix = solution.suffixes[2]
@@ -59,20 +76,35 @@ def getStem(solution, inflections):
 
     stem = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections)
     if stem is not None:
-        print "Successfully verified: stem is",stem
+        print "Successfully verified: stem is", stem
     else:
         print "Could not verify"
     return stem
 
+## setting up the cost functions
+disableConstantPhonemes() # don't allow individual segments unless it is an insertion process
+enableCV() # give [+/- vowel] features a cost of 1 instead of 2
 
+## creating a command server to run sketch
+os.system("python command_server.py 4&"); os.system("sleep 4")
+
+## read and import data
+filename = "opaque/dataset1-cf.txt"
+with codecs.open(filename, encoding='utf-8') as f:
+    content = f.read().splitlines()
+
+points = np.array([0, 18, 33, 59, 62, 40])
+complete_data = [tuple(content[i].split('\t')) for i in range(len(content))] #[imit 0, inad 18,  iluk 33, unug 59, ulid 62, umat 40] # [0, 18, 33, 59, 62, 40] <- forms used for pareto front (roughly equal distribution of segments)
+data = [complete_data[i] for i in points]
+print(data)
 
 ## setting up the model
 solutions = [] # a list of past solutions: element is Solution object (see solution.py for implementation)
 solutionCosts = [] # a list of past solution costs: (ruleCost, lexiconCost)
 
-# set up an arbitrary number of solutions to look for
-for i in range(1):
-	globalModel([ w for ws in all_data for w in ws ]) # create model and feature bank
+# set up an arbitrary number of solutions to look for; set to 1 in order to calculate global optimum of the data
+for i in range(10):
+	globalModel([ w for ws in data for w in ws ]) # create model and feature bank
 
 	stems = [Morph.sample() for i in range( len(data) )]
 
@@ -152,18 +184,46 @@ for i in range(1):
 	solutions.append(sol)
 	solutionCosts.append((parseInteger(output, ruleCostVariable), parseInteger(output, lexiconCostVariable)))
 
-        for xs in all_data[:3]:
-            getStem(sol,xs)
+	## Uncomment to check whether the data is accounted for by the solution
+	'''
+	        for xs in complete_data:
+	            getStem(sol,xs)
+	'''
 
+data = zip(solutionCosts, solutions)
+sorted_data = sorted(data, key=lambda tup: tup[0])
+solutionCosts = list(zip(*sorted_data))[0]
 
+plt.clf()
+x = get_x(solutionCosts)
+y = get_y(solutionCosts)
+plt.plot(x, y,'bo-')
 
-for solution in solutions:
-	print(solution.underlyingForms)
-	print(solution.prefixes)
-	print(solution.suffixes)
-	print(solution.rules)
-	print(solution.suppletion)
+# setting up the labels
+for xy, s in sorted_data:
+    lab = get_components(s) + "\n" + str(xy)
+    print(xy)
+    print(lab)
 
-plotting_stuff = zip(solutionCosts, solutions)
-print(plotting_stuff)
-dumpPickle(plotting_stuff, "experimentOutputs/suppletion_outputs.pkl")
+    plt.annotate(lab, # this is the text
+                xy, # this is the point to label
+                textcoords="offset points", # how to position the text
+                xytext=(0,10), # distance from text to points (x,y)
+                ha='left') # horizontal alignment can be left, right or center
+
+language = "opaque"
+plt.title("Pareto frontier of %s language" % (language), fontsize = 18)
+plt.xlabel("Rule cost", fontsize = 12)
+plt.ylabel("Lexicon cost", fontsize = 12)
+
+#for the transparent language
+#plt.xticks(np.arange(7,22,1))
+#plt.yticks(np.arange(20,30,1))
+
+#for the opaque language
+plt.xticks(np.arange(9,15,1))
+plt.yticks(np.arange(24,33,1))
+
+plt.show()
+# print(plotting_stuff)
+# dumpPickle(plotting_stuff, "experimentOutputs/suppletion_outputs.pkl")
