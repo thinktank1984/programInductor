@@ -43,7 +43,7 @@ def issue(k):
 for problem, names in jobs.iteritems():
     [name] = list(names)
     export = name.replace(".p","_finalExpansion.p")
-    issue("python driver.py %s frontier --mergeFrontiers --features sophisticated --geometry -t 100  -u experimentOutputs/ug1.p --restore %s --save %s"%(problem,name,export))
+    issue("python driver.py %s frontier --mergeFrontiers --features sophisticated --geometry -t 100  -u experimentOutputs/ug1.p --restore experimentOutputs/%s --save experimentOutputs/%s"%(problem,name,export))
     
 print "and now we handle the alternation problems"
 
