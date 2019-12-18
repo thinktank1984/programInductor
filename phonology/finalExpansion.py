@@ -53,3 +53,6 @@ for fn in os.listdir("experimentOutputs/alternation"):
     
     problem = fn.replace(".p","")
     issue("python alternation.py %s -t 100 --universal experimentOutputs/ug1.p"%problem)
+
+while True:
+    os.system("sleep 1")
