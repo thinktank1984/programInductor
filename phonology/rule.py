@@ -405,12 +405,16 @@ class FeatureMatrix(Specification,FC):
         if self.featuresAndPolarities == []: return "[ ]"
         else: return "[ +/-F ]"
 
-    def latex(self):
-        if self.featuresAndPolarities == []: return '[ ]'
-        if self.featuresAndPolarities == [(True,'vowel')]: return 'V'
-        if self.featuresAndPolarities == [(False,'vowel')]: return 'C'
-        return '[ %s ]'%(" ".join([ ('+' if polarity else '-')+f for polarity,f in self.featuresAndPolarities ]))
-
+    def latex(self, place=False):
+        components = []
+        for p,f in self.featuresAndPolarities:
+            components.append("%s%s"%('+' if p else '-',
+                                      f))
+        if place:
+            components = ["$\\alpha$place"] + components
+        if len(components) == 0: components = ["\\phantom{tt}"]
+        return "\\phonfeat[l]{%s}"%(" \\\\ ".join(components))
+            
     def share(self, table):
         k = ('MATRIX',unicode(self))
         if k in table: return table[k]
@@ -595,10 +599,10 @@ class Guard():
         if self.endOfString: parts += ['#']
         if self.side == 'L': parts.reverse()
         return " ".join(parts)
-    def latex(self, index=None):
-        parts = []
-        parts += map(lambda spec: spec.latex(),self.specifications)
-        if self.starred: parts[-2] += '\\textsubscript{*}'
+    def latex(self, index=None, place=None):
+        parts = [ spec.latex() if si + 1 != place else spec.latex(place=True)
+                  for si,spec in enumerate(self.specifications)]
+        if self.starred: parts[-2] += '\\textsubscript{0}'
         if self.endOfString: parts += ['\\#']
         if self.optionalEnding: parts[-1] = "\\{%s,\\#\\}"%(parts[-1])
         if self.side == 'L': parts.reverse()
@@ -826,6 +830,13 @@ class Rule():
             else:
                 c = self.rightTriggers.specifications[self.structuralChange.offset-1].latex()
             c += "\\textsubscript{i}"
+        elif isinstance(self.structuralChange,PlaceSpecification):
+            c = "$\\alpha$place"
+            i = self.structuralChange.offset
+            if i < 0:
+                l = self.leftTriggers.latex(place=-i)
+            else:
+                r = self.rightTriggers.latex(place=i)
         else:
             c = self.structuralChange.latex()
 

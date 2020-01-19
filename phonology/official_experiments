@@ -35,6 +35,8 @@ python graphMarcus.py  aab,aba aba,aab abb,aab aab,abb -n 4 --samples 4 --export
 for X in aax aab abx axa aba abb ; do for Y in aax aab abx axa aba abb ; do if [ $X != $Y ] ; then python graphMarcus.py "$X","$Y" -n 4 --samples 4 --sigmoid 5. --export figures/AGL/"$X"_"$Y".png; fi; done; done
 for fn in `ls figures/AGL`; do convert -trim figures/AGL/$fn figures/AGL/$fn; done
 
+
+
 Odden_105_Bukusu
 Odden_81_Koasati
 Halle_125_Indonesian
@@ -110,3 +112,6 @@ experimentOutputs/Odden_3.2_Polish_incremental_disableClean=False_features=sophi
 python plotParetoFront.py paretoFrontier/Odden_3.2_Polish_depth=3_mb=6_sb=52.p  -t "Pareto front for Polish" -a  -c 14 -e ../../phonologyPaper/figures/PolishFront.png -l 15_-16_-4.2_bottom_center 14_-15_-3.1_bottom_center 12_-18_-3.73_top_center 0_-22.5_-3.4_top_center --examples 20 5
 
 python plotParetoFront.py  -e ../../phonologyPaper/figures/ChineseFront.png  paretoFrontier/Chinese3.p   -t "Pareto front for Mandarin (AAx)" --correct 6 --examples 0 1 2  -l 6_-5_-3_top_center  0_-19_-4_top_center 7_-8_-4.5_bottom_center 8_-4_-5.5_bottom_center 6
+
+### here we go with stuff for Adam
+python latex.py --checkpoints `ls finalExpansionOutputs/alternation/*ug.p` finalExpansionOutputs/*finalExpansion.p `ls finalExpansionOutputs/*ug.p|grep  -v Klamath| grep  -v exact `  -u experimentOutputs/ug1.p

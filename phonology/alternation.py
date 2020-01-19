@@ -65,6 +65,7 @@ class AlternationProblem():
         
 
     def topSolutions(self, k = 10):
+        """returns a list of (rules, substitution)"""
         solutions = []
 
         for _ in range(k):
