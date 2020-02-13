@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir  -p jobs/
+
+timestamp="$(date +"%F_%T")"
+EXPORT=jobs/finalExpansion_"$timestamp"
+echo "Output will be sent to $EXPORT"
+echo "WARNING: deleting $EXPORT"
+rm $EXPORT
+export PYTHONIOENCODING=utf-8
+python finalExpansion.py > $EXPORT 2>&1  &
+

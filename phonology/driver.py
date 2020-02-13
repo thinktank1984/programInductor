@@ -30,7 +30,8 @@ def exportPath():
     return "experimentOutputs/" + p
 
 def handleProblem(p):
-    random.seed(arguments.seed)
+    if arguments.seed is not None:
+        random.seed(arguments.seed)
 
     if arguments.restrict != None:
         print "(Restricting problem data to interval: %d -- %d)"%(arguments.restrict[0],arguments.restrict[1])
@@ -214,7 +215,7 @@ if __name__ == '__main__':
                         help = 'Resume the incremental solver from the last checkpoint')
     parser.add_argument('--dummy', default = False, action = 'store_true',
                         help = 'Dont actually run the solver for ransac')
-    parser.add_argument('-s','--seed', default = '0', type = str)
+    parser.add_argument('-s','--seed', default = None, type = str)
     parser.add_argument('-u','--universal', default = None, type = str)
     parser.add_argument('--window', default = None, type = int)
     parser.add_argument('--save', default = None, type = str)

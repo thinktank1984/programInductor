@@ -20,7 +20,8 @@ import math
 RULETEMPERATURE = 3
 
 class AlternationProblem():
-    def __init__(self, alternation, corpus):
+    def __init__(self, alternation, corpus, ug=None):
+        self.ug = ug
         self.surfaceToUnderlying = alternation
         self.deepToSurface = dict([(self.surfaceToUnderlying[k],k) for k in self.surfaceToUnderlying ])
         
@@ -64,6 +65,7 @@ class AlternationProblem():
         
 
     def topSolutions(self, k = 10):
+        """returns a list of (rules, substitution)"""
         solutions = []
 
         for _ in range(k):
@@ -78,11 +80,13 @@ class AlternationProblem():
 
         Model.Global()
 
+        if self.ug: self.ug.sketchUniversalGrammar(self.bank)
+
         whichOrientation = flip()
         if self.forceExpected:
             condition(whichOrientation)
         rules = [ Rule.sample() for _ in range(depth)  ]
-        minimize(sum([ alternationCost(r) for r in rules ] + \
+        minimize(sum([ ruleCost(r) for r in rules ] + \
                      [ ite(ruleDoesNothing(r),Constant(0),Constant(1))
                        for r in rules ]))
         for other, _ in solutions:
@@ -146,7 +150,10 @@ class AlternationProblem():
 def handleProblem(problem):
     if not areFeaturesDisabled():
         if arguments.features == "sophisticated":
-            fn = "experimentOutputs/alternation/"+problem+".p"
+            if arguments.universal:
+                fn = "experimentOutputs/alternation/"+problem+"_ug.p"
+            else:
+                fn = "experimentOutputs/alternation/"+problem+".p"
         else:
             fn = "experimentOutputs/alternation/"+problem+"_simple.p"
     else:
@@ -195,6 +202,8 @@ if __name__ == '__main__':
                         help = "What features the solver allowed to use")
     parser.add_argument('--disableClean', default = False, action = 'store_true',
                         help = 'disable kleene star')
+    parser.add_argument('--universal', "-u", default = None,
+                        help = 'path to universal grammar')
 
 
     

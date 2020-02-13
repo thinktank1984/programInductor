@@ -284,3 +284,5 @@ if __name__ == "__main__":
     else:
         plot.savefig("/tmp/language_montage.png")
 
+    print({b.language for b in bars })
+
