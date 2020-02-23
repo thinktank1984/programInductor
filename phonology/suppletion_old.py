@@ -92,12 +92,17 @@ enableCV() # give [+/- vowel] features a cost of 1 instead of 2
 os.system("python command_server.py 4&"); os.system("sleep 4")
 
 ## read and import data
-filename = "opaque/dataset1-f.txt"
+filename = "opaque/dataset2-f.txt"
 with codecs.open(filename, encoding='utf-8') as f:
     content = f.read().splitlines()
 
-points = np.array([0]) # , 18, 33, 59, 62, 40
-complete_data = [tuple(content[i].split('\t')) for i in range(len(content))] #[imit 0, inad 18,  iluk 33, unug 59, ulid 62, umat 40] # [0, 18, 33, 59, 62, 40] <- forms used for pareto front (roughly equal distribution of segments)
+## Below is for the pareto frontier
+# dataset2-f  : api 6, uzit 26, inud 46, izak 48, asug 69, usa 0
+# dataset2-cf : api 6, uzit 26, inud 46, izak 48, asug 69, usa 0
+# dataset1-f  : imit 0, inad 18,  iluk 33, unug 59, ulid 62, umat 40
+# dataset1-cf : imit 0, inad 18,  iluk 33, unug 59, ulid 62, umat 40
+points = np.array([0])
+complete_data = [tuple(content[i].split('\t')) for i in range(len(content))]
 #random.shuffle(complete_data)
 data = [complete_data[i] for i in points]
 #data = complete_data[:3]
@@ -185,8 +190,8 @@ while unsolved:
 
 print(sol)
 print(parseInteger(output, ruleCostVariable), parseInteger(output, lexiconCostVariable))
-'''
 
+'''
 ## PARETO FRONT
 # set up an arbitrary number of solutions to look for
 for i in range(10):
@@ -201,7 +206,7 @@ for i in range(10):
 
 	#rule1 = Rule.sample()
 	#rule2 = Rule.sample()
-	rules = [Rule.sample() for i in range ( 2 )] # set up in advance how many rules to consider
+	rules = [Rule.sample() for i in range ( 3 )] # set up in advance how many rules to consider
 
 	# binary variables the model needs to reason about
 	suppletive = flip() # says third slot is its own form
@@ -298,7 +303,7 @@ plt.ylabel("Lexicon cost", fontsize = 12)
 
 #for the transparent language
 plt.xticks(np.arange(7,22,1))
-plt.yticks(np.arange(20,30,1))
+plt.yticks(np.arange(20,40,1))
 
 #for the opaque language
 #plt.xticks(np.arange(9,15,1))
