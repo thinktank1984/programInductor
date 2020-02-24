@@ -25,7 +25,7 @@ def removePointsNotOnFront(points):
 def plotParetoFront(solutions, solutionCosts):
     """solutionCosts: [(model cost,underlying form cost)]"""
     colors = cm.rainbow(np.linspace(0, 1, 1))
-    plot.figure(figsize = (8,5))
+    plot.figure(figsize = (5,4))#(8,5))
 
     for i,xs in enumerate(sorted(solutions[0].underlyingForms.keys())):
         print "Example",i,xs
@@ -38,8 +38,8 @@ def plotParetoFront(solutions, solutionCosts):
 
     front = removePointsNotOnFront(ps)
     plot.plot([ x for x,y in front ], [ y for x,y in front ],'--', label = 'Pareto front')
-    plot.ylabel("Fit to data (-average stem size)",fontsize = 14)
-    plot.xlabel("Parsimony (-grammar size)",fontsize = 14)
+    plot.ylabel("Fit to data (-average stem size)",fontsize = 12)
+    plot.xlabel("Parsimony (-grammar size)",fontsize = 12)
 
     costToSolution = {(x,y): s
                       for (x,y),s in zip(ps,solutions) }
@@ -72,13 +72,13 @@ def plotParetoFront(solutions, solutionCosts):
         y2 = y1 - (2*int(y1 > uy) - 1)*dy
         color = "wheat" if correct is None else "white"
         if correct is not None:
-            if solution is correct: color = "red"
-            elif any( r == rp
-                      for rp in correct.rules
-                      for r in solution.rules ) or \
-                          all( correct.prefixes[i] == solution.prefixes[i] and correct.suffixes[i] == solution.suffixes[i]
-                              for i in range(len(correct.prefixes)) ):
-                color = "pink"
+            if solution is correct: color = "pink"
+            # elif False and any( r == rp
+            #           for rp in correct.rules
+            #           for r in solution.rules ) or \
+            #               all( correct.prefixes[i] == solution.prefixes[i] and correct.suffixes[i] == solution.suffixes[i]
+            #                   for i in range(len(correct.prefixes)) ):
+            #     color = "pink"
         labelProperties = dict(boxstyle='round', facecolor=color, alpha=0.7)
         onFront = all( (xp == x1 and yp == y1) or yp < y1 or xp < x1
                        for xp,yp in costToSolution.keys() )
@@ -114,13 +114,14 @@ def plotParetoFront(solutions, solutionCosts):
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         # place a text box in upper left in axes coords
         plot.text(0.05, 0.05, examples, transform=ax.transAxes,
-                  fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
+                  fontsize=11, verticalalignment='bottom', horizontalalignment='left', bbox=props)
 
         print examples
         
 
     plot.legend(loc = 'lower center',fontsize = 9)
     if arguments.export:
+        plot.tight_layout()
         plot.savefig(arguments.export)
         os.system("feh %s"%arguments.export)
     else:
@@ -145,6 +146,8 @@ if __name__ == "__main__":
     
     with open(arguments.checkpoint,'rb') as handle:
         pf = pickle.load(handle)
+        print(pf)
+        
         if isinstance(pf,dict):
             pf = (list(pf.values()), list(pf.keys()))
     plotParetoFront(pf[0],pf[1])

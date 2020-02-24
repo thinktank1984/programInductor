@@ -257,8 +257,11 @@ class UnderlyingProblem(object):
         '''Takes in a solution w/o underlying forms, and gives the one that has underlying forms'''
         if len(solution.underlyingForms) != 0 and getVerbosity() > 0:
             print "WARNING: solveUnderlyingForms: Called with solution that already has underlying forms"
+        
+        returnValue = solution.transduceManyStems(self.bank, self.data, batchSize = batchSize)
+        #import pdb; pdb.set_trace()
 
-        return solution.transduceManyStems(self.bank, self.data, batchSize = batchSize)
+        return returnValue
 
     def expandFrontier(self, solution, k, CPUs = None):
         '''Takes as input a "seed" solution, and solves for K rules for each rule in the original seed solution. Returns a Frontier object.'''
@@ -625,7 +628,7 @@ the integer is None then we have no guess for that one.'''
                     morphologicalCoefficient = 3,
                     stemBaseline=0, minimizeBits=7):
         # no idea why we want this
-        #self.maximumObservationLength += 1
+        self.maximumObservationLength += 1
 
         def affix():
             if useMorphology: return Morph.sample()
@@ -633,28 +636,6 @@ the integer is None then we have no guess for that one.'''
         def parseAffix(output, morph):
             if useMorphology: return Morph.parse(self.bank, output, morph)
             else: return Morph([])
-            
-        Model.Global()
-        rules = [ Rule.sample() for _ in range(depth) ]
-
-        stems = [ Morph.sample() for _ in self.data ]
-        prefixes = [ affix() for _ in range(self.numberOfInflections) ]
-        suffixes = [ affix() for _ in range(self.numberOfInflections) ]
-
-        for i in range(len(stems)):
-            self.conditionOnStem_1a(rules, stems[i], prefixes, suffixes, self.data[i])
-        # actually we want this
-        #for r in rules: condition(Not(ruleDoesNothing(r)))
-
-        stemCostExpression = sum([ wordLength(u) for u in stems ]) - stemBaseline
-        stemCostVariable = unknownInteger(numberOfBits = minimizeBits)
-        condition(stemCostVariable == stemCostExpression)
-        minimize(stemCostExpression)
-        ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])
-        ruleCostVariable = unknownInteger()
-        condition(ruleCostVariable == ruleCostExpression)
-        if len(rules) > 0 or useMorphology:
-            minimize(ruleCostExpression)
 
         solutions = []
         solutionCosts = []
@@ -663,6 +644,28 @@ the integer is None then we have no guess for that one.'''
             solutionCosts = oldSolutions[1]
         solutionIndex = 0
         while solutionIndex < k + offFront:
+            # build the model!
+
+            Model.Global()
+            rules = [ Rule.sample() for _ in range(depth) ]
+
+            stems = [ Morph.sample() for _ in self.data ]
+            prefixes = [ affix() for _ in range(self.numberOfInflections) ]
+            suffixes = [ affix() for _ in range(self.numberOfInflections) ]
+
+            for i in range(len(stems)):
+                self.conditionOnStem_1a(rules, stems[i], prefixes, suffixes, self.data[i])
+
+            stemCostExpression = sum([ wordLength(u) for u in stems ]) - stemBaseline
+            stemCostVariable = unknownInteger(numberOfBits = minimizeBits)
+            condition(stemCostVariable == stemCostExpression)
+            minimize(stemCostExpression)
+            ruleCostExpression = sum([ ruleCost(r) for r in rules ] + [ wordLength(u)*morphologicalCoefficient for u in suffixes + prefixes ])
+            ruleCostVariable = unknownInteger()
+            condition(ruleCostVariable == ruleCostExpression)
+            if len(rules) > 0 or useMorphology:
+                minimize(ruleCostExpression)
+            
             # Excludes solutions we have already found
             for rc,uc in solutionCosts:
                 if oldSolutions or solutionIndex >= k:

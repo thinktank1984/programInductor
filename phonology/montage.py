@@ -11,6 +11,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plot
 
+NADIANAME = "Barke et al. 2019"
 
 class Bars():
     def __init__(self, problem, universal, fragment, *baselines):
@@ -179,12 +180,12 @@ if __name__ == "__main__":
 
     if arguments.final:
         for n,b in enumerate(bars):
-            if b.alternation: b.name = b.problem.languageName + "*"
+            if b.alternation and False: b.name = b.problem.languageName + "*"
             else:
                 if sum(b.language == o.language for o in bars if not b.alternation ) > 1:
                     i = sum(b.language == o.language for o in bars[:n + 1]
                             if not b.alternation)
-                    b.name = b.language + " (" + "I"*i + ")"
+                    b.name = b.language # + " (" + "I"*i + ")"
                 else:
                     b.name = b.language
             b.name = b.name.replace(" (Cuzco dialect)","")
@@ -197,14 +198,14 @@ if __name__ == "__main__":
             print(b.name,b.fragmentHeight(),b.universalHeight())
         ys = np.arange(len(bars))
         W = (1 - 0.2)/2
-        colors = [("no learned ug","#bc5090"),
-                  ("learned fragment grammar","#003f5c")]
+        colors = [("before learning fragment grammar","#bc5090"),
+                  ("with learned fragment grammar","#003f5c")]
         plot.bar(ys - W/2, [b.universalHeight() for b in bars],W,color=colors[0][1])
         plot.bar(ys + W/2, [b.fragmentHeight() for b in bars],W,color=colors[1][1])
         plot.gca().set(xticks=ys - W,
                        xticklabels=[b.name for b in bars ])
         plot.xticks(rotation=45)
-        plot.ylabel("% data covered")
+        plot.ylabel("% problem solved")
         plot.gca().spines['right'].set_visible(False)
         plot.gca().spines['top'].set_visible(False)
 
@@ -218,8 +219,15 @@ if __name__ == "__main__":
                      for _,c in colors],
                     [n for n,_ in colors ],
                     ncol=2,
-                    loc='lower center')
+                    loc='lower center',
+                    bbox_to_anchor=(0.5,-1))
         plot.show()
+#         top=0.88,
+# bottom=0.7,
+# left=0.165,
+# right=0.85,
+# hspace=0.2,
+# wspace=0.2
         sys.exit()
     ##003f5c
 #58508d
@@ -236,8 +244,8 @@ if __name__ == "__main__":
               ("ours (CEGIS)", "mediumslateblue"),
               ("ours (simple features)", "purple"),
               ("-representation", "teal"),
-              ("FG","cyan"),
-              ("Barke et al.", "gold")]
+#              ("FG","cyan"),
+              (NADIANAME, "gold")]
     number_of_baselines = len(colors) - 1
     colormap = dict(colors)
     for pi,(bs,a) in enumerate(zip(partitions,axes)):
@@ -250,6 +258,9 @@ if __name__ == "__main__":
                [b.universalHeight() for b in bs ],
                W,
                color=colormap["ours (full)"])
+        a.spines['right'].set_visible(False)
+        a.spines['top'].set_visible(False)
+        
         for bi,(name,c) in enumerate(colors[1:-1]):
             a.barh(ys + W*(len(colors) - 2 - bi),
                    [b.fragmentHeight() if name == "FG" else b.baselineHeight(bi)
@@ -260,7 +271,7 @@ if __name__ == "__main__":
         a.barh(ys,
                [b.NadiaHeight() for b in bs ],
                W,
-               color=colormap["Barke et al."])
+               color=colormap[NADIANAME])
 
         print "names",[b.name for b in bs ]
 
@@ -278,6 +289,7 @@ if __name__ == "__main__":
              loc='lower center')
     print len(bars),"data sets"
     print len({b.language for b in bars }),"distinct languages"
+
 
     if not arguments.final or True:
         plot.show()

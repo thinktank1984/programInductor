@@ -125,7 +125,7 @@ sophisticatedFeatureMap = {
     u"u": [voice,tense,high,back,rounded],
     u"ü": [voice,tense,high,rounded],
     u"ʊ": [voice,high, back, rounded],
-    u"o": [low,voice,tense,back,rounded],
+    u"o": [voice,tense,back,rounded],
     u"ö": [voice,tense,rounded],
     u"ɔ": [voice,back,rounded],
     #possibly missing are umlauts

@@ -351,6 +351,7 @@ if __name__ == "__main__":
                 print "%s::=&%s\\\\"%(l,f.latex())
     for ck in arguments.checkpoints:
         result = loadPickle(ck)
+            
         if isinstance(result, AlternationSolution):
             name = ck.split('/')[-1].replace("_ug","").replace("_simple","").replace(".p","").replace("_ablation","")
             problem = Problem.named[name]
