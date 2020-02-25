@@ -104,7 +104,7 @@ with codecs.open(filename, encoding='utf-8') as f:
 points = np.array([0])
 complete_data = [tuple(content[i].split('\t')) for i in range(len(content))]
 #random.shuffle(complete_data)
-data = [complete_data[i] for i in points]
+data = complete_data[:3] #[complete_data[i] for i in points]
 #data = complete_data[:3]
 
 ## setting up the model
