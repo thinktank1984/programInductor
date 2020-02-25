@@ -114,7 +114,7 @@ solutionCosts = [] # a list of past solution costs: (ruleCost, lexiconCost)
 
 ## COUNTEREXAMPLE ROUTE
 unsolved = True
-
+sol = None
 while unsolved:
 	print(data)
 	unsolved = False
@@ -156,14 +156,16 @@ while unsolved:
 		observeWord(surface4, predicted_surface4)
 
 	lexiconCostExpression = sum([ wordLength(u) for u in stems ]) + sum([ wordLength(s) for s in suffixes ])
+	if sol is not None:
+ 	 	lexiconCostExpression = lexiconCostExpression - sum(len(u) for u in sol.underlyingForms.values() ) # heuristic to help sketch not have to deal with large numbers
 	lexiconCostVariable = unknownInteger(8) # so that we can recover the cost of the lexicon later, number corresponds to max number of bits to encode stems
 	condition(lexiconCostVariable == lexiconCostExpression)
-	minimize(lexiconCostExpression) # minimize the cost of the lexicon
+	#minimize(lexiconCostExpression) # minimize the cost of the lexicon
 
 	ruleCostExpression = sum([ ruleCost(r) for r in rules ])
 	ruleCostVariable = unknownInteger()
 	condition(ruleCostVariable == ruleCostExpression) # so that we can recover the cost of the lexicon later
-	minimize(ruleCostExpression)
+	minimize(ruleCostExpression + lexiconCostExpression)
 
 	try:
 		output = solveSketch(None, unroll=15, maximumMorphLength=10)

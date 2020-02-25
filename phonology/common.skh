@@ -400,6 +400,10 @@ int guard_specification_cost(Specification s) {
   case Place:{ assert 0; }
   case Vector:{
     int c = 1 + VECTORCOST(s);
+#ifdef CV
+    assert c > 1;
+    if (c == 2 && s.vowel_specified) c = 1;
+#endif    
     assert c <= 4; // at most 3 features mentioned
     return c;
   }
