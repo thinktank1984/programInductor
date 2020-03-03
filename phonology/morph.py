@@ -58,8 +58,8 @@ class Morph():
                     predicate.append(indexWord(variable,Constant(i)) == bank.phonemeConstant(p))
             return And(predicate)
         return Or([singleMatch(m) for m in self.patternInstantiations() ])
-        
-            
+
+
 
     @staticmethod
     def sample():
@@ -72,7 +72,7 @@ class Morph():
     def makeDefinition(self, bank):
         return globalConstant("Word", self.makeConstant(bank))
 
-    
+
     @staticmethod
     def parse(*arguments):
         if len(arguments) == 3:
@@ -88,7 +88,7 @@ class Morph():
             # Search for the global definition, get the unique variable name it corresponds to, and parse that
             variable, output = getGeneratorDefinition(variable.definingFunction, output)
             return Morph.parse(bank, output, variable)
-        
+
         pattern = 'Word.* %s.* = new Word\(l=([0-9]+), s=([0-9a-zA-Z_]+)\);'%variable
         m = re.search(pattern, output)
         if not m: raise Exception('Could not find word %s in:\n%s'%(variable,output))
@@ -112,3 +112,10 @@ def observeWord(surface, predicted, bank=None):
     if not isinstance(surface,Morph):
         surface = Morph(surface)
     condition(wordEqual(predicted, Morph.makeConstant(surface, bank)))
+
+def observeWordIfNotMemorized(surface, predicted, flip, bank=None):
+    """adds an extra condition that the prediction must be equal to the surface form"""
+    bank = bank or FeatureBank.ACTIVE
+    if not isinstance(surface,Morph):
+        surface = Morph(surface)
+    condition( Or([flip, wordEqual(predicted, Morph.makeConstant(surface, bank))]) )
