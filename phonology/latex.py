@@ -13,6 +13,40 @@ from textbook_problems import *
 import cPickle as pickle
 import os
 
+universal_training = [
+        "Odden_105_Bukusu",
+        "Odden_81_Koasati",
+        "Halle_125_Indonesian",
+        "Odden_85_Samoan",
+        "Odden_2.4_Tibetan",
+        "Odden_1.3_Korean",
+        "Odden_1.12_English",
+        "Odden_2.1_Hungarian",
+        "Odden_2.2_Kikuria",
+        "Odden_2.5_Makonde",
+        "Odden_3.1_Kerewe",
+        "Odden_116_Armenian",
+        "Odden_4.1_Serbo_Croatian",
+        "Odden_4.4_Latin",
+        "Odden_3.5_Catalan",
+        "Odden_4.3_Somali",
+        "Odden_3.3_Ancient_Greek",
+        "Odden_68_69_Russian",
+        "Odden_76_77_Kerewe",
+        "Odden_77_78_English",
+        "Odden_79_Jita",
+        "Odden_81_Korean",
+        "Roca_25_Zoque",
+        "Roca_16_German",
+        "Roca_89_Lumasaaba",
+        "Roca_104_Tunica",
+        "Halle_85_Turkish",
+        "Halle_109_Russian",
+        "Halle_149_Russian",
+        "Odden_114_Lithuanian",
+    ]
+
+
 latexMap = {
     u"f^y": "f\\super j",
     u"ɲ̩": "\\s{\\textltailn}",
@@ -163,12 +197,14 @@ def latexAlternation(solution, problem):
     
     return r
 
-def latexMatrixProblem(result):
+def latexMatrixProblem(result,idx=None):
     assert isinstance(result,Result)
     problem = Problem.named[result.problem]
     language = problem.languageName
 
-    r = "\\emph{%s:}\\\\"%(language.replace('-','--'))
+    r = "\\emph{%s%s%s:}\\\\"%(language.replace('-','--'),
+                               "" if idx is None else (" (problem %d)"%idx),
+                               "" if result.problem not in universal_training else (" (in metatheory training set)"))
 
     solution = result.finalFrontier.MAP(universal)
 
@@ -192,10 +228,10 @@ def latexMatrixProblem(result):
 
     if isinstance(solution,Frontier): solution = solution.MAP(universal)
     rules = solution.rules
-
+    B = FeatureBank([w for ws in problem.data for w in (ws if isinstance(ws,(list, tuple)) else [ws]) if w])
     r += '''\n\\begin{tabular}{l}\\emph{Rules: }\\\\
 %s
-\\end{tabular}'''%("\\\\\\\\".join([ r.latex() for r in rules if not r.doesNothing() ]))
+\\end{tabular}'''%("\\\\\\\\".join([ r.sharpenChange(B).latex() for r in rules if not r.doesNothing() ]))
     
 
     return r
@@ -222,6 +258,7 @@ def latexSolutionAndProblem(path):
     if problem == None:
         print "Could not find the problem for path",path
         assert False
+
 
     r = "\\emph{%s:}\\\\"%(problem.languageName.replace('-','--'))
     
@@ -349,7 +386,7 @@ if __name__ == "__main__":
             for l,t,f in universal.fragments:
                 l = str(l).replace("rule.","").replace("Guard","Trigger").replace("Specification","FeatureMatrix")
                 print "%s::=&%s\\\\"%(l,f.latex())
-    for ck in arguments.checkpoints:
+    for idx,ck in enumerate(arguments.checkpoints):
         result = loadPickle(ck)
             
         if isinstance(result, AlternationSolution):

@@ -716,6 +716,27 @@ class Rule():
             str(self.focus) == str(o.focus)  and str(self.leftTriggers) == str(o.leftTriggers) and \
             str(self.rightTriggers) == str(o.rightTriggers)
 
+    def sharpenChange(self, bank):
+        """removes features from a change feature matrix which always hold in the specification"""
+        if isinstance(self.structuralChange,FeatureMatrix) and \
+           (isinstance(self.focus,FeatureMatrix) or isinstance(self.focus,ConstantPhoneme)):
+            possibilities = self.focus.extension(bank)
+            def applicable(polarity, feature):
+                for possibleTarget in possibilities:
+                    if polarity and (feature not in bank.featureMap[possibleTarget]):
+                        # we are trying to set this feature to true and in the target it is false
+                        return True
+                    if (not polarity) and (feature in bank.featureMap[possibleTarget]):
+                        # we are trying to unset this feature to true and in the target it is True
+                        return True
+                return False
+            newChange = FeatureMatrix([(p,f)
+                                       for p,f in self.structuralChange.featuresAndPolarities
+                                       if applicable(p,f)])
+            return Rule(self.focus,newChange,self.leftTriggers,self.rightTriggers)
+            
+        return self
+
     def violatesGeometry(self):
         return self.focus.violatesGeometry() or \
             self.leftTriggers.violatesGeometry() or \
