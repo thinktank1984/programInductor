@@ -45,7 +45,7 @@ def get_y(ls):
 def get_components(s):
     UR = ", ".join( [str(v) for k, v in s.underlyingForms.items()] )
     suffix1, suffix2, suffix3 = s.suffixes
-    rule1, rule2 = s.rules
+    rule1, rule2, rule3 = s.rules
     data = s.underlyingForms.keys() #  \nData explained: %s
 
     # check for which affix strategy is used
@@ -55,8 +55,7 @@ def get_components(s):
     else: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix2 + suffix1)
 
     # check if one or two rules are learned
-    if rule2 == "[  ] ---> [  ] /  _ ": out = out + "\nRule 1: %s" % (rule1)
-    else: out = out +  "\nRule 1: %s \nRule 2: %s" % (rule1, rule2)
+    out = out +  "\nRule 1: %s \nRule 2: %s \nRule 3: %s" % (rule1, rule2, rule3)
 
     return unicode(out, "utf-8")
 
@@ -209,7 +208,7 @@ for i in range(10):
 
     #rule1 = Rule.sample()
     #rule2 = Rule.sample()
-    rules = [Rule.sample() for i in range ( 2 )] # set up in advance how many rules to consider
+    rules = [Rule.sample() for i in range ( 3 )] # set up in advance how many rules to consider
 
     # binary variables the model needs to reason about
     suppletive = flip() # says third slot is its own form
@@ -225,10 +224,10 @@ for i in range(10):
 
     for i, (stem, (surface1, surface2, surface3, surface4)) in enumerate(new_data): # for each data point (paradigm)
         maximumLength = max(len(surface1), len(surface2), len(surface3), len(surface4)) + 1 # set bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
-        predicted_surface1 = applyRule(rules[1], applyRule(rules[0], stem, maximumLength), maximumLength) # number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
-        predicted_surface2 = applyRule(rules[1], applyRule(rules[0], concatenate(stem, suffixes[0]), maximumLength), maximumLength) # first number specifies for morpheme boundaries (length of string until suffix (len(prefix + stem))); second number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
-        predicted_surface3 = applyRule(rules[1], applyRule(rules[0], concatenate(stem, suffixes[1]), maximumLength), maximumLength)
-        predicted_surface4 = applyRule(rules[1], applyRule(rules[0], concatenate(stem, actual_suffix), maximumLength), maximumLength)
+        predicted_surface1 = applyRules(rules, stem, 0, maximumLength) # number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
+        predicted_surface2 = applyRules(rules, concatenate(stem, suffixes[0]), 0, maximumLength) # first number specifies for morpheme boundaries (length of string until suffix (len(prefix + stem))); second number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
+        predicted_surface3 = applyRules(rules, concatenate(stem, suffixes[1]), 0, maximumLength)
+        predicted_surface4 = applyRules(rules, concatenate(stem, actual_suffix), 0, maximumLength)
 
         observeWordIfNotMemorized(surface1, predicted_surface1, memorize[i][0])
         observeWordIfNotMemorized(surface2, predicted_surface2, memorize[i][1])
