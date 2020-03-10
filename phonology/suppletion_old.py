@@ -259,7 +259,7 @@ for i in range(10):
 
     # invoke the solver; break if it can't find a solution that matches the criterion above
     try:
-        output = solveSketch(None, unroll=10, maximumMorphLength=10)
+        output = solveSketch(None, unroll=10, maximumMorphLength=10, minimizeBound=60)
     except SynthesisFailure:
         print("Failed to find solution")
         break
