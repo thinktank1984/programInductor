@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant, And, Or, Constant,condition
+from sketchSyntax import define, FunctionCall, getGeneratorDefinition, globalConstant, And, Or, Constant,condition, Not
 from sketch import makeConstantWord, getGeneratorDefinition, indexWord, wordLength, wordEqual, getLastOutput
 from features import FeatureBank,featureMap,tokenize
 from utilities import *
@@ -118,4 +118,4 @@ def observeWordIfNotMemorized(surface, predicted, flip, bank=None):
     bank = bank or FeatureBank.ACTIVE
     if not isinstance(surface,Morph):
         surface = Morph(surface)
-    condition( Or([flip, wordEqual(predicted, Morph.makeConstant(surface, bank))]) )
+    condition( flip == Not(wordEqual(predicted, Morph.makeConstant(surface, bank))) )
