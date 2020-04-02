@@ -43,6 +43,7 @@ def get_y(ls):
 
 ## gets a unicode representation of the grammar learned
 def get_components(s):
+    solution = s
     UR = ", ".join( [str(v) for k, v in s.underlyingForms.items()] )
     suffix1, suffix2, suffix3 = s.suffixes
     #rule1, rule2, rule3 = s.rules
@@ -55,7 +56,7 @@ def get_components(s):
     else: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix2 + suffix1)
 
     # check if one or two rules are learned
-    out = out + "\n" + ("\n".join("Rule %d: %s"%(ri,r) for ri,r in enumerate(s.rules) )) + "\n"
+    out = out + "\n" + ("\n".join("Rule %d: %s"%(ri,r) for ri,r in enumerate(solution.rules) )) + "\n"
 
     out = unicode(out, "utf-8")
 
