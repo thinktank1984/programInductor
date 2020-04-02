@@ -91,7 +91,7 @@ enableCV() # give [+/- vowel] features a cost of 1 instead of 2
 os.system("python command_server.py 4&"); os.system("sleep 4")
 
 ## read and import data
-filename = "opaque/dataset2-f.txt"
+filename = "opaque/dataset2-cf.txt"
 with codecs.open(filename, encoding='utf-8') as f:
     content = f.read().splitlines()
 
@@ -299,7 +299,7 @@ for xy, s in sorted_data:
                 xytext=(0,10), # distance from text to points (x,y)
                 ha='left') # horizontal alignment can be left, right or center
 
-language = "transparent"
+language = "opaque"
 plt.title("Pareto frontier of %s language" % (language), fontsize = 18)
 plt.xlabel("Rule cost", fontsize = 12)
 plt.ylabel("Lexicon cost", fontsize = 12)
