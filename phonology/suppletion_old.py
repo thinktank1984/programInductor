@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument("--export",default=None)
     parser.add_argument("--load",default=None)
     arguments = parser.parse_args()
-    
+
     ## setting up the cost functions
     disableConstantPhonemes() # don't allow individual segments unless it is an insertion process
     enableCV() # give [+/- vowel] features a cost of 1 instead of 2
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         filename = "opaque/dataset2-cf.txt"
         points = np.array([6, 26, 46, 48, 69, 0])
     else:
-        filename = "opaque/dataset1-f.txt"
+        filename = "opaque/dataset2-f.txt"
         points = np.array([6, 26, 46, 48, 69, 0])
     with codecs.open(filename, encoding='utf-8') as f:
         content = f.read().splitlines()
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     for inflections in data:
         print(u"\t".join(inflections))
     print "solving with <=",arguments.numberOfRules,"rules"
-    
+
     #data = complete_data[:3]
 
     ## setting up the model
@@ -310,7 +310,7 @@ if __name__ == "__main__":
             solutionCosts.append((parseInteger(output, ruleCostVariable), parseInteger(output, lexiconCostVariable)))
 
         data = zip(solutionCosts, solutions)
-    
+
     if arguments.export:
         assert arguments.load is None, "cannot both export and load"
         with open(arguments.export,"wb") as handle:
@@ -320,7 +320,7 @@ if __name__ == "__main__":
         assert arguments.export is None, "cannot both export and load"
         with open(arguments.load,"wb") as handle:
             pickle.load(handle)
-        
+
     sorted_data = sorted(data, key=lambda tup: tup[0])
     solutionCosts = list(zip(*sorted_data))[0]
 
