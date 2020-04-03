@@ -42,15 +42,14 @@ def get_y(ls):
     return [ls[i][1] for i in range( len(ls) )]
 
 ## gets a unicode representation of the grammar learned
-def get_components(s):
-    solution = s
-    UR = ", ".join( [str(v) for k, v in s.underlyingForms.items()] )
-    suffix1, suffix2, suffix3 = s.suffixes
+def get_components(solution):
+    UR = ", ".join( [str(v) for k, v in solution.underlyingForms.items()] )
+    suffix1, suffix2, suffix3 = solution.suffixes
     #rule1, rule2, rule3 = s.rules
-    data = s.underlyingForms.keys() #  \nData explained: %s
+    data = solution.underlyingForms.keys() #  \nData explained: %s
 
     # check for which affix strategy is used
-    s, ot, to = s.suppletion
+    s, ot, to = solution.suppletion
     if s: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix3)
     elif ot: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix1 + suffix2)
     else: out = "Stem URs: %s \nAffix URs: %s, %s, %s" % (UR, suffix1, suffix2, suffix2 + suffix1)
@@ -60,7 +59,7 @@ def get_components(s):
 
     out = unicode(out, "utf-8")
 
-    for ms,surfaces in zip(s.memorize,s.data):
+    for ms,surfaces in zip(solution.memorize,solution.data):
         for m,surface in zip(ms,surfaces):
             if m:
                 out += u"mem " + unicode(surface)
