@@ -62,7 +62,7 @@ def get_components(solution):
     for ms,surfaces in zip(solution.memorize,solution.data):
         for m,surface in zip(ms,surfaces):
             if m:
-                out += u"mem " + unicode(surface)
+                out += u"mem " + unicode(surface) + "  "
     return out
 
 ## checks to see whether the solution is able to account for the data point
@@ -318,8 +318,8 @@ if __name__ == "__main__":
     if arguments.load:
         assert arguments.export is None, "cannot both export and load"
         with open(arguments.load,"rb") as handle:
-            pickle.load(handle)
-
+            data = pickle.load(handle)
+        
     sorted_data = sorted(data, key=lambda tup: tup[0])
     solutionCosts = list(zip(*sorted_data))[0]
 
