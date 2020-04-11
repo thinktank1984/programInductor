@@ -317,7 +317,7 @@ if __name__ == "__main__":
 
     if arguments.load:
         assert arguments.export is None, "cannot both export and load"
-        with open(arguments.load,"wb") as handle:
+        with open(arguments.load,"rb") as handle:
             pickle.load(handle)
 
     sorted_data = sorted(data, key=lambda tup: tup[0])

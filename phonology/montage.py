@@ -11,7 +11,8 @@ import numpy as np
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plot
 
-NADIANAME = "Barke et al. 2019"
+#NADIANAME = "Barke et al. 2019"
+NADIANAME = "phonosynth (2019)"
 
 class Bars():
     def __init__(self, problem, universal, fragment, *baselines):
