@@ -319,7 +319,7 @@ if __name__ == "__main__":
         assert arguments.export is None, "cannot both export and load"
         with open(arguments.load,"rb") as handle:
             data = pickle.load(handle)
-        
+
     sorted_data = sorted(data, key=lambda tup: tup[0])
     solutionCosts = list(zip(*sorted_data))[0]
 
@@ -340,14 +340,14 @@ if __name__ == "__main__":
                     xytext=(0,10), # distance from text to points (x,y)
                     ha='left') # horizontal alignment can be left, right or center
 
-    language = "opaque"
+    language = arguments.data
     plt.title("Pareto frontier of %s language" % (language), fontsize = 18)
     plt.xlabel("Rule cost", fontsize = 12)
     plt.ylabel("Lexicon cost", fontsize = 12)
 
     #for the transparent language
-    plt.xticks(np.arange(7,22,1))
-    plt.yticks(np.arange(20,40,1))
+    plt.xticks(np.arange(0,25,1))
+    plt.yticks(np.arange(20,55,1))
 
     #for the opaque language
     #plt.xticks(np.arange(9,15,1))
