@@ -444,21 +444,26 @@ def tokenize(word):
     return tokens
 
 class FeatureBank():
-   
-    """Builds a bank of features and sounds that are specialized to a particular data set.
-    The idea is that we don't want to spend time reasoning about features/phonemes that are not attested"""
-    mutuallyExclusiveClasses = []#["stop","fricative","affricate"]]
     
     def __init__(self, words):
+        from rule import FeatureMatrix
         self.phonemes = list(set([ p for w in words for p in (tokenize(w) if isinstance(w,unicode) else w.phonemes) ]))
-        self.features = list(set([ f for p in self.phonemes for f in featureMap[p] ]))
-        self.featureMap = {p: list(set(featureMap[p]) & set(self.features))
+        self.features = list({ f
+                               for p in self.phonemes
+                               for f in (featureMap[p].getFeatures() if isinstance(featureMap[p],FeatureMatrix) else featureMap[p]) })
+        # convert old style features to new style features
+        def makeMatrix(fm):
+            if not isinstance(fm,FeatureMatrix):
+                # we are positive for these features
+                positives = set(fm) & set(self.features)
+                # we are negative for these features
+                negatives = set(self.features) - set(fm)
+                fm = FeatureMatrix([(True,positive) for positive in positives] + [(False,negative) for negative in negatives])
+            return fm
+        self.featureMap = {p: makeMatrix(featureMap[p])
                            for p in self.phonemes }
-        self.featureVectorMap = {p: [ (f in self.featureMap[p]) for f in self.features ]
-                                 for p in self.phonemes }
         self.phoneme2index = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
-        self.feature2index = dict([ (self.features[j],j) for j in range(len(self.features)) ])
-        self.matrix2phoneme = dict([ (frozenset(featureMap[p]),p) for p in self.phonemes ])
+        #self.matrix2phoneme = dict([ (frozenset(featureMap[p]),p) for p in self.phonemes ])
 
         self.hasSyllables = syllableBoundary in self.features
 
@@ -469,19 +474,19 @@ class FeatureBank():
         #     print p,"\t",self.makeNasal(p)
 
     def checkCollisions(self):
-        for p in self.featureVectorMap:
-            for q in self.featureVectorMap:
+        for p,m1 in self.featureMap.iteritems():
+            for q,m2 in self.featureMap.iteritems():
                 if p == q: continue
-                if self.featureVectorMap[p] == self.featureVectorMap[q]:
+                if set(m1.featuresAndPolarities) == set(m2.featuresAndPolarities):
                     print "WARNING: these have the same feature vectors in the bank:",p,q
-                    print "The features are",self.featureVectorMap[p]
-                    print featureMap[p]
-                    print featureMap[q]
+                    print "The features are",m1
                     assert False        
 
     def possibleStructuralChanges(self):
         import itertools
         from rule import FeatureMatrix
+
+        assert False, "not updated for zero features"
         
         def extension(fm):
             e = set()
@@ -618,26 +623,16 @@ class FeatureBank():
     def fromData(d):
         return FeatureBank([ w for i in d for w in i if w != None ])
         
-    def wordToMatrix(self, w):
-        return [ self.featureVectorMap[p] for p in tokenize(w) ]
-    
     def variablesOfWord(self, w):
         tokens = tokenize(w)
         p2v = dict([ (self.phonemes[j],j) for j in range(len(self.phonemes)) ])
         return [ "phoneme_%d" % p2v[t] for t in tokens ]
 
-    def defineFeaturesToSound(self):
-        d = "Sound features2sound(bit[NUMBEROFFEATURES] f){\n"
-        for j,p in enumerate(self.phonemes):
-            d += "if (f == {%s})" % (",".join(map(str,self.featureVectorMap[p])))
-            d += " return phoneme_%d;\n"%j
-        d += "assert 0;}\n"
-        return d
-
     def defineSound(self):
         h = "\nstruct Sound{//@Immutable(\"\")\n"
         for f in self.features:
             h += "  bit %s;\n"%(f)
+            h += "  bit %s_specified;\n"%f
         h += "}\n"
         return h
     def defineVector(self):
@@ -657,45 +652,26 @@ class FeatureBank():
             c = "validateCost(v.%s_specified + %s)"%(f,c)
         h += c + "\n"
 
-        h += "\n#define VECTORMATCHESSOUND(vector, sound) (%s)\n"%(" && ".join("(!vector.%s_specified || vector.%s == sound.%s)"%(f,f,f)
+        h += "\n#define VECTORMATCHESSOUND(vector, sound) (%s)\n"%(" && ".join("(!vector.%s_specified || (sound.%s_specified && vector.%s == sound.%s))"%(f,f,f,f)
                                                                                for f in self.features))
         h += "\n#define PROJECTVECTOR(vector, sound)\\\n"
         for f in self.features:
             h += "  bit %s = (!vector.%s_specified && sound.%s) || (vector.%s_specified && vector.%s);\\\n"%(f,f,f,f,f)
+            h += "  bit %s_specified = vector.%s_specified || sound.%s_specified;"%(f,f,f)
         for p in self.phonemes:
-            condition = " && ".join("%s%s"%("" if f in featureMap[p] else "!", f)
-                                    for f in self.features)
+            specified = ["%s_specified && %s%s"%(feature, "" if polarity else "!", feature)
+                                      for polarity, feature in self.featureMap[p].featuresAndPolarities ]
+            unspecified_features = [f for f in self.features
+                                    if ((True,f) not in self.featureMap[p].featuresAndPolarities) \
+                                    and ((False,f) not in self.featureMap[p].featuresAndPolarities)]
+            unspecified = ["!%s_specified"%f for f in unspecified_features ]
+            condition = " && ".join(specified + unspecified)
             h += "  if (%s) return phoneme_%d;\\\n"%(condition, self.phoneme2index[p])
         h += "assert 0;\\\n\n"
 
         h += "\n#define UNKNOWNVECTOR %s\n"%(", ".join( "%s = ??, %s_specified = ??"%(f,f)
                                                         for f in self.features))        
         return h
-
-    def defineZeroFeatures(self):
-        z = "#define ZEROFEATURES(m) ({"
-        m = "#define MUTUALLYEXCLUDE(s) "
-        for f in self.features:
-            excluded = False
-            for k in FeatureBank.mutuallyExclusiveClasses:
-                if f in k:
-                    assert not excluded
-                    # only retain other members of the class which are actually used in the data
-                    kp = set(k) & set(self.features)
-
-                    # mutual exclusion logic
-                    m += "if (s.mask[%d]) assert s.preference[%d] "%(self.feature2index[f], self.feature2index[f])
-                    m += " && ".join([''] + [ "!s.mask[%d]"%(self.feature2index[e]) for e in kp if e != f ])
-                    m += '; '
-                    
-                    if len(kp) > 1:
-                        z += "||".join([ "m[%d]"%(self.feature2index[e]) for e in kp if e != f ])
-                        excluded = True
-            if not excluded: z += "0"
-            z += ", "
-
-        # replace the final, with a }
-        return z[:-2] + '})\n' + m
 
     def __unicode__(self):
         return u'FeatureBank({' + u','.join(self.phonemes) + u'})'
@@ -707,30 +683,26 @@ class FeatureBank():
 
     def sketch(self, placeAssimilation = False, nasalAssimilation = False):
         """Sketches definitions of the phonemes in the bank"""
-        for p in self.featureVectorMap:
-            for q in self.featureVectorMap:
-                if p == q: continue
-                if self.featureVectorMap[p] == self.featureVectorMap[q]:
-                    print "WARNING: these have the same feature vectors in the bank:",p,q
-                    print "The features are",self.featureVectorMap[p]
-                    print featureMap[p]
-                    print featureMap[q]
-                    assert False
+        self.checkCollisions()
         
         h = ""
         h += self.defineSound()
         h += self.defineVector()
         if self.hasSyllables:
             h += "#define SYLLABLEBOUNDARYPHONEME phoneme_%d\n"%(self.phoneme2index[u"-"])
-            h += "#define SYLLABLEBOUNDARYFEATURE %d\n"%(self.feature2index[syllableBoundary])
+            h += "#define SYLLABLEBOUNDARYFEATURE\n"
         if u'*' in self.phonemes:
             h += "#define WILDPATTERN phoneme_%d\n"%(self.phoneme2index[u"*"])
         if u'?' in self.phonemes:
             h += "#define MAYBEPATTERN phoneme_%d\n"%(self.phoneme2index[u"?"])
 
         for j in range(len(self.phonemes)):
-            features = ",".join("%s = %d"%(f, int(f in featureMap[self.phonemes[j]]))
-                for f in self.features)
+            fm = self.featureMap[self.phonemes[j]].featuresAndPolarities
+            features = " , ".join("%s_specified=%d, %s=%d"%(f,
+                                                            int( ((True,f) in fm) or ((False,f) in fm)),
+                                                            f,
+                                                            int( (True,f) in fm))
+                                  for f in self.features )
             h += "Sound phoneme_%d = new Sound(%s);\n" % (j,features)
         h += "#define UNKNOWNSOUND {| %s |}" % (" | ".join(["phoneme_%d"%j for j in range(len(self.phonemes))
                                                             if self.phonemes[j] != u'-' ]))
@@ -747,13 +719,38 @@ class FeatureBank():
 FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
 FeatureBank.ACTIVE = None
 
+def riggleFeatureMap():
+    import codecs
+    from rule import FeatureMatrix
+    features = []
+    bad_features ={"deleted","word_boundary","primary_stress","secondary_stress","stress"}
+
+    bad_phonemes = {u"#",u"∅",u""}
+    with codecs.open('Riggle.csv', encoding='utf-8') as handle:
+        content = handle.read().splitlines()
+        for line_count,ln in enumerate(content):
+            ln = ln.split(",")
+            if line_count == 0:
+                features = [str(f).replace(' ','_') for f in ln[2:]]
+                ci = features.index('consonant')
+                features[ci] = 'vowel'
+            elif ln[1] == 'letter':
+                phoneme = ln[0]
+                if phoneme not in bad_phonemes:
+                    fm[phoneme] = FeatureMatrix([((polarity == '+') if f != 'vowel' else (polarity == '-'), f)
+                                                 for polarity,f in zip(ln[2:],features)
+                                                 if polarity != '0' and f not in bad_features])
+    return fm
+
 def switchFeatures(f):
     global featureMap
-    assert f in ['sophisticated','simple']
+    assert f in ['sophisticated','simple','Riggle']
     if f == 'sophisticated':
         featureMap = sophisticatedFeatureMap
     elif f == 'simple':
         featureMap = simpleFeatureMap
+    elif f == 'Riggle':
+        featureMap = riggleFeatureMap()
     else: assert False
     FeatureBank.GLOBAL = FeatureBank(featureMap.keys())
 

@@ -5,7 +5,7 @@ from compileRuleToSketch import compileRuleToSketch
 from utilities import *
 from problems import *
 from solution import *
-from features import FeatureBank, tokenize
+from features import FeatureBank, tokenize, switchFeatures
 from rule import * # Rule,Guard,FeatureMatrix,EMPTYRULE
 from morph import Morph,observeWord,observeWordIfNotMemorized
 from sketchSyntax import Expression,makeSketchSkeleton
@@ -28,6 +28,8 @@ from time import time
 import itertools
 import copy
 import os
+
+switchFeatures('Riggle')
 
 #from command_server import start_server
 #start_server(1)

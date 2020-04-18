@@ -508,6 +508,9 @@ class FeatureMatrix(Specification,FC):
     def sketchEquals(self,v,b):
         return "specification_equal(%s, %s)"%(v,self.makeConstant(b))
 
+    def getFeatures(self):
+        return [f for _,f in self.featuresAndPolarities ]
+
 class Guard():
     def __init__(self, side, endOfString, optionalEnding, starred, specifications):
         self.side = side
