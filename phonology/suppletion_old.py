@@ -13,7 +13,6 @@ from sketch import *
 from supervised import SupervisedProblem
 from textbook_problems import *
 from latex import latexMatrix
-import matplotlib.pyplot as plt
 import numpy as np
 import re
 import codecs
@@ -325,6 +324,7 @@ if __name__ == "__main__":
     sorted_data = sorted(data, key=lambda tup: tup[0])
     solutionCosts = list(zip(*sorted_data))[0]
 
+    import matplotlib.pyplot as plt
     plt.clf()
     x = get_x(solutionCosts)
     y = get_y(solutionCosts)
