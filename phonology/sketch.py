@@ -74,6 +74,9 @@ def makeConstantVector(v):
 def makeConstantMatrix(m):
     return Array([ makeConstantVector(v) for v in m ])
 def makeConstantWord(bank, w):
+    if bank is None:
+        from features import FeatureBank
+        bank = FeatureBank.ACTIVE
     w = bank.variablesOfWord(w)
     return Constant('(new Word(l = %d, s = {%s}))'%(len(w),",".join(w)))
 

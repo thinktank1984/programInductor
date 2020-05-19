@@ -735,7 +735,7 @@ def riggleFeatureMap():
                 ci = features.index('consonant')
                 features[ci] = 'vowel'
             elif ln[1] == 'letter':
-                phoneme = ln[0]
+                phoneme = ln[0].replace(u'ɡ',u'g')
                 if phoneme not in bad_phonemes:
                     fm[phoneme] = FeatureMatrix([((polarity == '+') if f != 'vowel' else (polarity == '-'), f)
                                                  for polarity,f in zip(ln[2:],features)

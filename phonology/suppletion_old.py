@@ -226,6 +226,23 @@ if __name__ == "__main__":
         for i in range(10):
             globalModel([ w for ws in data for w in ws ]) # create model and feature bank
 
+            if False:
+                from parseSPE import *
+                globalModel([ u'gkdt' ]) # create model and feature bank
+
+                r = Rule.sample()#parseRule('C > [-voice] / V  _').makeConstant()
+                x1 = Morph('g').makeConstant(None)
+                y1 = Morph('k').makeConstant(None)
+                x2 = Morph('d').makeConstant(None)
+                y2 = Morph('t').makeConstant(None)
+                mp = Morph.sample()
+                condition(wordEqual(y1,applyRules([r],x1,0,5)))
+                condition(wordEqual(y2,applyRules([r],x2,0,5)))
+    #            minimize(ruleCost(r))
+                output = solveSketch(None, unroll=10, maximumMorphLength=10, minimizeBound=60)
+                print Rule.parse(r)
+                assert False
+
             stems = [Morph.sample() for i in range( len(data) )]
             memorize = [[flip() for j in data[0]] for i in data]
 
