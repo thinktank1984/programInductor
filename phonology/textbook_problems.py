@@ -1032,7 +1032,7 @@ Russian Halle 115
 
 Halle_Problems.append(Problem('''
 Russian Halle 149
-	''',
+	''', # RERUN
 	[
 	# Nom_sg 	Gen_pl	Dat_sg	Nom_pl	gloss
 	(u"luná", u"lún", u"lun^yɛ́", u"lúnɨ"), # moon
@@ -1045,7 +1045,7 @@ Russian Halle 149
 
 	(u"žɨl^yizá", u"žɨl^yós", u"žɨl^yiz^yɛ́", u"žél^yizɨ"), # gland
 	(u"žɨná", u"žón", u"žɨn^yɛ́", u"žónɨ"), # wife
-	(u"zm^yiá", u"zm^yéy", u"zm^yiyɛ́", u"zm^yéyi"), # snake
+	(u"zm^yiyá", u"zm^yéy", u"zm^yiyɛ́", u"zm^yéyi"), # snake
 
 	(u"m^yɛ́na", u"m^yɛ́n", u"m^yén^yi", u"m^yɛ́nɨ"), # change
 	(u"p^yil^yiná", u"p^yil^yón", u"p^yil^yin^yɛ́", u"p^yil^yinɨ́"), # shroud
@@ -1290,11 +1290,11 @@ Problem('''
 
 Problem('''
 Japanese Halle 127
-''',
+''', # RERUN
 [
    # present     negative     volitional   past       inchoative     gloss
      (u"neru",   u"nenai",    u"netai",    u"neta",   u"neyoo"),     #'sleep'
-     (u"minu",   u"minai",    u"mitai",    u"mita",   u"miyoo"),     #'see'
+     (u"miru",   u"minai",    u"mitai",    u"mita",   u"miyoo"),     #'see'
      (u"šinu",   u"šinanai",  u"šinitai",  u"šinda",  u"šinoo"),     #'die'
      (u"yomu",   u"yomanai",  u"yomitai",  u"yonda",  u"yomoo"),     #'read'
      (u"yobu",   u"yobanai",  u"yobitai",  u"yonda",  u"yoboo"),     #'call'
