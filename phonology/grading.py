@@ -987,7 +987,7 @@ GoldSolution(name="Roca_25_Zoque",
 
 GoldSolution(name="Roca_35_Icelandic", # UNSURE
              prefixes=[u'',u'',u'',u'',u'',u''],
-             suffixes=[u'r',u'',u'ri',u's',u'ðum',u''],
+             suffixes=[u'r',u'',u'ri',u's',u'um',u'a'],
              underlyingForms={
             ( u'dagur' , u'dag' , None,  None,  None,  None,  ): u'dag' ,
             ( u'staður' , u'stað' , None,  None,  u'stöðum' , None,  ): u'stað' ,
@@ -995,17 +995,17 @@ GoldSolution(name="Roca_35_Icelandic", # UNSURE
             ( u'bær' , u'bæ' , None,  None,  None,  None,  ): u'bæ' ,
             ( u'læknir' , u'lækni' , None,  None,  None,  None,  ): u'lækni' ,
             ( u'lifur' , None,  u'lifri' , None,  None,  None,  ): u'lif' ,
-                 # uncertain onward
             ( u'akur' , None,  u'agri' , None,  u'ökrum' , None,  ): u'ak' ,
             ( u'aldur' , None,  u'aldri' , None,  u'öldrum' , None,  ): u'ald' ,
-            ( u'lüfur' , u'lüf' , None,  u'lüfs' , u'lüfjum' , u'lüfja' , ): None ,
-            ( u'bülur' , u'bül' , None,  u'büls' , u'büljum' , u'bülja' , ): None ,
-            ( u'söngur' , u'söng' , None,  u'söngs' , u'söngvum' , u'söngva' , ): None ,
-            ( u'barn' , None,  None,  None,  u'börnum' , None,  ): None ,
-            ( u'baggi' , None,  None,  None,  u'böggull' , None,  ): None ,
-            ( u'jaki' , None,  None,  None,  u'jökull' , None,  ): None ,
-            ( u'θagga' , None,  None,  None,  u'θögull' , None,  ): None ,
-            ( u'kalla' , None,  None,  None,  u'köllum' , None,  ): None ,
+            ( u'lüfur' , u'lüf' , None,  u'lüfs' , u'lüfjum' , u'lüfja' , ): u'lüfurj' ,
+            ( u'bülur' , u'bül' , None,  u'büls' , u'büljum' , u'bülja' , ): u'bülj' ,
+            ( u'söngur' , u'söng' , None,  u'söngs' , u'söngvum' , u'söngva' , ): u'söngv' ,
+                 # uncertain onward
+            ( u'barn' , None,  None,  None,  u'börnum' , None,  ): u'börn' ,
+            ( u'baggi' , None,  None,  None,  u'böggull' , None,  ): u'bögg' ,
+            ( u'jaki' , None,  None,  None,  u'jökull' , None,  ): u'jök' ,
+            ( u'θagga' , None,  None,  None,  u'θögull' , None,  ): u'θög'  ,
+            ( u'kalla' , None,  None,  None,  u'köllum' , None,  ): u'köll' 
 })
 
 GoldSolution(name="Roca_37_Anxiang",
