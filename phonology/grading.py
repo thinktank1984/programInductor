@@ -729,7 +729,7 @@ GoldSolution(name="Odden_68_69_Russian",
             ( u'trup' , u'trupa' , ): u'trup' ,
 })
 
-GoldSolution(name="Halle_149_Russian",
+GoldSolution(name="Halle_149_Russian", # UNSURE
              prefixes=[u'',u'',u'',u''],
              suffixes=[u'á',u'',u'ɛ́',u'ɨ'],
              underlyingForms={
@@ -739,13 +739,13 @@ GoldSolution(name="Halle_149_Russian",
             ( u'p^yilá' , u'p^yíl' , u'p^yil^yɛ́' , u'p^yílɨ' , ): u'p^yíl' ,
                  ( u'valná' , u'vóln' , u'valn^yɛ́' , u'vólnɨ' , ): u'vóln',
             ( u'galavá' , u'galóf' , u'galav^yɛ́' , u'gólavɨ' , ): u'gólov' ,
-                 ( u'žɨl^yizá' , u'žɨl^yós' , u'žɨl^yiz^yɛ́' , u'žél^yizɨ' , ): u'žéloz',
+                 ( u'žɨl^yizá' , u'žɨl^yós' , u'žɨl^yiz^yɛ́' , u'žél^yizɨ' , ): u'žél^yoz',
                  ( u'žɨná' , u'žón' , u'žɨn^yɛ́' , u'žónɨ' , ): u'žón',
-            ( u'zm^yiyá' , u'zm^yéy' , u'zm^yiyɛ́' , u'zm^yéyi' , ): u"zméy",
+            ( u'zm^yiyá' , u'zm^yéy' , u'zm^yiyɛ́' , u'zm^yéyi' , ): u"zm^yéy",
             ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n",
-            ( u'p^yil^yiná' , u'p^yil^yón' , u'p^yil^yin^yɛ́' , u'p^yil^yinɨ́' , ): u'pilón' ,
-            ( u'b^yis^yɛ́da' , u'b^yis^yɛ́t' , u'b^yis^yéd^yi' , u'b^yis^yɛ́dɨ' , ): u'bisɛ́d',
-            ( u'b^yidá' , u'b^yɛ́t' , u'b^yid^yɛ́' , u'b^yɛ́dɨ' , ): u'bɛ́d' ,
+            ( u'p^yil^yiná' , u'p^yil^yón' , u'p^yil^yin^yɛ́' , u'p^yil^yinɨ́' , ): u'p^yilón' ,
+            ( u'b^yis^yɛ́da' , u'b^yis^yɛ́t' , u'b^yis^yéd^yi' , u'b^yis^yɛ́dɨ' , ): u'b^yisɛ́d',
+            ( u'b^yidá' , u'b^yɛ́t' , u'b^yid^yɛ́' , u'b^yɛ́dɨ' , ): u'b^yɛ́d' ,
                  ( u'p^yitá' , u'p^yát' , u'p^yit^yɛ́' , u'p^yitɨ́' , ): u'p^yát',
             ( u'st^yiná' , u'st^yɛ́n' , u'st^yin^yɛ́' , u'st^yɛ́nɨ' , ): u'stɛ́n' ,
             ( u'r^yiká' , u'r^yɛ́k' , u'r^yik^yɛ́' , u'r^yék^yi' , ): u'rɛ́k',
@@ -753,7 +753,7 @@ GoldSolution(name="Halle_149_Russian",
             ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
 })
 
-GoldSolution(name="Halle_153_Yokuts", # UNSURE
+GoldSolution(name="Halle_153_Yokuts", # nb: this can be analyzed either with insertion or deletion
              prefixes=[u'',u'',u''],
              suffixes=[u'it',u'hin',u'nit'],
              underlyingForms={
@@ -839,7 +839,7 @@ GoldSolution(name="Halle_125_Indonesian", # unsure, but this is funny
             ( u'undaŋ' , u'məŋundaŋ' , ): u'gundaŋ' ,
 })
 
-GoldSolution(name="Halle_109_Russian",
+GoldSolution(name="Halle_109_Russian", # UNSURE
              prefixes=[u'at',u'b^yiz',u'u'],
              suffixes=[u'',u'',u''],
              underlyingForms={
@@ -865,6 +865,177 @@ GoldSolution(name="Halle_127_Japanese", # unsure
             ( u't^sugu' , u't^suganai' , u't^sugitai' , u't^suida' , u't^sugoo' , ): u't^sug' ,
             ( u'karu' , u'karanai' , u'karitai' , u'katta' , u'karoo' , ): u'kar' ,
             ( u'kau' , u'kawanai' , u'kaitai' , u'katta' , u'kaoo' , ): u'kaw'
+})
+
+GoldSolution(name="Halle_133_Swahili", # UNSURE
+             prefixes=[u'u',u'',u'ma'],
+             suffixes=[u'',u'',u''],
+             underlyingForms={
+                 # I think you are not allowed to start with and unaspirated stop
+                 # and you have to prepend a nasal in that case
+                 # deaspirate when not word initial
+            ( u'ubale' , u'm̩bale' , None,  ): u'bale' ,
+            ( u'udago' , u'n̩dago' , None,  ): u'dago' ,
+            ( u'ugimbi' , u'ŋ̩gimbi' , None,  ): u'gimbi' ,
+            ( u'uǰia' , u'ɲ̩ǰia' , None,  ): u'ǰia' ,
+            ( u'upaǰa' , u'p^haǰa' , u'mapaǰa' , ): u'p^haǰa' ,
+            ( u'upamba' , u'p^hamba' , None,  ): u'p^hamba' ,
+            ( u'utunzo' , u't^hunzo' , u'matunzo' , ): u't^hunzo' ,
+            ( u'utunda' , u't^hunda' , None,  ): u't^hunda' ,
+            ( u'ukelele' , u'k^helele' , u'makelele' , ): u'k^helele' ,
+            ( u'ukumbi' , u'k^humbi' , None,  ): u'k^humbi' ,
+            ( u'učoma' , u'č^homa' , u'mačoma' , ): u'č^homa' ,
+            ( u'učaŋgo' , u'č^haŋgo' , None,  ): u'č^haŋgo' ,
+            ( u'ufuasi' , u'fuasi' , u'mafuasi' , ): u'fuasi' ,
+            ( u'ufuko' , u'fuko' , None,  ): u'fuko' ,
+            ( u'uvušo' , u'vušo' , u'mavušo' , ): u'vušo' ,
+            ( u'uvumbi' , u'vumbi' , None,  ): u'vumbi' ,
+            ( u'usiku' , u'siku' , u'masiku' , ): u'siku' ,
+            ( u'usira' , u'sira' , None,  ): u'sira' ,
+            ( u'ušono' , u'šono' , u'mašono' , ): u'šono' ,
+            ( u'ušaŋga' , u'šaŋga' , None,  ): u'šaŋga' ,
+                 # here is what I get confused
+                 # this onward
+                 # {w,l,r} > [+stop] #_
+            ( u'uwiŋgu' , u'm̩biŋgu' , None,  ): u'biŋgu' ,
+            ( u'uwili' , u'm̩bili' , None,  ): u'wili' ,
+            ( u'ulimi' , u'n̩dimi' , None,  ): u'limi' ,
+            ( u'urefu' , u'n̩defu' , None,  ): u'refu' ,
+            ( u'umio' , u'mio' , None,  ): u'mio' ,
+                 # not sure about these next last ones
+            ( u'wimbo' , u'ɲimbo' , None,  ): u'ɲimbo' ,
+            ( u'wembe' , u'ɲembe' , None,  ): u'ɲembe' ,
+                 ( u'wakati' , u'ɲakati' , None,  ): None,
+            ( u'uši' , u'ɲuši' , None,  ): None ,
+            ( u'šoka' , None,  u'mašoka' , ): u'šoka' ,
+            ( u'tunda' , None,  u'matunda' , ): u'tunda' ,
+            ( u'kaša' , None,  u'makaša' , ): u'kaša' ,
+})
+
+GoldSolution(name="Roca_104_Tunica",
+             prefixes=[u'',u'',u'',u''],
+             suffixes=[u'',u'ʔuhki',u'ʔɔki',u'hkʔaki'],
+             underlyingForms={
+            ( u'pó' , u'póʔuhki' , u'póʔɔki' , u'póhkʔaki' , ): u'pó' ,
+            ( u'pí' , u'píʔuhki' , u'píʔɛki' , u'píhkʔaki' , ): u'pí' ,
+            ( u'já' , u'jáʔuhki' , u'jáʔaki' , u'jáhkʔaki' , ): u'já' ,
+            ( u'čú' , u'čúʔuhki' , u'čúʔɔki' , u'čúhkʔaki' , ): u'čú' ,
+            ( u'hára' , u'hárʔuhki' , u'hárʔaki' , u'hárahkʔaki' , ): u'hára' ,
+            ( u'hípu' , u'hípʔuhki' , u'hípʔɔki' , u'hípuhkʔaki' , ): u'hípu' ,
+            ( u'náši' , u'nášʔuhki' , u'nášʔɛki' , u'nášihkʔaki' , ): u'náši' ,
+})
+
+GoldSolution(name="Roca_16_German",
+             prefixes=[u'',u'',u'',u''],
+             suffixes=[u'',u'ə',u'ən',u'ər'],
+             underlyingForms={
+            ( u'tak' , u'tagə' , None,  None,  ): u'tag' ,
+            ( u'volk' , u'volkə' , None,  None,  ): u'volk' ,
+            ( u'pəriskop' , u'pəriskopə' , None,  None,  ): u'pəriskop' ,
+            ( u'hof' , u'höfə' , None,  None,  ): u'hof' ,
+            ( u'wək' , u'wəgə' , None,  None,  ): u'wəg' ,
+            ( u'ros' , u'rosə' , None,  None,  ): u'ros' ,
+            ( u'raup' , None,  u'raubən' , None,  ): u'raub' ,
+            ( u'ləit' , None,  u'ləidən' , None,  ): u'ləid' ,
+            ( u'lop' , None,  u'lobən' , None,  ): u'lob' ,
+            ( u'lant' , None,  u'landən' , None,  ): u'land' ,
+            ( u'rat' , None,  u'ratən' , None,  ): u'rat' ,
+            ( u'grəis' , u'grəizes' , None,  None,  ): u'grəiz' ,
+            ( u'braf' , None,  None,  u'bravər' , ): u'brav' ,
+})
+
+GoldSolution(name="Roca_17_Dutch", # UNSURE?? what is the underlying suffix
+             prefixes=[u''],
+             suffixes=[u'tə'],
+             underlyingForms={
+            ( u'klaptə' , ): u'klap' ,
+            ( u'krabdə' , ): u'krab' ,
+            ( u'rɛdə' , ): u'rɛ' ,
+            ( u'vɩstə' , ): u'vɩs' ,
+            ( u'razdə' , ): u'raz' ,
+            ( u'zɛtə' , ): u'zɛ' ,
+            ( u'maftə' , ): u'maf' ,
+            ( u'klovdə' , ): u'klov' ,
+            ( u'lɛɣdə' , ): u'lɛɣ' ,
+            ( u'laxtə' , ): u'lax' ,
+            ( u'rumdə' , ): u'rum' ,
+            ( u'zundə' , ): u'zun' ,
+            ( u'meŋdə' , ): u'meŋ' ,
+            ( u'rurdə' , ): u'rur' ,
+            ( u'rɔldə' , ): u'rɔl' ,
+            ( u'ajdə' , ): u'aj' ,
+            ( u'skidə' , ): u'ski' ,
+})
+
+GoldSolution(name="Roca_25_Zoque",
+             prefixes=[u'',u'ŋ'],
+             suffixes=[u'',u''],
+             underlyingForms={
+            ( u'pama' , u'mbama' , ): u'pama' ,
+            ( u'tatah' , u'ndatah' , ): u'tatah' ,
+            ( u'kwarto' , u'ŋgwarto' , ): u'kwarto' ,
+            ( u'plato' , u'mblato' , ): u'plato' ,
+            ( u'trama' , u'ndrama' , ): u'trama' ,
+            ( u'disko' , u'ndisko' , ): u'disko' ,
+            ( u'gaju' , u'ŋgaju' , ): u'gaju' ,
+            ( u'čoʔngoja' , u'ɲǰoʔngoja' , ): {u'čoʔnkoja',u'čoʔngoja'} ,
+            ( u'tsima' , u'ndzima' , ): u'tsima' ,
+            ( u'sʌk' , u'sʌk' , ): u'sʌk' ,
+            ( u'faha' , u'faha' , ): u'faha' ,
+            ( u'šapun' , u'šapun' , ): u'šapun' ,
+})
+
+GoldSolution(name="Roca_35_Icelandic", # UNSURE
+             prefixes=[u'',u'',u'',u'',u'',u''],
+             suffixes=[u'r',u'',u'ri',u's',u'ðum',u''],
+             underlyingForms={
+            ( u'dagur' , u'dag' , None,  None,  None,  None,  ): u'dag' ,
+            ( u'staður' , u'stað' , None,  None,  u'stöðum' , None,  ): u'stað' ,
+            ( u'hestur' , u'hest' , None,  None,  None,  None,  ): u'hest' ,
+            ( u'bær' , u'bæ' , None,  None,  None,  None,  ): u'bæ' ,
+            ( u'læknir' , u'lækni' , None,  None,  None,  None,  ): u'lækni' ,
+            ( u'lifur' , None,  u'lifri' , None,  None,  None,  ): u'lif' ,
+                 # uncertain onward
+            ( u'akur' , None,  u'agri' , None,  u'ökrum' , None,  ): u'ak' ,
+            ( u'aldur' , None,  u'aldri' , None,  u'öldrum' , None,  ): u'ald' ,
+            ( u'lüfur' , u'lüf' , None,  u'lüfs' , u'lüfjum' , u'lüfja' , ): None ,
+            ( u'bülur' , u'bül' , None,  u'büls' , u'büljum' , u'bülja' , ): None ,
+            ( u'söngur' , u'söng' , None,  u'söngs' , u'söngvum' , u'söngva' , ): None ,
+            ( u'barn' , None,  None,  None,  u'börnum' , None,  ): None ,
+            ( u'baggi' , None,  None,  None,  u'böggull' , None,  ): None ,
+            ( u'jaki' , None,  None,  None,  u'jökull' , None,  ): None ,
+            ( u'θagga' , None,  None,  None,  u'θögull' , None,  ): None ,
+            ( u'kalla' , None,  None,  None,  u'köllum' , None,  ): None ,
+})
+
+GoldSolution(name="Roca_37_Anxiang",
+             prefixes=[u'',u''],
+             suffixes=[u'',u'iər'],
+             underlyingForms={
+            ( u'tie' , u'tietiər' , ): u'tiet' ,
+            ( u'mian' , u'mianmiər' , ): u'mian' ,
+            ( u'tai' , u'taitər' , ): u'tai' ,
+            ( u'pau' , u'paupər' , ): u'pau' ,
+            ( u'ke' , u'kekər' , ): u'ke' ,
+            ( u'fa' , u'fafər' , ): u'fa' ,
+            ( u'o' , u'oər' , ): u'o' ,
+            ( u'ti' , u'titiər' , ): u'ti' ,
+            ( u'tin' , u'tintiər' , ): u'tin' ,
+            ( u'p^hu' , u'p^hup^hər' , ): u'p^hu' ,
+            ( u'tx̯y' , u'tx̯ytx̯yər' , ): u'tx̯y'
+})
+
+GoldSolution(name="Roca_89_Lumasaaba",
+             prefixes=[{u'iŋ',u'im',u'in',u'iɲ'},u'xa'],
+             suffixes=[u'',u''],
+             underlyingForms={
+            ( u'iɲɉele' , u'xaçele' , ): u'çele' ,
+            ( u'iŋga:fu' , u'xaxa:fu' , ): u'xa:fu' ,
+            ( u'imbeβa' , u'xaβeβa' , ): u'βeβa' ,
+            ( u'iŋgoxo' , u'xakoxo' , ): u'koxo' ,
+            ( u'iŋgwe' , u'xakwe' , ): u'kwe' ,
+            ( u'indali' , u'xatali' , ): u'tali' ,
+            ( u'imboko' , u'xaβoko' , ): u'βoko' ,
 })
 
 
