@@ -522,7 +522,7 @@ ap + stem
 
 
 
-Odden_Problems.append(Problem(
+Odden_Problems.append(Problem( # RERUN
 	u'''
 Yawelmani Odden 170
 	''',
@@ -542,7 +542,7 @@ Yawelmani Odden 170
 	(u"p'axathin",	u"p'axatk'a",	u"p'axa:tal",	u"p'axa:tit"),	# mourn
 	(u"hiwethin",	u"hiwetk'a",	u"hiwe:tal",	u"hiwe:tit"),	# walk
 	(u"ʔopothin",	u"ʔopotk'o",	u"ʔopo:tol",	u"ʔopo:tit"),	# arise from bed
-	(u"yawalhin",	u"yawalk's",	u"yawa:lal",	u"yawa:lit"),	# follow
+	(u"yawalhin",	u"yawalk'a",	u"yawa:lal",	u"yawa:lit"),	# follow
 	(u"paʔiṭhin",	u"paʔiṭk'a",	u"paʔṭal",		u"paʔṭit"),		# fight
 	(u"ʔilikhin",	u"ʔilikk'a",	u"ʔilkal",		u"ʔilkit"),		# sing
 	(u"logiwhin",	u"logiwk'a",	u"logwol",		u"logwit"),		# pulverize
@@ -551,7 +551,7 @@ Yawelmani Odden 170
 	(u"ʔayiyhin",	u"ʔayiyk'a",	u"ʔayyal",		u"ʔayyit"),		# pole a boat
 	(u"t'oyixhin",	u"t'oyixk'a",	u"t'oyxol",		u"t'oyxit"),	# give medicine
 	(u"luk'ulhun",	u"luk'ulk'a",	u"luk'lal",		u"luk'lut"),	# bury
-	(u"so:nilhin",	u"so:uilk'a",	u"sonlol",		u"sonlit"),		# put on back
+	(u"so:nilhin",	u"so:nilk'a",	u"sonlol",		u"sonlit"),		# put on back
 	(u"ʔa:milhin",	u"ʔa:milk'a",	u"ʔamlal",		u"ʔamlit"),		# help
 	(u"mo:yinhin",	u"mo:yink'a",	u"moynol",		u"moynit"),		# become tired
 	(u"ṣa:lik'hin",	u"ṣa:lik'k'a",	u"ṣalk'al",		u"ṣalk'it")		# wake up

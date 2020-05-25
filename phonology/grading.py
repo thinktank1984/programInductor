@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-
+import sys
 from morph import *
 
 
 class GoldSolution():
     solutions = {}
-    def __init__(self, name, prefixes, suffixes, underlyingForms):
+    def __init__(self, name, prefixes=None, suffixes=None, underlyingForms=None, substitution=None):
         self.name = name
         self.prefixes = prefixes
         self.suffixes = suffixes
         self.underlyingForms = underlyingForms
+        self.substitution = substitution
         GoldSolution.solutions[name] = self
 
 GoldSolution(name="Odden_1.1_Axininca_Campa",
@@ -351,6 +352,75 @@ GoldSolution(name="Odden_3.5_Catalan",
             ( u'dulen', u'dulentə', ): u'dulent' ,
             ( u'əstuðian', u'əstuðiantə', ): u'əstuðiant' ,
             ( u'blaŋ', u'blaŋkə', ): u'blaŋk' ,
+})
+
+GoldSolution(name="Odden_114_Lithuanian",
+             prefixes=[u'at',u'ap'],
+             suffixes=[u'ti',u'ti'],
+             underlyingForms={
+            ( u'ateiti' , None,  ): u'ei' ,
+            ( u'atimti' , None,  ): u'im' ,
+            ( u'atnešti' , None,  ): u'neš' ,
+            ( u'atleisti' , None,  ): u'leis' ,
+            ( u'atlikti' , None,  ): u'lik' ,
+            ( u'atko:pti' , None,  ): u'ko:p' ,
+            ( u'atpraši:ti' , None,  ): u'praši:' ,
+            ( u'atkurti' , None,  ): u'kur' ,
+            ( None,  u'apeiti' , ): u'ei' ,
+            ( None,  u'apieško:ti' , ): u'ieško:' ,
+            ( None,  u'apakti' , ): u'ak' ,
+            ( None,  u'apmo:ki:ti' , ): u'mo:ki:' ,
+            ( None,  u'aptemdi:ti' , ): u'temdi:' ,
+            ( None,  u'apšaukti' , ): u'šauk' ,
+            ( u'adbekti' , None,  ): u'bek' ,
+            ( u'adgauti' , None,  ): u'gau' ,
+            ( u'adbukti' , None,  ): u'buk' ,
+            ( u'adgimti' , None,  ): u'gim' ,
+            ( None,  u'abgauti' , ): u'gau' ,
+            ( None,  u'abž^yureti' , ): u'ž^yure' ,
+            ( None,  u'abželti' , ): u'žel' ,
+            ( None,  u'abdauži:ti' , ): u'dauži:' ,
+            ( None,  u'abdraski:ti' , ): u'draski:' ,
+})
+
+GoldSolution(name="Odden_116_Armenian",
+             prefixes=[u'k'],
+             suffixes=[u'am'],
+             underlyingForms={
+            ( u'kert^ham' , ): u'ert^h' ,
+            ( u'kasiem' , ): u'asi' ,
+            ( u'kaniem' , ): u'ani' ,
+            ( u'kakaniem' , ): u'akani' ,
+            ( u'koxniem' , ): u'oxni' ,
+            ( u'kurriem' , ): u'urri' ,
+            ( u'kətam' , ): u't' ,
+            ( u'kəkienam' , ): u'kien' ,
+            ( u'gəbəzzam' , ): u'bəzz' ,
+            ( u'gəlam' , ): u'l' ,
+            ( u'gəzəram' , ): u'zər' ,
+            ( u'k^hət^huoyniem' , ): u't^huoyni' ,
+            ( u'k^həč^hap^hiem' , ): u'č^hap^hi' ,
+            ( u'g^həb^hieřiem' , ): u'b^hiaři' ,
+            ( u'g^həg^huom' , ): u'g^hu' ,
+            ( u'g^həd^z^hieviem' , ): u'd^z^hiavi' ,
+})
+
+GoldSolution(name="Odden_105_Bukusu",
+             prefixes=[u'',u'βa',{u'ñ',u'ŋ',u'n',u'm'}],
+             suffixes=[u'a',u'a',u'a'],
+             underlyingForms={
+            ( u'ča' , u'βača' , u'ñǰa' , ): u'č' ,
+            ( u'čexa' , u'βačexa' , u'ñǰexa' , ): u'čex' ,
+            ( u'čučuuŋga' , u'βačučuuŋga' , u'ñǰučuuŋga' , ): u'čučuuŋg' ,
+            ( u'talaanda' , u'βatalaanda' , u'ndalaanda' , ): u'talaand' ,
+            ( u'teexa' , u'βateexa' , u'ndeexa' , ): u'teex' ,
+            ( u'tiira' , u'βatiira' , u'ndiira' , ): u'tiir' ,
+            ( u'piima' , u'βapiima' , u'mbiima' , ): u'piim' ,
+            ( u'pakala' , u'βapakala' , u'mbakala' , ): u'pakal' ,
+            ( u'ketulula' , u'βaketulula' , u'ŋgetulula' , ): u'ketulul' ,
+            ( u'kona' , u'βakona' , u'ŋgona' , ): u'kon' ,
+            ( u'kula' , u'βakula' , u'ŋgula' , ): u'kul' ,
+            ( u'kwa' , u'βakwa' , u'ŋgwa' , ): u'kw' ,
 })
 
 GoldSolution(name="Odden_3.6_Finnish", # UNSURE
@@ -753,6 +823,39 @@ GoldSolution(name="Halle_149_Russian", # UNSURE
             ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
 })
 
+# TODO
+GoldSolution(name="Odden_170_Yawelmani",
+             prefixes=[u'',u'',u'',u''],
+             suffixes=[u'hin',u'ka',u'al',u'it'],
+             underlyingForms={
+            ( u'xathin' , u'xatka' , u'xatal' , u'xatit' , ): u'xat' ,
+            ( u'dubhun' , u'dubka' , u'dubal' , u'dubut' , ): u'deb' ,
+            ( u'xilhin' , u'xilka' , u'xilal' , u'xilit' , ): u'xil' ,
+            ( u'koʔhin' , u'koʔko' , u'koʔol' , u'koʔit' , ): u'koʔ' ,
+            ( u'doshin' , u'dosko' , u'do:sol' , u'do:sit' , ): u'do:s' ,
+            ( u'ṣaphin' , u'ṣapka' , u'ṣa:pal' , u'ṣa:pit' , ): u'ṣa:p' ,
+            ( u'lanhin' , u'lanka' , u'la:nal' , u'la:nit' , ): u'la:n' ,
+            ( u'mekhin' , u'mekka' , u'me:kal' , u'me:kit' , ): u'me:k' ,
+            ( u'wonhin' , u'wonko' , u'wo:nol' , u'wo:nit' , ): u'wo:n' ,
+            ( u'paxathin' , u'paxatka' , u'paxa:tal' , u'paxa:tit' , ): u'paxa:t' ,
+            ( u'hiwethin' , u'hiwetka' , u'hiwe:tal' , u'hiwe:tit' , ): u'hiwe:t' ,
+            ( u'ʔopothin' , u'ʔopotko' , u'ʔopo:tol' , u'ʔopo:tit' , ): u'ʔopo:t' ,
+            ( u'yawalhin' , u'yawalka' , u'yawa:lal' , u'yawa:lit' , ): u"yawa:l" ,
+            ( u'paʔiṭhin' , u'paʔiṭka' , u'paʔṭal' , u'paʔṭit' , ): {u'paʔiṭ',u'paʔṭ'} ,
+            ( u'ʔilikhin' , u'ʔilikka' , u'ʔilkal' , u'ʔilkit' , ): {u'ʔilik',u'ʔilk'} ,
+            ( u'logiwhin' , u'logiwka' , u'logwol' , u'logwit' , ): {u'logiw',u'logw'} ,
+            ( u'ʔugunhun' , u'ʔugunka' , u'ʔugnal' , u'ʔugnut' , ): {u'ʔugun',u'ʔugn'} ,
+            ( u'lihimhin' , u'lihimka' , u'lihmal' , u'lihmit' , ): {u'lihim',u'lihm'} ,
+            ( u'ʔayiyhin' , u'ʔayiyka' , u'ʔayyal' , u'ʔayyit' , ): {u'ʔayy',u'ʔayiy'}  ,
+            ( u'toyixhin' , u'toyixka' , u'toyxol' , u'toyxit' , ): {u'toyix',u'toyx'} ,
+            ( u'lukulhun' , u'lukulka' , u'luklal' , u'luklut' , ): {u'lukl',u'lukul'} ,
+            ( u'so:nilhin' , u'so:nilka' , u'sonlol' , u'sonlit' , ): {u"so:nil",u"so:nl"},
+            ( u'ʔa:milhin' , u'ʔa:milka' , u'ʔamlal' , u'ʔamlit' , ): {u'ʔa:mil',u'ʔa:ml'},
+            ( u'mo:yinhin' , u'mo:yinka' , u'moynol' , u'moynit' , ): {u'mo:yin',u'mo:yn'},
+            ( u'ṣa:likhin' , u'ṣa:likka' , u'ṣalkal' , u'ṣalkit' , ): {u'ṣa:lik',u'ṣa:lk'} ,
+})
+
+
 GoldSolution(name="Halle_153_Yokuts", # nb: this can be analyzed either with insertion or deletion
              prefixes=[u'',u'',u''],
              suffixes=[u'it',u'hin',u'nit'],
@@ -814,8 +917,8 @@ GoldSolution(name="Halle_97_Turkish", # ask about harmony
 })
 
 GoldSolution(name="Halle_125_Indonesian", # unsure, but this is funny
-             prefixes=[u'',u'mə'],
-             suffixes=[u'',u'i'],
+             prefixes=[u'',u'məŋ'],
+             suffixes=[u'',u''],
              underlyingForms={
             ( u'lempar' , u'məlempar' , ): u'lempar' ,
             ( u'rasa' , u'mərasa' , ): u'rasa' ,
@@ -825,18 +928,18 @@ GoldSolution(name="Halle_125_Indonesian", # unsure, but this is funny
             ( u'nikah' , u'mənikah' , ): u'nikah' ,
             ( u'ŋaco' , u'məŋaco' , ): u'ŋaco' ,
             ( u'ɲaɲi' , u'məɲaɲi' , ): u'ɲaɲi' ,
-            ( u'hituŋ' , u'məŋhituŋ' , ): u'ghituŋ' ,
-            ( u'gambar' , u'məŋgambar' , ): u'ggambar' ,
+            ( u'hituŋ' , u'məŋhituŋ' , ): u'hituŋ' ,
+            ( u'gambar' , u'məŋgambar' , ): u'gambar' ,
             ( u'kirim' , u'məŋirim' , ): u'kirim' ,
-            ( u'dəŋar' , u'məndəŋar' , ): u'ddəkar' ,
+            ( u'dəŋar' , u'məndəŋar' , ): u'dəkar' ,
             ( u'tulis' , u'mənulis' , ): u'tulis' ,
-            ( u'bantu' , u'məmbantu' , ): u'bbantu' ,
+            ( u'bantu' , u'məmbantu' , ): u'bantu' ,
             ( u'pukul' , u'məmukul' , ): u'pukul' ,
-            ( u'ǰahit' , u'mən̆ǰahit' , ): u'ǰǰahit' ,
-            ( u'čatat' , u'mən̆čatat' , ): u'ǰčatat' ,
-            ( u'ambil' , u'məŋambil' , ): u'gambil' ,
-            ( u'isi' , u'məŋisi' , ): u'gisi' ,
-            ( u'undaŋ' , u'məŋundaŋ' , ): u'gundaŋ' ,
+            ( u'ǰahit' , u'mən̆ǰahit' , ): u'ǰahit' ,
+            ( u'čatat' , u'mən̆čatat' , ): u'čatat' ,
+            ( u'ambil' , u'məŋambil' , ): u'ambil' ,
+            ( u'isi' , u'məŋisi' , ): u'isi' ,
+            ( u'undaŋ' , u'məŋundaŋ' , ): u'undaŋ' ,
 })
 
 GoldSolution(name="Halle_109_Russian", # UNSURE
@@ -894,19 +997,15 @@ GoldSolution(name="Halle_133_Swahili", # UNSURE
             ( u'usira' , u'sira' , None,  ): u'sira' ,
             ( u'ušono' , u'šono' , u'mašono' , ): u'šono' ,
             ( u'ušaŋga' , u'šaŋga' , None,  ): u'šaŋga' ,
-                 # here is what I get confused
-                 # this onward
-                 # {w,l,r} > [+stop] #_
             ( u'uwiŋgu' , u'm̩biŋgu' , None,  ): u'biŋgu' ,
             ( u'uwili' , u'm̩bili' , None,  ): u'wili' ,
             ( u'ulimi' , u'n̩dimi' , None,  ): u'limi' ,
             ( u'urefu' , u'n̩defu' , None,  ): u'refu' ,
             ( u'umio' , u'mio' , None,  ): u'mio' ,
-                 # not sure about these next last ones
-            ( u'wimbo' , u'ɲimbo' , None,  ): u'ɲimbo' ,
-            ( u'wembe' , u'ɲembe' , None,  ): u'ɲembe' ,
-                 ( u'wakati' , u'ɲakati' , None,  ): None,
-            ( u'uši' , u'ɲuši' , None,  ): None ,
+            ( u'wimbo' , u'ɲimbo' , None,  ): u'imbo' ,
+            ( u'wembe' , u'ɲembe' , None,  ): u'embe' ,
+                 ( u'wakati' , u'ɲakati' , None,  ): u'akati',
+            ( u'uši' , u'ɲuši' , None,  ): u'uši',
             ( u'šoka' , None,  u'mašoka' , ): u'šoka' ,
             ( u'tunda' , None,  u'matunda' , ): u'tunda' ,
             ( u'kaša' , None,  u'makaša' , ): u'kaša' ,
@@ -944,16 +1043,16 @@ GoldSolution(name="Roca_16_German",
             ( u'braf' , None,  None,  u'bravər' , ): u'brav' ,
 })
 
-GoldSolution(name="Roca_17_Dutch", # UNSURE?? what is the underlying suffix
+GoldSolution(name="Roca_17_Dutch", # okay this problem is not fair
              prefixes=[u''],
-             suffixes=[u'tə'],
+             suffixes=[{u'tə',u'də'}],
              underlyingForms={
             ( u'klaptə' , ): u'klap' ,
             ( u'krabdə' , ): u'krab' ,
-            ( u'rɛdə' , ): u'rɛ' ,
+            ( u'rɛdə' , ): u'rɛd' ,
             ( u'vɩstə' , ): u'vɩs' ,
             ( u'razdə' , ): u'raz' ,
-            ( u'zɛtə' , ): u'zɛ' ,
+            ( u'zɛtə' , ): u'zɛt' ,
             ( u'maftə' , ): u'maf' ,
             ( u'klovdə' , ): u'klov' ,
             ( u'lɛɣdə' , ): u'lɛɣ' ,
@@ -1038,10 +1137,24 @@ GoldSolution(name="Roca_89_Lumasaaba",
             ( u'imboko' , u'xaβoko' , ): u'βoko' ,
 })
 
+GoldSolution(name="Halle_49_Ewe",
+             # I think either direction works
+             substitution={u'l': u'r'})
+GoldSolution(name="Halle_51_Ganda",
+             substitution={u'r': u'l'})
+GoldSolution(name="Halle_53_Papago",
+             substitution={u'ǰ': u'd', u'č': u't'})
+GoldSolution(name="Halle_55_Proto_Bantu",
+             substitution={u'b': u'β', u'd': u'l', u'g': u'ɣ'}) # UNSURE
+GoldSolution(name="Halle_59_Mohawk",
+             substitution={u'b': u'p', u'd': u't', u'g': u'k'})
+
 
 if __name__ == "__main__":
     import argparse
     import pickle
+
+    print len(GoldSolution.solutions),"solutions."
     from problems import Problem
     from textbook_problems import *
     parser = argparse.ArgumentParser(description = "")
@@ -1051,11 +1164,21 @@ if __name__ == "__main__":
     with open(arguments.path,"rb") as handle:
         data = pickle.load(handle)
 
+    
     def morphToUnicode(m):
         if m is None: return u"None"
         m = u"".join(m.phonemes)
         return u"u'%s'"%(m)
         return unicode((m,))[1:][:-2]
+
+    if "alternation" in arguments.path:
+        name = arguments.path[arguments.path.rindex('/')+1:]
+        name = name[:name.rindex('.')]        
+        print "GoldSolution(name=\"%s\","%(name)
+        print "             substitution=%s)"%(data.substitution)
+        print data.rules
+        sys.exit(0)
+        
 
     prefixes = "[%s]"%(u",".join(morphToUnicode(prefix) for prefix in data.finalFrontier.prefixes ))
     suffixes = "[%s]"%(u",".join(morphToUnicode(suffix) for suffix in data.finalFrontier.suffixes ))
