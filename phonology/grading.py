@@ -207,6 +207,187 @@ GoldSolution(name="Odden_3.1_Kerewe",
             ( u'kulába', u'kulábána', u'kulábíla', u'kulábílana', u'kutúlába', u'kukílába', u'kutúlábila', u'kukítúlabila', ): u'láb' ,
 })
 
+GoldSolution(name="Odden_76_77_Kerewe",
+             prefixes=[u'ku',u'm',u'a',u''],
+             suffixes=[u'a',u'a',u'a',u'a'],
+             underlyingForms={
+            ( u'kupaamba' , u'mpaamba' , u'apaamba' , u'paamba' , ): u'paamb' ,
+            ( u'kupaaŋga' , u'mpaaŋga' , u'apaaŋga' , u'paaŋga' , ): u'paaŋg' ,
+            ( u'kupima' , u'mpima' , u'apima' , u'pima' , ): u'pim' ,
+            ( u'kupuupa' , u'mpuupa' , u'apuupa' , u'puupa' , ): u'puup' ,
+            ( u'kupekeča' , u'mpekeča' , u'apekeča' , u'pekeča' , ): u'pekeč' ,
+            ( u'kupiinda' , u'mpiinda' , u'apiinda' , u'piinda' , ): u'piind' ,
+            ( u'kuhiiga' , u'mpiiga' , u'ahiiga' , u'hiiga' , ): u'hiig' ,
+            ( u'kuheeka' , u'mpeeka' , u'aheeka' , u'heeka' , ): u'heek' ,
+            ( u'kuhaaŋga' , u'mpaaŋga' , u'ahaaŋga' , u'haaŋga' , ): u'haaŋg' ,
+            ( u'kuheeba' , u'mpeeba' , u'aheeba' , u'heeba' , ): u'heeb' ,
+            ( u'kuhiima' , u'mpiima' , u'ahiima' , u'hiima' , ): u'hiim' ,
+            ( u'kuhuuha' , u'mpuuha' , u'ahuuha' , u'huuha' , ): u'huuh' ,
+})
+
+GoldSolution(name="Odden_79_Jita",
+             prefixes=[u'oku',u'oku',u'oku',u'oku',u'okúmú',u'okúmú',u'okučí',u'okúčí'],
+             suffixes=[u'a',u'ira',u'ana',u'irana',u'a',u'ira',u'a',u'ira'],
+             underlyingForms={
+            ( u'okuβuma' , u'okuβumira' , u'okuβumana' , u'okuβumirana' , u'okumuβúma' , u'okumuβúmira' , u'okučiβúma' , u'okučiβúmira' , ): u'βum' ,
+            ( u'okusiβa' , u'okusiβira' , u'okusiβana' , u'okusiβirana' , u'okumusíβa' , u'okumusíβira' , u'okučisíβa' , u'okučisíβira' , ): u'siβ' ,
+            ( u'okulúma' , u'okulumíra' , u'okulumána' , u'okulumírana' , None,  None,  None,  None,  ): u'lúm' ,
+            ( u'okukúβa' , u'okukuβíra' , u'okukuβána' , u'okukuβírana' , None,  None,  None,  None,  ): u'kúβ' ,
+})
+
+GoldSolution(name="Odden_4.10_Sakha_Yakut",
+             prefixes=[u'',u'',u''],
+             suffixes=[u'',u'lar',u'lɨɨn'],
+             underlyingForms={
+            ( u'aɣa' , u'aɣalar' , u'aɣalɨɨn' , ): u'aɣa' ,
+            ( u'paarta' , u'paartalar' , u'paartalɨɨn' , ): u'paarta' ,
+            ( u'tɨa' , u'tɨalar' , u'tɨalɨɨn' , ): u'tɨa' ,
+            ( u'kinige' , u'kinigeler' , u'kinigeliin' , ): u'kinige' ,
+            ( u'šie' , u'šieler' , u'šieliin' , ): u'šie' ,
+            ( u'iye' , u'iyeler' , u'iyeliin' , ): u'iye' ,
+            ( u'kini' , u'kiniler' , u'kiniliin' , ): u'kini' ,
+            ( u'bie' , u'bieler' , u'bieliin' , ): u'bie' ,
+            ( u'oɣo' , u'oɣolor' , u'oɣoluun' , ): u'oɣo' ,
+            ( u'Xopto' , u'Xoptolor' , u'Xoptoluun' , ): u'Xopto' ,
+            ( u'börö' , u'börölör' , u'börölüün' , ): u'börö' ,
+            ( u'tɨal' , u'tɨallar' , u'tɨallɨɨn' , ): u'tɨal' ,
+            ( u'ɨal' , u'ɨallar' , u'ɨallɨɨn' , ): u'ɨal' ,
+            ( u'kuul' , u'kuullar' , u'kuulluun' , ): u'kuul' ,
+            ( u'at' , u'attar' , u'attɨɨn' , ): u'at' ,
+            ( u'balɨk' , u'balɨktar' , u'balɨktɨɨn' , ): u'balɨk' ,
+            ( u'ɨskaap' , u'ɨskaaptar' , u'ɨskaaptɨɨn' , ): u'ɨskaap' ,
+            ( u'oɣus' , u'oɣustar' , u'oɣustuun' , ): u'oɣɨs' ,
+            ( u'kus' , u'kustar' , u'kustuun' , ): u'kus' ,
+            ( u'tünnük' , u'tünnükter' , u'tünnüktüün' , ): u'tünnɨk' ,
+            ( u'sep' , u'septer' , u'septiin' , ): u'sep' ,
+            ( u'et' , u'etter' , u'ettiin' , ): u'et' ,
+            ( u'örüs' , u'örüster' , u'örüstüün' , ): u'örus' ,
+            ( u'tiis' , u'tiister' , u'tiistiin' , ): u'tiis' ,
+            ( u'soroX' , u'soroXtor' , u'soroXtuun' , ): u'soroX' ,
+            ( u'oX' , u'oXtor' , u'oXtuun' , ): u'oX' ,
+            ( u'oloppos' , u'oloppostor' , u'oloppostuun' , ): u'olappos' ,
+            ( u'ötöX' , u'ötöXtör' , u'ötöXtüün' , ): u'ötöX' ,
+            ( u'ubay' , u'ubaydar' , u'ubaydɨɨn' , ): u'ubay' ,
+            ( u'saray' , u'saraydar' , u'saraydɨɨn' , ): u'saray' ,
+            ( u'tɨy' , u'tɨydar' , u'tɨydɨɨn' , ): u'tɨy' ,
+            ( u'atɨɨr' , u'atɨɨrdar' , u'atɨɨrdɨɨn' , ): u'atɨɨr' ,
+            ( u'oyuur' , u'oyuurdar' , u'oyuurduun' , ): u'oyɨur' ,
+            ( u'üčügey' , u'üčügeyder' , u'üčügeydiin' , ): u'üčugay' ,
+            ( u'ešiiy' , u'ešiiyder' , u'ešiiydiin' , ): u'ešiiy' ,
+            ( u'tomtor' , u'tomtordor' , u'tomtorduun' , ): u'tomtor' ,
+            ( u'moɣotoy' , u'moɣotoydor' , u'moɣotoyduun' , ): u'moɣotoy' ,
+            ( u'kötör' , u'kötördör' , u'kötördüün' , ): u'köter' ,
+            ( u'bölköy' , u'bölköydör' , u'bölköydüün' , ): u'bölköy' ,
+            ( u'Xatɨŋ' , u'Xatɨŋnar' , u'Xatɨŋnɨɨn' , ): u'Xatɨŋ' ,
+            ( u'aan' , u'aannar' , u'aannɨɨn' , ): u'aan' ,
+            ( u'tiiŋ' , u'tiiŋner' , u'tiiŋniin' , ): u'tiiŋ' ,
+            ( u'sordoŋ' , u'sordoŋnor' , u'sordoŋnuun' , ): u'sordoŋ' ,
+            ( u'olom' , u'olomnor' , u'olomnuun' , ): u'olom' ,
+            ( u'oron' , u'oronnor' , u'oronnuun' , ): u'oron' ,
+            ( u'bödöŋ' , u'bödöŋnör' , u'bödöŋnüün' , ): u'bödeŋ' ,
+})
+
+GoldSolution(name="Odden_81_Korean", # TODO - asked Tim on slack, waiting for response
+             prefixes=[u'',u''],
+             suffixes=[u'ə',u'nɨnta'],
+             underlyingForms={
+            ( u'ana' , u'annɨnta' , ): u'an' ,
+            ( u'kama' , u'kamnɨnta' , ): u'kam' ,
+            ( u'sinə' , u'sinnɨnta' , ): u'sin' ,
+            ( u't̚atɨmə' , u't̚atɨmnɨnta' , ): u't̚atɨm' ,
+            ( u'nəmə' , u'nəmnɨnta' , ): u'nəm' ,
+            ( u'nama' , u'namnɨnta' , ): u'nam' ,
+            ( u'č^hama' , u'č^hamnɨnta' , ): u'č^ham' ,
+            ( u'ipə' , u'imnɨnta' , ): u'ip' ,
+            ( u'kupə' , u'kumnɨnta' , ): u'kup' ,
+            ( u'čəpə' , u'čəmnɨnta' , ): u'čəp' ,
+            ( u'tatə' , u'tannɨnta' , ): u'tat' ,
+            ( u'put^hə' , u'punnɨnta' , ): u'put^h' ,
+            ( u'čoč^ha' , u'čonnɨnta' , ): u'čoč^h' ,
+            ( u'məkə' , u'məŋnɨnta' , ): u'mək' ,
+            ( u'sək̚ə' , u'səŋnɨnta' , ): u'sək̚' ,
+            ( u'tak̚a' , u'taŋnɨnta' , ): u'tak̚' ,
+            ( u'čukə' , u'čuŋnɨnta' , ): u'čuk' ,
+            ( u'ikə' , u'iŋnɨnta' , ): u'ik' ,
+})
+
+
+GoldSolution(name="Odden_85_Samoan",
+             prefixes=[u'',u''],
+             suffixes=[u'',u'ia'],
+             underlyingForms={
+            ( u'olo' , u'oloia' , ): u'olo' ,
+            ( u'lafo' , u'lafoia' , ): u'lafo' ,
+            ( u'aŋa' , u'aŋaia' , ): u'aŋa' ,
+            ( u'usu' , u'usuia' , ): u'usu' ,
+            ( u'tau' , u'tauia' , ): u'tau' ,
+            ( u'taui' , u'tauia' , ): u'taui' ,
+            ( u'sa:ʔili' , u'sa:ʔilia' , ): u'sa:ʔili' ,
+            ( u'vaŋai' , u'vaŋaia' , ): u'vaŋai' ,
+            ( u'paʔi' , u'paʔia' , ): u'paʔi' ,
+            ( u'naumati' , u'naumatia' , ): u'naumati' ,
+            ( u'sa:uni' , u'sa:unia' , ): u'sa:uni' ,
+            ( u'seŋi' , u'seŋia' , ): u'seŋi' ,
+            ( u'lele' , u'lelea' , ): u'lele' ,
+            ( u'suʔe' , u'suʔea' , ): u'suʔe' ,
+            ( u'taʔe' , u'taʔea' , ): u'taʔe' ,
+            ( u'tafe' , u'tafea' , ): u'tafe' ,
+            ( u'ta:upule' , u'ta:upulea' , ): u'ta:upule' ,
+            ( u'palepale' , u'palepalea' , ): u'palepale' ,
+            ( u'tu:' , u'tu:lia' , ): u'tu:l' ,
+            ( u'tau' , u'taulia' , ): u'taul' ,
+            ( u'ʔalo' , u'ʔalofia' , ): u'ʔalof' ,
+            ( u'oso' , u'osofia' , ): u'osof' ,
+            ( u'sao' , u'saofia' , ): u'saof' ,
+            ( u'asu' , u'asuŋia' , ): u'asuŋ' ,
+            ( u'pole' , u'poleŋia' , ): u'poleŋ' ,
+            ( u'ifo' , u'ifoŋia' , ): u'ifoŋ' ,
+            ( u'ula' , u'ulaŋia' , ): u'ulaŋ' ,
+            ( u'milo' , u'milosia' , ): u'milos' ,
+            ( u'valu' , u'valusia' , ): u'valus' ,
+            ( u'vela' , u'velasia' , ): u'velas' ,
+            ( u'api' , u'apitia' , ): u'apit' ,
+            ( u'eʔe' , u'eʔetia' , ): u'eʔet' ,
+            ( u'lava:' , u'lava:tia' , ): u'lava:t' ,
+            ( u'u:' , u'u:tia' , ): u'u:t' ,
+            ( u'puni' , u'punitia' , ): u'punit' ,
+            ( u'siʔo' , u'siʔomia' , ): u'siʔom' ,
+            ( u'ŋalo' , u'ŋalomia' , ): u'ŋalom' ,
+            ( u'sopo' , u'sopoʔia' , ): u'sopoʔ' ,
+            ( u'au' , u'aulia' , ): u'aul' ,
+            ( u'ma:tau' , u'ma:taulia' , ): u'ma:taul' ,
+            ( u'ili' , u'ilifia' , ): u'ilif' ,
+            ( u'ulu' , u'ulufia' , ): u'uluf' ,
+            ( u'taŋo' , u'taŋofia' , ): u'taŋof' ,
+            ( u'soa' , u'soaŋia' , ): u'soaŋ' ,
+            ( u'fesili' , u'fesiliŋia' , ): u'fesiliŋ' ,
+            ( u'ʔote' , u'ʔoteŋia' , ): u'ʔoteŋ' ,
+            ( u'tofu' , u'tofuŋia' , ): u'tofuŋ' ,
+            ( u'laʔa' , u'laʔasia' , ): u'laʔas' ,
+            ( u'taŋi' , u'taŋisia' , ): u'taŋis' ,
+            ( u'motu' , u'motusia' , ): u'motus' ,
+            ( u'mataʔu' , u'mataʔutia' , ): u'mataʔut' ,
+            ( u'sau' , u'sautia' , ): u'saut' ,
+            ( u'oʔo' , u'oʔotia' , ): u'oʔot' ,
+            ( u'ufi' , u'ufitia' , ): u'ufit' ,
+            ( u'tanu' , u'tanumia' , ): u'tanum' ,
+            ( u'moʔo' , u'moʔomia' , ): u'moʔom' ,
+            ( u'tao' , u'taomia' , ): u'taom' ,
+            ( u'fana' , u'fanaʔia' , ): u'fanaʔ' ,
+})
+
+GoldSolution(name="Odden_88_Palauan", # actually the solution it finds I think is fine
+             prefixes=[u'mə',u'',u''], # although really this could be any vowel
+             suffixes=[u'',u'all',u'l'], # although really this could be stressed
+             underlyingForms={
+            ( u'mədáŋəb' , u'dəŋəbáll' , u'dəŋóbl' , ): u'daŋob' ,
+            ( u'mətéʔəb' , u'təʔəbáll' , u'təʔíbl' , ): u'teʔib' ,
+            ( u'məŋétəm' , u'ŋətəmáll' , u'ŋətóml' , ): u'ŋetom' ,
+            ( u'mətábək' , u'təbəkáll' , u'təbákl' , ): u'tabak' ,
+            ( u'məʔárəm' , u'ʔərəmáll' , u'ʔəróml' , ): u'ʔarom' ,
+            ( u'məsésəb' , u'səsəbáll' , u'səsóbl' , ): u'sesob' ,
+})
+
 GoldSolution(name="Odden_2.6_North_Saami",
              prefixes=[u'',u''],
              suffixes=[u'',u'in'],
@@ -823,7 +1004,7 @@ GoldSolution(name="Halle_149_Russian", # UNSURE
             ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
 })
 
-# TODO
+# nb: this can be analyzed with either insertion or deletion
 GoldSolution(name="Odden_170_Yawelmani",
              prefixes=[u'',u'',u'',u''],
              suffixes=[u'hin',u'ka',u'al',u'it'],
@@ -970,11 +1151,11 @@ GoldSolution(name="Halle_127_Japanese", # unsure
             ( u'kau' , u'kawanai' , u'kaitai' , u'katta' , u'kaoo' , ): u'kaw'
 })
 
-GoldSolution(name="Halle_133_Swahili", # UNSURE
+GoldSolution(name="Halle_133_Swahili",
              prefixes=[u'u',u'',u'ma'],
              suffixes=[u'',u'',u''],
              underlyingForms={
-                 # I think you are not allowed to start with and unaspirated stop
+                 # I think you are not allowed to start with an unaspirated stop
                  # and you have to prepend a nasal in that case
                  # deaspirate when not word initial
             ( u'ubale' , u'm̩bale' , None,  ): u'bale' ,
@@ -997,14 +1178,17 @@ GoldSolution(name="Halle_133_Swahili", # UNSURE
             ( u'usira' , u'sira' , None,  ): u'sira' ,
             ( u'ušono' , u'šono' , u'mašono' , ): u'šono' ,
             ( u'ušaŋga' , u'šaŋga' , None,  ): u'šaŋga' ,
+                 # word initial {w,l,r} > [+stop] / #_
             ( u'uwiŋgu' , u'm̩biŋgu' , None,  ): u'biŋgu' ,
             ( u'uwili' , u'm̩bili' , None,  ): u'wili' ,
             ( u'ulimi' , u'n̩dimi' , None,  ): u'limi' ,
             ( u'urefu' , u'n̩defu' , None,  ): u'refu' ,
             ( u'umio' , u'mio' , None,  ): u'mio' ,
+                 # u > w / _ V
             ( u'wimbo' , u'ɲimbo' , None,  ): u'imbo' ,
             ( u'wembe' , u'ɲembe' , None,  ): u'embe' ,
                  ( u'wakati' , u'ɲakati' , None,  ): u'akati',
+                 # u > 0 / u_
             ( u'uši' , u'ɲuši' , None,  ): u'uši',
             ( u'šoka' , None,  u'mašoka' , ): u'šoka' ,
             ( u'tunda' , None,  u'matunda' , ): u'tunda' ,
@@ -1043,9 +1227,9 @@ GoldSolution(name="Roca_16_German",
             ( u'braf' , None,  None,  u'bravər' , ): u'brav' ,
 })
 
-GoldSolution(name="Roca_17_Dutch", # okay this problem is not fair
+GoldSolution(name="Roca_17_Dutch", 
              prefixes=[u''],
-             suffixes=[{u'tə',u'də'}],
+             suffixes=[{u'tə',u'də'}], # can be analyzed either way
              underlyingForms={
             ( u'klaptə' , ): u'klap' ,
             ( u'krabdə' , ): u'krab' ,
@@ -1084,10 +1268,11 @@ GoldSolution(name="Roca_25_Zoque",
             ( u'šapun' , u'šapun' , ): u'šapun' ,
 })
 
-GoldSolution(name="Roca_35_Icelandic", # UNSURE
+GoldSolution(name="Roca_35_Icelandic",
              prefixes=[u'',u'',u'',u'',u'',u''],
              suffixes=[u'r',u'',u'ri',u's',u'um',u'a'],
              underlyingForms={
+                 # 0 > u / C_r#
             ( u'dagur' , u'dag' , None,  None,  None,  None,  ): u'dag' ,
             ( u'staður' , u'stað' , None,  None,  u'stöðum' , None,  ): u'stað' ,
             ( u'hestur' , u'hest' , None,  None,  None,  None,  ): u'hest' ,
@@ -1137,6 +1322,8 @@ GoldSolution(name="Roca_89_Lumasaaba",
             ( u'imboko' , u'xaβoko' , ): u'βoko' ,
 })
 
+
+
 GoldSolution(name="Halle_49_Ewe",
              # I think either direction works
              substitution={u'l': u'r'})
@@ -1151,12 +1338,21 @@ GoldSolution(name="Halle_59_Mohawk",
 
 
 if __name__ == "__main__":
-    import argparse
-    import pickle
-
-    print len(GoldSolution.solutions),"solutions."
     from problems import Problem
     from textbook_problems import *
+    import argparse
+    import pickle
+    import sys
+    print len(GoldSolution.solutions),"solutions."
+    if len(sys.argv) < 2:
+        print "here is what we have already graded:"
+        already_graded = list(sorted(GoldSolution.solutions.keys()))
+        for name in already_graded: print name
+        print "here is what still needs to be graded:"
+        for to_do in set(Problem.named.keys()) - set(already_graded):
+            print to_do
+        sys.exit(0)
+        
     parser = argparse.ArgumentParser(description = "")
     parser.add_argument("path")
     arguments = parser.parse_args()

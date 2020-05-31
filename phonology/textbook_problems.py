@@ -227,7 +227,7 @@ oku + čí + stem + ir + a
 
 
 
-Odden_Problems.append(Problem(
+Odden_Problems.append(Problem( # RERUN
 	u'''
 Korean Odden 81
 	''',
@@ -246,7 +246,7 @@ Korean Odden 81
 	(u"čəpə", 		u"čəmnɨnta"),		# fold
 	(u"tatə",	 	u"tannɨnta"),		# close
 	(u"put^hə", 	u"punnɨnta"),		# adhere
-	(u"čəč^ha", 	u"čonnɨnta"),		# follow
+	(u"čoč^ha", 	u"čonnɨnta"),		# follow
 	(u"məkə", 		u"məŋnɨnta"),		# eat
 	(u"sək̚ə", 		u"səŋnɨnta"),		# mix
 	(u"tak̚a", 		u"taŋnɨnta"),		# polish
