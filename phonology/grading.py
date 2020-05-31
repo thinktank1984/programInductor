@@ -322,6 +322,42 @@ GoldSolution(name="Odden_77_78_English",
             ( u'flayz' , ): u'flay' ,
 })
 
+GoldSolution(name="Odden_73_74_Finnish",
+             prefixes=[u'',u''],
+             suffixes=[u'',u'a'],
+             underlyingForms={
+            ( u'aamu' , u'aamua' , ): u'aamu' ,
+            ( u'hopea' , u'hopeaa' , ): u'hopea' ,
+            ( u'katto' , u'kattoa' , ): u'katto' ,
+            ( u'kello' , u'kelloa' , ): u'kello' ,
+            ( u'kirya' , u'kiryaa' , ): u'kirya' ,
+            ( u'külmæ' , u'külmææ' , ): u'külmæ' ,
+            ( u'koulu' , u'koulua' , ): u'koulu' ,
+            ( u'lintu' , u'lintua' , ): u'lintu' ,
+            ( u'hüllü' , u'hüllüæ' , ): u'hüllü' ,
+            ( u'kömpelö' , u'kömpelöæ' , ): u'kömpelö' ,
+            ( u'nækö' , u'næköæ' , ): u'nækö' ,
+            ( u'yoki' , u'yokea' , ): u'yoke' ,
+            ( u'kivi' , u'kiveæ' , ): u'kive' ,
+            ( u'muuri' , u'muuria' , ): u'muuri' ,
+            ( u'naapuri' , u'naapuria' , ): u'naæpuri' ,
+            ( u'nimi' , u'nimeæ' , ): u'nime' ,
+            ( u'kaappi' , u'kaappia' , ): u'kaappi' ,
+            ( u'kaikki' , u'kaikkea' , ): u'kaikke' ,
+            ( u'kiirehti' , u'kiirehtiæ' , ): u'kiirehti' ,
+            ( u'lehti' , u'lehteæ' , ): u'lehte' ,
+            ( u'mæki' , u'mækeæ' , ): u'mæke' ,
+            ( u'ovi' , u'ovea' , ): u'ove' ,
+            ( u'posti' , u'postia' , ): u'posti' ,
+            ( u'tukki' , u'tukkia' , ): u'tukki' ,
+            ( u'æiti' , u'æitiæ' , ): u'æiti' ,
+            ( u'englanti' , u'englantia' , ): u'englanti' ,
+            ( u'yærvi' , u'yærveæ' , ): u'yærve' ,
+            ( u'koski' , u'koskea' , ): u'koske' ,
+            ( u'reki' , u'rekeæ' , ): u'reke' ,
+            ( u'væki' , u'vækeæ' , ): u'væke' ,
+})
+
 GoldSolution(name="Odden_81_Korean", 
              prefixes=[u'',u''],
              suffixes=[u'ə',u'nɨnta'],
@@ -344,6 +380,26 @@ GoldSolution(name="Odden_81_Korean",
             ( u'tak̚a' , u'taŋnɨnta' , ): u'tak̚' ,
             ( u'čukə' , u'čuŋnɨnta' , ): u'čuk' ,
             ( u'ikə' , u'iŋnɨnta' , ): u'ik' ,
+})
+
+GoldSolution(name="Odden_81_Koasati",
+             prefixes=[u'',u'am'],
+             suffixes=[u'',u''],
+             underlyingForms={
+            ( u'apahčá' , u'amapahčá' , ): u'apahčá' ,
+            ( u'asikčí' , u'amasikčí' , ): u'asikčí' ,
+            ( u'ilkanó' , u'amilkanó' , ): u'ilkanó' ,
+            ( u'ifá' , u'amifá' , ): u'ifá' ,
+            ( u'a:pó' , u'ama:pó' , ): u'a:pó' ,
+            ( u'iskí' , u'amiskí' , ): u'iskí' ,
+            ( u'pačokkö́ka' , u'ampačokkö́ka' , ): u'pačokkö́ka' ,
+            ( u'towá' , u'antowá' , ): u'towá' ,
+            ( u'kastó' , u'aŋkastó' , ): u'kastó' ,
+            ( u'bayá:na' , u'ambayá:na' , ): u'bayá:na' ,
+            ( u'tá:ta' , u'antá:ta' , ): u'tá:ta' ,
+            ( u'čofkoní' , u'añčofkoní' , ): u'čofkoní' ,
+            ( u'kitiłká' , u'aŋkitiłká' , ): u'kitiłká' ,
+            ( u'toní' , u'antoní' , ): u'toní' ,
 })
 
 
@@ -989,6 +1045,75 @@ GoldSolution(name="Odden_4.6_Kera",
             ( u'ŋafnan' , u'ŋafnam' , u'ŋɨfni' , u'ŋɨfnu' , u'ŋafna' , u'ŋafnaŋ' , ): u'ŋafn',
 })
 
+GoldSolution(name="Odden_4.9_Lardil",
+             prefixes=[u'',u'',u'',u''],
+             suffixes=[u'',u'in',u'ŋar',u'uṛ'],
+             underlyingForms={
+            ( u'kentapal' , u'kentapalin' , u'kentapalŋar' , u'kentapaluṛ' , ): u'kentapal' ,
+            ( u'ketar' , u'ketarin' , u'ketarŋar' , u'ketaruṛ' , ): u'ketar' ,
+            ( u'miyaṛ' , u'miyaṛin' , u'miyaṛŋar' , u'miyaṛuṛ' , ): u'miyaṛ' ,
+            ( u'yupur' , u'yupurin' , u'yupurŋar' , u'yupuruṛ' , ): u'yupur' ,
+            ( u'taŋur' , u'taŋurin' , u'taŋurŋar' , u'taŋuruṛ' , ): u'taŋur' ,
+                 # you are not allowed to have /nu/
+                 # so you have to break it up with a /k/
+                 # this is reasonable because we basically never see /nu/ on the surface
+                 # also delete nasal following nasal
+            ( u'yaraman' , u'yaramanin' , u'yaramanar' , u'yaramankuṛ' , ): u'yaraman' ,
+            ( u'maaṇ' , u'maaṇin' , u'maaṇar' , u'maaṇkuṛ' , ): u'maaṇ' ,
+            ( u'pirŋen' , u'pirŋenin' , u'pirŋenar' , u'pirŋenkuṛ' , ): u'pirŋen' ,
+                 # V > 0 / V _
+            ( u'mela' , u'melan' , u'melaŋar' , u'melaṛ' , ): u'mela' ,
+            ( u'tawa' , u'tawan' , u'tawaŋar' , u'tawaṛ' , ): u'tawa' ,
+            ( u'wanka' , u'wankan' , u'wankaŋar' , u'wankaṛ' , ): u'wanka' ,
+            ( u'kuŋka' , u'kuŋkan' , u'kuŋkaŋar' , u'kuŋkaṛ' , ): u'kuŋka' ,
+            ( u'tarŋka' , u'tarŋkan' , u'tarŋkaŋar' , u'tarŋkaṛ' , ): u'tarŋka' ,
+                 # some kind of harmony
+                 # contrast with above cases: very similar
+                 # what must be going on is u > a, not the other way around
+            ( u'ŋuka' , u'ŋukun' , u'ŋukuŋar' , u'ŋukuṛ' , ): u'ŋuku' ,
+            ( u'ŋuṛa' , u'ŋuṛun' , u'ŋuṛuŋar' , u'ŋuṛuṛ' , ): u'ŋuṛu' ,
+            ( u'kaṭa' , u'kaṭun' , u'kaṭuŋar' , u'kaṭuṛ' , ): u'kaṭu' ,
+            ( u'muṇa' , u'muṇun' , u'muṇuŋar' , u'muṇuṛ' , ): u'muṇu' ,
+            ( u'ŋawa' , u'ŋawun' , u'ŋawuŋar' , u'ŋawuṛ' , ): u'ŋawu' ,
+                 # this is where I get confused
+            ( u'keṇṭe' , u'keṇṭin' , u'keṇṭiŋar' , u'keṇṭiwuṛ' , ): u'keṇṭi',
+            ( u'tyimpe' , u'tyimpin' , u'tyimpiŋar' , u'tyimpiwuṛ' , ): u'tyimpi' ,
+            ( u'ŋiṇe' , u'ŋiṇin' , u'ŋiṇiŋar' , u'ŋiṇiwuṛ' , ): u'ŋiṇi' ,
+            ( u'pape' , u'papin' , u'papiŋar' , u'papiwuṛ' , ): u'papi' ,
+            ( u'tyempe' , u'tyempen' , u'tyempeŋar' , u'tyempeṛ' , ): u'tyempe' ,
+            ( u'wiṭe' , u'wiṭen' , u'wiṭeŋar' , u'wiṭeṛ' , ): u'wiṭe' ,
+            ( u'waŋal' , u'waŋalkin' , u'waŋalkar' , u'waŋalkuṛ' , ): u'waŋalk' ,
+            ( u'menyel' , u'menyelkin' , u'menyelkar' , u'menyelkuṛ' , ): u'menyelk' ,
+            ( u'makar' , u'makarkin' , u'makarkar' , u'makarkuṛ' , ): u'makark' ,
+            ( u'yalul' , u'yalulun' , u'yaluluŋar' , u'yaluluṛ' , ): u'yalulu' ,
+            ( u'mayar' , u'mayaran' , u'mayaraŋar' , u'mayaraṛ' , ): u'mayara' ,
+            ( u'talkur' , u'talkuran' , u'talkuraŋar' , u'talkuraṛ' , ): u'talkura' ,
+            ( u'wiwal' , u'wiwalan' , u'wiwalaŋar' , u'wiwalaṛ' , ): u'wiwala' ,
+            ( u'karikar' , u'karikarin' , u'karikariŋar' , u'karikariwuṛ' , ): u'karikari' ,
+            ( u'yiliyil' , u'yiliyilin' , u'yiliyiliŋar' , u'yiliyiliwuṛ' , ): u'yiliyili' ,
+            ( u'yukar' , u'yukarpan' , u'yukarpaŋar' , u'yukarpaṛ' , ): u'yukarpa' ,
+            ( u'pulŋar' , u'pulŋarpan' , u'pulŋarpaŋar' , u'pulŋarpaṛ' , ): u'pulŋarpa' ,
+            ( u'wulun' , u'wulunkan' , u'wulunkaŋar' , u'wulunkaṛ' , ): u'wulunka' ,
+            ( u'wuṭal' , u'wuṭaltyin' , u'wuṭaltyiŋar' , u'wuṭaltyiwur' , ): u'wuṭaltyi' ,
+            ( u'kantukan' , u'kantukantun' , u'kantukantuŋar' , u'kantukantuṛ' , ): u'kantukantu' ,
+            ( u'karwakar' , u'karwakarwan' , u'karwakarwaŋar' , u'karwakarwaṛ' , ): u'karwakarwa' ,
+            ( u'turara' , u'turaraŋin' , u'turaraŋar' , u'turaraŋkuṛ' , ): u'turaraŋ' ,
+            ( u'ŋalu' , u'ŋalukin' , u'ŋalukar' , u'ŋalukuṛ' , ): u'ŋaluk' ,
+            ( u'kurka' , u'kurkaŋin' , u'kurkaŋar' , u'kurkaŋkuṛ' , ): u'kurkaŋ' ,
+            ( u'taŋku' , u'taŋkuŋin' , u'taŋkuŋar' , u'taŋkuŋkuṛ' , ): u'taŋkuŋ' ,
+            ( u'kurpuṛu' , u'kurpuṛuŋin' , u'kurpuṛuŋar' , u'kurpuṛuŋkuṛ' , ): u'kurpuṛuŋ' ,
+            ( u'putu' , u'putukan' , u'putukaŋar' , u'putukaṛ' , ): u'putuka' ,
+            ( u'maali' , u'maaliyan' , u'maaliyaŋar' , u'maaliyaṛ' , ): u'maaliya' ,
+            ( u'tyiṇtirpu' , u'tyiṇtirpuwan' , u'tyiṇtirpuwaŋar' , u'tyiṇtirpuwaṛ' , ): u'tyiṇtirpuwa' ,
+            ( u'pukatyi' , u'pukatyiyan' , u'pukatyiyaŋar' , u'pukatyiyaṛ' , ): u'pukatyiya' ,
+            ( u'murkuni' , u'murkuniman' , u'murkunimaŋar' , u'murkunimaṛ' , ): u'murkunima' ,
+            ( u'ŋawuŋa' , u'ŋawuŋawun' , u'ŋawuŋawuŋar' , u'ŋawuŋawuṛ' , ): u'ŋawuŋawa' ,
+            ( u'tipiti' , u'tipitipin' , u'tipitipiŋar' , u'tipitipiwuṛ' , ): u'tipitipi' ,
+            ( u'tapu' , u'taputyin' , u'taputyiŋar' , u'taputyiwuṛ' , ): u'taputyi' ,
+            ( u'muŋkumu' , u'muŋkumuŋkun' , u'muŋkumuŋkuŋar' , u'muŋkumuŋkuṛ' , ): u'muŋkumuŋku' ,
+            ( u'tyumputyu' , u'tyumputyumpun' , u'tyumputyumpuŋar' , u'tyumputyumpuṛ' , ): u'tyumputyumpu'
+})
+
 GoldSolution(name="Odden_68_69_Russian",
              prefixes=[u'',u''],
              suffixes=[u'',u'a'],
@@ -1385,6 +1510,8 @@ if __name__ == "__main__":
         for name in already_graded: print name
         print "here is what still needs to be graded:"
         for to_do in set(Problem.named.keys()) - set(already_graded):
+            if "Kevin" in to_do: continue
+            
             print to_do
         sys.exit(0)
         
