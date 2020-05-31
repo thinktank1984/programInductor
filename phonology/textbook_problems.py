@@ -244,7 +244,7 @@ Korean Odden 81
 	(u"ipə",		u"imnɨnta"),		# put on
 	(u"kupə", 		u"kumnɨnta"),		# bend
 	(u"čəpə", 		u"čəmnɨnta"),		# fold
-	(u"tatə",	 	u"tannɨnta"),		# close
+	(u"tata",	 	u"tannɨnta"),		# close
 	(u"put^hə", 	u"punnɨnta"),		# adhere
 	(u"čoč^ha", 	u"čonnɨnta"),		# follow
 	(u"məkə", 		u"məŋnɨnta"),		# eat
@@ -254,7 +254,7 @@ Korean Odden 81
 	(u"ikə", 		u"iŋnɨnta")			# ripen
 	],
 	solutions = [u'''
-stem + a
+stem + ə
 stem + nɨnta
 
     [ +aspirated ] > [ -aspirated ] / _ C ; this test case will pass even if this is not included
