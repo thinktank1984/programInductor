@@ -695,7 +695,7 @@ GoldSolution(name="Odden_105_Bukusu",
             ( u'kwa' , u'βakwa' , u'ŋgwa' , ): u'kw' ,
 })
 
-GoldSolution(name="Odden_3.6_Finnish", # UNSURE
+GoldSolution(name="Odden_3.6_Finnish",
              prefixes=[u'',u'',u'',u'',u''],
              suffixes=[u'n',u'',u't',u'lta',u'na'],
              underlyingForms={
@@ -1114,6 +1114,63 @@ GoldSolution(name="Odden_4.9_Lardil",
             ( u'tyumputyu' , u'tyumputyumpun' , u'tyumputyumpuŋar' , u'tyumputyumpuṛ' , ): u'tyumputyumpu'
 })
 
+GoldSolution(name="Odden_4.11_Sadzava_Ukrainian",
+             prefixes=[u'',u'',u'',u'',u'',u'',u'',u''],
+             suffixes=[u'',u'a',u'i',u'',u'',u'',u'',u''],
+             underlyingForms={
+            ( u'plast' , u'plasta' , u'plas^yk^yi' , None,  None,  None,  None,  None,  ): u'plast' ,
+            ( u'skorux' , u'skoruxa' , u'skorus^yi' , None,  None,  None,  None,  None,  ): u'skorux' ,
+            ( u'ɣ^yr^yix' , u'ɣ^yr^yixa' , u'ɣ^yr^yis^yi' , None,  None,  None,  None,  None,  ): u'ɣrix' ,
+            ( u'pastux' , u'pastuxa' , u'pastus^yi' , None,  None,  None,  None,  None,  ): u'pastux' ,
+            ( u'm^yn^yux' , u'm^yn^yuxa' , u'm^yn^yus^yi' , None,  None,  None,  None,  None,  ): u'mn^yux' ,
+            ( u'pluɣ' , u'pluɣa' , u'pluz^yi' , None,  None,  None,  None,  None,  ): u'pluɣ' ,
+            ( u's^yt^yiɣ' , u'stoɣa' , u'stoz^yi' , None,  None,  None,  None,  None,  ): u'stoɣ' ,
+            ( u'sak' , u'saka' , u'sats^yi' , None,  None,  None,  None,  None,  ): u'sak',
+            ( u'bek' , u'bəka' , u'bəts^yi' , None,  None,  None,  None,  None,  ): u"bek",
+            ( u'lest' , u'ləsta' , u'ləs^yk^yi' , None,  None,  None,  None,  None,  ): u"lest" ,
+            ( u'lest' , u'lesta' , u'les^yk^yi' , None,  None,  None,  None,  None,  ): u'lest' ,
+            ( u'p^yl^yit' , u'plota' , u'plok^yi' , None,  None,  None,  None,  None,  ): u"plot" ,
+            ( u's^ym^yr^yid' , u'smroda' , u'smrog^yi' , None,  None,  None,  None,  None,  ): u"smrod" ,
+            ( u'f^yist' , u'fosta' , u'fos^yk^yi' , None,  None,  None,  None,  None,  ): u"fost" ,
+            ( u'm^yist' , u'mosta' , u'mos^yk^yi' , None,  None,  None,  None,  None,  ): u"most",
+            ( u'l^yid' , u'lædu' , u'lədu' , None,  None,  None,  None,  None,  ): u"lod",
+            ( u'd^yr^yit' , u'drota' , u'drok^yi' , None,  None,  None,  None,  None,  ): u"drot" ,
+            ( u'm^yid' , u'mædu' , u'mədu' , None,  None,  None,  None,  None,  ): u'mæd',
+            ( u'v^yil' , u'vola' , u'vol^yi' , None,  None,  None,  None,  None,  ):  u'vol',
+            ( u'v^yiz' , u'voza' , u'voz^yi' , None,  None,  None,  None,  None,  ): u"voz",
+            ( u'ser' , u'sera' , u'ser^yi' , None,  None,  None,  None,  None,  ): u"ser",
+            ( u's^yn^yip' , u'snopa' , u'snop^yi' , None,  None,  None,  None,  None,  ): u"snop" ,
+            ( u'ɣreb' , u'ɣrəba' , u'ɣrəb^yi' , None,  None,  None,  None,  None,  ): u'ɣreb',
+            ( u'læb^yid' , u'læbəda' , u'læbəg^yi' , None,  None,  None,  None,  None,  ): u'læbæd' ,
+            ( u'bær^yiɣ' , u'bærəɣa' , u'bærəz^yi' , None,  None,  None,  None,  None,  ): u'bæræɣ',
+            ( u'pər^yiɣ' , u'pəroɣa' , u'pəroz^yi' , None,  None,  None,  None,  None,  ): u'pəroɣ' ,
+            ( u'por^yiɣ' , u'poroɣa' , u'poroz^yi' , None,  None,  None,  None,  None,  ): u'poroɣ' ,
+            ( u'bol^yek' , u'bol^yəka' , u'bol^yəts^yi' , None,  None,  None,  None,  None,  ): u'bol^yek' ,
+            ( u'vor^yiɣ' , u'voroɣa' , u'voroz^yi' , None,  None,  None,  None,  None,  ): u'voroɣ' ,
+            ( u'konək' , u'konəka' , u'konəts^yi' , None,  None,  None,  None,  None,  ): u'konək' ,
+            ( u'pot^yik' , u'potoka' , u'potots^yi' , None,  None,  None,  None,  None,  ): u'potok' ,
+            ( u't^yik' , u'toka' , u'tots^yi' , None,  None,  None,  None,  None,  ): u'tok' ,
+            ( u'k^yil' , u'kola' , u'kol^yi' , None,  None,  None,  None,  None,  ): u'kol',
+            ( None,  None,  None,  u'koval^y' , u'koval^ye' , u'kovale' , None,  None,  ): u'koval^y' ,
+            ( None,  None,  None,  u'ǰm^yil^y' , u'ǰm^yil^ye' , u'ǰm^yile' , None,  None,  ): u'ǰmil^y' ,
+            ( None,  None,  None,  u'k^yr^yil^y' , u'k^yr^yil^ye' , u'k^yr^yile' , None,  None,  ): u'kril^y' ,
+            ( None,  None,  None,  u'učetəl^y' , u'učetəl^yə' , u'učetələ' , None,  None,  ): u'učetəl^y' ,
+            ( None,  None,  None,  u'græb^yin^y' , u'græbən^yə' , u'græbənə' , None,  None,  ): u'græbæn^y' ,
+            ( None,  None,  None,  u'olən^y' , u'olən^yə' , u'olənə' , None,  None,  ): u'olən^y' ,
+            ( None,  None,  None,  u'yač^ym^yin^y' , u'yačmæn^yə' , u'yačmænə' , None,  None,  ): u'yačmæn^y' ,
+            ( None,  None,  None,  u'yas^yin^y' , u'yasən^yə' , u'yasənə' , None,  None,  ): u'yæsæn^y' ,
+            ( None,  None,  None,  u'z^yek^y' , u'z^yek^yə' , u'z^yetə' , None,  None,  ): u'z^yet^y' ,
+            ( None,  None,  None,  None,  None,  None,  u'mas^yk^y' , u'mastə' , ): u'mast^y' ,
+            ( None,  None,  None,  None,  None,  None,  u's^ym^yir^yk^y' , u'smærtə' , ): u'smært^y' ,
+            ( None,  None,  None,  None,  None,  None,  u'v^yis^yk^y' , u'v^yistə' , ): u'vist^y' ,
+            ( None,  None,  None,  None,  None,  None,  u'rag^yis^yk^y' , u'radostə' , ): u"radost^y",
+            ( None,  None,  None,  None,  None,  None,  u's^yil^y' , u'solə' , ): u'sol^y' ,
+            ( None,  None,  None,  None,  None,  None,  u'poš^yis^yk^y' , u'pošəstə' , ): u'pošest^y'  ,
+            ( None,  None,  None,  None,  None,  None,  u'zam^yik^y' , u'zamətə' , ): u'zamæt^y',
+            ( None,  None,  None,  None,  None,  None,  u'skatər^yk^y' , u'skatərtə' , ): u'skatərt^y' ,
+            ( None,  None,  None,  None,  None,  None,  u'k^yis^yk^y' , u'kostə' , ): u'kost^y',
+})
+
 GoldSolution(name="Odden_68_69_Russian",
              prefixes=[u'',u''],
              suffixes=[u'',u'a'],
@@ -1140,29 +1197,46 @@ GoldSolution(name="Odden_68_69_Russian",
             ( u'trup' , u'trupa' , ): u'trup' ,
 })
 
-GoldSolution(name="Halle_149_Russian", # UNSURE
+GoldSolution(name="Halle_115_Russian", # RERUN, TODO
              prefixes=[u'',u'',u'',u''],
-             suffixes=[u'á',u'',u'ɛ́',u'ɨ'],
+             suffixes=[u'ú',u'l',u'la',{u'l^yi',u'li'}],
              underlyingForms={
-            ( u'luná' , u'lún' , u'lun^yɛ́' , u'lúnɨ' , ): u'lún' ,
-            ( u'dɨrá' , u'dɨ́r' , u'dɨr^yɛ́' , u'dɨ́rɨ' , ): u'dɨ́r' ,
-            ( u'travá' , u'tráf' , u'trav^yɛ́' , u'trávɨ' , ): u'tráv' ,
-            ( u'p^yilá' , u'p^yíl' , u'p^yil^yɛ́' , u'p^yílɨ' , ): u'p^yíl' ,
-                 ( u'valná' , u'vóln' , u'valn^yɛ́' , u'vólnɨ' , ): u'vóln',
-            ( u'galavá' , u'galóf' , u'galav^yɛ́' , u'gólavɨ' , ): u'gólov' ,
-                 ( u'žɨl^yizá' , u'žɨl^yós' , u'žɨl^yiz^yɛ́' , u'žél^yizɨ' , ): u'žél^yoz',
-                 ( u'žɨná' , u'žón' , u'žɨn^yɛ́' , u'žónɨ' , ): u'žón',
-            ( u'zm^yiyá' , u'zm^yéy' , u'zm^yiyɛ́' , u'zm^yéyi' , ): u"zm^yéy",
-            ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n",
-            ( u'p^yil^yiná' , u'p^yil^yón' , u'p^yil^yin^yɛ́' , u'p^yil^yinɨ́' , ): u'p^yilón' ,
-            ( u'b^yis^yɛ́da' , u'b^yis^yɛ́t' , u'b^yis^yéd^yi' , u'b^yis^yɛ́dɨ' , ): u'b^yisɛ́d',
-            ( u'b^yidá' , u'b^yɛ́t' , u'b^yid^yɛ́' , u'b^yɛ́dɨ' , ): u'b^yɛ́d' ,
-                 ( u'p^yitá' , u'p^yát' , u'p^yit^yɛ́' , u'p^yitɨ́' , ): u'p^yát',
-            ( u'st^yiná' , u'st^yɛ́n' , u'st^yin^yɛ́' , u'st^yɛ́nɨ' , ): u'stɛ́n' ,
-            ( u'r^yiká' , u'r^yɛ́k' , u'r^yik^yɛ́' , u'r^yék^yi' , ): u'rɛ́k',
-            ( u'slugá' , u'slúk' , u'slug^yɛ́' , u'slúg^yi' , ): u'slúg' ,
-            ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
+                 # roots end in vowels
+            ( u'v^yirnú' , u'v^yirnúl' , u'v^yirnúla' , u'v^yirnúl^yi',  ): u'v^yirnú' ,
+            ( u'vrú' , u'vrál' , u'vralá' , u'vrál^yi' , ): u'vrá' ,
+            ( u'stayú' , u'stayál' , u'stayála' , u'stayál^yi' , ): u'stayá' ,
+                 # roots end in consonant
+            ( u'p^yikú' , u'p^yók' , u'p^yiklá' , u'p^yikl^yí' , ): u'p^yík' ,
+            ( u'v^yizú' , u'v^yós' , u'v^yizlá' , u'v^yizl^yí' ,  ): u'v^yíz' ,
+            ( u'magú' , u'mók' , u'maglá' , u'magl^yí' ,  ): u'mág' ,
+                 # how do you make sense of the /n/
+            ( u'móknu' , u'mók' , u'mókla' , u'mókl^yi' , ): u'mókn' ,
 })
+
+GoldSolution(
+    name="Halle_149_Russian",
+    prefixes=[u'',u'',u'',u''],
+    suffixes=[u'á',u'',u'ɛ́',u'ɨ'],
+    underlyingForms={
+        ( u'luná' , u'lún' , u'lun^yɛ́' , u'lúnɨ' , ): u'lún' ,
+        ( u'dɨrá' , u'dɨ́r' , u'dɨr^yɛ́' , u'dɨ́rɨ' , ): u'dɨ́r' ,
+        ( u'travá' , u'tráf' , u'trav^yɛ́' , u'trávɨ' , ): u'tráv' ,
+        ( u'p^yilá' , u'p^yíl' , u'p^yil^yɛ́' , u'p^yílɨ' , ): u'p^yíl' ,
+        ( u'valná' , u'vóln' , u'valn^yɛ́' , u'vólnɨ' , ): u'vóln',
+        ( u'galavá' , u'galóf' , u'galav^yɛ́' , u'gólavɨ' , ): u'gólov' ,
+        ( u'žɨl^yizá' , u'žɨl^yós' , u'žɨl^yiz^yɛ́' , u'žél^yizɨ' , ): u'žél^yoz',
+        ( u'žɨná' , u'žón' , u'žɨn^yɛ́' , u'žónɨ' , ): u'žón',
+        ( u'zm^yiyá' , u'zm^yéy' , u'zm^yiyɛ́' , u'zm^yéyi' , ): u"zm^yéy",
+        ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n",
+        ( u'p^yil^yiná' , u'p^yil^yón' , u'p^yil^yin^yɛ́' , u'p^yil^yinɨ́' , ): u'p^yilón' ,
+        ( u'b^yis^yɛ́da' , u'b^yis^yɛ́t' , u'b^yis^yéd^yi' , u'b^yis^yɛ́dɨ' , ): u'b^yisɛ́d',
+        ( u'b^yidá' , u'b^yɛ́t' , u'b^yid^yɛ́' , u'b^yɛ́dɨ' , ): u'b^yɛ́d' ,
+        ( u'p^yitá' , u'p^yát' , u'p^yit^yɛ́' , u'p^yitɨ́' , ): u'p^yát',
+        ( u'st^yiná' , u'st^yɛ́n' , u'st^yin^yɛ́' , u'st^yɛ́nɨ' , ): u'stɛ́n' ,
+        ( u'r^yiká' , u'r^yɛ́k' , u'r^yik^yɛ́' , u'r^yék^yi' , ): u'rɛ́k',
+        ( u'slugá' , u'slúk' , u'slug^yɛ́' , u'slúg^yi' , ): u'slúg' ,
+        ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
+    })
 
 # nb: this can be analyzed with either insertion or deletion
 GoldSolution(name="Odden_170_Yawelmani",
@@ -1510,7 +1584,10 @@ if __name__ == "__main__":
         for name in already_graded: print name
         print "here is what still needs to be graded:"
         for to_do in set(Problem.named.keys()) - set(already_graded):
-            if "Kevin" in to_do: continue
+            BAD = {"Roca_31_Verlan","Kevin"}
+            if any( bd in to_do for bd in BAD ): continue
+            if Problem.named[to_do].supervised: continue
+            
             
             print to_do
         sys.exit(0)
