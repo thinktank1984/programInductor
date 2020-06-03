@@ -161,8 +161,8 @@ GoldSolution(name="Odden_2.4_Tibetan",
              prefixes=[u'',u'bǰu',u''],
              suffixes=[u'',u'',u'bǰu'],
              underlyingForms={
-            ( u'ǰu', u'None', u'None', ): u'bǰu' ,
-            ( u'ǰig', u'ǰugǰig', u'None', ): u'gǰig' ,
+            ( u'ǰu', None, None, ): u'bǰu' ,
+            ( u'ǰig', u'ǰugǰig', None, ): u'gǰig' ,
             ( u'ši', u'ǰubši', u'šibǰu', ): u'bši' ,
             ( u'gu', u'ǰurgu', u'gubǰu', ): u'rgu' ,
             ( u'ŋa', u'ǰuŋa', u'ŋabǰu', ): u'ŋa' ,
@@ -1206,9 +1206,9 @@ GoldSolution(name="Halle_115_Russian", # RERUN, TODO
             ( u'vrú' , u'vrál' , u'vralá' , u'vrál^yi' , ): u'vrá' ,
             ( u'stayú' , u'stayál' , u'stayála' , u'stayál^yi' , ): u'stayá' ,
                  # roots end in consonant
-            ( u'p^yikú' , u'p^yók' , u'p^yiklá' , u'p^yikl^yí' , ): u'p^yík' ,
-            ( u'v^yizú' , u'v^yós' , u'v^yizlá' , u'v^yizl^yí' ,  ): u'v^yíz' ,
-            ( u'magú' , u'mók' , u'maglá' , u'magl^yí' ,  ): u'mág' ,
+            ( u'p^yikú' , u'p^yók' , u'p^yiklá' , u'p^yikl^yí' , ): u'p^yók' ,
+            ( u'v^yizú' , u'v^yós' , u'v^yizlá' , u'v^yizl^yí' ,  ): u'v^yóz' ,
+            ( u'magú' , u'mók' , u'maglá' , u'magl^yí' ,  ): u'móg' ,
                  # how do you make sense of the /n/
             ( u'móknu' , u'mók' , u'mókla' , u'mókl^yi' , ): u'mókn' ,
 })
@@ -1227,15 +1227,21 @@ GoldSolution(
         ( u'žɨl^yizá' , u'žɨl^yós' , u'žɨl^yiz^yɛ́' , u'žél^yizɨ' , ): u'žél^yoz',
         ( u'žɨná' , u'žón' , u'žɨn^yɛ́' , u'žónɨ' , ): u'žón',
         ( u'zm^yiyá' , u'zm^yéy' , u'zm^yiyɛ́' , u'zm^yéyi' , ): u"zm^yéy",
-        ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n",
+        # how to explain this alternation?
+        # the suffix changes
+        # I don't trust anything onward
+        ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n^y",
         ( u'p^yil^yiná' , u'p^yil^yón' , u'p^yil^yin^yɛ́' , u'p^yil^yinɨ́' , ): u'p^yilón' ,
         ( u'b^yis^yɛ́da' , u'b^yis^yɛ́t' , u'b^yis^yéd^yi' , u'b^yis^yɛ́dɨ' , ): u'b^yisɛ́d',
         ( u'b^yidá' , u'b^yɛ́t' , u'b^yid^yɛ́' , u'b^yɛ́dɨ' , ): u'b^yɛ́d' ,
         ( u'p^yitá' , u'p^yát' , u'p^yit^yɛ́' , u'p^yitɨ́' , ): u'p^yát',
         ( u'st^yiná' , u'st^yɛ́n' , u'st^yin^yɛ́' , u'st^yɛ́nɨ' , ): u'stɛ́n' ,
+
+        # three relate to velar
         ( u'r^yiká' , u'r^yɛ́k' , u'r^yik^yɛ́' , u'r^yék^yi' , ): u'rɛ́k',
-        ( u'slugá' , u'slúk' , u'slug^yɛ́' , u'slúg^yi' , ): u'slúg' ,
-        ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
+        # this is correct
+        ( u'slugá' , u'slúk' , u'slug^yɛ́' , u'slúg^yi' , ): u'slúg^y' ,
+        ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx^y' ,
     })
 
 # nb: this can be analyzed with either insertion or deletion
@@ -1569,6 +1575,28 @@ GoldSolution(name="Halle_55_Proto_Bantu",
              substitution={u'b': u'β', u'd': u'l', u'g': u'ɣ'}) # UNSURE
 GoldSolution(name="Halle_59_Mohawk",
              substitution={u'b': u'p', u'd': u't', u'g': u'k'})
+GoldSolution(name="Odden_A1_Kikurai",
+             substitution={u'b': u'β', u'd': u'r', u'g': u'ɣ'})
+GoldSolution(name="Odden_A2_Modern_Greek",
+             substitution={u'x^y': u'x', u'k^y': u'k'})
+GoldSolution(name="Odden_A3_Farsi",
+             substitution={u'ř': u'r̃'})
+GoldSolution(name="Odden_A4_Osage",
+             substitution={u'd': u'ð'})
+GoldSolution(name="Odden_A5_Amharic", # we get this wrong??
+             substitution={u'ɛ': u'ə'})
+GoldSolution(name="Odden_A6_Gen",
+             substitution={u'r': u'l'})
+GoldSolution(name="Odden_A7_Kishambaa",
+             substitution={u'm': u'm̥', u'n': u'n̥'}) # this wrong??
+GoldSolution(name="Odden_A8_Thai",
+             substitution={u'p': u'p̚', u'k': u'k̚', u't': u't̚'}) # this wrong??
+GoldSolution(name="Odden_A9_Palauan",
+             substitution={u'd': u'θ'})
+GoldSolution(name="Odden_A10_Quechua_Cuzco_dialect",
+             substitution={u'e': u'i', u'o': u'u', u'N': u'ŋ'})
+GoldSolution(name="Odden_A11_Lhasa_Tibetan",
+             substitution={u'b': u'p', u'd': u't', u'G': u'g', u'ḍ': u'ṭ', u'N': u'ŋ', u'q': u'k', u'g': u'k'})
 
 
 if __name__ == "__main__":
@@ -1596,6 +1624,22 @@ if __name__ == "__main__":
     parser.add_argument("path")
     arguments = parser.parse_args()
 
+    if arguments.path == "verify":
+        for name,solution in GoldSolution.solutions.iteritems():
+            assert name in Problem.named
+            problem = Problem.named[name]
+            if problem.parameters is not None and problem.parameters.get("type",None) == "alternation":
+                continue
+            print "verifying",name
+            def encoding(r):
+                return tuple(None if m is None else Morph(m)
+                             for m in r)
+            discrepancy = list(\
+                               set(encoding(r) for r in solution.underlyingForms.keys()) ^ \
+                               set(encoding(r) for r in problem.data))
+            assert len(discrepancy) == 0, "discrepancy: %s"%discrepancy
+        sys.exit(0)
+
     with open(arguments.path,"rb") as handle:
         data = pickle.load(handle)
 
@@ -1608,9 +1652,12 @@ if __name__ == "__main__":
 
     if "alternation" in arguments.path:
         name = arguments.path[arguments.path.rindex('/')+1:]
-        name = name[:name.rindex('.')]        
+        name = name[:name.rindex('.')]
+        substitution = u", ".join( u"u'" + a + u"': u'" + b + "'"
+                                   for a,b in data.substitution.iteritems())
+        
         print "GoldSolution(name=\"%s\","%(name)
-        print "             substitution=%s)"%(data.substitution)
+        print "             substitution={%s})"%(substitution)
         print data.rules
         sys.exit(0)
         
@@ -1649,3 +1696,4 @@ if __name__ == "__main__":
             else:
                 print s,"\t",
         print ""
+        
