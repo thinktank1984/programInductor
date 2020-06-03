@@ -261,7 +261,6 @@ stem + nɨnta
     ə > a / a C* _
         [-sonorant] > [+nasal] / _[+nasal]
 
-# no solution
 	''']
 	))
 
