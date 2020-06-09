@@ -1221,7 +1221,7 @@ GoldSolution(
         ( u'luná' , u'lún' , u'lun^yɛ́' , u'lúnɨ' , ): u'lún' ,
         ( u'dɨrá' , u'dɨ́r' , u'dɨr^yɛ́' , u'dɨ́rɨ' , ): u'dɨ́r' ,
         ( u'travá' , u'tráf' , u'trav^yɛ́' , u'trávɨ' , ): u'tráv' ,
-        ( u'p^yilá' , u'p^yíl' , u'p^yil^yɛ́' , u'p^yílɨ' , ): u'p^yíl' ,
+        ( u'p^yilá' , u'p^yíl' , u'p^yil^yɛ́' , u'p^yílɨ' , ): {u'píl',u'p^yíl'} ,
         ( u'valná' , u'vóln' , u'valn^yɛ́' , u'vólnɨ' , ): u'vóln',
         ( u'galavá' , u'galóf' , u'galav^yɛ́' , u'gólavɨ' , ): u'gólov' ,
         ( u'žɨl^yizá' , u'žɨl^yós' , u'žɨl^yiz^yɛ́' , u'žél^yizɨ' , ): u'žél^yoz',
@@ -1230,18 +1230,18 @@ GoldSolution(
         # how to explain this alternation?
         # the suffix changes
         # I don't trust anything onward
-        ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n^y",
+        ( u'm^yɛ́na' , u'm^yɛ́n' , u'm^yén^yi' , u'm^yɛ́nɨ' , ): u"m^yɛ́n",
         ( u'p^yil^yiná' , u'p^yil^yón' , u'p^yil^yin^yɛ́' , u'p^yil^yinɨ́' , ): u'p^yilón' ,
         ( u'b^yis^yɛ́da' , u'b^yis^yɛ́t' , u'b^yis^yéd^yi' , u'b^yis^yɛ́dɨ' , ): u'b^yisɛ́d',
         ( u'b^yidá' , u'b^yɛ́t' , u'b^yid^yɛ́' , u'b^yɛ́dɨ' , ): u'b^yɛ́d' ,
         ( u'p^yitá' , u'p^yát' , u'p^yit^yɛ́' , u'p^yitɨ́' , ): u'p^yát',
-        ( u'st^yiná' , u'st^yɛ́n' , u'st^yin^yɛ́' , u'st^yɛ́nɨ' , ): u'stɛ́n' ,
+        ( u'st^yiná' , u'st^yɛ́n' , u'st^yin^yɛ́' , u'st^yɛ́nɨ' , ): {u'stɛ́n',u'st^yɛ́n'} ,
 
         # three relate to velar
-        ( u'r^yiká' , u'r^yɛ́k' , u'r^yik^yɛ́' , u'r^yék^yi' , ): u'rɛ́k',
+        ( u'r^yiká' , u'r^yɛ́k' , u'r^yik^yɛ́' , u'r^yék^yi' , ): {u'rɛ́k',u'r^yɛ́k'},
         # this is correct
-        ( u'slugá' , u'slúk' , u'slug^yɛ́' , u'slúg^yi' , ): u'slúg^y' ,
-        ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx^y' ,
+        ( u'slugá' , u'slúk' , u'slug^yɛ́' , u'slúg^yi' , ): u'slúg' ,
+        ( u'blaxá' , u'blóx' , u'blax^yɛ́' , u'blóx^yi' , ): u'blóx' ,
     })
 
 # nb: this can be analyzed with either insertion or deletion
@@ -1695,5 +1695,16 @@ if __name__ == "__main__":
                 print "(n/a)\t",
             else:
                 print s,"\t",
+        if data.problem in GoldSolution.solutions:
+            ur = GoldSolution.solutions[data.problem].underlyingForms[surfaces]
+            if isinstance(ur,set):
+                print "\t(UR:",
+                for ui,u in enumerate(list(ur)):
+                    if ui > 0:
+                        print " or ",
+                    print u,
+                print ")",
+            else:
+                print "\t(UR:",ur,")",
         print ""
         

@@ -1,5 +1,6 @@
 from problems import *
 from textbook_problems import *
+from morph import Morph
 
 from utilities import *
 import pickle
@@ -13,6 +14,30 @@ import matplotlib.pyplot as plot
 
 #NADIANAME = "Barke et al. 2019"
 NADIANAME = "phonosynth (2019)"
+
+def groundAccuracy(solution, problem):
+    from grading import GoldSolution
+    def normalize(stuff):
+        return tuple(Morph(s) if s is not None else None
+                     for s in stuff )
+
+    problem = problem.key
+    assert isinstance(problem,str)
+    theTruth = {normalize(ss): Morph(s)
+                for ss,s in GoldSolution.solutions[problem].underlyingForms.iteritems()}
+    thePrediction = {normalize(ss): Morph(s)
+                     for ss,s in solution.finalFrontier.underlyingForms.iteritems()}
+    if not (set(thePrediction.keys()) <= set(theTruth.keys())):
+        print "WARNING: you need to rerun",problem
+        print "check out the following:"
+        for difference in set(thePrediction.keys()) ^ set(theTruth.keys()):
+            print difference
+        
+    
+    numberCorrect = sum(thePrediction[theObservation] == theTruth.get(theObservation,None)
+                        for theObservation in thePrediction.keys())
+    return numberCorrect/float(len(theTruth))    
+
 
 class Bars():
     def __init__(self, problem, universal, fragment, *baselines):
@@ -68,7 +93,6 @@ class Bars():
     def universalTime(self):
         if not self.alternation and self.universal:
             print self.name, "solved in", min(r.solutionSequence[-1][1] for r in self.universal), "seconds"
-        
 
     def universalHeight(self):
         if self.alternation: return 1.
@@ -96,6 +120,7 @@ class Bars():
             else: return 1.
         b = self.baselines[b]
         if b is None: return 0.
+        if arguments.ground: return groundAccuracy(b,self.problem)
         n = len(self.problem.data)
         return max(float(len(b.finalFrontier.underlyingForms))/n,0.02)
 
@@ -104,6 +129,7 @@ class Bars():
             return 0.
         b = self.fragment
         if b is None: return 0.
+        if arguments.ground: return groundAccuracy(b,self.problem)
         n = len(self.problem.data)
         return max(float(len(b.finalFrontier.underlyingForms))/n,0.02)
 
@@ -118,6 +144,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description = "Graphs the the system on all of the languages")
     parser.add_argument("--final","-f",action='store_true',default=False)
+    parser.add_argument("--ground","-g",action='store_true',default=False)
     parser.add_argument("--universal","-u",action='store_true',default=False)
     parser.add_argument("--columns","-c",type=int,default=3)
     arguments = parser.parse_args()
