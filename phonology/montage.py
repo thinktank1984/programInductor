@@ -23,7 +23,8 @@ def groundAccuracy(solution, problem):
 
     problem = problem.key
     assert isinstance(problem,str)
-    theTruth = {normalize(ss): Morph(s)
+    theTruth = {normalize(ss): \
+                (set(Morph(possibility) for possibility in s) if isinstance(s,set) else Morph(s)) 
                 for ss,s in GoldSolution.solutions[problem].underlyingForms.iteritems()}
     thePrediction = {normalize(ss): Morph(s)
                      for ss,s in solution.finalFrontier.underlyingForms.iteritems()}
@@ -34,9 +35,11 @@ def groundAccuracy(solution, problem):
             print difference
         
     
-    numberCorrect = sum(thePrediction[theObservation] == theTruth.get(theObservation,None)
-                        for theObservation in thePrediction.keys())
-    return numberCorrect/float(len(theTruth))    
+    numberCorrect = sum(thePrediction[theObservation] == gt or \
+                        (isinstance(gt,set) and (thePrediction[theObservation] in gt))
+                        for theObservation in thePrediction.keys()
+                        for gt in [theTruth.get(theObservation,None)] )
+    return max(numberCorrect/float(len(theTruth)), 0.02)
 
 
 class Bars():
@@ -95,8 +98,10 @@ class Bars():
             print self.name, "solved in", min(r.solutionSequence[-1][1] for r in self.universal), "seconds"
 
     def universalHeight(self):
-        if self.alternation: return 1.
+        if self.alternation: return 1. # manually verified that all alternations are solved with universal
         if len(self.universal) == 0: return 0.
+        assert len(self.universal) == 1
+        if arguments.ground: return groundAccuracy(self.universal[0],self.problem)
         n = len(self.problem.data)
         return float(max(len(u.finalFrontier.underlyingForms) for u in self.universal))/n
 
@@ -197,6 +202,7 @@ if __name__ == "__main__":
 
             if os.path.exists(fragmentPath%name):
                 fragment = loadPickle(fragmentPath%name)
+                print "Loaded",fragmentPath%name
         
         bars.append(Bars(problem,universals,fragment,*baselines))
 
@@ -204,16 +210,16 @@ if __name__ == "__main__":
     #     b.universalTime()
     # assert False
 
-    bars.sort(key=lambda b: (b.fragment is not None,not b.alternation, -b.universalHeight(), -(b.averageBaselineHeight())))
+    bars.sort(key=lambda b: (-b.universalHeight(), b.fragment is not None,not b.alternation, -b.universalHeight(), -(b.averageBaselineHeight())))
 
     if arguments.final:
         for n,b in enumerate(bars):
-            if b.alternation and False: b.name = b.problem.languageName + "*"
+            if b.alternation: b.name = b.problem.languageName + "*"
             else:
                 if sum(b.language == o.language for o in bars if not b.alternation ) > 1:
                     i = sum(b.language == o.language for o in bars[:n + 1]
                             if not b.alternation)
-                    b.name = b.language # + " (" + "I"*i + ")"
+                    b.name = b.language + " (" + "I"*i + ")"
                 else:
                     b.name = b.language
             b.name = b.name.replace(" (Cuzco dialect)","")
@@ -224,6 +230,7 @@ if __name__ == "__main__":
         bars = [b for b in bars if b.fragment is not None]
         for b in bars:
             print(b.name,b.fragmentHeight(),b.universalHeight())
+            
         ys = np.arange(len(bars))
         W = (1 - 0.2)/2
         colors = [("before learning fragment grammar","#bc5090"),
@@ -306,8 +313,10 @@ if __name__ == "__main__":
         a.set(yticks=ys + 2*W,
               yticklabels=[b.name for b in bs ])
         if pi == int(columns/2):
-            a.set_xlabel('% data covered')
+            a.set_xlabel('% solved' if arguments.ground else '% data covered')
 
+
+    print "Heights:",[b.universalHeight() for b in bars ]
     
 
     f.legend([Line2D([0],[0],color=c,lw=4)

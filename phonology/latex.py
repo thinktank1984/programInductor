@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from grading import GoldSolution
 from solution import *
 from features import featureMap,tokenize
 from parseSPE import *
@@ -202,7 +203,8 @@ def latexMatrixProblem(result,idx=None):
     problem = Problem.named[result.problem]
     language = problem.languageName
 
-    r = "\\emph{%s%s%s:}\\\\"%(language.replace('-','--'),
+#    r = "\\emph{%s} \\verb|%s| \\emph{%s%s:}\\\\"%(language.replace('-','--'),problem.key,
+    r = "\\emph{%s} \\emph{%s%s:}\\\\"%(language.replace('-','--'),
                                "" if idx is None else (" (problem %d)"%idx),
                                "" if result.problem not in universal_training else (" (in metatheory training set)"))
 
@@ -214,15 +216,25 @@ def latexMatrixProblem(result,idx=None):
         ten = solution.underlyingForms[(Morph(u"ǰu"),None,None)]
         solution.prefixes = [Morph([]),ten,Morph([])]
         solution.suffixes = [Morph([]),Morph([]),ten]
-
-    r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(solution.prefixes) + "|l")
+        
+    correctAnswer = {tuple(None if zz is None else Morph(zz)
+                               for zz in ss): \
+                     (set(Morph(possibility) for possibility in s) if isinstance(s,set) else Morph(s))
+                         for ss,s in GoldSolution.solutions[problem.key].underlyingForms.iteritems()}
+    
+    r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(GoldSolution.solutions[problem.key].prefixes) + "|ll")
     r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + " $+$stem$+$ " + ("$\\varnothing$" if len(s) == 0 else latexWord(s))
-                      for p,s in zip(solution.prefixes, solution.suffixes) ] + ["UR"])
+                      for p,s in zip(solution.prefixes, solution.suffixes) ] + ["\\^{UR}","UR"])
     r += "\n\\\\ \\midrule\n"
     for observation in problem.data:
         observation = tuple([Morph(oo) if oo is not None else None for oo in observation ])
         ur = solution.underlyingForms.get(observation,None)
-        r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur)])
+        gt = correctAnswer[observation]
+        if isinstance(gt,set):
+            gt = "/".join(latexWord(gg) for gg in gt )
+        else:
+            gt = latexWord(gt)
+        r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur),gt])
         r += "\\\\\n"
     r += "\\bottomrule\\end{longtable}"
 
@@ -232,7 +244,6 @@ def latexMatrixProblem(result,idx=None):
     r += '''\n\\begin{tabular}{l}\\emph{Rules: }\\\\
 %s
 \\end{tabular}'''%("\\\\\\\\".join([ r.sharpenChange(B).latex() for r in rules if not r.doesNothing() ]))
-    
 
     return r
 
@@ -263,13 +274,19 @@ def latexSolutionAndProblem(path):
     r = "\\emph{%s:}\\\\"%(problem.languageName.replace('-','--'))
     
     if problem.parameters == None:
-        r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(solution.prefixes) + "|l")
+        r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(solution.prefixes) + "|ll")
         r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + " $+$stem$+$ " + ("$\\varnothing$" if len(s) == 0 else latexWord(s))
-                          for p,s in zip(solution.prefixes, solution.suffixes) ] + ["UR"])
+                          for p,s in zip(solution.prefixes, solution.suffixes) ] + ["$\\hat{\\text{UR}}$","UR"])
         r += "\n\\\\ \\midrule\n"
+        correctAnswer = {tuple(None if zz is None else Morph(zz)
+                               for zz in ss): Morph(s)
+                         for ss,s in GoldSolution.solutions[problem.key].underlyingForms.iteritems()}
         for observation in problem.data:
             ur = solution.underlyingForms.get(observation,None)
-            r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur)])
+            if observation not in correctAnswer:
+                import pdb; pdb.set_trace()
+                
+            r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur),latexWord(correctAnswer[observation])])
             r += "\\\\\n"
         r += "\\bottomrule\\end{longtable}"
 
@@ -343,6 +360,7 @@ def latexFeatures(fm):
 LATEXPRELUDE = '''
 \\documentclass{article}
 \\usepackage[margin = 0.1cm]{geometry}
+\\usepackage{verbatim}
 \\usepackage{tipa}
 \\usepackage{booktabs}
 \\usepackage{amssymb}

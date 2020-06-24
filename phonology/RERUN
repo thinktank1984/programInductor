@@ -1,3 +1,17 @@
+ground truth universal "ug1"
+Odden_116_Armenian: FINISHED, TERRIBLE?
+Halle_125_Indonesian FINISHED, TERRIBLE? actually this problem has a bug, the /i/ suffix in 3/4 is an exception
+Halle_97_Turkish: FINISHED
+Odden_1.1_Axininca_Campa FINISHED, TERRIBLE?
+TODO:
+(maybe) Roca_104_Tunica
+
+
+
+
+
+
+
 completely finished and copied!!
 
 
@@ -11,4 +25,5 @@ completely finished and copied!!
 Odden_81_Korean (do not need to redo with universal, but we do need to expand it; CURRENTLY_EXPANDING)
 Odden_170_Yawelmani (originally we redid this but now I don't think we need to; but now we need to expand it; and also we need to delete the local copy of _ug.p; CURRENTLY_EXPANDING)
 Halle_149_Russian (we do need to redo this w/ ug1; currently running; FINISHED)
+Halle_115_Russian (this might need to be redone from scratch? rerunning w/ ug1, also need to rerun with ug0)
 Halle_127_Japanese (we do need to redo this w/ ug1; currently running; FINISHED)
