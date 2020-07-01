@@ -48,7 +48,8 @@ def processMorphology(stems, inflections, dictionary):
 
 class Problem():
     named = {}
-    def __init__(self,description,data,parameters = None,solutions = [],supervised=False):
+    def __init__(self,description,data,parameters = None,solutions = [],supervised=False,stressful=False):
+        self.stressful = stressful
         self.supervised = supervised
         self.parameters = parameters
         self.description = description
@@ -905,7 +906,7 @@ Explain what phonological rules apply in the following examples (the acute accen
  + stem + a
 [ +vowel ] ---> [ +highTone ] /  _ C* a
 [ +highTone ] ---> a /  _ [  ] [ +highTone ]
-''']))
+    '''],stressful=True))
 
 MATRIXPROBLEMS.append(Problem(
     u'''
@@ -1363,7 +1364,8 @@ V > [-highTone]/_C*[+highTone]
 0 > a/C_C#
 l > o/_#
 [-sonorant] > [-voice]/_[-voice]
-    '''])),
+    '''],
+    stressful=True)),
 #    parameters={"window": 3}))
 
 

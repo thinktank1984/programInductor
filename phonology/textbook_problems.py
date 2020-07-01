@@ -397,7 +397,7 @@ stem + l
 #otherwise the second to last (penultimate) syllable stressed
 [ +vowel ] -> [ +highTone ] / _CVC#
 
-	''']
+	'''],stressful=True
 	))
 
 
@@ -899,7 +899,8 @@ stem + hkʔaki
         a > ɔ / [+rounded] C _
         a > ɛ / [+vowel +high] C _
         [+vowel -highTone] > 0 / _ʔ
-	''']
+	'''],
+    stressful=True
     
 	))
 
@@ -979,7 +980,7 @@ Russian Halle 109
 # No solution
 # Voicing Assimilation - consonant alternations in the preposition
 
-	''']
+	'''],stressful=True
 	))
 
 
@@ -1025,7 +1026,8 @@ Russian Halle 115
 	solutions = [u'''
 # No solution
 
-	''']
+	'''],
+                              stressful=True
 	))
 
 
@@ -1067,7 +1069,7 @@ stem + ɨ
         C > [+palletized] / _ ɛ́
         V > [-highTone] / _ C* [+highTone]
 
-	''']
+	'''], stressful=True
 	))
 
 

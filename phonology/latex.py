@@ -221,21 +221,57 @@ def latexMatrixProblem(result,idx=None):
                                for zz in ss): \
                      (set(Morph(possibility) for possibility in s) if isinstance(s,set) else Morph(s))
                          for ss,s in GoldSolution.solutions[problem.key].underlyingForms.iteritems()}
-    
-    r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(GoldSolution.solutions[problem.key].prefixes) + "|ll")
-    r += " & ".join([ ("$\\varnothing$" if len(p) == 0 else latexWord(p)) + " $+$stem$+$ " + ("$\\varnothing$" if len(s) == 0 else latexWord(s))
-                      for p,s in zip(solution.prefixes, solution.suffixes) ] + ["\\^{UR}","UR"])
-    r += "\n\\\\ \\midrule\n"
-    for observation in problem.data:
-        observation = tuple([Morph(oo) if oo is not None else None for oo in observation ])
-        ur = solution.underlyingForms.get(observation,None)
-        gt = correctAnswer[observation]
-        if isinstance(gt,set):
-            gt = "/".join(latexWord(gg) for gg in gt )
-        else:
-            gt = latexWord(gt)
-        r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur),gt])
+
+    if result.problem == "Odden_3.7_Korean":
+        # transpose
+        r += "\\\\(note: the data is shown transposed because otherwise it does not fit on the PDF page)\\\\"
+        r += "\\begin{longtable}{l|%s}\\toprule\n"%("l"*len(GoldSolution.solutions[problem.key].underlyingForms) + "")
+        numberOfInflections = len(GoldSolution.solutions[problem.key].prefixes)
+        for i in range(numberOfInflections):
+            prefix = solution.prefixes[i]
+            suffix = solution.suffixes[i]
+            if len(prefix) > 0: r += latexWord(prefix) + "$+$\\\\"
+            r += "stem$+$"
+            if len(suffix) > 0: r += "\\\\" + latexWord(suffix)
+            r += " & "
+            r += " & ".join(latexWord(surfaces[i])
+                            for surfaces in problem.data)
+            r += "\\\\\\\\\n"
+        r += "\\midrule\\^{UR}& "
+        r += " & ".join(latexWord(solution.underlyingForms[ss]) if ss in solution.underlyingForms else "--"
+                        for surfaces in problem.data
+                        for ss in [tuple(None if s is None else Morph(s)
+                                         for s in surfaces )] )
         r += "\\\\\n"
+        r += "UR&"
+        r += " & ".join(latexWord(GoldSolution.solutions[problem.key].underlyingForms[surfaces])
+                        for surfaces in problem.data
+                        for ss in [tuple(None if s is None else Morph(s)
+                                         for s in surfaces )] )
+        r += "\n\\\\"        
+    else:# normal            
+        r += "\\begin{longtable}{%s}\\toprule\n"%("l"*len(GoldSolution.solutions[problem.key].prefixes) + "|ll")
+        if result.problem in ["Odden_3.1_Kerewe","Odden_79_Jita"]:
+            # this one is too big but we can make it fit if we stack the morphology
+            r += " & ".join([ "\\begin{tabular}{c}" + \
+                              ("" if len(p) == 0 else latexWord(p) + "$+$") + \
+                              "\\\\stem\\\\" + \
+                              ("" if len(s) == 0 else "$+$" + latexWord(s)) + "\\end{tabular}"
+                              for p,s in zip(solution.prefixes, solution.suffixes) ] + ["\\^{UR}","UR"])
+        else:
+            r += " & ".join([ ("" if len(p) == 0 else latexWord(p) + "$+$") + "stem" + ("" if len(s) == 0 else "$+$" + latexWord(s))
+                          for p,s in zip(solution.prefixes, solution.suffixes) ] + ["\\^{UR}","UR"])
+        r += "\n\\\\ \\midrule\n"
+        for observation in problem.data:
+            observation = tuple([Morph(oo) if oo is not None else None for oo in observation ])
+            ur = solution.underlyingForms.get(observation,None)
+            gt = correctAnswer[observation]
+            if isinstance(gt,set):
+                gt = "/".join(latexWord(gg) for gg in gt )
+            else:
+                gt = latexWord(gt)
+            r += " & ".join([ latexWord(x) for x in observation ] + [latexWord(ur),gt])
+            r += "\\\\\n"
     r += "\\bottomrule\\end{longtable}"
 
     if isinstance(solution,Frontier): solution = solution.MAP(universal)
@@ -244,6 +280,8 @@ def latexMatrixProblem(result,idx=None):
     r += '''\n\\begin{tabular}{l}\\emph{Rules: }\\\\
 %s
 \\end{tabular}'''%("\\\\\\\\".join([ r.sharpenChange(B).latex() for r in rules if not r.doesNothing() ]))
+    r = r.replace("palletized","palatalized")
+    if problem.stressful: r = r.replace("highTone","stress")
 
     return r
 
@@ -366,7 +404,58 @@ LATEXPRELUDE = '''
 \\usepackage{amssymb}
 \\usepackage{longtable}
 \\usepackage{phonrule}
+\\usepackage{color}
+\\definecolor{observationColor}{RGB}{88,80,141}%{188,80,144}
+%#003f5c 0,63,92
+%#58508d 88,80,141
+%#bc5090 188,80,144
+%#ff6361 255,99,97
+%#ffa600 255,166,0
+%#003f5c 0,63,92
+%#7a5195 122,81,149
+%#ef5675 239,86,117
+%#ffa600
+%\\definecolor{languageColor}{RGB}{0,128,102}
+\\definecolor{languageColor}{RGB}{0,63,92}
+%\\definecolor{lexiconColor}{RGB}{51,76,128}
+\\definecolor{lexiconColor}{RGB}{0,63,92}%
+%\\definecolor{universalColor}{RGB}{255,128,128}
+\\definecolor{universalColor}{RGB}{255,99,97}
+
 \\begin{document}
+
+\\textbf{Alternation problems} are given as a set of surface forms along with a set of pairs of phonemes. The goal of the student (as well as the goal of the model) is to recover rule(s) which predicts which element of each pair is the underlying form.
+Model outputs for alternation problems are of the form:
+\\begin{longtable}{ll}\\toprule
+Surface form & UR
+\\\\ \\midrule
+\\emph{a given surface form}&\\emph{model's predicted underlying form}\\\\
+\\multicolumn{2}{c}{$\\cdots$}\\\\
+\\bottomrule\\end{longtable}
+\\begin{longtable}{ll}\\toprule
+\\emph{The surface form...}&\\emph{Is underlyingly...}
+\\\\ \\midrule
+\\emph{a phoneme}&\\emph{phoneme}\\\\
+\\bottomrule\\end{longtable}
+Followed by a sequence of rules output by the model.
+
+\\vspace{2cm}
+
+\\textbf{Non-alternation problems} are given as a matrix of surface forms, where the columns range over different inflections and the rows range over different stems. Missing data is notated with a dash ($-$). 
+We show the model's predicted concatenative morphology in the first row of each such matrix.
+In the penultimate column of each matrix we show the predicted underlying stems, and in the final column of each matrix we show the ground truth annotations.
+After each such matrix we show the rules output by the model.
+For example,
+\\begin{longtable}{ll|ll}\\toprule
+\\color{universalColor}{stem} & \\color{universalColor}{stem$+$\\textipa{i}} & \\^{UR} & UR
+\\\\ \\midrule
+\\color{observationColor}{\\textipa{klup}} & \\color{observationColor}{\\textipa{klubi}} & \\color{universalColor}{\\textipa{klub}} & \\textipa{klub}\\\\
+\\color{observationColor}{\\textipa{trup}} & \\color{observationColor}{\\textipa{trupi}} & \\color{universalColor}{\\textipa{trup}} & \\textipa{trup}\\\\
+\\multicolumn{2}{c}{$\\cdots $}&\\multicolumn{2}{|c}{$\\cdots $}\\\\
+\\bottomrule\\end{longtable}
+\\noindent illustrates a problem with two inflections, where the input to the model is the data colored {\\color{observationColor}{purple}}, from which it synthesizes the morphology and stems in {\\color{universalColor}{salmon}}, which should be compared with the ground truth annotation in black.
+\\pagebreak
+
 
 '''
 
