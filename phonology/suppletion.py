@@ -109,11 +109,11 @@ if __name__ == "__main__":
 
     ## read and import data
     if arguments.data == "opaque":
-        filename = "opaque/dataset4-voicing-cf.txt" #"opaque/dataset2-cf.txt"
-        points = [0,1,2,3,4,5] #np.array([6, 26, 46, 48, 69, 0])
+        filename = "opaque/dataset2-cf.txt" #"opaque/dataset2-cf.txt"
+        points = np.array([6, 26, 46, 48, 69, 0])
     else:
-        filename = "opaque/dataset4-voicing-f.txt" #"opaque/dataset2-f.txt"
-        points = [0,1,2,3,4,5] #np.array([6, 26, 46, 48, 69, 0])
+        filename = "opaque/dataset2-f.txt" #"opaque/dataset2-f.txt"
+        points = np.array([6, 26, 46, 48, 69, 0])
     with codecs.open(filename, encoding='utf-8') as f:
         content = f.read().splitlines()
 
@@ -265,19 +265,19 @@ if __name__ == "__main__":
 
             new_data = zip(stems, data) # generates a list of tuples with each ith element corresponding to a tuple at position i in each list
 
-            #actual_suffix = ite(  suppletive, suffixes[2], ite(onetwo, concatenate(suffixes[0], suffixes[1]), concatenate(suffixes[1], suffixes[0]))  ) # checks to see which of the binary variables is heads and sets the affix to be whatever that condition is
+            actual_suffix = ite(  suppletive, suffixes[2], ite(onetwo, concatenate(suffixes[0], suffixes[1]), concatenate(suffixes[1], suffixes[0]))  ) # checks to see which of the binary variables is heads and sets the affix to be whatever that condition is
 
-            for i, (stem, (surface1, surface2, surface3)) in enumerate(new_data): # for each data point (paradigm)
-                maximumLength = max(len(surface1), len(surface2), len(surface3)) + 1 # set bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
+            for i, (stem, (surface1, surface2, surface3, surface4)) in enumerate(new_data): # for each data point (paradigm)
+                maximumLength = max(len(surface1), len(surface2), len(surface3), len(surface4)) + 1 # set bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
                 predicted_surface1 = applyRules(rules, stem, 0, maximumLength) # number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
                 predicted_surface2 = applyRules(rules, concatenate(stem, suffixes[0]), 0, maximumLength) # first number specifies for morpheme boundaries (length of string until suffix (len(prefix + stem))); second number is bounded amount that rule can look at when applying rule (should be bigger than the longest stem)
                 predicted_surface3 = applyRules(rules, concatenate(stem, suffixes[1]), 0, maximumLength)
-                #predicted_surface4 = applyRules(rules, concatenate(stem, actual_suffix), 0, maximumLength)
+                predicted_surface4 = applyRules(rules, concatenate(stem, actual_suffix), 0, maximumLength)
 
                 observeWordIfNotMemorized(surface1, predicted_surface1, memorize[i][0])
                 observeWordIfNotMemorized(surface2, predicted_surface2, memorize[i][1])
                 observeWordIfNotMemorized(surface3, predicted_surface3, memorize[i][2])
-                #observeWordIfNotMemorized(surface4, predicted_surface4, memorize[i][3])
+                observeWordIfNotMemorized(surface4, predicted_surface4, memorize[i][3])
 
             memorizeCostExpression = sum( ite(f, Constant(len(d)), Constant(0)) for fs, ds in zip(memorize, data) for f, d in zip(fs, ds) )
             lexiconCostExpression = sum([ wordLength(u) for u in stems ]) + sum([ wordLength(s) for s in suffixes ]) + memorizeCostExpression
