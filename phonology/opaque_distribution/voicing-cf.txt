@@ -1,0 +1,6 @@
+bat	badi	batin
+bad	badi	badin
+tip	tibi	tipin
+tab	tabi	tabin
+pi	pii	pin
+ti	tii	tin
