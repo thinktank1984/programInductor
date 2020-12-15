@@ -6,6 +6,7 @@ from utilities import *
 from rule import *
 from features import *
 from fragmentGrammar import getEmptyFragmentGrammar
+from morph import observeWordIfNotMemorized
 
 import math
 
@@ -212,13 +213,18 @@ class Solution(object):
                                   if len(self.rules) == 1 or (not r.doesNothing()) ])
 
     
-    def transduceUnderlyingForm(self, bank, surfaces, getTrace = False):
+    def transduceUnderlyingForm(self, bank, surfaces,
+                                getTrace=False, canMemorize=False,
+                                memorizeCostPerWord=1, memorizeCostPerPhoneme=1):
         '''surfaces: list of morphs'''
         bound = max([len(s) for s in surfaces if s != None]) + 3
         Model.Global()
         rules = [r.makeDefinition(bank) for r in self.rules ]
         prefixes = [p.makeConstant(bank) for p in self.prefixes ]
         suffixes = [p.makeConstant(bank) for p in self.suffixes ]
+        if canMemorize:
+            memorize = [flip() for _ in inflections]
+        
         stem = Morph.sample()
         
         countingProblem = len(surfaces) == 3 and tuple(surfaces) == (Morph(u"ǰu"),None,None)
@@ -227,11 +233,15 @@ class Solution(object):
             condition(wordEqual(stem, suffixes[2]))
         
         traces = []
-        for s,prefix, suffix in zip(surfaces,prefixes, suffixes):
+        for jj,(s,prefix, suffix) in enumerate(zip(surfaces,prefixes, suffixes)):
             if s != None:
                 ur = concatenate3(prefix,stem,suffix)
-                condition(wordEqual(s.makeConstant(bank),
-                                    applyRules(rules,ur, wordLength(prefix) + wordLength(stem), bound)))
+                correct_prediction = wordEqual(s.makeConstant(bank),
+                                    applyRules(rules,ur, wordLength(prefix) + wordLength(stem), bound))
+                if canMemorize:
+                    condition(memorize[jj] == Not(correct_prediction))
+                else:
+                    condition(correct_prediction)
                 if getTrace:
                     trace = [ Morph.sample() for j in range(len(rules)) ]
                     for j,t in enumerate(trace):
@@ -239,10 +249,25 @@ class Solution(object):
                                                           wordLength(prefix) + wordLength(stem),bound)))
                     traces.append(trace)
             elif getTrace: traces.append(None)
-        minimize(wordLength(stem))
+
+        totalCost = wordLength(stem)
+        if canMemorize:
+            for this_observation, this_memorize in zip(surfaces, memorize):
+                if this_observation is None:
+                    condition(Not(this_memorize))
+                else:
+                    thisExtraCost = ite(this_memorize,
+                                        Constant(len(this_observation)*memorizeCostPerPhoneme + memorizeCostPerWord),
+                                        0)
+                    totalCost = totalCost + thisExtraCost
+                
+        minimize(totalCost)
 
         try: output = solveSketch(bank,bound,bound)
         except SynthesisFailure: return None
+
+        if canMemorize:
+            return Morph.parse(bank,output,stem), tuple([parseFlip(output,fp) == 1 for fp in memorize])
 
         if not getTrace: return Morph.parse(bank,output,stem)
 

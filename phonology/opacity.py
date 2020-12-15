@@ -59,24 +59,24 @@ def get_components(solution):
     return out
 
 ## checks to see whether the solution is able to account for the data point
-def getStem(solution, inflections):
+def getStem(solution, inflections, canMemorize=False):
+    # morphology is subtle:
+    # the first inflection is just the stem
+    # the last inflection is concatenation of first/second inflected forms
     solution = Solution(rules=solution.rules,
-                        prefixes=[Morph(u"")] + solution.prefixes,
-                        suffixes=[Morph(u""),solution.suffixes[0],solution.suffixes[1]])
+                        prefixes=[Morph(u"")] * len(inflections),
+                        suffixes=[Morph(u"")] + solution.suffixes + (solution.suffixes[0]+solution.suffixes[1]))
     inflections = tuple(Morph(x) if isinstance(x,(unicode,str)) else x
-                        for x in inflections)
+                        for x in inflections)    
 
-    print "Going to verify this data: ",inflections
-
-    stem = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections)
-    if stem is not None:
-        print "Successfully verified: stem is", stem
+    result  = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections, canMemorize=canMemorize)
+    if result is None:
+        print "Could not recover a stem:",inflections
         return None
-    else:
-        print "Could not verify"
-        return xs
 
-
+    stem,memorizeVector = result[0],result[1]
+    return stem, tuple([ thing_to_memorize if was_memorized else None
+                         for was_memorized, thing_to_memorize in zip(memorizeVector, inflections) ])
 
 
 ## ==============================================================================
