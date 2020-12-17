@@ -67,7 +67,7 @@ def getStem(solution, inflections, canMemorize=False):
                         prefixes=[Morph(u"")] * len(inflections),
                         suffixes=[Morph(u"")] + solution.suffixes + (solution.suffixes[0]+solution.suffixes[1]))
     inflections = tuple(Morph(x) if isinstance(x,(unicode,str)) else x
-                        for x in inflections)    
+                        for x in inflections)
 
     result  = solution.transduceUnderlyingForm(FeatureBank.ACTIVE,inflections, canMemorize=canMemorize)
     if result is None:
@@ -86,6 +86,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("data",nargs='?')
+    parser.add_argument("test",nargs='?') # test dataset to compute likelihood over
     parser.add_argument("--numberOfRules","-n",type=int,default=3)
     parser.add_argument("--export",default=None)
     parser.add_argument("--load",default=None)
