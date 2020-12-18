@@ -74,10 +74,19 @@ def getStem(solution, inflections, canMemorize=False):
         print "Could not recover a stem:",inflections
         return None
 
-    stem,memorizeVector = result[0],result[1]
-    return stem, tuple([ thing_to_memorize if was_memorized else None
-                         for was_memorized, thing_to_memorize in zip(memorizeVector, inflections) ])
+    if canMemorize:
+        stem,memorizeVector = result[0],result[1]
+        return stem, tuple([ thing_to_memorize if was_memorized else None
+                             for was_memorized, thing_to_memorize in zip(memorizeVector, inflections) ])
+    else:
+        return stem
 
+def load_data_file(filename):
+    with codecs.open(filename, encoding='utf-8') as f:
+        content = f.read().splitlines()
+
+    complete_data = [tuple(content[i].split('\t')) for i in range(len(content))]
+    return complete_data
 
 ## ==============================================================================
 ##      SIMULATION
@@ -110,11 +119,9 @@ if __name__ == "__main__":
         points = np.array([0, 1, 2, 3, 4, 5])
     '''
 
-    with codecs.open(filename, encoding='utf-8') as f:
-        content = f.read().splitlines()
-
-    complete_data = [tuple(content[i].split('\t')) for i in range(len(content))]
+    complete_data = load_data_file(filename)
     data = [complete_data[i] for i in points]
+    test_data = load_data_file(arguments.test)
     n_inflections = len(data[0])
     print("complete data:")
     for inflections in data:
@@ -191,6 +198,23 @@ if __name__ == "__main__":
 
             solutions.append(sol)
             solutionCosts.append((parseInteger(output, ruleCostVariable), parseInteger(output, lexiconCostVariable)))
+
+            print("Executing new code for test data!")
+            for test_datum in test_data:
+                print "Testing solution on",test_datum
+                print "Testing without the ability to memorize (has to fit the data exactly!)"
+                stem = getStem(sol, test_datum, canMemorize=False)
+                if stem is None: print("couldn't figure out a stem...")
+                else: print "this stem works!",stem
+                print "Testing with the ability to memorize (if it can't explain something than it can try to memorize it)"
+                stem,memorizeVector = getStem(sol, test_datum, canMemorize=False)
+                print "this stem works!",stem
+                print "but in order to get it to work I had to memorize the following forms:"
+                for ii,memorized_thing in enumerate(memorizeVector):
+                    if memorized_thing is not None:
+                        print "Aha! I memorized the",ii,"th inflection, namely",memorized_thing
+                print 
+                
 
         data = zip(solutionCosts, solutions)
 
