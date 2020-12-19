@@ -65,7 +65,7 @@ def getStem(solution, inflections, canMemorize=False):
     # the last inflection is concatenation of first/second inflected forms
     solution = Solution(rules=solution.rules,
                         prefixes=[Morph(u"")] * len(inflections),
-                        suffixes=[Morph(u"")] + solution.suffixes + (solution.suffixes[0]+solution.suffixes[1]))
+                        suffixes=[Morph(u"")] + solution.suffixes + [solution.suffixes[0]+solution.suffixes[1]])
     inflections = tuple(Morph(x) if isinstance(x,(unicode,str)) else x
                         for x in inflections)
 
